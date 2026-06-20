@@ -1,35 +1,32 @@
+import type { Toast } from "@/game/types";
 import { CheckCircle2, X } from "lucide-react";
 import { useEffect } from "react";
 
 interface NotificationToastProps {
-  message: string;
+  toast: Toast;
   onDismiss: () => void;
 }
 
 export function NotificationToast({
-  message,
+  toast,
   onDismiss,
 }: NotificationToastProps) {
   useEffect(() => {
-    const t = setTimeout(onDismiss, 4000);
-    return () => clearTimeout(t);
+    const timeout = window.setTimeout(onDismiss, 3600);
+    return () => window.clearTimeout(timeout);
   }, [onDismiss]);
 
   return (
-    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 animate-fade-in">
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-card/95 border border-success/30 rounded-lg shadow-elevated backdrop-blur-sm">
-        <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
-        <span className="text-sm text-foreground">{message}</span>
-        <button
-          type="button"
-          onClick={onDismiss}
-          data-ocid="notification.close_button"
-          className="p-0.5 rounded hover:bg-muted transition-smooth ml-1"
-          aria-label="Dismiss notification"
-        >
-          <X className="w-3.5 h-3.5 text-muted-foreground" />
-        </button>
-      </div>
-    </div>
+    <aside className="eq-toast" aria-live="polite">
+      <CheckCircle2 className="h-4 w-4 text-emerald-300" />
+      <span>{toast.message}</span>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss notification"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </aside>
   );
 }

@@ -1,100 +1,166 @@
-// Game types matching backend structure for future integration
+export type SceneId = "lab" | "hub" | "operations";
+
+export type Direction = "down" | "left" | "right" | "up";
+
+export type OverlayKind =
+  | "none"
+  | "briefing"
+  | "dialogue"
+  | "quest"
+  | "backpack"
+  | "decision"
+  | "canvas";
+
+export type QuestStage =
+  | "briefing"
+  | "investigate"
+  | "diagnose"
+  | "design"
+  | "complete";
 
 export interface Position {
   x: number;
   y: number;
 }
 
-export interface Zone {
-  id: number;
-  name: string;
+export interface Rect {
+  x: number;
+  y: number;
   width: number;
   height: number;
-  tiles: number[][]; // 0=floor, 1=wall, 2=portal
-  portals: Portal[];
-  decorations: Decoration[];
 }
+
+export interface SheetSprite {
+  image: AssetKey;
+  sx: number;
+  sy: number;
+  sw: number;
+  sh: number;
+}
+
+export type AssetKey =
+  | "adamIdle"
+  | "adamRun"
+  | "ameliaIdle"
+  | "bobIdle"
+  | "roomBuilder"
+  | "office"
+  | "exteriorFloors"
+  | "fountain"
+  | "streetLamp";
 
 export interface Portal {
-  x: number;
-  y: number;
-  targetZoneId: number;
-  targetX: number;
-  targetY: number;
+  id: string;
   label: string;
+  rect: Rect;
+  targetSceneId: SceneId;
+  targetPosition: Position;
 }
 
-export interface Decoration {
-  x: number;
-  y: number;
-  type: "desk" | "plant" | "whiteboard" | "bookshelf" | "terminal" | "couch";
+export interface Prop {
+  id: string;
+  label?: string;
+  position: Position;
+  size: { width: number; height: number };
+  sprite?: SheetSprite;
+  collision?: boolean;
+}
+
+export interface Evidence {
+  id: string;
+  title: string;
+  sceneId: SceneId;
+  position: Position;
+  summary: string;
+  insight: string;
+  metric?: string;
+  sprite: SheetSprite;
 }
 
 export interface Npc {
-  id: number;
+  id: string;
   name: string;
+  role: string;
+  sceneId: SceneId;
   position: Position;
-  zoneId: number;
-  dialogue: string[];
-  questId: number | null;
-  color: string;
+  sprite: SheetSprite;
+  dialogue: Record<QuestStage, string[]>;
 }
 
-export interface Waypoint {
-  id: number;
-  position: Position;
-  zoneId: number;
-  waypointLabel: string;
-  observed: boolean;
+export interface Scene {
+  id: SceneId;
+  name: string;
+  subtitle: string;
+  width: number;
+  height: number;
+  theme: "interior" | "exterior";
+  portals: Portal[];
+  props: Prop[];
+  blocks: Rect[];
 }
 
-export type QuestStatus = "notStarted" | "inProgress" | "completed";
+export interface DiagnosisOption {
+  id: string;
+  label: string;
+  explanation: string;
+  correct: boolean;
+}
 
-export interface Quest {
-  id: number;
+export interface InterventionOption {
+  id: string;
+  label: string;
+  explanation: string;
+  correct: boolean;
+}
+
+export interface EarnedArtifact {
+  id: string;
   title: string;
-  description: string;
-  giverNpcId: number;
-  zoneId: number;
-  status: QuestStatus;
-  requiredWaypoints: number[];
-  observedWaypoints: number[];
+  subtitle: string;
+  sections: Array<{
+    label: string;
+    value: string;
+  }>;
 }
 
-export interface Artifact {
+export interface Toast {
   id: number;
-  title: string;
-  description: string;
-  earnedAt: number;
+  message: string;
 }
 
 export interface PlayerState {
   position: Position;
-  currentZoneId: number;
-  activeQuests: Quest[];
-  completedQuestIds: number[];
-  artifacts: Artifact[];
+  direction: Direction;
+  sceneId: SceneId;
+  hasStarted: boolean;
+}
+
+export interface DialogueState {
+  npcId: string;
+  lineIndex: number;
 }
 
 export interface GameState {
   player: PlayerState;
-  zones: Zone[];
-  npcs: Npc[];
-  waypoints: Waypoint[];
-  quests: Quest[];
-  currentDialogue: {
-    npc: Npc;
-    lineIndex: number;
-  } | null;
-  showQuestLog: boolean;
-  showArtifacts: boolean;
-  showTitle: boolean;
-  gameStarted: boolean;
-  notification: string | null;
-  notificationTime: number;
+  questStage: QuestStage;
+  collectedEvidenceIds: string[];
+  diagnosisId: string | null;
+  interventionId: string | null;
+  earnedArtifact: EarnedArtifact | null;
+  overlay: OverlayKind;
+  dialogue: DialogueState | null;
+  toast: Toast | null;
+}
+
+export interface InputState {
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
 }
 
 export const TILE_SIZE = 48;
-export const PLAYER_SIZE = 32;
-export const MOVE_SPEED = 4;
-export const INTERACT_DISTANCE = 64;
+export const PLAYER_WIDTH = 34;
+export const PLAYER_HEIGHT = 52;
+export const MOVE_SPEED = 4.2;
+export const INTERACT_DISTANCE = 70;

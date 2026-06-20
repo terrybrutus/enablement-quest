@@ -1,87 +1,72 @@
-import type { Artifact } from "@/game/types";
-import { BookOpen, Gem, X } from "lucide-react";
-import { useState } from "react";
+import { evidenceItems } from "@/game/levels";
+import type { EarnedArtifact } from "@/game/types";
+import { Backpack, FileText, X } from "lucide-react";
 
 interface ArtifactsPanelProps {
-  artifacts: Artifact[];
+  collectedEvidenceIds: string[];
+  earnedArtifact: EarnedArtifact | null;
   onClose: () => void;
+  onOpenCanvas: () => void;
 }
 
-export function ArtifactsPanel({ artifacts, onClose }: ArtifactsPanelProps) {
-  const [selectedId, setSelectedId] = useState<number | null>(
-    artifacts.length > 0 ? Number(artifacts[0].id) : null,
+export function ArtifactsPanel({
+  collectedEvidenceIds,
+  earnedArtifact,
+  onClose,
+  onOpenCanvas,
+}: ArtifactsPanelProps) {
+  const collected = evidenceItems.filter((item) =>
+    collectedEvidenceIds.includes(item.id),
   );
 
-  const selected = artifacts.find((a) => Number(a.id) === selectedId);
-
   return (
-    <div className="absolute top-14 right-4 z-30 w-80 max-h-[70vh] overflow-auto animate-slide-in-right">
-      <div className="bg-card/95 border border-border/60 rounded-xl shadow-elevated backdrop-blur-sm">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
-          <div className="flex items-center gap-2">
-            <Gem className="w-4 h-4 text-primary" />
-            <h2 className="text-sm font-semibold text-foreground">Artifacts</h2>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            data-ocid="artifacts.close_button"
-            className="p-1 rounded-md hover:bg-muted transition-smooth"
-            aria-label="Close artifacts panel"
-          >
-            <X className="w-4 h-4 text-muted-foreground" />
-          </button>
+    <section
+      className="eq-overlay eq-panel eq-side-panel is-right"
+      aria-label="Backpack"
+    >
+      <div className="eq-panel-header">
+        <div>
+          <p className="eq-kicker">Backpack</p>
+          <h2>Evidence and artifacts</h2>
         </div>
-
-        <div className="p-4">
-          {artifacts.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground text-sm">
-              <BookOpen className="w-8 h-8 mx-auto mb-2 opacity-40" />
-              No artifacts yet. Complete quests to earn artifacts.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="space-y-1">
-                {artifacts.map((artifact) => (
-                  <button
-                    type="button"
-                    key={Number(artifact.id)}
-                    onClick={() => setSelectedId(Number(artifact.id))}
-                    data-ocid={`artifacts.item.${Number(artifact.id)}`}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-smooth ${
-                      selectedId === Number(artifact.id)
-                        ? "bg-primary/10 border border-primary/30"
-                        : "hover:bg-muted/50 border border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Gem className="w-3.5 h-3.5 text-primary" />
-                      <span className="font-medium text-foreground">
-                        {artifact.title}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {selected && (
-                <div className="mt-3 p-3 rounded-lg bg-muted/30 border border-border/50">
-                  <h3 className="text-sm font-semibold text-foreground mb-1">
-                    {selected.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {selected.description}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-2">
-                    Earned:{" "}
-                    {new Date(Number(selected.earnedAt)).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <button className="eq-ghost-button" type="button" onClick={onClose}>
+          <X className="h-4 w-4" />
+          Close
+        </button>
       </div>
-    </div>
+
+      {collected.length === 0 ? (
+        <div className="eq-empty">
+          <Backpack className="h-8 w-8" />
+          <p>
+            No evidence collected yet. Enter Operations Suite and inspect the
+            case artifacts.
+          </p>
+        </div>
+      ) : (
+        <div className="eq-artifact-list">
+          {collected.map((item) => (
+            <article className="eq-artifact-card" key={item.id}>
+              <FileText className="h-5 w-5" />
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.summary}</p>
+                <small>{item.metric}</small>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      {earnedArtifact && (
+        <button
+          className="eq-primary-button w-full justify-center"
+          type="button"
+          onClick={onOpenCanvas}
+        >
+          Open {earnedArtifact.title}
+        </button>
+      )}
+    </section>
   );
 }
