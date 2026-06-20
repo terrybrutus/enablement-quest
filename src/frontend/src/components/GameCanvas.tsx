@@ -19,7 +19,7 @@ import { TitleScreen } from "./TitleScreen";
 
 const initialGameState: GameState = {
   player: {
-    position: { x: 10, y: 10.5 },
+    position: { x: 20.5, y: 15.2 },
     direction: "down",
     isMoving: false,
     sceneId: "lab",
@@ -130,7 +130,8 @@ export default function GameCanvas() {
       overlay: "none",
       toast: {
         id: Date.now(),
-        message: "Mission started: investigate the onboarding ramp problem.",
+        message:
+          "Mission started: walk into the blue doorway at the bottom center.",
       },
     }));
   }, []);
@@ -162,7 +163,8 @@ export default function GameCanvas() {
             previous.questStage === "briefing"
               ? {
                   id: Date.now(),
-                  message: "Quest updated: collect three evidence artifacts.",
+                  message:
+                    "Guide updated: enter Operations Suite and collect three evidence items.",
                 }
               : previous.toast,
         };

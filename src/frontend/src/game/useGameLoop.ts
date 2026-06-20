@@ -274,13 +274,30 @@ function moveWithinScene(
   nextPosition: Position,
 ): GameState | null {
   const scene = getCurrentScene(state);
+  const direction = getDirection(state.player.position, nextPosition);
+  const edgePortal = scene.portals.find((item) =>
+    pointInRect(nextPosition, item.rect),
+  );
+  if (edgePortal) {
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        sceneId: edgePortal.targetSceneId,
+        position: edgePortal.targetPosition,
+        direction,
+        isMoving: false,
+      },
+      toast: { id: Date.now(), message: `Entered ${edgePortal.label}` },
+    };
+  }
+
   const bounded = {
     x: clamp(nextPosition.x, 1.2, scene.width - 1.2),
     y: clamp(nextPosition.y, 1.4, scene.height - 1.1),
   };
 
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
-  const direction = getDirection(state.player.position, bounded);
   if (blocked) {
     return {
       ...state,
@@ -289,6 +306,21 @@ function moveWithinScene(
         direction,
         isMoving: false,
       },
+    };
+  }
+
+  const portal = scene.portals.find((item) => pointInRect(bounded, item.rect));
+  if (portal) {
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        sceneId: portal.targetSceneId,
+        position: portal.targetPosition,
+        direction,
+        isMoving: false,
+      },
+      toast: { id: Date.now(), message: `Entered ${portal.label}` },
     };
   }
 

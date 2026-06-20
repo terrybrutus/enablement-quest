@@ -54,9 +54,9 @@ export const scenes: Scene[] = [
       {
         id: "lab-to-hub",
         label: "Organization Floor",
-        rect: { x: 20, y: 17, width: 2, height: 1 },
+        rect: { x: 20, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
-        targetPosition: { x: 20.5, y: 18.4 },
+        targetPosition: { x: 20.5, y: 21.4 },
       },
     ],
     blocks: [
@@ -172,7 +172,7 @@ export const scenes: Scene[] = [
       {
         id: "operations-to-hub",
         label: "Organization Floor",
-        rect: { x: 20, y: 17, width: 2, height: 1 },
+        rect: { x: 20, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
         targetPosition: { x: 31.5, y: 7.2 },
       },
@@ -235,7 +235,7 @@ export const characters: GameCharacter[] = [
       briefing: [
         "I need help. Leadership thinks new hires need more training.",
         "But the pattern feels messier than that. Ramp is slow, support tickets are up, and managers keep improvising.",
-        "Interview the evidence in this room before we decide what to build.",
+        "Start by inspecting the evidence in this room before we decide what to build.",
       ],
       investigate: [
         "Do not jump to a course yet. Gather the interview note, process map, and performance metric first.",
@@ -400,4 +400,4 @@ export const earnedCanvas: EarnedArtifact = {
   ],
 };
 
-export const initialPosition = { x: 10, y: 10.5 };
+export const initialPosition = { x: 20.5, y: 15.2 };
