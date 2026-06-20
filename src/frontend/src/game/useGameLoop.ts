@@ -1,332 +1,335 @@
 import { useCallback, useEffect, useRef } from "react";
-import type { GameState } from "./types";
+import { earnedCanvas, evidenceItems, npcs, scenes } from "./levels";
+import type { GameState, InputState, Position, Rect } from "./types";
 import { INTERACT_DISTANCE, MOVE_SPEED, TILE_SIZE } from "./types";
 
-export interface InputState {
-  up: boolean;
-  down: boolean;
-  left: boolean;
-  right: boolean;
-  interact: boolean;
+interface UseGameLoopArgs {
+  gameStateRef: React.MutableRefObject<GameState>;
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>;
 }
 
-export function useGameLoop(
-  gameStateRef: React.MutableRefObject<GameState>,
-  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
-  _canvasRef: React.RefObject<HTMLCanvasElement | null>,
-) {
+export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
   const inputRef = useRef<InputState>({
     up: false,
     down: false,
     left: false,
     right: false,
-    interact: false,
   });
-  const animFrameRef = useRef<number>(0);
+  const frameRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
 
-  const getCurrentZone = useCallback(() => {
-    const gs = gameStateRef.current;
-    return gs.zones.find((z) => z.id === gs.player.currentZoneId)!;
-  }, [gameStateRef]);
-
-  const isWall = useCallback(
-    (x: number, y: number) => {
-      const zone = getCurrentZone();
-      const tx = Math.floor(x / TILE_SIZE);
-      const ty = Math.floor(y / TILE_SIZE);
-      if (tx < 0 || tx >= zone.width || ty < 0 || ty >= zone.height)
-        return true;
-      return zone.tiles[ty][tx] === 1;
-    },
-    [getCurrentZone],
-  );
-
-  const checkPortal = useCallback(
-    (x: number, y: number) => {
-      const zone = getCurrentZone();
-      const tx = Math.floor(x / TILE_SIZE);
-      const ty = Math.floor(y / TILE_SIZE);
-      return zone.portals.find((p) => p.x === tx && p.y === ty);
-    },
-    [getCurrentZone],
-  );
-
-  const checkNpcInteraction = useCallback(
-    (px: number, py: number) => {
-      const gs = gameStateRef.current;
-      const zoneNpcs = gs.npcs.filter(
-        (n) => n.zoneId === gs.player.currentZoneId,
-      );
-      for (const npc of zoneNpcs) {
-        const nx = npc.position.x * TILE_SIZE + TILE_SIZE / 2;
-        const ny = npc.position.y * TILE_SIZE + TILE_SIZE / 2;
-        const dist = Math.sqrt((px - nx) ** 2 + (py - ny) ** 2);
-        if (dist < INTERACT_DISTANCE) return npc;
-      }
-      return null;
-    },
-    [gameStateRef],
-  );
-
-  const checkWaypointInteraction = useCallback(
-    (px: number, py: number) => {
-      const gs = gameStateRef.current;
-      const zoneWaypoints = gs.waypoints.filter(
-        (w) => w.zoneId === gs.player.currentZoneId && !w.observed,
-      );
-      for (const wp of zoneWaypoints) {
-        const wx = wp.position.x * TILE_SIZE + TILE_SIZE / 2;
-        const wy = wp.position.y * TILE_SIZE + TILE_SIZE / 2;
-        const dist = Math.sqrt((px - wx) ** 2 + (py - wy) ** 2);
-        if (dist < INTERACT_DISTANCE) return wp;
-      }
-      return null;
-    },
-    [gameStateRef],
-  );
-
-  const advanceDialogue = useCallback(() => {
-    setGameState((prev) => {
-      if (!prev.currentDialogue) return prev;
-      const nextIndex = prev.currentDialogue.lineIndex + 1;
-      if (nextIndex >= prev.currentDialogue.npc.dialogue.length) {
-        // Dialogue ended — check if quest should start
-        const npc = prev.currentDialogue.npc;
-        let newState = { ...prev, currentDialogue: null };
-        if (npc.questId) {
-          const quest = newState.quests.find((q) => q.id === npc.questId);
-          if (quest && quest.status === "notStarted") {
-            newState = {
-              ...newState,
-              quests: newState.quests.map((q) =>
-                q.id === npc.questId
-                  ? { ...q, status: "inProgress" as const }
-                  : q,
-              ),
-              player: {
-                ...newState.player,
-                activeQuests: [
-                  ...newState.player.activeQuests,
-                  { ...quest, status: "inProgress" as const },
-                ],
-              },
-              notification: `Quest started: ${quest.title}`,
-              notificationTime: Date.now(),
-            };
-          }
-        }
-        return newState;
-      }
-      return {
-        ...prev,
-        currentDialogue: { ...prev.currentDialogue, lineIndex: nextIndex },
-      };
-    });
-  }, [setGameState]);
-
-  const observeWaypoint = useCallback(
-    (waypointId: number) => {
-      setGameState((prev) => {
-        const wp = prev.waypoints.find((w) => w.id === waypointId);
-        if (!wp || wp.observed) return prev;
-
-        const newWaypoints = prev.waypoints.map((w) =>
-          w.id === waypointId ? { ...w, observed: true } : w,
-        );
-        const quest = prev.quests.find((q) => q.id === 1);
-        if (!quest) return { ...prev, waypoints: newWaypoints };
-
-        const newObserved = [...quest.observedWaypoints, waypointId];
-        const allObserved = quest.requiredWaypoints.every((rw) =>
-          newObserved.includes(rw),
-        );
-
-        let newQuests = prev.quests.map((q) =>
-          q.id === 1 ? { ...q, observedWaypoints: newObserved } : q,
-        );
-        let newArtifacts = prev.player.artifacts;
-        let newCompleted = prev.player.completedQuestIds;
-        let notification: string | null = `Observed: ${wp.waypointLabel}`;
-        let notificationTime = Date.now();
-
-        if (allObserved && quest.status === "inProgress") {
-          newQuests = newQuests.map((q) =>
-            q.id === 1 ? { ...q, status: "completed" as const } : q,
-          );
-          newCompleted = [...newCompleted, 1];
-          const artifact: import("./types").Artifact = {
-            id: 1,
-            title: "Onboarding Blueprint",
-            description:
-              "A comprehensive map of the onboarding flow with three documented pain points: confusing documentation, tool access delays, and unclear role expectations. This artifact can be used to advocate for workflow improvements.",
-            earnedAt: Date.now(),
-          };
-          newArtifacts = [...newArtifacts, artifact];
-          notification = "Quest complete! Earned: Onboarding Blueprint";
-          notificationTime = Date.now();
-        }
-
-        return {
-          ...prev,
-          waypoints: newWaypoints,
-          quests: newQuests,
-          player: {
-            ...prev.player,
-            artifacts: newArtifacts,
-            completedQuestIds: newCompleted,
-            activeQuests: newQuests.filter((q) => q.status === "inProgress"),
-          },
-          notification,
-          notificationTime,
-        };
-      });
+  const setToast = useCallback(
+    (message: string) => {
+      setGameState((previous) => ({
+        ...previous,
+        toast: { id: Date.now(), message },
+      }));
     },
     [setGameState],
   );
 
-  const gameLoop = useCallback(
-    (timestamp: number) => {
-      const gs = gameStateRef.current;
-      if (!gs.gameStarted || gs.currentDialogue) {
-        lastTimeRef.current = timestamp;
-        animFrameRef.current = requestAnimationFrame(gameLoop);
-        return;
+  const collectNearbyEvidence = useCallback(() => {
+    const state = gameStateRef.current;
+    const nearby = evidenceItems.find((item) => {
+      if (
+        item.sceneId !== state.player.sceneId ||
+        state.collectedEvidenceIds.includes(item.id)
+      ) {
+        return false;
       }
+      return (
+        distanceInPixels(state.player.position, item.position) <
+        INTERACT_DISTANCE
+      );
+    });
 
-      const dt = Math.min((timestamp - lastTimeRef.current) / 16.67, 2);
+    if (!nearby) {
+      return false;
+    }
+
+    setGameState((previous) => {
+      const collectedEvidenceIds = [
+        ...previous.collectedEvidenceIds,
+        nearby.id,
+      ];
+      const allCollected = collectedEvidenceIds.length === evidenceItems.length;
+      return {
+        ...previous,
+        collectedEvidenceIds,
+        questStage: allCollected ? "diagnose" : previous.questStage,
+        toast: {
+          id: Date.now(),
+          message: `Collected: ${nearby.title}`,
+        },
+        overlay: allCollected ? "decision" : previous.overlay,
+      };
+    });
+    return true;
+  }, [gameStateRef, setGameState]);
+
+  const openNearbyNpc = useCallback(() => {
+    const state = gameStateRef.current;
+    const npc = getNearbyNpc(state);
+    if (!npc) {
+      return false;
+    }
+
+    setGameState((previous) => ({
+      ...previous,
+      overlay: "dialogue",
+      dialogue: { npcId: npc.id, lineIndex: 0 },
+    }));
+    return true;
+  }, [gameStateRef, setGameState]);
+
+  const interact = useCallback(() => {
+    const state = gameStateRef.current;
+    if (state.overlay !== "none") {
+      return;
+    }
+
+    if (collectNearbyEvidence()) {
+      return;
+    }
+
+    if (openNearbyNpc()) {
+      return;
+    }
+
+    const scene = getCurrentScene(state);
+    const portal = scene.portals.find((item) =>
+      pointInRect(state.player.position, item.rect),
+    );
+    if (portal) {
+      setGameState((previous) => ({
+        ...previous,
+        player: {
+          ...previous.player,
+          sceneId: portal.targetSceneId,
+          position: portal.targetPosition,
+        },
+        toast: { id: Date.now(), message: `Entered ${portal.label}` },
+      }));
+      return;
+    }
+
+    setToast("Move closer to an NPC, evidence item, or doorway.");
+  }, [
+    collectNearbyEvidence,
+    gameStateRef,
+    openNearbyNpc,
+    setGameState,
+    setToast,
+  ]);
+
+  const tick = useCallback(
+    (timestamp: number) => {
+      const state = gameStateRef.current;
+      const delta = Math.min((timestamp - lastTimeRef.current) / 16.67, 2);
       lastTimeRef.current = timestamp;
 
-      const input = inputRef.current;
-      let dx = 0;
-      let dy = 0;
-      if (input.up) dy -= 1;
-      if (input.down) dy += 1;
-      if (input.left) dx -= 1;
-      if (input.right) dx += 1;
-
-      if (dx !== 0 || dy !== 0) {
-        const len = Math.sqrt(dx * dx + dy * dy);
-        dx = (dx / len) * MOVE_SPEED * dt;
-        dy = (dy / len) * MOVE_SPEED * dt;
-
-        const player = gs.player;
-        const newX = player.position.x + dx;
-        const newY = player.position.y + dy;
-
-        const halfSize = 14;
-        if (
-          !isWall(newX - halfSize, newY - halfSize) &&
-          !isWall(newX + halfSize, newY - halfSize) &&
-          !isWall(newX - halfSize, newY + halfSize) &&
-          !isWall(newX + halfSize, newY + halfSize)
-        ) {
-          player.position.x = newX;
-          player.position.y = newY;
-        }
-
-        const portal = checkPortal(newX, newY);
-        if (portal) {
-          player.currentZoneId = portal.targetZoneId;
-          player.position.x = portal.targetX * TILE_SIZE + TILE_SIZE / 2;
-          player.position.y = portal.targetY * TILE_SIZE + TILE_SIZE / 2;
-          setGameState((prev) => ({ ...prev, player: { ...player } }));
-        }
-      }
-
-      if (input.interact) {
-        inputRef.current.interact = false;
-        const px = gs.player.position.x;
-        const py = gs.player.position.y;
-        const npc = checkNpcInteraction(px, py);
-        if (npc) {
-          setGameState((prev) => ({
-            ...prev,
-            currentDialogue: { npc, lineIndex: 0 },
-          }));
-        } else {
-          const wp = checkWaypointInteraction(px, py);
-          if (wp) {
-            observeWaypoint(wp.id);
+      if (state.player.hasStarted && state.overlay === "none") {
+        const nextPosition = getNextPosition(
+          state.player.position,
+          inputRef.current,
+          delta,
+        );
+        if (nextPosition) {
+          const nextState = moveWithinScene(state, nextPosition);
+          if (nextState) {
+            gameStateRef.current = nextState;
+            setGameState(nextState);
           }
         }
       }
 
-      // Clear old notification
-      if (gs.notification && Date.now() - gs.notificationTime > 4000) {
-        setGameState((prev) => ({ ...prev, notification: null }));
-      }
-
-      animFrameRef.current = requestAnimationFrame(gameLoop);
+      frameRef.current = requestAnimationFrame(tick);
     },
-    [
-      gameStateRef,
-      setGameState,
-      isWall,
-      checkPortal,
-      checkNpcInteraction,
-      checkWaypointInteraction,
-      observeWaypoint,
-    ],
+    [gameStateRef, setGameState],
   );
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      if (["arrowup", "w"].includes(key)) inputRef.current.up = true;
-      if (["arrowdown", "s"].includes(key)) inputRef.current.down = true;
-      if (["arrowleft", "a"].includes(key)) inputRef.current.left = true;
-      if (["arrowright", "d"].includes(key)) inputRef.current.right = true;
-      if (["e", "enter", " "].includes(key)) {
-        e.preventDefault();
-        inputRef.current.interact = true;
-        const gs = gameStateRef.current;
-        if (gs.currentDialogue) {
-          advanceDialogue();
-        }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (key === "arrowup" || key === "w") {
+        inputRef.current.up = true;
+      }
+      if (key === "arrowdown" || key === "s") {
+        inputRef.current.down = true;
+      }
+      if (key === "arrowleft" || key === "a") {
+        inputRef.current.left = true;
+      }
+      if (key === "arrowright" || key === "d") {
+        inputRef.current.right = true;
+      }
+      if (key === "e" || key === "enter" || key === " ") {
+        event.preventDefault();
+        interact();
       }
       if (key === "q") {
-        setGameState((prev) => ({
-          ...prev,
-          showQuestLog: !prev.showQuestLog,
-          showArtifacts: false,
+        setGameState((previous) => ({
+          ...previous,
+          overlay: previous.overlay === "quest" ? "none" : "quest",
         }));
       }
-      if (key === "i") {
-        setGameState((prev) => ({
-          ...prev,
-          showArtifacts: !prev.showArtifacts,
-          showQuestLog: false,
+      if (key === "b" || key === "i") {
+        setGameState((previous) => ({
+          ...previous,
+          overlay: previous.overlay === "backpack" ? "none" : "backpack",
         }));
       }
       if (key === "escape") {
-        setGameState((prev) => ({
-          ...prev,
-          currentDialogue: null,
-          showQuestLog: false,
-          showArtifacts: false,
+        setGameState((previous) => ({
+          ...previous,
+          overlay: "none",
+          dialogue: null,
         }));
       }
     };
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      if (["arrowup", "w"].includes(key)) inputRef.current.up = false;
-      if (["arrowdown", "s"].includes(key)) inputRef.current.down = false;
-      if (["arrowleft", "a"].includes(key)) inputRef.current.left = false;
-      if (["arrowright", "d"].includes(key)) inputRef.current.right = false;
+    const handleKeyUp = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (key === "arrowup" || key === "w") {
+        inputRef.current.up = false;
+      }
+      if (key === "arrowdown" || key === "s") {
+        inputRef.current.down = false;
+      }
+      if (key === "arrowleft" || key === "a") {
+        inputRef.current.left = false;
+      }
+      if (key === "arrowright" || key === "d") {
+        inputRef.current.right = false;
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
-    animFrameRef.current = requestAnimationFrame(gameLoop);
+    frameRef.current = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      cancelAnimationFrame(animFrameRef.current);
+      cancelAnimationFrame(frameRef.current);
     };
-  }, [gameLoop, advanceDialogue, setGameState, gameStateRef]);
+  }, [interact, setGameState, tick]);
 
-  return { inputRef };
+  return { inputRef, interact };
+}
+
+export function completeIntervention(
+  setGameState: React.Dispatch<React.SetStateAction<GameState>>,
+) {
+  setGameState((previous) => ({
+    ...previous,
+    questStage: "complete",
+    earnedArtifact: earnedCanvas,
+    overlay: "canvas",
+    toast: { id: Date.now(), message: "Earned: Enablement Diagnostic Canvas" },
+  }));
+}
+
+function getNextPosition(
+  position: Position,
+  input: InputState,
+  delta: number,
+): Position | null {
+  let dx = 0;
+  let dy = 0;
+  if (input.up) {
+    dy -= 1;
+  }
+  if (input.down) {
+    dy += 1;
+  }
+  if (input.left) {
+    dx -= 1;
+  }
+  if (input.right) {
+    dx += 1;
+  }
+
+  if (dx === 0 && dy === 0) {
+    return null;
+  }
+
+  const length = Math.sqrt(dx * dx + dy * dy);
+  const speed = (MOVE_SPEED * delta) / TILE_SIZE;
+  return {
+    x: position.x + (dx / length) * speed,
+    y: position.y + (dy / length) * speed,
+  };
+}
+
+function moveWithinScene(
+  state: GameState,
+  nextPosition: Position,
+): GameState | null {
+  const scene = getCurrentScene(state);
+  const bounded = {
+    x: clamp(nextPosition.x, 1.2, scene.width - 1.2),
+    y: clamp(nextPosition.y, 1.4, scene.height - 1.1),
+  };
+
+  const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
+  if (blocked) {
+    return null;
+  }
+
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      position: bounded,
+      direction: getDirection(state.player.position, bounded),
+    },
+  };
+}
+
+function getNearbyNpc(state: GameState) {
+  return npcs.find((npc) => {
+    if (npc.sceneId !== state.player.sceneId) {
+      return false;
+    }
+    return (
+      distanceInPixels(state.player.position, npc.position) < INTERACT_DISTANCE
+    );
+  });
+}
+
+function getCurrentScene(state: GameState) {
+  const scene = scenes.find((item) => item.id === state.player.sceneId);
+  if (!scene) {
+    return scenes[0];
+  }
+  return scene;
+}
+
+function pointInRect(point: Position, rect: Rect) {
+  return (
+    point.x >= rect.x &&
+    point.x <= rect.x + rect.width &&
+    point.y >= rect.y &&
+    point.y <= rect.y + rect.height
+  );
+}
+
+function distanceInPixels(a: Position, b: Position) {
+  const dx = (a.x - b.x) * TILE_SIZE;
+  const dy = (a.y - b.y) * TILE_SIZE;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getDirection(previous: Position, next: Position) {
+  const dx = next.x - previous.x;
+  const dy = next.y - previous.y;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    return dx > 0 ? "right" : "left";
+  }
+  return dy > 0 ? "down" : "up";
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
 }

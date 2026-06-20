@@ -1,304 +1,410 @@
-import type { GameState, Npc, Waypoint, Zone } from "./types";
-import { PLAYER_SIZE, TILE_SIZE } from "./types";
+import { assetUrls, evidenceItems, npcs, scenes, tileSprites } from "./levels";
+import type { AssetKey, GameState, Scene, SheetSprite } from "./types";
+import { PLAYER_HEIGHT, PLAYER_WIDTH, TILE_SIZE } from "./types";
 
-const COLORS = {
-  floor: "#1e1e2e",
-  floorAlt: "#252535",
-  wall: "#3d3d5c",
-  wallTop: "#4a4a6a",
-  portal: "oklch(0.75 0.15 190 / 0.3)",
-  portalBorder: "oklch(0.75 0.15 190 / 0.6)",
-  player: "oklch(0.75 0.15 190)",
-  playerGlow: "oklch(0.75 0.15 190 / 0.4)",
-  npc: "#f59e0b",
-  npcGlow: "rgba(245, 158, 11, 0.3)",
-  waypoint: "oklch(0.75 0.15 190)",
-  waypointObserved: "#4ade80",
-  waypointGlow: "oklch(0.75 0.15 190 / 0.5)",
-  text: "#e2e8f0",
-  textMuted: "#94a3b8",
-  desk: "#475569",
-  plant: "#22c55e",
-  whiteboard: "#f8fafc",
-  bookshelf: "#78350f",
-  terminal: "oklch(0.75 0.15 190)",
-  couch: "#7c3aed",
-};
+export type LoadedAssets = Partial<Record<AssetKey, HTMLImageElement>>;
+
+const LABEL_BG = "rgba(7, 10, 20, 0.78)";
+const LABEL_BORDER = "rgba(255, 255, 255, 0.18)";
+
+export function loadGameAssets(
+  onReady: (assets: LoadedAssets) => void,
+): () => void {
+  let cancelled = false;
+  const entries = Object.entries(assetUrls) as Array<[AssetKey, string]>;
+  const loaded: LoadedAssets = {};
+  let remaining = entries.length;
+
+  for (const [key, url] of entries) {
+    const image = new Image();
+    image.onload = () => {
+      loaded[key] = image;
+      remaining -= 1;
+      if (!cancelled && remaining === 0) {
+        onReady(loaded);
+      }
+    };
+    image.onerror = () => {
+      remaining -= 1;
+      if (!cancelled && remaining === 0) {
+        onReady(loaded);
+      }
+    };
+    image.src = url;
+  }
+
+  return () => {
+    cancelled = true;
+  };
+}
 
 export function renderGame(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   gameState: GameState,
+  assets: LoadedAssets,
 ) {
-  const { player, zones, npcs, waypoints } = gameState;
-  const zone = zones.find((z) => z.id === player.currentZoneId)!;
+  const scene = getScene(gameState.player.sceneId);
+  const camera = getCamera(canvas, scene, gameState);
 
-  const canvasW = canvas.width;
-  const canvasH = canvas.height;
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#07111d";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Camera follows player
-  const camX = player.position.x - canvasW / 2;
-  const camY = player.position.y - canvasH / 2;
+  drawSceneBase(ctx, canvas, scene, camera, assets);
+  drawPortals(ctx, scene, camera);
+  drawProps(ctx, scene, camera, assets);
+  drawEvidence(ctx, scene, gameState, camera, assets);
+  drawNpcs(ctx, scene, gameState, camera, assets);
+  drawPlayer(ctx, gameState, camera, assets);
+}
 
-  // Clamp camera to zone bounds
-  const maxCamX = zone.width * TILE_SIZE - canvasW;
-  const maxCamY = zone.height * TILE_SIZE - canvasH;
-  const clampedCamX = Math.max(0, Math.min(camX, maxCamX));
-  const clampedCamY = Math.max(0, Math.min(camY, maxCamY));
+function getScene(sceneId: string): Scene {
+  const scene = scenes.find((item) => item.id === sceneId);
+  if (!scene) {
+    return scenes[0];
+  }
+  return scene;
+}
 
-  ctx.clearRect(0, 0, canvasW, canvasH);
+function getCamera(
+  canvas: HTMLCanvasElement,
+  scene: Scene,
+  gameState: GameState,
+) {
+  const worldWidth = scene.width * TILE_SIZE;
+  const worldHeight = scene.height * TILE_SIZE;
+  const targetX = gameState.player.position.x * TILE_SIZE - canvas.width / 2;
+  const targetY = gameState.player.position.y * TILE_SIZE - canvas.height / 2;
 
-  // Background
-  ctx.fillStyle = "#0f0f1a";
-  ctx.fillRect(0, 0, canvasW, canvasH);
+  return {
+    x: clamp(targetX, 0, Math.max(0, worldWidth - canvas.width)),
+    y: clamp(targetY, 0, Math.max(0, worldHeight - canvas.height)),
+  };
+}
 
-  // Visible tile range
-  const startCol = Math.floor(clampedCamX / TILE_SIZE);
-  const endCol = Math.ceil((clampedCamX + canvasW) / TILE_SIZE);
-  const startRow = Math.floor(clampedCamY / TILE_SIZE);
-  const endRow = Math.ceil((clampedCamY + canvasH) / TILE_SIZE);
+function drawSceneBase(
+  ctx: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  scene: Scene,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  const startCol = Math.floor(camera.x / TILE_SIZE);
+  const endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
+  const startRow = Math.floor(camera.y / TILE_SIZE);
+  const endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
+  const floorSprite: SheetSprite =
+    scene.theme === "exterior" ? tileSprites.grass : tileSprites.labFloor;
 
-  // Draw tiles
-  for (let row = startRow; row <= endRow; row++) {
-    for (let col = startCol; col <= endCol; col++) {
-      if (row < 0 || row >= zone.height || col < 0 || col >= zone.width)
+  for (let row = startRow; row <= endRow; row += 1) {
+    for (let col = startCol; col <= endCol; col += 1) {
+      if (row < 0 || col < 0 || row >= scene.height || col >= scene.width) {
         continue;
-      const tile = zone.tiles[row][col];
-      const x = col * TILE_SIZE - clampedCamX;
-      const y = row * TILE_SIZE - clampedCamY;
-
-      if (tile === 1) {
-        // Wall
-        ctx.fillStyle = COLORS.wall;
-        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-        ctx.fillStyle = COLORS.wallTop;
-        ctx.fillRect(x, y, TILE_SIZE, 4);
-        // Brick pattern
-        ctx.strokeStyle = "rgba(0,0,0,0.2)";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
-      } else {
-        // Floor
-        ctx.fillStyle = (row + col) % 2 === 0 ? COLORS.floor : COLORS.floorAlt;
-        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
-        // Grid line
-        ctx.strokeStyle = "rgba(255,255,255,0.03)";
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(x, y, TILE_SIZE, TILE_SIZE);
       }
 
-      if (tile === 2) {
-        // Portal
-        ctx.fillStyle = COLORS.portal;
-        ctx.fillRect(x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
-        ctx.strokeStyle = COLORS.portalBorder;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x + 4, y + 4, TILE_SIZE - 8, TILE_SIZE - 8);
+      let sprite: SheetSprite = floorSprite;
+      if (
+        scene.theme === "exterior" &&
+        (row === 8 || col === 13 || col === 14)
+      ) {
+        sprite = tileSprites.path;
       }
+      if (
+        scene.theme === "exterior" &&
+        row >= 7 &&
+        row <= 10 &&
+        col >= 10 &&
+        col <= 17
+      ) {
+        sprite = tileSprites.plaza;
+      }
+      if (scene.theme === "interior" && (row + col) % 5 === 0) {
+        sprite = tileSprites.warmFloor;
+      }
+
+      drawSheetSprite(
+        ctx,
+        assets,
+        sprite,
+        col * TILE_SIZE - camera.x,
+        row * TILE_SIZE - camera.y,
+        TILE_SIZE,
+        TILE_SIZE,
+      );
     }
   }
 
-  // Draw decorations
-  for (const dec of zone.decorations) {
-    const x = dec.x * TILE_SIZE - clampedCamX;
-    const y = dec.y * TILE_SIZE - clampedCamY;
-    drawDecoration(ctx, dec.type, x, y);
-  }
-
-  // Draw waypoints
-  const zoneWaypoints = waypoints.filter((w) => w.zoneId === zone.id);
-  for (const wp of zoneWaypoints) {
-    const x = wp.position.x * TILE_SIZE - clampedCamX + TILE_SIZE / 2;
-    const y = wp.position.y * TILE_SIZE - clampedCamY + TILE_SIZE / 2;
-    drawWaypoint(ctx, x, y, wp.observed);
-  }
-
-  // Draw NPCs
-  const zoneNpcs = npcs.filter((n) => n.zoneId === zone.id);
-  for (const npc of zoneNpcs) {
-    const x = npc.position.x * TILE_SIZE - clampedCamX + TILE_SIZE / 2;
-    const y = npc.position.y * TILE_SIZE - clampedCamY + TILE_SIZE / 2;
-    drawNpc(ctx, x, y, npc);
-  }
-
-  // Draw player
-  const px = player.position.x - clampedCamX;
-  const py = player.position.y - clampedCamY;
-  drawPlayer(ctx, px, py);
-
-  // Draw portal labels
-  for (const portal of zone.portals) {
-    const x = portal.x * TILE_SIZE - clampedCamX + TILE_SIZE / 2;
-    const y = portal.y * TILE_SIZE - clampedCamY - 4;
-    ctx.fillStyle = COLORS.textMuted;
-    ctx.font = "10px var(--font-body)";
-    ctx.textAlign = "center";
-    ctx.fillText(portal.label, x, y);
+  drawRoomBorders(ctx, scene, camera, assets);
+  if (scene.theme === "exterior") {
+    drawBuilding(ctx, camera, 6, 3, 6, 4, "Strategy Studio");
+    drawBuilding(ctx, camera, 29, 3, 6, 4, "Operations Suite");
+    drawBuilding(ctx, camera, 18, 17, 6, 4, "Learning Systems Lab");
   }
 }
 
-function drawPlayer(ctx: CanvasRenderingContext2D, x: number, y: number) {
-  // Glow
-  ctx.shadowColor = COLORS.player;
-  ctx.shadowBlur = 15;
-
-  // Body
-  ctx.fillStyle = COLORS.player;
-  ctx.beginPath();
-  ctx.arc(x, y, PLAYER_SIZE / 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.shadowBlur = 0;
-
-  // Inner highlight
-  ctx.fillStyle = "rgba(255,255,255,0.3)";
-  ctx.beginPath();
-  ctx.arc(x - 3, y - 3, PLAYER_SIZE / 4, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawNpc(
+function drawRoomBorders(
   ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  npc: Npc,
+  scene: Scene,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
 ) {
-  // Glow
-  ctx.shadowColor = COLORS.npc;
-  ctx.shadowBlur = 12;
-
-  // Body
-  ctx.fillStyle = COLORS.npc;
-  ctx.beginPath();
-  ctx.arc(x, y, PLAYER_SIZE / 2 + 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.shadowBlur = 0;
-
-  // Name tag
-  ctx.fillStyle = "rgba(0,0,0,0.7)";
-  ctx.roundRect(x - 30, y - 32, 60, 16, 4);
-  ctx.fill();
-  ctx.fillStyle = COLORS.text;
-  ctx.font = "10px var(--font-body)";
-  ctx.textAlign = "center";
-  ctx.fillText(npc.name, x, y - 21);
-
-  // Quest indicator
-  const quest = npc.questId !== null;
-  if (quest) {
-    ctx.fillStyle = "oklch(0.75 0.15 190)";
-    ctx.beginPath();
-    ctx.arc(x, y - 28, 4, 0, Math.PI * 2);
-    ctx.fill();
+  if (scene.theme !== "interior") {
+    return;
   }
-}
 
-function drawWaypoint(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  observed: boolean,
-) {
-  const color = observed ? COLORS.waypointObserved : COLORS.waypoint;
-  const time = Date.now() / 1000;
-  const pulse = Math.sin(time * 2) * 3;
+  for (let col = 0; col < scene.width; col += 1) {
+    drawSheetSprite(
+      ctx,
+      assets,
+      tileSprites.wall,
+      col * TILE_SIZE - camera.x,
+      -camera.y,
+      TILE_SIZE,
+      TILE_SIZE,
+    );
+  }
 
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 10 + pulse;
+  ctx.fillStyle = "rgba(0, 0, 0, 0.38)";
+  ctx.fillRect(-camera.x, -camera.y, scene.width * TILE_SIZE, 12);
 
-  // Outer ring
-  ctx.strokeStyle = color;
+  ctx.strokeStyle = "rgba(255,255,255,0.16)";
   ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(x, y, 12 + pulse, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.strokeRect(
+    -camera.x + TILE_SIZE,
+    -camera.y + TILE_SIZE,
+    (scene.width - 2) * TILE_SIZE,
+    (scene.height - 2) * TILE_SIZE,
+  );
+}
 
-  // Inner dot
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(x, y, 5, 0, Math.PI * 2);
-  ctx.fill();
+function drawBuilding(
+  ctx: CanvasRenderingContext2D,
+  camera: { x: number; y: number },
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  label: string,
+) {
+  const px = x * TILE_SIZE - camera.x;
+  const py = y * TILE_SIZE - camera.y;
+  const w = width * TILE_SIZE;
+  const h = height * TILE_SIZE;
+  const doorX = px + w / 2 - 24;
 
-  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#2f3b54";
+  ctx.fillRect(px, py + 48, w, h - 48);
+  ctx.fillStyle = "#d8b46e";
+  ctx.fillRect(px, py, w, 58);
+  ctx.fillStyle = "#f1d991";
+  ctx.fillRect(px + 10, py + 10, w - 20, 8);
+  ctx.fillStyle = "#1d2433";
+  ctx.fillRect(doorX, py + h - 76, 48, 76);
 
-  // Label
-  if (!observed) {
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
-    ctx.roundRect(x - 40, y - 28, 80, 14, 3);
-    ctx.fill();
-    ctx.fillStyle = COLORS.text;
-    ctx.font = "9px var(--font-body)";
-    ctx.textAlign = "center";
-    ctx.fillText("Press E", x, y - 18);
+  for (let i = 0; i < 3; i += 1) {
+    ctx.fillStyle = "#8bd3ff";
+    ctx.fillRect(px + 28 + i * 78, py + 86, 34, 34);
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
+    ctx.fillRect(px + 33 + i * 78, py + 91, 10, 24);
+  }
+
+  drawLabel(ctx, label, px + w / 2, py + h + 20, "#f8fafc");
+}
+
+function drawPortals(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+) {
+  for (const portal of scene.portals) {
+    const px = portal.rect.x * TILE_SIZE - camera.x;
+    const py = portal.rect.y * TILE_SIZE - camera.y;
+    const width = portal.rect.width * TILE_SIZE;
+    const height = portal.rect.height * TILE_SIZE;
+    ctx.fillStyle = "rgba(56, 189, 248, 0.18)";
+    ctx.fillRect(px, py, width, height);
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.52)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px + 4, py + 4, width - 8, height - 8);
+    drawLabel(ctx, portal.label, px + width / 2, py - 10, "#bae6fd");
   }
 }
 
-function drawDecoration(
+function drawProps(
   ctx: CanvasRenderingContext2D,
-  type: string,
+  scene: Scene,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  for (const prop of scene.props) {
+    const px = prop.position.x * TILE_SIZE - camera.x;
+    const py = prop.position.y * TILE_SIZE - camera.y;
+    const width = prop.size.width * TILE_SIZE;
+    const height = prop.size.height * TILE_SIZE;
+
+    if (prop.sprite) {
+      drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
+    }
+
+    if (prop.label) {
+      drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
+    }
+  }
+}
+
+function drawEvidence(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  gameState: GameState,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  const visibleEvidence = evidenceItems.filter(
+    (item) =>
+      item.sceneId === scene.id &&
+      !gameState.collectedEvidenceIds.includes(item.id),
+  );
+
+  for (const evidence of visibleEvidence) {
+    const x = evidence.position.x * TILE_SIZE - camera.x;
+    const y = evidence.position.y * TILE_SIZE - camera.y;
+    const pulse = Math.sin(Date.now() / 260) * 3;
+
+    ctx.shadowColor = "#facc15";
+    ctx.shadowBlur = 12 + pulse;
+    drawSheetSprite(ctx, assets, evidence.sprite, x, y, 58, 42);
+    ctx.shadowBlur = 0;
+
+    drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
+  }
+}
+
+function drawNpcs(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  gameState: GameState,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  const sceneNpcs = npcs.filter((npc) => npc.sceneId === scene.id);
+  for (const npc of sceneNpcs) {
+    const x = npc.position.x * TILE_SIZE - camera.x - 24;
+    const y = npc.position.y * TILE_SIZE - camera.y - 48;
+    drawSheetSprite(ctx, assets, npc.sprite, x, y, 48, 96);
+    drawLabel(ctx, npc.name, x + 24, y - 10, "#bbf7d0");
+
+    if (npc.id === "maya" && gameState.questStage !== "complete") {
+      ctx.fillStyle = "#facc15";
+      ctx.beginPath();
+      ctx.arc(x + 24, y - 28, 6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function drawPlayer(
+  ctx: CanvasRenderingContext2D,
+  gameState: GameState,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  const x =
+    gameState.player.position.x * TILE_SIZE - camera.x - PLAYER_WIDTH / 2;
+  const y =
+    gameState.player.position.y * TILE_SIZE - camera.y - PLAYER_HEIGHT + 18;
+  const frame = Math.floor(Date.now() / 140) % 4;
+  const isMoving = false;
+  const sprite: SheetSprite = isMoving
+    ? { image: "adamRun", sx: frame * 96, sy: 0, sw: 16, sh: 32 }
+    : { image: "adamIdle", sx: 0, sy: 0, sw: 16, sh: 32 };
+
+  ctx.fillStyle = "rgba(0,0,0,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(
+    x + PLAYER_WIDTH / 2,
+    y + PLAYER_HEIGHT - 4,
+    19,
+    7,
+    0,
+    0,
+    Math.PI * 2,
+  );
+  ctx.fill();
+  drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
+}
+
+function drawSheetSprite(
+  ctx: CanvasRenderingContext2D,
+  assets: LoadedAssets,
+  sprite: SheetSprite,
   x: number,
   y: number,
+  width: number,
+  height: number,
 ) {
-  const cx = x + TILE_SIZE / 2;
-  const cy = y + TILE_SIZE / 2;
-
-  switch (type) {
-    case "desk":
-      ctx.fillStyle = COLORS.desk;
-      ctx.fillRect(x + 4, y + 8, TILE_SIZE - 8, TILE_SIZE - 16);
-      ctx.fillStyle = "rgba(255,255,255,0.1)";
-      ctx.fillRect(x + 6, y + 10, TILE_SIZE - 12, 4);
-      break;
-    case "plant":
-      ctx.fillStyle = "#3f2e18";
-      ctx.fillRect(cx - 4, cy + 2, 8, 14);
-      ctx.fillStyle = COLORS.plant;
-      ctx.beginPath();
-      ctx.arc(cx, cy - 4, 10, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-    case "whiteboard":
-      ctx.fillStyle = COLORS.whiteboard;
-      ctx.fillRect(x + 2, y + 4, TILE_SIZE - 4, TILE_SIZE - 8);
-      ctx.strokeStyle = "#94a3b8";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x + 2, y + 4, TILE_SIZE - 4, TILE_SIZE - 8);
-      // Some scribbles
-      ctx.strokeStyle = "#cbd5e1";
-      ctx.beginPath();
-      ctx.moveTo(x + 8, y + 12);
-      ctx.lineTo(x + 20, y + 18);
-      ctx.moveTo(x + 8, y + 18);
-      ctx.lineTo(x + 20, y + 12);
-      ctx.stroke();
-      break;
-    case "bookshelf":
-      ctx.fillStyle = COLORS.bookshelf;
-      ctx.fillRect(x + 4, y + 2, TILE_SIZE - 8, TILE_SIZE - 4);
-      ctx.fillStyle = "rgba(0,0,0,0.3)";
-      ctx.fillRect(x + 4, y + TILE_SIZE / 2 - 1, TILE_SIZE - 8, 2);
-      // Books
-      ctx.fillStyle = "#ef4444";
-      ctx.fillRect(x + 6, y + 4, 4, 18);
-      ctx.fillStyle = "#3b82f6";
-      ctx.fillRect(x + 11, y + 4, 4, 18);
-      ctx.fillStyle = "#eab308";
-      ctx.fillRect(x + 16, y + 4, 4, 18);
-      break;
-    case "terminal":
-      ctx.fillStyle = "#1e293b";
-      ctx.fillRect(x + 6, y + 6, TILE_SIZE - 12, TILE_SIZE - 16);
-      ctx.fillStyle = COLORS.terminal;
-      ctx.fillRect(x + 8, y + 8, TILE_SIZE - 16, 8);
-      ctx.fillStyle = "#334155";
-      ctx.fillRect(cx - 6, cy + 10, 12, 4);
-      break;
-    case "couch":
-      ctx.fillStyle = COLORS.couch;
-      ctx.fillRect(x + 2, y + 8, TILE_SIZE - 4, TILE_SIZE - 16);
-      ctx.fillStyle = "rgba(0,0,0,0.2)";
-      ctx.fillRect(x + 2, y + 8, TILE_SIZE - 4, 4);
-      break;
+  const image = assets[sprite.image];
+  if (!image) {
+    ctx.fillStyle = "rgba(148, 163, 184, 0.4)";
+    ctx.fillRect(x, y, width, height);
+    return;
   }
+
+  ctx.drawImage(
+    image,
+    sprite.sx,
+    sprite.sy,
+    sprite.sw,
+    sprite.sh,
+    Math.round(x),
+    Math.round(y),
+    Math.round(width),
+    Math.round(height),
+  );
+}
+
+function drawLabel(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  color: string,
+) {
+  ctx.font = "700 12px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  const width = ctx.measureText(text).width + 18;
+  ctx.fillStyle = LABEL_BG;
+  ctx.strokeStyle = LABEL_BORDER;
+  ctx.lineWidth = 1;
+  roundRect(ctx, x - width / 2, y - 15, width, 22, 7);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+}
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
 }
