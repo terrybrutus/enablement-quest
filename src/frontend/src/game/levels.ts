@@ -71,7 +71,6 @@ export const scenes: Scene[] = [
     props: [
       {
         id: "mission-desk",
-        label: "Mission Desk",
         position: { x: 3.2, y: 3.2 },
         size: { width: 2.2, height: 1.25 },
         sprite: officeSprite(336, 1344, 96, 96),
@@ -79,7 +78,6 @@ export const scenes: Scene[] = [
       },
       {
         id: "analytics-wall",
-        label: "Impact Dashboard",
         position: { x: 12.5, y: 2 },
         size: { width: 2.5, height: 1.5 },
         sprite: officeSprite(384, 432, 144, 96),
@@ -94,7 +92,6 @@ export const scenes: Scene[] = [
       },
       {
         id: "lab-console",
-        label: "AI Workbench",
         position: { x: 6.5, y: 8.5 },
         size: { width: 2.2, height: 1.4 },
         sprite: officeSprite(528, 192, 144, 96),
@@ -113,28 +110,42 @@ export const scenes: Scene[] = [
       {
         id: "hub-to-lab",
         label: "Learning Systems Lab",
-        rect: { x: 19, y: 19, width: 3, height: 2 },
+        rect: { x: 20, y: 19.2, width: 2, height: 1.8 },
         targetSceneId: "lab",
         targetPosition: { x: 21, y: 15.7 },
       },
       {
         id: "hub-to-operations",
         label: "Operations Suite",
-        rect: { x: 30, y: 5, width: 3, height: 2 },
+        rect: { x: 30, y: 5.2, width: 2, height: 1.8 },
         targetSceneId: "operations",
         targetPosition: { x: 21, y: 15 },
       },
     ],
     blocks: [
-      { x: 6, y: 3, width: 6, height: 4 },
-      { x: 29, y: 3, width: 6, height: 4 },
-      { x: 18, y: 17, width: 6, height: 4 },
+      { x: 29, y: 3, width: 4, height: 4 },
+      { x: 19, y: 17, width: 4, height: 4 },
       { x: 20, y: 9, width: 2, height: 2 },
     ],
     props: [
       {
+        id: "operations-building",
+        label: "Operations Suite",
+        position: { x: 29, y: 3 },
+        size: { width: 4, height: 4 },
+        sprite: officeSprite(528, 0, 192, 192),
+        collision: true,
+      },
+      {
+        id: "lab-building",
+        label: "Learning Systems Lab",
+        position: { x: 19, y: 17 },
+        size: { width: 4, height: 4 },
+        sprite: officeSprite(0, 0, 192, 192),
+        collision: true,
+      },
+      {
         id: "hub-fountain",
-        label: "Evidence Plaza",
         position: { x: 20.1, y: 9.1 },
         size: { width: 1.8, height: 1.8 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
@@ -151,13 +162,6 @@ export const scenes: Scene[] = [
         position: { x: 25, y: 10.2 },
         size: { width: 0.8, height: 1.5 },
         sprite: { image: "streetLamp", sx: 0, sy: 0, sw: 48, sh: 96 },
-      },
-      {
-        id: "operations-sign",
-        label: "Operations Suite",
-        position: { x: 30.2, y: 4.2 },
-        size: { width: 2.2, height: 1 },
-        sprite: officeSprite(528, 336, 144, 48),
       },
     ],
   },
@@ -190,7 +194,6 @@ export const scenes: Scene[] = [
     props: [
       {
         id: "manager-table",
-        label: "Stakeholder Table",
         position: { x: 3.2, y: 3.1 },
         size: { width: 3.2, height: 1.4 },
         sprite: officeSprite(336, 1344, 144, 96),
@@ -198,7 +201,6 @@ export const scenes: Scene[] = [
       },
       {
         id: "metric-board",
-        label: "Ramp Metrics",
         position: { x: 14.2, y: 3.1 },
         size: { width: 3.2, height: 1.4 },
         sprite: officeSprite(384, 432, 144, 96),
@@ -206,7 +208,6 @@ export const scenes: Scene[] = [
       },
       {
         id: "process-desk",
-        label: "Process Review Desk",
         position: { x: 9.4, y: 8.1 },
         size: { width: 3, height: 1.4 },
         sprite: officeSprite(528, 192, 144, 96),

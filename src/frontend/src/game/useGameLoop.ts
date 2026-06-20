@@ -96,6 +96,18 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
       return;
     }
 
+    if (state.questStage === "diagnose") {
+      setGameState((previous) => ({
+        ...previous,
+        overlay: "decision",
+        toast: {
+          id: Date.now(),
+          message: "Diagnosis board opened.",
+        },
+      }));
+      return;
+    }
+
     const scene = getCurrentScene(state);
     const portal = scene.portals.find((item) =>
       pointInRect(state.player.position, item.rect),
@@ -113,7 +125,9 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
       return;
     }
 
-    setToast("Move closer to a person, evidence item, or doorway.");
+    setToast(
+      "Nothing important to inspect here. Look for people, glowing evidence, or doorways.",
+    );
   }, [
     collectNearbyEvidence,
     gameStateRef,
@@ -299,6 +313,22 @@ function moveWithinScene(
 
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
   if (blocked) {
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        direction,
+        isMoving: false,
+      },
+    };
+  }
+
+  const characterBlocked = characters.some(
+    (character) =>
+      character.sceneId === scene.id &&
+      distanceInPixels(bounded, character.position) < 38,
+  );
+  if (characterBlocked) {
     return {
       ...state,
       player: {
