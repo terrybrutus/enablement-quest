@@ -1,6 +1,6 @@
 import type { InputState, QuestStage } from "@/game/types";
 import { Backpack, ClipboardList, Crosshair, Hand, MapPin } from "lucide-react";
-import type { MutableRefObject } from "react";
+import { type MutableRefObject, type PointerEvent, useState } from "react";
 
 interface HudProps {
   sceneName: string;
@@ -66,7 +66,7 @@ export function Hud({
         >
           <button className="eq-hud-button" type="button" onClick={onOpenQuest}>
             <ClipboardList className="h-4 w-4" />
-            <span>Quest</span>
+            <span>Guide</span>
             <kbd>Q</kbd>
           </button>
           <button
@@ -93,55 +93,73 @@ function MobileControls({
   inputRef: MutableRefObject<InputState>;
   onInteract: () => void;
 }) {
+  const [stick, setStick] = useState({ x: 0, y: 0, active: false });
+
   const setInput = (key: keyof InputState, value: boolean) => {
     inputRef.current[key] = value;
   };
 
+  const resetInput = () => {
+    inputRef.current.up = false;
+    inputRef.current.down = false;
+    inputRef.current.left = false;
+    inputRef.current.right = false;
+  };
+
+  const moveStick = (event: PointerEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const rawX = event.clientX - centerX;
+    const rawY = event.clientY - centerY;
+    const distance = Math.hypot(rawX, rawY);
+    const maxDistance = 34;
+    const scale = distance > maxDistance ? maxDistance / distance : 1;
+    const x = rawX * scale;
+    const y = rawY * scale;
+    const threshold = 10;
+
+    resetInput();
+    setInput("left", x < -threshold);
+    setInput("right", x > threshold);
+    setInput("up", y < -threshold);
+    setInput("down", y > threshold);
+    setStick({ x, y, active: true });
+  };
+
+  const releaseStick = () => {
+    resetInput();
+    setStick({ x: 0, y: 0, active: false });
+  };
+
   return (
     <div className="eq-mobile-controls pointer-events-auto md:hidden">
-      <div className="grid grid-cols-3 gap-1">
-        <span />
-        <TouchButton label="Up" onPress={(value) => setInput("up", value)} />
-        <span />
-        <TouchButton
-          label="Left"
-          onPress={(value) => setInput("left", value)}
+      <button
+        aria-label="Move"
+        className={`eq-joystick ${stick.active ? "is-active" : ""}`}
+        type="button"
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          moveStick(event);
+        }}
+        onPointerMove={(event) => {
+          if (stick.active) {
+            moveStick(event);
+          }
+        }}
+        onPointerCancel={releaseStick}
+        onPointerUp={releaseStick}
+      >
+        <span
+          className="eq-joystick-thumb"
+          style={{ transform: `translate(${stick.x}px, ${stick.y}px)` }}
         />
-        <TouchButton
-          label="Down"
-          onPress={(value) => setInput("down", value)}
-        />
-        <TouchButton
-          label="Right"
-          onPress={(value) => setInput("right", value)}
-        />
-      </div>
+      </button>
 
       <button className="eq-touch-interact" type="button" onClick={onInteract}>
         <Hand className="h-5 w-5" />
         Interact
       </button>
     </div>
-  );
-}
-
-function TouchButton({
-  label,
-  onPress,
-}: {
-  label: string;
-  onPress: (pressed: boolean) => void;
-}) {
-  return (
-    <button
-      className="eq-touch-button"
-      type="button"
-      aria-label={label}
-      onPointerDown={() => onPress(true)}
-      onPointerLeave={() => onPress(false)}
-      onPointerUp={() => onPress(false)}
-    >
-      {label.slice(0, 1)}
-    </button>
   );
 }

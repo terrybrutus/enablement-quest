@@ -45,7 +45,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-control-strip">
           <span>Move: WASD / arrows</span>
           <span>Interact: E / Space / Enter</span>
-          <span>Quest: Q</span>
+          <span>Guide: Q</span>
           <span>Backpack: B</span>
         </div>
       </div>

@@ -17,14 +17,15 @@ interface QuestLogProps {
 const steps = [
   {
     id: "briefing",
-    title: "Problem appears",
-    description: "Maya reports that new hires are taking too long to ramp.",
+    title: "Reach the case room",
+    description:
+      "Leave the lab through the blue doorway, then enter Operations Suite.",
   },
   {
     id: "investigate",
     title: "Investigate",
     description:
-      "Collect the interview note, process map, and performance metric.",
+      "Talk to Maya and collect the interview note, process map, and performance metric.",
   },
   {
     id: "diagnose",
@@ -62,11 +63,11 @@ export function QuestLog({
   return (
     <section
       className="eq-overlay eq-panel eq-side-panel"
-      aria-label="Quest log"
+      aria-label="Mission guide"
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Quest Log</p>
+          <p className="eq-kicker">Mission Guide</p>
           <h2>The Broken Onboarding Portal</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
