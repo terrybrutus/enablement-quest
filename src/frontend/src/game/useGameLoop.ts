@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useRef } from "react";
 import { characters, earnedCanvas, evidenceItems, scenes } from "./levels";
 import type { GameState, InputState, Position, Rect } from "./types";
-import { INTERACT_DISTANCE, MOVE_SPEED, TILE_SIZE } from "./types";
+import { INTERACT_DISTANCE, TILE_SIZE } from "./types";
 
 interface UseGameLoopArgs {
   gameStateRef: React.MutableRefObject<GameState>;
+  moveSpeed: number;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
 }
 
-export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
+export function useGameLoop({
+  gameStateRef,
+  moveSpeed,
+  setGameState,
+}: UseGameLoopArgs) {
   const inputRef = useRef<InputState>({
     up: false,
     down: false,
@@ -96,6 +101,12 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
       return;
     }
 
+    const prop = getNearbyInspectableProp(state);
+    if (prop?.description) {
+      setToast(prop.description);
+      return;
+    }
+
     if (state.questStage === "diagnose") {
       setGameState((previous) => ({
         ...previous,
@@ -147,6 +158,7 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
           state.player.position,
           inputRef.current,
           delta,
+          moveSpeed,
         );
         if (nextPosition) {
           const nextState = moveWithinScene(state, nextPosition);
@@ -166,7 +178,7 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
 
       frameRef.current = requestAnimationFrame(tick);
     },
-    [gameStateRef, setGameState],
+    [gameStateRef, moveSpeed, setGameState],
   );
 
   useEffect(() => {
@@ -255,6 +267,7 @@ function getNextPosition(
   position: Position,
   input: InputState,
   delta: number,
+  moveSpeed: number,
 ): Position | null {
   let dx = 0;
   let dy = 0;
@@ -276,7 +289,7 @@ function getNextPosition(
   }
 
   const length = Math.sqrt(dx * dx + dy * dy);
-  const speed = (MOVE_SPEED * delta) / TILE_SIZE;
+  const speed = (moveSpeed * delta) / TILE_SIZE;
   return {
     x: position.x + (dx / length) * speed,
     y: position.y + (dy / length) * speed,
@@ -312,7 +325,17 @@ function moveWithinScene(
   };
 
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
-  if (blocked) {
+  const propBlocked = scene.props.some(
+    (prop) =>
+      prop.collision &&
+      pointInRect(bounded, {
+        x: prop.position.x,
+        y: prop.position.y,
+        width: prop.size.width,
+        height: prop.size.height,
+      }),
+  );
+  if (blocked || propBlocked) {
     return {
       ...state,
       player: {
@@ -374,6 +397,20 @@ function getNearbyCharacter(state: GameState) {
       distanceInPixels(state.player.position, character.position) <
       INTERACT_DISTANCE
     );
+  });
+}
+
+function getNearbyInspectableProp(state: GameState) {
+  const scene = getCurrentScene(state);
+  return scene.props.find((prop) => {
+    if (!prop.description) {
+      return false;
+    }
+    const center = {
+      x: prop.position.x + prop.size.width / 2,
+      y: prop.position.y + prop.size.height / 2,
+    };
+    return distanceInPixels(state.player.position, center) < INTERACT_DISTANCE;
   });
 }
 

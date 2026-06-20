@@ -118,7 +118,11 @@ function drawSceneBase(
   const startRow = Math.floor(camera.y / TILE_SIZE);
   const endRow = Math.ceil((camera.y + viewport.height) / TILE_SIZE);
   const floorSprite: SheetSprite =
-    scene.theme === "exterior" ? tileSprites.grass : tileSprites.labFloor;
+    scene.theme === "exterior"
+      ? tileSprites.grass
+      : scene.id === "operations"
+        ? tileSprites.warmFloor
+        : tileSprites.labFloor;
 
   for (let row = startRow; row <= endRow; row += 1) {
     for (let col = startCol; col <= endCol; col += 1) {
@@ -141,7 +145,7 @@ function drawSceneBase(
         scene.id === "operations" &&
         (row + col) % 4 === 0
       ) {
-        sprite = tileSprites.warmFloor;
+        sprite = tileSprites.labFloor;
       }
 
       drawSheetSprite(

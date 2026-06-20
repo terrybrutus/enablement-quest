@@ -8,6 +8,7 @@ import {
 } from "@/game/levels";
 import { type LoadedAssets, loadGameAssets, renderGame } from "@/game/renderer";
 import type { GameState, OverlayKind } from "@/game/types";
+import { MOVE_SPEED } from "@/game/types";
 import { completeIntervention, useGameLoop } from "@/game/useGameLoop";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArtifactsPanel } from "./ArtifactsPanel";
@@ -40,13 +41,18 @@ export default function GameCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [assets, setAssets] = useState<LoadedAssets>({});
   const [gameState, setGameState] = useState<GameState>(initialGameState);
+  const [moveSpeed, setMoveSpeed] = useState(MOVE_SPEED);
   const gameStateRef = useRef<GameState>(gameState);
 
   useEffect(() => {
     gameStateRef.current = gameState;
   }, [gameState]);
 
-  const { inputRef, interact } = useGameLoop({ gameStateRef, setGameState });
+  const { inputRef, interact } = useGameLoop({
+    gameStateRef,
+    moveSpeed,
+    setGameState,
+  });
 
   useEffect(() => loadGameAssets(setAssets), []);
 
@@ -254,6 +260,7 @@ export default function GameCanvas() {
         hasArtifact={Boolean(gameState.earnedArtifact)}
         onOpenQuest={() => setOverlay("quest")}
         onOpenBackpack={() => setOverlay("backpack")}
+        onOpenSettings={() => setOverlay("settings")}
         onInteract={interact}
         inputRef={inputRef}
       />
@@ -302,6 +309,14 @@ export default function GameCanvas() {
         />
       )}
 
+      {gameState.overlay === "settings" && (
+        <SettingsPanel
+          moveSpeed={moveSpeed}
+          onChangeMoveSpeed={setMoveSpeed}
+          onClose={closeOverlay}
+        />
+      )}
+
       {gameState.overlay === "decision" && (
         <DecisionPanel
           diagnosisId={gameState.diagnosisId}
@@ -328,6 +343,57 @@ export default function GameCanvas() {
         />
       )}
     </div>
+  );
+}
+
+function SettingsPanel({
+  moveSpeed,
+  onChangeMoveSpeed,
+  onClose,
+}: {
+  moveSpeed: number;
+  onChangeMoveSpeed: (speed: number) => void;
+  onClose: () => void;
+}) {
+  return (
+    <section
+      className="eq-overlay eq-panel eq-side-panel is-right"
+      aria-label="Settings"
+    >
+      <div className="eq-panel-header">
+        <div>
+          <p className="eq-kicker">Settings</p>
+          <h2>Play Options</h2>
+          <p>Adjust movement without changing the mission.</p>
+        </div>
+        <button className="eq-ghost-button" type="button" onClick={onClose}>
+          Close
+        </button>
+      </div>
+
+      <label className="eq-setting-row">
+        <span>
+          <strong>Movement speed</strong>
+          <small>{moveSpeed.toFixed(1)} tiles/sec</small>
+        </span>
+        <input
+          max="7"
+          min="2.5"
+          step="0.1"
+          type="range"
+          value={moveSpeed}
+          onChange={(event) => onChangeMoveSpeed(Number(event.target.value))}
+        />
+      </label>
+
+      <div className="eq-mini-section">
+        <h3>Controls</h3>
+        <p>
+          Desktop: WASD or arrow keys to move. E, Space, or Enter to interact.
+        </p>
+        <p>Mobile: use the joystick and Interact button.</p>
+      </div>
+    </section>
   );
 }
 

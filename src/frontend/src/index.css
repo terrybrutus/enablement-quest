@@ -319,6 +319,31 @@
   padding-top: 14px;
 }
 
+.eq-setting-row {
+  display: grid;
+  gap: 12px;
+}
+
+.eq-setting-row span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eq-setting-row strong {
+  color: #f8fafc;
+}
+
+.eq-setting-row small {
+  color: #93a4b8;
+}
+
+.eq-setting-row input[type="range"] {
+  accent-color: #22d3ee;
+  width: 100%;
+}
+
 .eq-artifact-list {
   display: grid;
   gap: 10px;

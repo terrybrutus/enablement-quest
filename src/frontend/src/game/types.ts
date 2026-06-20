@@ -8,6 +8,7 @@ export type OverlayKind =
   | "dialogue"
   | "quest"
   | "backpack"
+  | "settings"
   | "decision"
   | "canvas";
 
@@ -60,6 +61,7 @@ export interface Portal {
 export interface Prop {
   id: string;
   label?: string;
+  description?: string;
   position: Position;
   size: { width: number; height: number };
   sprite?: SheetSprite;
