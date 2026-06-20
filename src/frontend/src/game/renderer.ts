@@ -72,8 +72,8 @@ export function renderGame(
   ctx.fillRect(0, 0, viewport.width, viewport.height);
 
   drawSceneBase(ctx, viewport, scene, camera, assets);
-  drawPortals(ctx, scene, camera);
   drawProps(ctx, scene, camera, assets);
+  drawPortals(ctx, scene, camera);
   drawEvidence(ctx, scene, gameState, camera, assets);
   drawCharacters(ctx, scene, gameState, camera, assets);
   drawPlayer(ctx, gameState, camera, assets);
@@ -129,20 +129,18 @@ function drawSceneBase(
       let sprite: SheetSprite = floorSprite;
       if (
         scene.theme === "exterior" &&
-        (row === 8 || col === 13 || col === 14)
+        (row === 8 ||
+          col === 13 ||
+          col === 14 ||
+          (row >= 8 && row <= 11 && col >= 19 && col <= 22))
       ) {
         sprite = tileSprites.path;
       }
       if (
-        scene.theme === "exterior" &&
-        row >= 7 &&
-        row <= 10 &&
-        col >= 10 &&
-        col <= 17
+        scene.theme === "interior" &&
+        scene.id === "operations" &&
+        (row + col) % 4 === 0
       ) {
-        sprite = tileSprites.plaza;
-      }
-      if (scene.theme === "interior" && (row + col) % 5 === 0) {
         sprite = tileSprites.warmFloor;
       }
 
@@ -159,11 +157,6 @@ function drawSceneBase(
   }
 
   drawRoomBorders(ctx, scene, camera, assets);
-  if (scene.theme === "exterior") {
-    drawBuilding(ctx, camera, 6, 3, 6, 4, "Strategy Studio");
-    drawBuilding(ctx, camera, 29, 3, 6, 4, "Operations Suite");
-    drawBuilding(ctx, camera, 18, 17, 6, 4, "Learning Systems Lab");
-  }
 }
 
 function drawRoomBorders(
@@ -201,40 +194,6 @@ function drawRoomBorders(
   );
 }
 
-function drawBuilding(
-  ctx: CanvasRenderingContext2D,
-  camera: { x: number; y: number },
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  label: string,
-) {
-  const px = x * TILE_SIZE - camera.x;
-  const py = y * TILE_SIZE - camera.y;
-  const w = width * TILE_SIZE;
-  const h = height * TILE_SIZE;
-  const doorX = px + w / 2 - 24;
-
-  ctx.fillStyle = "#2f3b54";
-  ctx.fillRect(px, py + 48, w, h - 48);
-  ctx.fillStyle = "#d8b46e";
-  ctx.fillRect(px, py, w, 58);
-  ctx.fillStyle = "#f1d991";
-  ctx.fillRect(px + 10, py + 10, w - 20, 8);
-  ctx.fillStyle = "#1d2433";
-  ctx.fillRect(doorX, py + h - 76, 48, 76);
-
-  for (let i = 0; i < 3; i += 1) {
-    ctx.fillStyle = "#8bd3ff";
-    ctx.fillRect(px + 28 + i * 78, py + 86, 34, 34);
-    ctx.fillStyle = "rgba(255,255,255,0.35)";
-    ctx.fillRect(px + 33 + i * 78, py + 91, 10, 24);
-  }
-
-  drawLabel(ctx, label, px + w / 2, py + h + 20, "#f8fafc");
-}
-
 function drawPortals(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
@@ -245,12 +204,12 @@ function drawPortals(
     const py = portal.rect.y * TILE_SIZE - camera.y;
     const width = portal.rect.width * TILE_SIZE;
     const height = portal.rect.height * TILE_SIZE;
-    ctx.fillStyle = "rgba(56, 189, 248, 0.18)";
+    const opacity = scene.theme === "exterior" ? 0.08 : 0.14;
+    ctx.fillStyle = `rgba(56, 189, 248, ${opacity})`;
     ctx.fillRect(px, py, width, height);
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.52)";
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.42)";
     ctx.lineWidth = 2;
     ctx.strokeRect(px + 4, py + 4, width - 8, height - 8);
-    drawLabel(ctx, portal.label, px + width / 2, py - 10, "#bae6fd");
   }
 }
 
@@ -320,10 +279,11 @@ function drawCharacters(
     drawLabel(ctx, character.name, x + 24, y - 10, "#bbf7d0");
 
     if (character.id === "maya" && gameState.questStage !== "complete") {
-      ctx.fillStyle = "#facc15";
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.9)";
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(x + 24, y - 28, 6, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.ellipse(x + 24, y + 91, 22, 8, 0, 0, Math.PI * 2);
+      ctx.stroke();
     }
   }
 }
