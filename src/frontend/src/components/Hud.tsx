@@ -1,5 +1,12 @@
 import type { InputState, QuestStage } from "@/game/types";
-import { Backpack, ClipboardList, Crosshair, Hand, MapPin } from "lucide-react";
+import {
+  Backpack,
+  ClipboardList,
+  Crosshair,
+  Hand,
+  MapPin,
+  SlidersHorizontal,
+} from "lucide-react";
 import { type MutableRefObject, type PointerEvent, useState } from "react";
 
 interface HudProps {
@@ -12,6 +19,7 @@ interface HudProps {
   inputRef: MutableRefObject<InputState>;
   onOpenQuest: () => void;
   onOpenBackpack: () => void;
+  onOpenSettings: () => void;
   onInteract: () => void;
 }
 
@@ -33,6 +41,7 @@ export function Hud({
   inputRef,
   onOpenQuest,
   onOpenBackpack,
+  onOpenSettings,
   onInteract,
 }: HudProps) {
   return (
@@ -77,6 +86,14 @@ export function Hud({
             <Backpack className="h-4 w-4" />
             <span>Backpack</span>
             <kbd>B</kbd>
+          </button>
+          <button
+            className="eq-hud-button"
+            type="button"
+            onClick={onOpenSettings}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            <span>Settings</span>
           </button>
         </nav>
       </header>

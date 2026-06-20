@@ -71,6 +71,8 @@ export const scenes: Scene[] = [
     props: [
       {
         id: "mission-desk",
+        description:
+          "This is your case desk. The current case asks whether slow onboarding is really a training problem.",
         position: { x: 3.2, y: 3.2 },
         size: { width: 2.2, height: 1.25 },
         sprite: officeSprite(336, 1344, 96, 96),
@@ -78,6 +80,8 @@ export const scenes: Scene[] = [
       },
       {
         id: "analytics-wall",
+        description:
+          "The dashboard is waiting for evidence. Good enablement work starts with facts, not course requests.",
         position: { x: 12.5, y: 2 },
         size: { width: 2.5, height: 1.5 },
         sprite: officeSprite(384, 432, 144, 96),
@@ -92,6 +96,8 @@ export const scenes: Scene[] = [
       },
       {
         id: "lab-console",
+        description:
+          "The AI workbench can help draft and summarize, but the diagnosis still has to be human-reviewed.",
         position: { x: 6.5, y: 8.5 },
         size: { width: 2.2, height: 1.4 },
         sprite: officeSprite(528, 192, 144, 96),
@@ -146,6 +152,8 @@ export const scenes: Scene[] = [
       },
       {
         id: "hub-fountain",
+        description:
+          "Central plaza. Doorways lead to case rooms; glowing evidence appears inside active case areas.",
         position: { x: 20.1, y: 9.1 },
         size: { width: 1.8, height: 1.8 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
@@ -194,6 +202,8 @@ export const scenes: Scene[] = [
     props: [
       {
         id: "manager-table",
+        description:
+          "Stakeholder notes point to unclear handoffs and inconsistent manager follow-through.",
         position: { x: 3.2, y: 3.1 },
         size: { width: 3.2, height: 1.4 },
         sprite: officeSprite(336, 1344, 144, 96),
@@ -201,6 +211,8 @@ export const scenes: Scene[] = [
       },
       {
         id: "metric-board",
+        description:
+          "Ramp data shows the problem spikes after orientation, which suggests reinforcement and workflow gaps.",
         position: { x: 14.2, y: 3.1 },
         size: { width: 3.2, height: 1.4 },
         sprite: officeSprite(384, 432, 144, 96),
@@ -208,6 +220,8 @@ export const scenes: Scene[] = [
       },
       {
         id: "process-desk",
+        description:
+          "The process review desk shows access delays and too many handoffs before new hires can work confidently.",
         position: { x: 9.4, y: 8.1 },
         size: { width: 3, height: 1.4 },
         sprite: officeSprite(528, 192, 144, 96),
