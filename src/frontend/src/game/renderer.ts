@@ -1,11 +1,29 @@
-import { assetUrls, evidenceItems, npcs, scenes, tileSprites } from "./levels";
-import type { AssetKey, GameState, Scene, SheetSprite } from "./types";
+import {
+  assetUrls,
+  characters,
+  evidenceItems,
+  scenes,
+  tileSprites,
+} from "./levels";
+import type {
+  AssetKey,
+  Direction,
+  GameState,
+  Scene,
+  SheetSprite,
+} from "./types";
 import { PLAYER_HEIGHT, PLAYER_WIDTH, TILE_SIZE } from "./types";
 
 export type LoadedAssets = Partial<Record<AssetKey, HTMLImageElement>>;
 
 const LABEL_BG = "rgba(7, 10, 20, 0.78)";
 const LABEL_BORDER = "rgba(255, 255, 255, 0.18)";
+const RUN_FRAMES_PER_DIRECTION = 6;
+
+interface Viewport {
+  width: number;
+  height: number;
+}
 
 export function loadGameAssets(
   onReady: (assets: LoadedAssets) => void,
@@ -45,18 +63,19 @@ export function renderGame(
   assets: LoadedAssets,
 ) {
   const scene = getScene(gameState.player.sceneId);
-  const camera = getCamera(canvas, scene, gameState);
+  const viewport = getViewport(canvas);
+  const camera = getCamera(viewport, scene, gameState);
 
   ctx.imageSmoothingEnabled = false;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, viewport.width, viewport.height);
   ctx.fillStyle = "#07111d";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, viewport.width, viewport.height);
 
-  drawSceneBase(ctx, canvas, scene, camera, assets);
+  drawSceneBase(ctx, viewport, scene, camera, assets);
   drawPortals(ctx, scene, camera);
   drawProps(ctx, scene, camera, assets);
   drawEvidence(ctx, scene, gameState, camera, assets);
-  drawNpcs(ctx, scene, gameState, camera, assets);
+  drawCharacters(ctx, scene, gameState, camera, assets);
   drawPlayer(ctx, gameState, camera, assets);
 }
 
@@ -68,33 +87,36 @@ function getScene(sceneId: string): Scene {
   return scene;
 }
 
-function getCamera(
-  canvas: HTMLCanvasElement,
-  scene: Scene,
-  gameState: GameState,
-) {
+function getViewport(canvas: HTMLCanvasElement): Viewport {
+  return {
+    width: canvas.clientWidth || canvas.width,
+    height: canvas.clientHeight || canvas.height,
+  };
+}
+
+function getCamera(viewport: Viewport, scene: Scene, gameState: GameState) {
   const worldWidth = scene.width * TILE_SIZE;
   const worldHeight = scene.height * TILE_SIZE;
-  const targetX = gameState.player.position.x * TILE_SIZE - canvas.width / 2;
-  const targetY = gameState.player.position.y * TILE_SIZE - canvas.height / 2;
+  const targetX = gameState.player.position.x * TILE_SIZE - viewport.width / 2;
+  const targetY = gameState.player.position.y * TILE_SIZE - viewport.height / 2;
 
   return {
-    x: clamp(targetX, 0, Math.max(0, worldWidth - canvas.width)),
-    y: clamp(targetY, 0, Math.max(0, worldHeight - canvas.height)),
+    x: clamp(targetX, 0, Math.max(0, worldWidth - viewport.width)),
+    y: clamp(targetY, 0, Math.max(0, worldHeight - viewport.height)),
   };
 }
 
 function drawSceneBase(
   ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
+  viewport: Viewport,
   scene: Scene,
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
   const startCol = Math.floor(camera.x / TILE_SIZE);
-  const endCol = Math.ceil((camera.x + canvas.width) / TILE_SIZE);
+  const endCol = Math.ceil((camera.x + viewport.width) / TILE_SIZE);
   const startRow = Math.floor(camera.y / TILE_SIZE);
-  const endRow = Math.ceil((camera.y + canvas.height) / TILE_SIZE);
+  const endRow = Math.ceil((camera.y + viewport.height) / TILE_SIZE);
   const floorSprite: SheetSprite =
     scene.theme === "exterior" ? tileSprites.grass : tileSprites.labFloor;
 
@@ -281,21 +303,23 @@ function drawEvidence(
   }
 }
 
-function drawNpcs(
+function drawCharacters(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
   gameState: GameState,
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
-  const sceneNpcs = npcs.filter((npc) => npc.sceneId === scene.id);
-  for (const npc of sceneNpcs) {
-    const x = npc.position.x * TILE_SIZE - camera.x - 24;
-    const y = npc.position.y * TILE_SIZE - camera.y - 48;
-    drawSheetSprite(ctx, assets, npc.sprite, x, y, 48, 96);
-    drawLabel(ctx, npc.name, x + 24, y - 10, "#bbf7d0");
+  const sceneCharacters = characters.filter(
+    (character) => character.sceneId === scene.id,
+  );
+  for (const character of sceneCharacters) {
+    const x = character.position.x * TILE_SIZE - camera.x - 24;
+    const y = character.position.y * TILE_SIZE - camera.y - 48;
+    drawSheetSprite(ctx, assets, character.sprite, x, y, 48, 96);
+    drawLabel(ctx, character.name, x + 24, y - 10, "#bbf7d0");
 
-    if (npc.id === "maya" && gameState.questStage !== "complete") {
+    if (character.id === "maya" && gameState.questStage !== "complete") {
       ctx.fillStyle = "#facc15";
       ctx.beginPath();
       ctx.arc(x + 24, y - 28, 6, 0, Math.PI * 2);
@@ -314,11 +338,23 @@ function drawPlayer(
     gameState.player.position.x * TILE_SIZE - camera.x - PLAYER_WIDTH / 2;
   const y =
     gameState.player.position.y * TILE_SIZE - camera.y - PLAYER_HEIGHT + 18;
-  const frame = Math.floor(Date.now() / 140) % 4;
-  const isMoving = false;
-  const sprite: SheetSprite = isMoving
-    ? { image: "adamRun", sx: frame * 96, sy: 0, sw: 16, sh: 32 }
-    : { image: "adamIdle", sx: 0, sy: 0, sw: 16, sh: 32 };
+  const directionOffset = getDirectionSpriteOffset(gameState.player.direction);
+  const runFrame = Math.floor(Date.now() / 140) % RUN_FRAMES_PER_DIRECTION;
+  const sprite: SheetSprite = gameState.player.isMoving
+    ? {
+        image: "adamRun",
+        sx: directionOffset * RUN_FRAMES_PER_DIRECTION * 16 + runFrame * 16,
+        sy: 0,
+        sw: 16,
+        sh: 32,
+      }
+    : {
+        image: "adamIdle",
+        sx: directionOffset * 16,
+        sy: 0,
+        sw: 16,
+        sh: 32,
+      };
 
   ctx.fillStyle = "rgba(0,0,0,0.28)";
   ctx.beginPath();
@@ -333,6 +369,16 @@ function drawPlayer(
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
+}
+
+function getDirectionSpriteOffset(direction: Direction) {
+  const offsets: Record<Direction, number> = {
+    left: 0,
+    up: 1,
+    right: 2,
+    down: 3,
+  };
+  return offsets[direction];
 }
 
 function drawSheetSprite(

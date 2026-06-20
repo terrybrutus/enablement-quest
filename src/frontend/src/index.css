@@ -269,6 +269,10 @@
   gap: 8px;
 }
 
+.eq-touch-hint {
+  display: none;
+}
+
 .eq-step-list {
   display: grid;
   gap: 10px;
@@ -512,22 +516,81 @@
   padding: 0 18px;
 }
 
+.eq-mobile-controls {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
 @media (max-width: 780px) {
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+    min-width: 100vw;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
   .eq-title-screen {
     display: block;
     padding: 10px;
   }
 
+  .eq-hud-card,
+  .eq-hud-button,
+  .eq-dialogue,
+  .eq-panel,
+  .eq-toast {
+    backdrop-filter: blur(10px);
+  }
+
   .eq-hud-card {
     max-width: calc(100vw - 24px);
-    padding: 12px;
+    padding: 8px 10px;
   }
 
   .eq-hud-card h1 {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.12;
+  }
+
+  .eq-hud-card .mt-3 {
+    margin-top: 6px;
+  }
+
+  .eq-hud-card .flex.items-start.gap-3 {
+    gap: 8px;
+  }
+
+  .eq-hud-card .mt-1.h-5.w-5 {
+    height: 16px;
+    width: 16px;
+  }
+
+  .eq-kicker {
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+  }
+
+  .eq-pill {
+    padding: 3px 7px;
+  }
+
+  .eq-hud-button {
+    min-height: 36px;
+    padding: 8px;
   }
 
   .eq-hud-button span {
+    display: none;
+  }
+
+  .eq-hud-button kbd {
     display: none;
   }
 
@@ -535,7 +598,7 @@
   .eq-side-panel.is-right,
   .eq-decision,
   .eq-canvas {
-    bottom: 96px;
+    bottom: calc(env(safe-area-inset-bottom) + 84px);
     left: 12px;
     right: 12px;
     top: auto;
@@ -544,7 +607,10 @@
   }
 
   .eq-dialogue {
-    bottom: 96px;
+    bottom: calc(env(safe-area-inset-bottom) + 84px);
+    max-height: 38dvh;
+    overflow: auto;
+    padding: 14px;
   }
 
   .eq-dialogue-actions {
@@ -563,6 +629,14 @@
   .eq-dialogue-actions > div {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+
+  .eq-keyboard-hint {
+    display: none;
+  }
+
+  .eq-touch-hint {
+    display: inline;
   }
 
   .eq-panel {
@@ -601,5 +675,25 @@
 
   .eq-control-strip span {
     font-size: 0.7rem;
+  }
+
+  .eq-toast {
+    top: 76px;
+  }
+
+  .eq-touch-button {
+    height: 44px;
+    width: 44px;
+  }
+
+  .eq-touch-interact {
+    min-height: 48px;
+    padding: 0 14px;
+  }
+
+  .eq-mobile-controls {
+    bottom: calc(env(safe-area-inset-bottom) + 10px);
+    left: 10px;
+    right: 10px;
   }
 }

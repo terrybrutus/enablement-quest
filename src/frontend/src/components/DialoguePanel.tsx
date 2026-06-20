@@ -1,8 +1,8 @@
-import type { Npc } from "@/game/types";
+import type { GameCharacter } from "@/game/types";
 import { ArrowRight, X } from "lucide-react";
 
 interface DialoguePanelProps {
-  npc: Npc;
+  character: GameCharacter;
   line: string;
   lineIndex: number;
   totalLines: number;
@@ -11,7 +11,7 @@ interface DialoguePanelProps {
 }
 
 export function DialoguePanel({
-  npc,
+  character,
   line,
   lineIndex,
   totalLines,
@@ -22,12 +22,12 @@ export function DialoguePanel({
     <section
       className="eq-dialogue"
       data-ocid="dialogue.panel"
-      aria-label={`${npc.name} dialogue`}
+      aria-label={`${character.name} dialogue`}
     >
       <div className="eq-dialogue-speaker">
         <div>
-          <p className="eq-kicker">{npc.role}</p>
-          <h2>{npc.name}</h2>
+          <p className="eq-kicker">{character.role}</p>
+          <h2>{character.name}</h2>
         </div>
         <span>
           {lineIndex + 1} / {totalLines}
@@ -37,9 +37,10 @@ export function DialoguePanel({
       <p>{line}</p>
 
       <div className="eq-dialogue-actions">
-        <span>
+        <span className="eq-keyboard-hint">
           Press <kbd>E</kbd>, <kbd>Space</kbd>, or <kbd>Enter</kbd>
         </span>
+        <span className="eq-touch-hint">Tap Continue or Interact</span>
         <div>
           <button className="eq-ghost-button" type="button" onClick={onClose}>
             <X className="h-4 w-4" />

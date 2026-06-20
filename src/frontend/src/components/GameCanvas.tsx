@@ -1,9 +1,9 @@
 import {
+  characters,
   diagnosisOptions,
   earnedCanvas,
   evidenceItems,
   interventionOptions,
-  npcs,
   scenes,
 } from "@/game/levels";
 import { type LoadedAssets, loadGameAssets, renderGame } from "@/game/renderer";
@@ -21,6 +21,7 @@ const initialGameState: GameState = {
   player: {
     position: { x: 10, y: 10.5 },
     direction: "down",
+    isMoving: false,
     sceneId: "lab",
     hasStarted: false,
   },
@@ -95,11 +96,15 @@ export default function GameCanvas() {
     [gameState.player.sceneId],
   );
 
-  const activeNpc = useMemo(() => {
+  const activeCharacter = useMemo(() => {
     if (!gameState.dialogue) {
       return null;
     }
-    return npcs.find((npc) => npc.id === gameState.dialogue?.npcId) ?? null;
+    return (
+      characters.find(
+        (character) => character.id === gameState.dialogue?.characterId,
+      ) ?? null
+    );
   }, [gameState.dialogue]);
 
   const closeOverlay = useCallback(() => {
@@ -135,11 +140,13 @@ export default function GameCanvas() {
       if (!previous.dialogue) {
         return previous;
       }
-      const npc = npcs.find((item) => item.id === previous.dialogue?.npcId);
-      if (!npc) {
+      const character = characters.find(
+        (item) => item.id === previous.dialogue?.characterId,
+      );
+      if (!character) {
         return { ...previous, overlay: "none", dialogue: null };
       }
-      const lines = npc.dialogue[previous.questStage];
+      const lines = character.dialogue[previous.questStage];
       const nextIndex = previous.dialogue.lineIndex + 1;
       if (nextIndex >= lines.length) {
         const nextStage =
@@ -257,20 +264,22 @@ export default function GameCanvas() {
         <TitleScreen onStart={startMission} onClose={closeOverlay} />
       )}
 
-      {gameState.overlay === "dialogue" && activeNpc && gameState.dialogue && (
-        <DialoguePanel
-          npc={activeNpc}
-          line={
-            activeNpc.dialogue[gameState.questStage][
-              gameState.dialogue.lineIndex
-            ]
-          }
-          lineIndex={gameState.dialogue.lineIndex}
-          totalLines={activeNpc.dialogue[gameState.questStage].length}
-          onAdvance={advanceDialogue}
-          onClose={closeOverlay}
-        />
-      )}
+      {gameState.overlay === "dialogue" &&
+        activeCharacter &&
+        gameState.dialogue && (
+          <DialoguePanel
+            character={activeCharacter}
+            line={
+              activeCharacter.dialogue[gameState.questStage][
+                gameState.dialogue.lineIndex
+              ]
+            }
+            lineIndex={gameState.dialogue.lineIndex}
+            totalLines={activeCharacter.dialogue[gameState.questStage].length}
+            onAdvance={advanceDialogue}
+            onClose={closeOverlay}
+          />
+        )}
 
       {gameState.overlay === "quest" && (
         <QuestLog
