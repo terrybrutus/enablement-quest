@@ -1,0 +1,22 @@
+{
+  "overview": "Enablement Quest: The Learning Systems Lab is a top-down RPG-style learning journey where players explore a modern organization, talk to NPCs, complete quests, and collect learning artifacts about workplace enablement.",
+  "features": [
+    "Top-down tile-based game canvas with player movement",
+    "Home/base area (The Lab) and hub area (The Commons)",
+    "NPC dialogue system with a Learning Architect",
+    "Basic quest: Map the Onboarding Flow with waypoints",
+    "Learning artifact: Onboarding Blueprint earned on completion",
+    "Quest log and artifact inventory panels",
+    "Responsive game canvas scaling"
+  ],
+  "category": "game",
+  "tags": [
+    "rpg",
+    "learning",
+    "education",
+    "game",
+    "interactive",
+    "workplace"
+  ],
+  "last_updated": "2026-06-20T01:17:25.280Z"
+}

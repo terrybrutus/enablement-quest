@@ -1,0 +1,94 @@
+type ZoneId = nat;
+type Zone = 
+ record {
+   height: nat;
+   id: ZoneId;
+   name: text;
+   width: nat;
+ };
+type WaypointId = nat;
+type Waypoint = 
+ record {
+   id: WaypointId;
+   observed: bool;
+   position: Position;
+   waypointLabel: text;
+   zoneId: ZoneId;
+ };
+type Timestamp = nat;
+type QuestStatus = 
+ variant {
+   completed;
+   inProgress;
+   notStarted;
+ };
+type QuestId = nat;
+type Quest = 
+ record {
+   description: text;
+   giverNpcId: NpcId;
+   id: QuestId;
+   observedWaypoints: vec WaypointId;
+   requiredWaypoints: vec WaypointId;
+   status: QuestStatus;
+   title: text;
+   zoneId: ZoneId;
+ };
+type Position = 
+ record {
+   x: nat;
+   y: nat;
+ };
+type PlayerState = 
+ record {
+   activeQuests: vec Quest;
+   artifacts: vec Artifact;
+   completedQuestIds: vec QuestId;
+   currentZoneId: ZoneId;
+   position: Position;
+   "principal": PlayerId;
+ };
+type PlayerId = principal;
+type NpcId = nat;
+type Npc = 
+ record {
+   dialogue: vec text;
+   id: NpcId;
+   name: text;
+   position: Position;
+   zoneId: ZoneId;
+ };
+type ArtifactId = nat;
+type Artifact = 
+ record {
+   description: text;
+   earnedAt: Timestamp;
+   id: ArtifactId;
+   title: text;
+ };
+service : {
+  __artifacts: (io: opt nat, count: opt nat) -> (vec Artifact) query;
+  __npcs: (io: opt nat, count: opt nat) -> (vec Npc) query;
+  __playerStates: (ko: opt PlayerId, count: opt nat) ->
+   (vec record {
+          PlayerId;
+          PlayerState;
+        }) query;
+  __quests: (io: opt nat, count: opt nat) -> (vec Quest) query;
+  __waypoints: (io: opt nat, count: opt nat) -> (vec Waypoint) query;
+  __zones: (io: opt nat, count: opt nat) -> (vec Zone) query;
+  completeQuest: (questId: QuestId) -> (opt Artifact);
+  getArtifactsForPlayer: () -> (vec Artifact);
+  getNpc: (id: NpcId) -> (opt Npc) query;
+  getNpcsInZone: (zoneId: ZoneId) -> (vec Npc) query;
+  getPlayerState: () -> (opt PlayerState);
+  getQuest: (id: QuestId) -> (opt Quest) query;
+  getQuestsForPlayer: () -> (vec Quest);
+  getWaypointsInZone: (zoneId: ZoneId) -> (vec Waypoint) query;
+  getZone: (id: ZoneId) -> (opt Zone) query;
+  getZones: () -> (vec Zone) query;
+  initPlayerState: () -> (PlayerState);
+  observeWaypoint: (waypointId: WaypointId) -> (Quest);
+  startQuest: (questId: QuestId) -> (Quest);
+  updatePlayerPosition: (zoneId: ZoneId, position: Position) -> (PlayerState);
+}

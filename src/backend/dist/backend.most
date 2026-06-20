@@ -1,0 +1,167 @@
+// Version: 4.0.0
+type ArtifactId__252347969 = Nat;
+type Artifact__273550794 =
+  {description : Text; earnedAt : Nat; id : Nat; title : Text};
+type Artifact__28262883 =
+  {
+    description : Text;
+    earnedAt : Timestamp__301639476;
+    id : ArtifactId__252347969;
+    title : Text
+  };
+type Data__80296667<K, V> =
+  {var count : Nat__1040412405; kvs : [var ?(K, V)]};
+type Internal__41346355<K, V> =
+  {children : [var ?Node__1000929467<K, V>]; data : Data__80296667<K, V>};
+type Leaf__712614010<K, V> = {data : Data__80296667<K, V>};
+type List__529703492<T> =
+  {
+    var blockIndex : Nat__1040412405;
+    var blocks : [var [var ?T]];
+    var elementIndex : Nat__1040412405
+  };
+type List__560604548<T> = List__529703492<T>;
+type Map__222667396<K, V> = Map__912772452<K, V>;
+type Map__709709801<K, V> =
+  {var root : Node__1000929467<K, V>; var size : Nat__1040412405};
+type Map__912772452<K, V> = Map__709709801<K, V>;
+type Nat__1040412405 = Nat__920180692;
+type Nat__920180692 = Nat;
+type NewActor__138458917 =
+  {
+    artifacts : List__560604548<Artifact__273550794>;
+    npcs : List__560604548<Npc__990990996>;
+    playerStates : Map__222667396<Principal, PlayerState__435416306>;
+    quests : List__560604548<Quest__206746202>;
+    waypoints : List__560604548<Waypoint__646434596>;
+    zones : List__560604548<Zone__423900102>
+  };
+type Node__1000929467<K, V> =
+  {#internal : Internal__41346355<K, V>; #leaf : Leaf__712614010<K, V>};
+type NpcId__428698392 = Nat;
+type Npc__101895143 =
+  {
+    dialogue : [Text];
+    id : NpcId__428698392;
+    name : Text;
+    position : Position__621500575;
+    zoneId : ZoneId__805035696
+  };
+type Npc__990990996 =
+  {
+    dialogue : [Text];
+    id : Nat;
+    name : Text;
+    position : Position__42880380;
+    zoneId : Nat
+  };
+type OldActor__70412749 = {};
+type PlayerId__52807076 = Principal;
+type PlayerState__435416306 =
+  {
+    activeQuests : [Quest__206746202];
+    artifacts : [Artifact__273550794];
+    completedQuestIds : [Nat];
+    currentZoneId : Nat;
+    position : Position__42880380;
+    principal : Principal
+  };
+type PlayerState__973285006 =
+  {
+    activeQuests : [Quest__1031147948];
+    artifacts : [Artifact__28262883];
+    completedQuestIds : [QuestId__972316551];
+    currentZoneId : ZoneId__805035696;
+    position : Position__621500575;
+    principal : PlayerId__52807076
+  };
+type Position__42880380 = {x : Nat; y : Nat};
+type Position__621500575 = {x : Nat; y : Nat};
+type QuestId__972316551 = Nat;
+type QuestStatus__343104141 = {#completed; #inProgress; #notStarted};
+type QuestStatus__821933673 = {#completed; #inProgress; #notStarted};
+type Quest__1031147948 =
+  {
+    description : Text;
+    giverNpcId : NpcId__428698392;
+    id : QuestId__972316551;
+    observedWaypoints : [WaypointId__27187295];
+    requiredWaypoints : [WaypointId__27187295];
+    status : QuestStatus__821933673;
+    title : Text;
+    zoneId : ZoneId__805035696
+  };
+type Quest__206746202 =
+  {
+    description : Text;
+    giverNpcId : Nat;
+    id : Nat;
+    observedWaypoints : [Nat];
+    requiredWaypoints : [Nat];
+    status : QuestStatus__343104141;
+    title : Text;
+    zoneId : Nat
+  };
+type Timestamp__301639476 = Nat;
+type WaypointId__27187295 = Nat;
+type Waypoint__497444868 =
+  {
+    id : WaypointId__27187295;
+    observed : Bool;
+    position : Position__621500575;
+    waypointLabel : Text;
+    zoneId : ZoneId__805035696
+  };
+type Waypoint__646434596 =
+  {
+    id : Nat;
+    observed : Bool;
+    position : Position__42880380;
+    waypointLabel : Text;
+    zoneId : Nat
+  };
+type ZoneId__805035696 = Nat;
+type Zone__423900102 = {height : Nat; id : Nat; name : Text; width : Nat};
+type Zone__808294793 =
+  {height : Nat; id : ZoneId__805035696; name : Text; width : Nat};
+{
+  "20260620_011700_InitGameState" :
+    (_old : OldActor__70412749) -> NewActor__138458917
+}
+actor  {
+  stable artifacts :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?Artifact__28262883]];
+      var elementIndex : Nat__1040412405
+    };
+  stable npcs :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?Npc__101895143]];
+      var elementIndex : Nat__1040412405
+    };
+  stable playerStates :
+    {
+      var root : Node__1000929467<PlayerId__52807076, PlayerState__973285006>;
+      var size : Nat__1040412405
+    };
+  stable quests :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?Quest__1031147948]];
+      var elementIndex : Nat__1040412405
+    };
+  stable waypoints :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?Waypoint__497444868]];
+      var elementIndex : Nat__1040412405
+    };
+  stable zones :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?Zone__808294793]];
+      var elementIndex : Nat__1040412405
+    }
+};
