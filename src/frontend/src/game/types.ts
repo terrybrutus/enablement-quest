@@ -77,7 +77,7 @@ export interface Evidence {
   sprite: SheetSprite;
 }
 
-export interface Npc {
+export interface GameCharacter {
   id: string;
   name: string;
   role: string;
@@ -131,12 +131,13 @@ export interface Toast {
 export interface PlayerState {
   position: Position;
   direction: Direction;
+  isMoving: boolean;
   sceneId: SceneId;
   hasStarted: boolean;
 }
 
 export interface DialogueState {
-  npcId: string;
+  characterId: string;
   lineIndex: number;
 }
 

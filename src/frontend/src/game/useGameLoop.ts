@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { earnedCanvas, evidenceItems, npcs, scenes } from "./levels";
+import { characters, earnedCanvas, evidenceItems, scenes } from "./levels";
 import type { GameState, InputState, Position, Rect } from "./types";
 import { INTERACT_DISTANCE, MOVE_SPEED, TILE_SIZE } from "./types";
 
@@ -67,17 +67,17 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
     return true;
   }, [gameStateRef, setGameState]);
 
-  const openNearbyNpc = useCallback(() => {
+  const openNearbyCharacter = useCallback(() => {
     const state = gameStateRef.current;
-    const npc = getNearbyNpc(state);
-    if (!npc) {
+    const character = getNearbyCharacter(state);
+    if (!character) {
       return false;
     }
 
     setGameState((previous) => ({
       ...previous,
       overlay: "dialogue",
-      dialogue: { npcId: npc.id, lineIndex: 0 },
+      dialogue: { characterId: character.id, lineIndex: 0 },
     }));
     return true;
   }, [gameStateRef, setGameState]);
@@ -92,7 +92,7 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
       return;
     }
 
-    if (openNearbyNpc()) {
+    if (openNearbyCharacter()) {
       return;
     }
 
@@ -113,11 +113,11 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
       return;
     }
 
-    setToast("Move closer to an NPC, evidence item, or doorway.");
+    setToast("Move closer to a person, evidence item, or doorway.");
   }, [
     collectNearbyEvidence,
     gameStateRef,
-    openNearbyNpc,
+    openNearbyCharacter,
     setGameState,
     setToast,
   ]);
@@ -140,6 +140,13 @@ export function useGameLoop({ gameStateRef, setGameState }: UseGameLoopArgs) {
             gameStateRef.current = nextState;
             setGameState(nextState);
           }
+        } else if (state.player.isMoving) {
+          const nextState = {
+            ...state,
+            player: { ...state.player, isMoving: false },
+          };
+          gameStateRef.current = nextState;
+          setGameState(nextState);
         }
       }
 
@@ -273,8 +280,16 @@ function moveWithinScene(
   };
 
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
+  const direction = getDirection(state.player.position, bounded);
   if (blocked) {
-    return null;
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        direction,
+        isMoving: false,
+      },
+    };
   }
 
   return {
@@ -282,18 +297,20 @@ function moveWithinScene(
     player: {
       ...state.player,
       position: bounded,
-      direction: getDirection(state.player.position, bounded),
+      direction,
+      isMoving: true,
     },
   };
 }
 
-function getNearbyNpc(state: GameState) {
-  return npcs.find((npc) => {
-    if (npc.sceneId !== state.player.sceneId) {
+function getNearbyCharacter(state: GameState) {
+  return characters.find((character) => {
+    if (character.sceneId !== state.player.sceneId) {
       return false;
     }
     return (
-      distanceInPixels(state.player.position, npc.position) < INTERACT_DISTANCE
+      distanceInPixels(state.player.position, character.position) <
+      INTERACT_DISTANCE
     );
   });
 }

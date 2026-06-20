@@ -98,7 +98,7 @@ function MobileControls({
   };
 
   return (
-    <div className="pointer-events-auto absolute bottom-4 left-4 right-4 flex items-end justify-between md:hidden">
+    <div className="eq-mobile-controls pointer-events-auto md:hidden">
       <div className="grid grid-cols-3 gap-1">
         <span />
         <TouchButton label="Up" onPress={(value) => setInput("up", value)} />

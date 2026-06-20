@@ -2,8 +2,8 @@ import type {
   DiagnosisOption,
   EarnedArtifact,
   Evidence,
+  GameCharacter,
   InterventionOption,
-  Npc,
   Scene,
   SheetSprite,
 } from "./types";
@@ -223,7 +223,7 @@ export const scenes: Scene[] = [
   },
 ];
 
-export const npcs: Npc[] = [
+export const characters: GameCharacter[] = [
   {
     id: "maya",
     name: "Maya",
