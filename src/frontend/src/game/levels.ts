@@ -22,6 +22,7 @@ const officeSprite = (
 });
 
 export const assetUrls = {
+  // Legacy assets
   adamIdle: "/assets/limezu/adam-idle.png",
   adamRun: "/assets/limezu/adam-run.png",
   ameliaIdle: "/assets/limezu/amelia-idle.png",
@@ -32,15 +33,68 @@ export const assetUrls = {
   exteriorFloors: "/assets/limezu/exterior-floors.png",
   fountain: "/assets/limezu/fountains.png",
   streetLamp: "/assets/limezu/street-lamp.png",
+
+  // New interior tiles with color differentiation
+  interiorsTiles: "/assets/tiles/Interiors_free_48x48.png",
+  roomBuilderTiles: "/assets/tiles/Room_Builder_free_48x48.png",
+
+  // Office props
+  officeProps1: "/assets/props/Modern_Office_Singles_48x48_1.png",
+  officeProps2: "/assets/props/Modern_Office_Singles_48x48_2.png",
+  officeProps3: "/assets/props/Modern_Office_Singles_48x48_3.png",
+  officeProps4: "/assets/props/Modern_Office_Singles_48x48_4.png",
+  officeProps5: "/assets/props/Modern_Office_Singles_48x48_5.png",
+  officeProps6: "/assets/props/Modern_Office_Singles_48x48_6.png",
+  officeProps7: "/assets/props/Modern_Office_Singles_48x48_7.png",
+  officeProps10: "/assets/props/Modern_Office_Singles_48x48_10.png",
+  officeProps15: "/assets/props/Modern_Office_Singles_48x48_15.png",
+  officeProps20: "/assets/props/Modern_Office_Singles_48x48_20.png",
+
+  // Enhanced character sprites
+  adamRunEnhanced: "/assets/characters/Adam_run_16x16.png",
+  adamIdleEnhanced: "/assets/characters/Adam_idle_anim_16x16.png",
+  ameliaRunEnhanced: "/assets/characters/Amelia_run_16x16.png",
+  ameliaIdleEnhanced: "/assets/characters/Amelia_idle_anim_16x16.png",
+  bobRunEnhanced: "/assets/characters/Bob_run_16x16.png",
+  bobIdleEnhanced: "/assets/characters/Bob_idle_anim_16x16.png",
+
+  // Exterior tileset
+  exteriorFloorsTileset: "/assets/tiles/A2_Floors_MV_TILESET.png",
 } as const;
 
 export const tileSprites = {
+  // Original tiles (kept for fallback)
   labFloor: { image: "roomBuilder", sx: 528, sy: 528, sw: 48, sh: 48 },
   warmFloor: { image: "roomBuilder", sx: 576, sy: 528, sw: 48, sh: 48 },
   wall: { image: "roomBuilder", sx: 240, sy: 0, sw: 48, sh: 48 },
   grass: { image: "exteriorFloors", sx: 192, sy: 0, sw: 48, sh: 48 },
   path: { image: "exteriorFloors", sx: 0, sy: 0, sw: 48, sh: 48 },
   plaza: { image: "exteriorFloors", sx: 288, sy: 96, sw: 48, sh: 48 },
+
+  // New color-differentiated tiles for different scenes
+  // Lab (cool blue-tinted)
+  labFloorCyan: { image: "interiorsTiles", sx: 0, sy: 0, sw: 48, sh: 48 },
+  labFloorCyan2: { image: "interiorsTiles", sx: 48, sy: 0, sw: 48, sh: 48 },
+  labFloorCyan3: { image: "interiorsTiles", sx: 96, sy: 0, sw: 48, sh: 48 },
+
+  // Operations (warm tones)
+  operationsFloorWarm: { image: "interiorsTiles", sx: 0, sy: 48, sw: 48, sh: 48 },
+  operationsFloorWarm2: { image: "interiorsTiles", sx: 48, sy: 48, sw: 48, sh: 48 },
+  operationsFloorWarm3: { image: "interiorsTiles", sx: 96, sy: 48, sw: 48, sh: 48 },
+
+  // Sales (neutral modern)
+  salesFloor: { image: "interiorsTiles", sx: 0, sy: 96, sw: 48, sh: 48 },
+  salesFloor2: { image: "interiorsTiles", sx: 48, sy: 96, sw: 48, sh: 48 },
+  salesFloor3: { image: "interiorsTiles", sx: 96, sy: 96, sw: 48, sh: 48 },
+
+  // Interior walls
+  interiorWall1: { image: "roomBuilderTiles", sx: 0, sy: 0, sw: 48, sh: 48 },
+  interiorWall2: { image: "roomBuilderTiles", sx: 48, sy: 0, sw: 48, sh: 48 },
+
+  // Exterior tiles (modern plaza)
+  grassModern: { image: "exteriorFloorsTileset", sx: 0, sy: 0, sw: 48, sh: 48 },
+  pathModern: { image: "exteriorFloorsTileset", sx: 48, sy: 0, sw: 48, sh: 48 },
+  plazaTile: { image: "exteriorFloorsTileset", sx: 96, sy: 0, sw: 48, sh: 48 },
 } as const;
 
 const exteriorSprite = (
@@ -64,6 +118,8 @@ export const scenes: Scene[] = [
     width: 26,
     height: 18,
     theme: "interior",
+    tileColor: "#0f766e",
+    floorTileKey: "labFloorCyan",
     portals: [
       {
         id: "lab-to-hub",
@@ -71,6 +127,7 @@ export const scenes: Scene[] = [
         rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
         targetPosition: { x: 20.5, y: 21.4 },
+        portalSprite: { image: "officeProps1", sx: 0, sy: 0, sw: 48, sh: 48 },
       },
     ],
     blocks: [
@@ -89,6 +146,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(336, 192),
         collision: true,
+        glow: true,
       },
       {
         id: "analytics-wall",
@@ -98,6 +156,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(432, 384),
         collision: true,
+        glow: true,
       },
       {
         id: "plant-lab",
@@ -114,6 +173,33 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(480, 288),
         collision: true,
+        glow: true,
+      },
+      {
+        id: "lab-shelf1",
+        position: { x: 2, y: 5 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 192),
+        collision: true,
+      },
+      {
+        id: "lab-shelf2",
+        position: { x: 2, y: 8 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 240),
+        collision: true,
+      },
+      {
+        id: "lab-chair",
+        position: { x: 22, y: 5 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 240),
+      },
+      {
+        id: "lab-decoration",
+        position: { x: 7, y: 14 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(432, 240),
       },
     ],
   },
@@ -124,6 +210,8 @@ export const scenes: Scene[] = [
     width: 42,
     height: 24,
     theme: "exterior",
+    tileColor: "#0284c7",
+    floorTileKey: "grassModern",
     portals: [
       {
         id: "hub-to-lab",
@@ -131,6 +219,7 @@ export const scenes: Scene[] = [
         rect: { x: 20, y: 19.5, width: 2, height: 1.5 },
         targetSceneId: "lab",
         targetPosition: { x: 13, y: 15.7 },
+        portalSprite: { image: "officeProps4", sx: 0, sy: 0, sw: 48, sh: 48 },
       },
       {
         id: "hub-to-operations",
@@ -138,6 +227,7 @@ export const scenes: Scene[] = [
         rect: { x: 30, y: 5.2, width: 2, height: 1.8 },
         targetSceneId: "operations",
         targetPosition: { x: 13, y: 15 },
+        portalSprite: { image: "officeProps5", sx: 0, sy: 0, sw: 48, sh: 48 },
       },
       {
         id: "hub-to-sales",
@@ -145,6 +235,7 @@ export const scenes: Scene[] = [
         rect: { x: 7, y: 5.2, width: 2, height: 1.8 },
         targetSceneId: "sales",
         targetPosition: { x: 13, y: 15 },
+        portalSprite: { image: "officeProps6", sx: 0, sy: 0, sw: 48, sh: 48 },
       },
     ],
     blocks: [
@@ -186,6 +277,7 @@ export const scenes: Scene[] = [
         size: { width: 1.8, height: 1.8 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
         collision: true,
+        glow: true,
       },
       {
         id: "lamp-a",
@@ -199,6 +291,30 @@ export const scenes: Scene[] = [
         size: { width: 0.8, height: 1.5 },
         sprite: { image: "streetLamp", sx: 0, sy: 0, sw: 48, sh: 96 },
       },
+      {
+        id: "hub-bench1",
+        position: { x: 4, y: 13 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 240),
+      },
+      {
+        id: "hub-bench2",
+        position: { x: 35, y: 13 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 240),
+      },
+      {
+        id: "hub-tree1",
+        position: { x: 3, y: 8 },
+        size: { width: 1, height: 1.5 },
+        sprite: officeSprite(384, 192),
+      },
+      {
+        id: "hub-tree2",
+        position: { x: 36, y: 8 },
+        size: { width: 1, height: 1.5 },
+        sprite: officeSprite(384, 192),
+      },
     ],
   },
   {
@@ -208,6 +324,8 @@ export const scenes: Scene[] = [
     width: 26,
     height: 18,
     theme: "interior",
+    tileColor: "#b97706",
+    floorTileKey: "operationsFloorWarm",
     portals: [
       {
         id: "operations-to-hub",
@@ -215,6 +333,7 @@ export const scenes: Scene[] = [
         rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
         targetPosition: { x: 31.5, y: 7.2 },
+        portalSprite: { image: "officeProps2", sx: 0, sy: 0, sw: 48, sh: 48 },
       },
     ],
     blocks: [
@@ -233,6 +352,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(336, 288),
         collision: true,
+        glow: true,
       },
       {
         id: "metric-board",
@@ -242,6 +362,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(432, 384),
         collision: true,
+        glow: true,
       },
       {
         id: "process-desk",
@@ -251,6 +372,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(384, 384),
         collision: true,
+        glow: true,
       },
       {
         id: "office-plant",
@@ -258,6 +380,25 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
         collision: true,
+      },
+      {
+        id: "ops-shelf",
+        position: { x: 2, y: 6 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 192),
+        collision: true,
+      },
+      {
+        id: "ops-chair1",
+        position: { x: 23, y: 6 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 240),
+      },
+      {
+        id: "ops-decoration",
+        position: { x: 8, y: 14 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(432, 240),
       },
     ],
   },
@@ -268,6 +409,8 @@ export const scenes: Scene[] = [
     width: 26,
     height: 18,
     theme: "interior",
+    tileColor: "#059669",
+    floorTileKey: "salesFloor",
     portals: [
       {
         id: "sales-to-hub",
@@ -275,6 +418,7 @@ export const scenes: Scene[] = [
         rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
         targetPosition: { x: 8, y: 7.2 },
+        portalSprite: { image: "officeProps3", sx: 0, sy: 0, sw: 48, sh: 48 },
       },
     ],
     blocks: [
@@ -293,6 +437,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(336, 288),
         collision: true,
+        glow: true,
       },
       {
         id: "pipeline-board",
@@ -302,6 +447,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(432, 384),
         collision: true,
+        glow: true,
       },
       {
         id: "call-coaching-station",
@@ -311,6 +457,7 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(384, 384),
         collision: true,
+        glow: true,
       },
       {
         id: "sales-plant",
@@ -318,6 +465,25 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
         collision: true,
+      },
+      {
+        id: "sales-shelf",
+        position: { x: 2, y: 7 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 192),
+        collision: true,
+      },
+      {
+        id: "sales-chair",
+        position: { x: 23, y: 7 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 240),
+      },
+      {
+        id: "sales-decoration",
+        position: { x: 7, y: 14 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(432, 240),
       },
     ],
   },

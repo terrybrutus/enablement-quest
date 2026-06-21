@@ -125,12 +125,19 @@ function drawSceneBase(
   const endCol = Math.ceil((camera.x + viewport.width) / TILE_SIZE);
   const startRow = Math.floor(camera.y / TILE_SIZE);
   const endRow = Math.ceil((camera.y + viewport.height) / TILE_SIZE);
-  const floorSprite: SheetSprite =
-    scene.theme === "exterior"
-      ? tileSprites.grass
-      : scene.id === "operations"
-        ? tileSprites.warmFloor
-        : tileSprites.labFloor;
+
+  // Use scene-specific floor tile if available
+  let floorSprite: SheetSprite;
+  if (scene.floorTileKey && tileSprites[scene.floorTileKey as keyof typeof tileSprites]) {
+    floorSprite = tileSprites[scene.floorTileKey as keyof typeof tileSprites];
+  } else {
+    floorSprite =
+      scene.theme === "exterior"
+        ? tileSprites.grass
+        : scene.id === "operations"
+          ? tileSprites.warmFloor
+          : tileSprites.labFloor;
+  }
 
   for (let row = startRow; row <= endRow; row += 1) {
     for (let col = startCol; col <= endCol; col += 1) {
@@ -139,6 +146,17 @@ function drawSceneBase(
       }
 
       let sprite: SheetSprite = floorSprite;
+
+      // Add tile variation for visual interest
+      const variation = (row + col) % 3;
+      if (variation === 1 && scene.floorTileKey?.includes("Cyan")) {
+        sprite = tileSprites.labFloorCyan2 || floorSprite;
+      } else if (variation === 2 && scene.floorTileKey?.includes("Warm")) {
+        sprite = tileSprites.operationsFloorWarm2 || floorSprite;
+      } else if (variation === 2 && scene.floorTileKey?.includes("salesFloor")) {
+        sprite = tileSprites.salesFloor2 || floorSprite;
+      }
+
       if (
         scene.theme === "exterior" &&
         (row === 8 ||
@@ -146,14 +164,14 @@ function drawSceneBase(
           col === 14 ||
           (row >= 8 && row <= 11 && col >= 19 && col <= 22))
       ) {
-        sprite = tileSprites.path;
+        sprite = tileSprites.pathModern || tileSprites.path;
       }
       if (
         scene.theme === "interior" &&
         scene.id === "operations" &&
         (row + col) % 4 === 0
       ) {
-        sprite = tileSprites.labFloor;
+        sprite = tileSprites.operationsFloorWarm2 || tileSprites.labFloor;
       }
 
       drawSheetSprite(
@@ -166,6 +184,12 @@ function drawSceneBase(
         TILE_SIZE,
       );
     }
+  }
+
+  // Apply scene-specific color tint
+  if (scene.tileColor) {
+    ctx.fillStyle = scene.tileColor.replace(")", ", 0.04)").replace("rgb", "rgba");
+    ctx.fillRect(-camera.x, -camera.y, scene.width * TILE_SIZE, scene.height * TILE_SIZE);
   }
 
   drawRoomBorders(ctx, scene, camera, assets);
@@ -216,12 +240,26 @@ function drawPortals(
     const py = portal.rect.y * TILE_SIZE - camera.y;
     const width = portal.rect.width * TILE_SIZE;
     const height = portal.rect.height * TILE_SIZE;
+
+    // Add portal glow effect
+    const pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
+    ctx.shadowColor = "#00d4ff";
+    ctx.shadowBlur = 16 * pulse;
+
+    // Draw portal base rectangle
     const opacity = scene.theme === "exterior" ? 0.08 : 0.14;
-    ctx.fillStyle = `rgba(56, 189, 248, ${opacity})`;
+    ctx.fillStyle = `rgba(56, 189, 248, ${opacity * pulse})`;
     ctx.fillRect(px, py, width, height);
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.42)";
+
+    // Draw portal border with glow
+    ctx.strokeStyle = `rgba(56, 189, 248, ${0.5 * pulse})`;
     ctx.lineWidth = 2;
     ctx.strokeRect(px + 4, py + 4, width - 8, height - 8);
+
+    ctx.shadowBlur = 0;
+
+    // Draw label
+    drawLabel(ctx, portal.label, px + width / 2, py - 8, "#67e8f9");
   }
 }
 
@@ -237,8 +275,25 @@ function drawProps(
     const width = prop.size.width * TILE_SIZE;
     const height = prop.size.height * TILE_SIZE;
 
+    // Add glow effect for interactive props
+    if (prop.glow) {
+      const pulse = Math.sin(Date.now() / 400) * 2 + 4;
+      ctx.shadowColor = "#22d3ee";
+      ctx.shadowBlur = 8 + pulse;
+      ctx.fillStyle = "rgba(34, 211, 238, 0.1)";
+      ctx.fillRect(px - 4, py - 4, width + 8, height + 8);
+      ctx.shadowBlur = 0;
+    }
+
     if (prop.sprite) {
       drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
+    }
+
+    // Draw subtle highlight on hover/approach (could be enhanced with distance detection)
+    if (prop.glow) {
+      ctx.strokeStyle = "rgba(34, 211, 238, 0.3)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px - 2, py - 2, width + 4, height + 4);
     }
 
     if (prop.label) {
