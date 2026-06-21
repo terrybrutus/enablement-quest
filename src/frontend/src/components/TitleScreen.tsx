@@ -11,6 +11,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
       <div className="eq-title-card">
         <p className="eq-kicker">Enablement Quest</p>
         <h1>The Learning Systems Lab</h1>
+        <p className="eq-byline">Created by Terry Brutus</p>
         <p className="eq-title-copy">
           Prove that you can diagnose workplace performance problems, design
           enablement solutions, and connect learning decisions to measurable
@@ -20,15 +21,15 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>Investigate evidence before prescribing training.</span>
+            <span>Interview the stakeholder and inspect evidence.</span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
-            <span>Use AI and systems thinking responsibly.</span>
+            <span>Diagnose whether this is really a training problem.</span>
           </article>
           <article>
             <LineChart className="h-5 w-5" />
-            <span>Measure speed, quality, adoption, and confidence.</span>
+            <span>Choose a solution and connect it to business impact.</span>
           </article>
         </div>
 

@@ -51,6 +51,7 @@ export function ArtifactsPanel({
               <div>
                 <h3>{item.title}</h3>
                 <p>{item.summary}</p>
+                <p className="eq-artifact-insight">{item.insight}</p>
                 <small>{item.metric}</small>
               </div>
             </article>

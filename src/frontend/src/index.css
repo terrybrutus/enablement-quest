@@ -99,6 +99,23 @@
   font-weight: 800;
 }
 
+.eq-next-objective,
+.eq-byline {
+  margin: 6px 0 0;
+  color: #cbd5e1;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.eq-byline {
+  color: #67e8f9;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .eq-kicker {
   margin: 0;
   color: #67e8f9;
@@ -190,11 +207,16 @@
 }
 
 .eq-decision,
+.eq-evidence,
 .eq-canvas {
   left: 50%;
   top: 50%;
   width: min(980px, calc(100vw - 32px));
   transform: translate(-50%, -50%);
+}
+
+.eq-evidence {
+  width: min(760px, calc(100vw - 32px));
 }
 
 .eq-panel-header {
@@ -311,6 +333,12 @@
   color: #b6c4d6;
   font-size: 0.86rem;
   line-height: 1.45;
+}
+
+.eq-artifact-card .eq-artifact-insight {
+  color: #bae6fd;
+  font-weight: 700;
+  margin-top: 6px;
 }
 
 .eq-mini-section {
@@ -618,6 +646,11 @@
     line-height: 1.12;
   }
 
+  .eq-next-objective {
+    font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
   .eq-hud-card .mt-3 {
     margin-top: 6px;
   }
@@ -656,6 +689,7 @@
   .eq-side-panel,
   .eq-side-panel.is-right,
   .eq-decision,
+  .eq-evidence,
   .eq-canvas {
     bottom: calc(env(safe-area-inset-bottom) + 84px);
     left: 12px;

@@ -9,6 +9,7 @@ export type OverlayKind =
   | "quest"
   | "backpack"
   | "settings"
+  | "evidence"
   | "decision"
   | "canvas";
 
@@ -46,6 +47,7 @@ export type AssetKey =
   | "bobIdle"
   | "roomBuilder"
   | "office"
+  | "exteriorWalls"
   | "exteriorFloors"
   | "fountain"
   | "streetLamp";
@@ -149,6 +151,7 @@ export interface GameState {
   collectedEvidenceIds: string[];
   diagnosisId: string | null;
   interventionId: string | null;
+  activeEvidenceId: string | null;
   earnedArtifact: EarnedArtifact | null;
   overlay: OverlayKind;
   dialogue: DialogueState | null;

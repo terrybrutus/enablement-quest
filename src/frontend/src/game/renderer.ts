@@ -99,10 +99,18 @@ function getCamera(viewport: Viewport, scene: Scene, gameState: GameState) {
   const worldHeight = scene.height * TILE_SIZE;
   const targetX = gameState.player.position.x * TILE_SIZE - viewport.width / 2;
   const targetY = gameState.player.position.y * TILE_SIZE - viewport.height / 2;
+  const centerX = Math.max(0, (viewport.width - worldWidth) / 2);
+  const centerY = Math.max(0, (viewport.height - worldHeight) / 2);
 
   return {
-    x: clamp(targetX, 0, Math.max(0, worldWidth - viewport.width)),
-    y: clamp(targetY, 0, Math.max(0, worldHeight - viewport.height)),
+    x:
+      worldWidth < viewport.width
+        ? -centerX
+        : clamp(targetX, 0, Math.max(0, worldWidth - viewport.width)),
+    y:
+      worldHeight < viewport.height
+        ? -centerY
+        : clamp(targetY, 0, Math.max(0, worldHeight - viewport.height)),
   };
 }
 
@@ -337,9 +345,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    right: 0,
+    left: 0,
     up: 1,
-    left: 2,
+    right: 2,
     down: 3,
   };
   return offsets[direction];

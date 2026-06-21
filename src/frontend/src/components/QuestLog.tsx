@@ -135,7 +135,7 @@ function getActiveGuidance(questStage: QuestStage, evidenceCount: number) {
     return `Collect the three evidence items. Each one points to a different part of the performance problem. Evidence collected: ${evidenceCount}/3.`;
   }
   if (questStage === "diagnose") {
-    return "Open the diagnosis board and decide whether the root cause is training, workflow, tool friction, or reinforcement.";
+    return "Press interact to open the decision panel, then decide whether the root cause is training, workflow, tool friction, or reinforcement.";
   }
   if (questStage === "design") {
     return "Choose the intervention that fits the root cause. The best answer should change behavior and create a measurable signal.";
