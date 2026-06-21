@@ -4,6 +4,7 @@ import {
   ClipboardList,
   Crosshair,
   Hand,
+  MapPin,
   SlidersHorizontal,
 } from "lucide-react";
 import { type MutableRefObject, type PointerEvent, useState } from "react";
@@ -48,22 +49,25 @@ export function Hud({
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
       <header className="pointer-events-auto absolute left-3 right-3 top-3 flex flex-col gap-3 md:left-5 md:right-5 md:flex-row md:items-start md:justify-between">
-        <section className="eq-hud-card">
-          <div>
-            <p className="eq-kicker">{sceneName}</p>
-            <h1>{nextObjective}</h1>
-            <div className="eq-hud-meta">
-              <span>{sceneSubtitle}</span>
-              <span className="eq-pill">
-                <Crosshair className="h-3.5 w-3.5" />
-                {stageLabels[questStage]}
-              </span>
-              <span className="eq-pill">
-                Evidence {evidenceCount}/{evidenceTotal}
-              </span>
-              {hasArtifact && (
-                <span className="eq-pill is-success">Canvas earned</span>
-              )}
+        <section className="eq-hud-card max-w-xl">
+          <div className="flex items-start gap-3">
+            <MapPin className="mt-1 h-5 w-5 shrink-0 text-cyan-300" />
+            <div>
+              <p className="eq-kicker">{sceneName}</p>
+              <h1>{sceneSubtitle}</h1>
+              <p className="eq-next-objective">{nextObjective}</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                <span className="eq-pill">
+                  <Crosshair className="h-3.5 w-3.5" />
+                  {stageLabels[questStage]}
+                </span>
+                <span className="eq-pill">
+                  Evidence {evidenceCount}/{evidenceTotal}
+                </span>
+                {hasArtifact && (
+                  <span className="eq-pill is-success">Canvas earned</span>
+                )}
+              </div>
             </div>
           </div>
         </section>

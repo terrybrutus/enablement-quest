@@ -21,20 +21,6 @@ const officeSprite = (
   sh,
 });
 
-const fullSprite = (
-  image: SheetSprite["image"],
-  sx: number,
-  sy: number,
-  sw = 48,
-  sh = 48,
-): SheetSprite => ({
-  image,
-  sx,
-  sy,
-  sw,
-  sh,
-});
-
 export const assetUrls = {
   adamIdle: "/assets/limezu/adam-idle.png",
   adamRun: "/assets/limezu/adam-run.png",
@@ -44,20 +30,6 @@ export const assetUrls = {
   office: "/assets/limezu/office-48.png",
   exteriorWalls: "/assets/limezu/exterior-walls.png",
   exteriorFloors: "/assets/limezu/exterior-floors.png",
-  exteriorTiles1: "/assets/limezu/full/Tileset_1_MV.png",
-  exteriorTiles2: "/assets/limezu/full/Tileset_2_MV.png",
-  exteriorTiles3: "/assets/limezu/full/Tileset_3_MV.png",
-  exteriorTiles4: "/assets/limezu/full/Tileset_4_MV.png",
-  exteriorTiles5: "/assets/limezu/full/Tileset_5_MV.png",
-  exteriorTiles8: "/assets/limezu/full/Tileset_8_MV.png",
-  exteriorTiles17: "/assets/limezu/full/Tileset_17_MV.png",
-  exteriorTiles20: "/assets/limezu/full/Tileset_20_MV.png",
-  exteriorCars: "/assets/limezu/full/Tileset_Cars_2_MV.png",
-  officeFull: "/assets/limezu/full/Modern_Office_48x48.png",
-  officeRoomBuilderFull: "/assets/limezu/full/Room_Builder_Office_48x48.png",
-  officeShadowFull: "/assets/limezu/full/Modern_Office_Black_Shadow_48x48.png",
-  officeShadowlessFull:
-    "/assets/limezu/full/Modern_Office_Shadowless_48x48.png",
   fountain: "/assets/limezu/fountains.png",
   streetLamp: "/assets/limezu/street-lamp.png",
 } as const;
@@ -66,11 +38,23 @@ export const tileSprites = {
   labFloor: { image: "roomBuilder", sx: 528, sy: 528, sw: 48, sh: 48 },
   warmFloor: { image: "roomBuilder", sx: 576, sy: 528, sw: 48, sh: 48 },
   wall: { image: "roomBuilder", sx: 240, sy: 0, sw: 48, sh: 48 },
-  grass: { image: "exteriorTiles17", sx: 0, sy: 0, sw: 48, sh: 48 },
-  grassAlt: { image: "exteriorTiles17", sx: 48, sy: 0, sw: 48, sh: 48 },
+  grass: { image: "exteriorFloors", sx: 192, sy: 0, sw: 48, sh: 48 },
   path: { image: "exteriorFloors", sx: 0, sy: 0, sw: 48, sh: 48 },
-  plaza: { image: "exteriorTiles17", sx: 192, sy: 48, sw: 48, sh: 48 },
+  plaza: { image: "exteriorFloors", sx: 288, sy: 96, sw: 48, sh: 48 },
 } as const;
+
+const exteriorSprite = (
+  sx: number,
+  sy: number,
+  sw = 48,
+  sh = 48,
+): SheetSprite => ({
+  image: "exteriorWalls",
+  sx,
+  sy,
+  sw,
+  sh,
+});
 
 export const scenes: Scene[] = [
   {
@@ -136,131 +120,66 @@ export const scenes: Scene[] = [
   {
     id: "hub",
     name: "Organization Floor",
-    subtitle: "Performance Park",
-    width: 48,
-    height: 32,
+    subtitle: "A compact campus for performance discovery",
+    width: 42,
+    height: 24,
     theme: "exterior",
     portals: [
       {
         id: "hub-to-lab",
         label: "Learning Systems Lab",
-        rect: { x: 21, y: 25.2, width: 3, height: 1.4 },
+        rect: { x: 20, y: 19.5, width: 2, height: 1.5 },
         targetSceneId: "lab",
         targetPosition: { x: 13, y: 15.7 },
       },
       {
         id: "hub-to-operations",
         label: "Operations Suite",
-        rect: { x: 34, y: 10.8, width: 2.4, height: 1.6 },
+        rect: { x: 30, y: 5.2, width: 2, height: 1.8 },
         targetSceneId: "operations",
         targetPosition: { x: 13, y: 15 },
       },
     ],
     blocks: [
-      { x: 32, y: 2, width: 6, height: 10 },
-      { x: 19, y: 20, width: 7, height: 7 },
-      { x: 5, y: 5, width: 6, height: 8 },
-      { x: 22.7, y: 14.1, width: 2.4, height: 2.2 },
-      { x: 12, y: 16.2, width: 2.8, height: 1.7 },
-      { x: 28, y: 18.1, width: 2.8, height: 1.7 },
+      { x: 29, y: 3, width: 4, height: 4 },
+      { x: 18, y: 18, width: 6, height: 3 },
+      { x: 20, y: 9, width: 2, height: 2 },
     ],
     props: [
       {
         id: "operations-building",
         label: "Operations Suite",
-        description:
-          "Active case room. Maya is waiting inside with a new-hire ramp problem.",
-        position: { x: 32, y: 2 },
-        size: { width: 6, height: 10 },
-        sprite: fullSprite("exteriorTiles3", 384, 0, 288, 480),
+        position: { x: 29, y: 3 },
+        size: { width: 4, height: 4 },
+        sprite: exteriorSprite(192, 0, 192, 192),
         collision: true,
       },
       {
         id: "lab-building",
         label: "Learning Systems Lab",
-        description:
-          "Your base room. Start here, review the mission, then head to the active case.",
-        position: { x: 19, y: 20 },
-        size: { width: 7, height: 7 },
-        sprite: fullSprite("exteriorTiles3", 0, 144, 240, 336),
-        collision: true,
-      },
-      {
-        id: "sales-wing-building",
-        label: "Sales Wing",
-        description:
-          "A future sales enablement case wing. It is visible on campus, but this version focuses on the onboarding case first.",
-        position: { x: 5, y: 5 },
-        size: { width: 6, height: 8 },
-        sprite: fullSprite("exteriorTiles2", 480, 0, 240, 384),
+        position: { x: 18, y: 18 },
+        size: { width: 6, height: 3 },
+        sprite: exteriorSprite(192, 48, 192, 144),
         collision: true,
       },
       {
         id: "hub-fountain",
         description:
-          "Central plaza. The path branches from your lab to active case rooms.",
-        position: { x: 22.5, y: 13.8 },
-        size: { width: 2.8, height: 2.8 },
+          "Central plaza. Doorways lead to case rooms; glowing evidence appears inside active case areas.",
+        position: { x: 20.1, y: 9.1 },
+        size: { width: 1.8, height: 1.8 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
         collision: true,
       },
       {
-        id: "evidence-table-west",
-        description:
-          "A campus worktable. In the real case room, evidence becomes useful only after you ask the stakeholder what problem they see.",
-        position: { x: 12, y: 16.2 },
-        size: { width: 2.8, height: 1.7 },
-        sprite: fullSprite("exteriorTiles17", 336, 288, 144, 96),
-        collision: true,
-      },
-      {
-        id: "evidence-table-east",
-        description:
-          "A quiet review spot. The game loop is investigate, diagnose, design, then measure.",
-        position: { x: 28, y: 18.1 },
-        size: { width: 2.8, height: 1.7 },
-        sprite: fullSprite("exteriorTiles17", 528, 288, 144, 96),
-        collision: true,
-      },
-      {
-        id: "north-tree",
-        position: { x: 20, y: 4.8 },
-        size: { width: 3, height: 3 },
-        sprite: fullSprite("exteriorTiles17", 480, 144, 144, 144),
-        collision: true,
-      },
-      {
-        id: "south-tree",
-        position: { x: 36.5, y: 20.5 },
-        size: { width: 3, height: 3 },
-        sprite: fullSprite("exteriorTiles17", 528, 144, 144, 144),
-        collision: true,
-      },
-      {
-        id: "campus-sign",
-        description:
-          "Performance Park: solve workplace problems by looking for evidence before prescribing a solution.",
-        position: { x: 16.6, y: 12.8 },
-        size: { width: 1, height: 1 },
-        sprite: fullSprite("exteriorTiles17", 432, 96, 48, 48),
-        collision: true,
-      },
-      {
-        id: "parked-car",
-        position: { x: 40.2, y: 14.2 },
-        size: { width: 2, height: 1 },
-        sprite: fullSprite("exteriorCars", 0, 0, 96, 48),
-        collision: true,
-      },
-      {
         id: "lamp-a",
-        position: { x: 17.3, y: 15.5 },
+        position: { x: 16.5, y: 10.2 },
         size: { width: 0.8, height: 1.5 },
         sprite: { image: "streetLamp", sx: 0, sy: 0, sw: 48, sh: 96 },
       },
       {
         id: "lamp-b",
-        position: { x: 29.3, y: 15.5 },
+        position: { x: 25, y: 10.2 },
         size: { width: 0.8, height: 1.5 },
         sprite: { image: "streetLamp", sx: 0, sy: 0, sw: 48, sh: 96 },
       },
