@@ -44,10 +44,14 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         </button>
 
         <div className="eq-control-strip">
-          <span>Move: WASD / arrows</span>
-          <span>Interact: E / Space / Enter</span>
-          <span>Guide: Q</span>
-          <span>Backpack: B</span>
+          <span className="eq-desktop-control">Move: WASD / arrows</span>
+          <span className="eq-desktop-control">
+            Interact: E / Space / Enter
+          </span>
+          <span className="eq-desktop-control">Guide: Q</span>
+          <span className="eq-desktop-control">Backpack: B</span>
+          <span className="eq-mobile-control">Move: joystick</span>
+          <span className="eq-mobile-control">Interact: button</span>
         </div>
       </div>
     </section>

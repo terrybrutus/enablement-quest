@@ -297,20 +297,22 @@ export default function GameCanvas() {
         data-ocid="game.canvas_target"
       />
 
-      <Hud
-        sceneName={currentScene.name}
-        sceneSubtitle={currentScene.subtitle}
-        questStage={gameState.questStage}
-        evidenceCount={gameState.collectedEvidenceIds.length}
-        evidenceTotal={evidenceItems.length}
-        hasArtifact={Boolean(gameState.earnedArtifact)}
-        nextObjective={nextObjective}
-        onOpenQuest={() => setOverlay("quest")}
-        onOpenBackpack={() => setOverlay("backpack")}
-        onOpenSettings={() => setOverlay("settings")}
-        onInteract={interact}
-        inputRef={inputRef}
-      />
+      {gameState.player.hasStarted && (
+        <Hud
+          sceneName={currentScene.name}
+          sceneSubtitle={currentScene.subtitle}
+          questStage={gameState.questStage}
+          evidenceCount={gameState.collectedEvidenceIds.length}
+          evidenceTotal={evidenceItems.length}
+          hasArtifact={Boolean(gameState.earnedArtifact)}
+          nextObjective={nextObjective}
+          onOpenQuest={() => setOverlay("quest")}
+          onOpenBackpack={() => setOverlay("backpack")}
+          onOpenSettings={() => setOverlay("settings")}
+          onInteract={interact}
+          inputRef={inputRef}
+        />
+      )}
 
       {!gameState.player.hasStarted && (
         <TitleScreen onStart={startMission} onClose={startMission} />
