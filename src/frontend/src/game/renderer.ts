@@ -141,24 +141,12 @@ function drawSceneBase(
       let sprite: SheetSprite = floorSprite;
       if (
         scene.theme === "exterior" &&
-        (row === 16 ||
-          row === 17 ||
-          col === 23 ||
-          col === 24 ||
-          (row >= 10 && row <= 17 && col >= 34 && col <= 35) ||
-          (row >= 17 && row <= 25 && col >= 21 && col <= 24) ||
-          (row >= 10 && row <= 17 && col >= 8 && col <= 9))
+        (row === 8 ||
+          col === 13 ||
+          col === 14 ||
+          (row >= 8 && row <= 11 && col >= 19 && col <= 22))
       ) {
         sprite = tileSprites.path;
-      }
-      if (
-        scene.theme === "exterior" &&
-        row >= 13 &&
-        row <= 18 &&
-        col >= 20 &&
-        col <= 27
-      ) {
-        sprite = tileSprites.plaza;
       }
       if (
         scene.theme === "interior" &&
@@ -279,10 +267,10 @@ function drawEvidence(
 
     ctx.shadowColor = "#facc15";
     ctx.shadowBlur = 12 + pulse;
-    drawSheetSprite(ctx, assets, evidence.sprite, x, y, 48, 48);
+    drawSheetSprite(ctx, assets, evidence.sprite, x, y, 58, 42);
     ctx.shadowBlur = 0;
 
-    drawLabel(ctx, evidence.title, x + 24, y - 8, "#fef3c7");
+    drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
   }
 }
 
