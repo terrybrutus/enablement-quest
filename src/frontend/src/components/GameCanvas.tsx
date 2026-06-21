@@ -1,6 +1,7 @@
 import {
   characters,
   diagnosisOptions,
+  earnedArtifactsByCase,
   earnedCanvas,
   evidenceItems,
   initialPosition,
@@ -8,7 +9,12 @@ import {
   scenes,
 } from "@/game/levels";
 import { type LoadedAssets, loadGameAssets, renderGame } from "@/game/renderer";
-import type { GameState, OverlayKind } from "@/game/types";
+import type {
+  DiagnosisOption,
+  GameState,
+  InterventionOption,
+  OverlayKind,
+} from "@/game/types";
 import { MOVE_SPEED } from "@/game/types";
 import { completeIntervention, useGameLoop } from "@/game/useGameLoop";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -27,6 +33,19 @@ const initialGameState: GameState = {
     sceneId: "lab",
     hasStarted: false,
   },
+  currentCaseId: "onboarding",
+  completedCaseIds: [],
+  characterStates: Object.fromEntries(
+    characters.map((character) => [
+      character.id,
+      {
+        position: character.position,
+        direction: "down",
+        patrolIndex: 0,
+        isMoving: false,
+      },
+    ]),
+  ),
   questStage: "briefing",
   collectedEvidenceIds: [],
   diagnosisId: null,
@@ -120,10 +139,39 @@ export default function GameCanvas() {
       null,
     [gameState.activeEvidenceId],
   );
+  const currentEvidenceItems = useMemo(
+    () =>
+      evidenceItems.filter((item) => item.caseId === gameState.currentCaseId),
+    [gameState.currentCaseId],
+  );
+  const currentCollectedEvidenceCount = useMemo(
+    () =>
+      currentEvidenceItems.filter((item) =>
+        gameState.collectedEvidenceIds.includes(item.id),
+      ).length,
+    [currentEvidenceItems, gameState.collectedEvidenceIds],
+  );
+  const currentDiagnosisOptions = useMemo(
+    () =>
+      diagnosisOptions.filter(
+        (item) => item.caseId === gameState.currentCaseId,
+      ),
+    [gameState.currentCaseId],
+  );
+  const currentInterventionOptions = useMemo(
+    () =>
+      interventionOptions.filter(
+        (item) => item.caseId === gameState.currentCaseId,
+      ),
+    [gameState.currentCaseId],
+  );
   const nextObjective = getNextObjective(
+    gameState.currentCaseId,
     gameState.questStage,
-    gameState.collectedEvidenceIds.length,
+    currentCollectedEvidenceCount,
+    currentEvidenceItems.length,
     gameState.player.sceneId,
+    gameState.completedCaseIds,
   );
 
   const closeOverlay = useCallback(() => {
@@ -200,6 +248,9 @@ export default function GameCanvas() {
         return { ...previous, overlay: "none", dialogue: null };
       }
       const lines = character.dialogue[previous.questStage];
+      if (Date.now() - previous.dialogue.openedAt < 180) {
+        return previous;
+      }
       const nextIndex = previous.dialogue.lineIndex + 1;
       if (nextIndex >= lines.length) {
         const nextStage =
@@ -215,8 +266,7 @@ export default function GameCanvas() {
             previous.questStage === "briefing"
               ? {
                   id: Date.now(),
-                  message:
-                    "Guide updated: enter Operations Suite and collect three evidence items.",
+                  message: `Guide updated: inspect ${currentEvidenceItems.length} evidence items.`,
                 }
               : previous.toast,
         };
@@ -226,7 +276,7 @@ export default function GameCanvas() {
         dialogue: { ...previous.dialogue, lineIndex: nextIndex },
       };
     });
-  }, []);
+  }, [currentEvidenceItems.length]);
 
   useEffect(() => {
     const handleDialogueKeys = (event: KeyboardEvent) => {
@@ -244,46 +294,52 @@ export default function GameCanvas() {
     return () => window.removeEventListener("keydown", handleDialogueKeys);
   }, [advanceDialogue]);
 
-  const chooseDiagnosis = useCallback((id: string) => {
-    const option = diagnosisOptions.find((item) => item.id === id);
-    if (!option) {
-      return;
-    }
-    setGameState((previous) => ({
-      ...previous,
-      diagnosisId: id,
-      questStage: option.correct ? "design" : previous.questStage,
-      toast: {
-        id: Date.now(),
-        message: option.correct
-          ? "Diagnosis accepted: this is a workflow and reinforcement problem."
-          : "Not quite. Re-check the evidence before choosing the intervention.",
-      },
-    }));
-  }, []);
+  const chooseDiagnosis = useCallback(
+    (id: string) => {
+      const option = currentDiagnosisOptions.find((item) => item.id === id);
+      if (!option) {
+        return;
+      }
+      setGameState((previous) => ({
+        ...previous,
+        diagnosisId: id,
+        questStage: option.correct ? "design" : previous.questStage,
+        toast: {
+          id: Date.now(),
+          message: option.correct
+            ? "Diagnosis accepted. Now choose the intervention that fits the evidence."
+            : "Not quite. Re-check the evidence before choosing the intervention.",
+        },
+      }));
+    },
+    [currentDiagnosisOptions],
+  );
 
-  const chooseIntervention = useCallback((id: string) => {
-    const option = interventionOptions.find((item) => item.id === id);
-    if (!option) {
-      return;
-    }
-    if (!option.correct) {
+  const chooseIntervention = useCallback(
+    (id: string) => {
+      const option = currentInterventionOptions.find((item) => item.id === id);
+      if (!option) {
+        return;
+      }
+      if (!option.correct) {
+        setGameState((previous) => ({
+          ...previous,
+          interventionId: id,
+          toast: {
+            id: Date.now(),
+            message: "That intervention does not fit the root cause yet.",
+          },
+        }));
+        return;
+      }
       setGameState((previous) => ({
         ...previous,
         interventionId: id,
-        toast: {
-          id: Date.now(),
-          message: "That intervention does not fit the root cause yet.",
-        },
       }));
-      return;
-    }
-    setGameState((previous) => ({
-      ...previous,
-      interventionId: id,
-    }));
-    completeIntervention(setGameState);
-  }, []);
+      completeIntervention(setGameState);
+    },
+    [currentInterventionOptions],
+  );
 
   return (
     <div
@@ -302,8 +358,8 @@ export default function GameCanvas() {
           sceneName={currentScene.name}
           sceneSubtitle={currentScene.subtitle}
           questStage={gameState.questStage}
-          evidenceCount={gameState.collectedEvidenceIds.length}
-          evidenceTotal={evidenceItems.length}
+          evidenceCount={currentCollectedEvidenceCount}
+          evidenceTotal={currentEvidenceItems.length}
           hasArtifact={Boolean(gameState.earnedArtifact)}
           nextObjective={nextObjective}
           onOpenQuest={() => setOverlay("quest")}
@@ -329,10 +385,16 @@ export default function GameCanvas() {
             character={activeCharacter}
             line={
               activeCharacter.dialogue[gameState.questStage][
-                gameState.dialogue.lineIndex
+                Math.min(
+                  gameState.dialogue.lineIndex,
+                  activeCharacter.dialogue[gameState.questStage].length - 1,
+                )
               ]
             }
-            lineIndex={gameState.dialogue.lineIndex}
+            lineIndex={Math.min(
+              gameState.dialogue.lineIndex,
+              activeCharacter.dialogue[gameState.questStage].length - 1,
+            )}
             totalLines={activeCharacter.dialogue[gameState.questStage].length}
             onAdvance={advanceDialogue}
             onClose={closeOverlay}
@@ -341,6 +403,7 @@ export default function GameCanvas() {
 
       {gameState.overlay === "quest" && (
         <QuestLog
+          currentCaseId={gameState.currentCaseId}
           questStage={gameState.questStage}
           collectedEvidenceIds={gameState.collectedEvidenceIds}
           diagnosisId={gameState.diagnosisId}
@@ -375,6 +438,8 @@ export default function GameCanvas() {
 
       {gameState.overlay === "decision" && (
         <DecisionPanel
+          diagnosisOptions={currentDiagnosisOptions}
+          interventionOptions={currentInterventionOptions}
           diagnosisId={gameState.diagnosisId}
           interventionId={gameState.interventionId}
           onChooseDiagnosis={chooseDiagnosis}
@@ -385,7 +450,11 @@ export default function GameCanvas() {
 
       {gameState.overlay === "canvas" && (
         <CanvasPanel
-          artifact={gameState.earnedArtifact ?? earnedCanvas}
+          artifact={
+            gameState.earnedArtifact ??
+            earnedArtifactsByCase[gameState.currentCaseId] ??
+            earnedCanvas
+          }
           onClose={closeOverlay}
         />
       )}
@@ -403,23 +472,34 @@ export default function GameCanvas() {
 }
 
 function getNextObjective(
+  caseId: GameState["currentCaseId"],
   questStage: GameState["questStage"],
   evidenceCount: number,
+  evidenceTotal: number,
   sceneId: GameState["player"]["sceneId"],
+  completedCaseIds: GameState["completedCaseIds"],
 ) {
   if (questStage === "briefing") {
+    if (caseId === "sales") {
+      return sceneId === "sales"
+        ? "Talk to Leo before reviewing the sales evidence."
+        : "Enter Sales Strategy Studio and talk to Leo.";
+    }
     return sceneId === "operations"
       ? "Talk to Maya before collecting evidence."
       : "Enter Operations Suite and talk to Maya.";
   }
   if (questStage === "investigate") {
-    return `Inspect evidence: ${evidenceCount}/3 collected.`;
+    return `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
-    return "Press interact to make the diagnosis.";
+    return "Open the decision panel and explain the evidence pattern.";
   }
   if (questStage === "design") {
-    return "Choose the intervention that fits the evidence.";
+    return "Choose the intervention and consider the tradeoff.";
+  }
+  if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
+    return "Case complete. Go to Sales Strategy Studio for the next scenario.";
   }
   return "Review the earned canvas and business impact.";
 }
@@ -518,12 +598,16 @@ function SettingsPanel({
 }
 
 function DecisionPanel({
+  diagnosisOptions,
+  interventionOptions,
   diagnosisId,
   interventionId,
   onChooseDiagnosis,
   onChooseIntervention,
   onClose,
 }: {
+  diagnosisOptions: DiagnosisOption[];
+  interventionOptions: InterventionOption[];
   diagnosisId: string | null;
   interventionId: string | null;
   onChooseDiagnosis: (id: string) => void;
@@ -553,6 +637,9 @@ function DecisionPanel({
       <div className="eq-option-grid">
         <div>
           <h3>1. Diagnose the root cause</h3>
+          <p className="eq-decision-prompt">
+            Which explanation best connects all three evidence signals?
+          </p>
           {diagnosisOptions.map((option) => (
             <button
               className={`eq-choice ${diagnosisId === option.id ? "is-selected" : ""}`}
@@ -561,13 +648,23 @@ function DecisionPanel({
               onClick={() => onChooseDiagnosis(option.id)}
             >
               <span>{option.label}</span>
-              {diagnosisId === option.id && <small>{option.explanation}</small>}
+              {diagnosisId === option.id && (
+                <small>
+                  {option.explanation}
+                  <br />
+                  Evidence check: {option.evidenceHint}
+                </small>
+              )}
             </button>
           ))}
         </div>
 
         <div className={!canChooseIntervention ? "is-disabled" : ""}>
           <h3>2. Select the intervention</h3>
+          <p className="eq-decision-prompt">
+            Which solution changes behavior and creates a metric leaders can
+            inspect?
+          </p>
           {interventionOptions.map((option) => (
             <button
               className={`eq-choice ${interventionId === option.id ? "is-selected" : ""}`}
@@ -578,7 +675,11 @@ function DecisionPanel({
             >
               <span>{option.label}</span>
               {interventionId === option.id && (
-                <small>{option.explanation}</small>
+                <small>
+                  {option.explanation}
+                  <br />
+                  Tradeoff: {option.tradeoff}
+                </small>
               )}
             </button>
           ))}

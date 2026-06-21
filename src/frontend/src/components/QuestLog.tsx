@@ -3,10 +3,11 @@ import {
   evidenceItems,
   interventionOptions,
 } from "@/game/levels";
-import type { QuestStage } from "@/game/types";
+import type { CaseId, QuestStage } from "@/game/types";
 import { CheckCircle2, Circle, X } from "lucide-react";
 
 interface QuestLogProps {
+  currentCaseId: CaseId;
   questStage: QuestStage;
   collectedEvidenceIds: string[];
   diagnosisId: string | null;
@@ -14,54 +15,41 @@ interface QuestLogProps {
   onClose: () => void;
 }
 
-const steps = [
-  {
-    id: "briefing",
-    title: "Reach the case room",
-    description:
-      "Leave the lab through the blue doorway, then enter Operations Suite.",
-  },
-  {
-    id: "investigate",
-    title: "Investigate",
-    description:
-      "Talk to Maya, then collect the interview note, process map, and performance metric.",
-  },
-  {
-    id: "diagnose",
-    title: "Diagnose",
-    description:
-      "Decide whether this is a training problem, workflow problem, tool problem, or reinforcement problem.",
-  },
-  {
-    id: "design",
-    title: "Design",
-    description: "Choose the enablement intervention that fits the root cause.",
-  },
-  {
-    id: "complete",
-    title: "Measure",
-    description: "Review the business impact and earned diagnostic canvas.",
-  },
-] as const;
+const caseTitles: Record<CaseId, string> = {
+  onboarding: "The Broken Onboarding Portal",
+  sales: "The Stalled Demo Pipeline",
+};
+
+const caseRooms: Record<CaseId, string> = {
+  onboarding: "Operations Suite",
+  sales: "Sales Strategy Studio",
+};
 
 export function QuestLog({
+  currentCaseId,
   questStage,
   collectedEvidenceIds,
   diagnosisId,
   interventionId,
   onClose,
 }: QuestLogProps) {
+  const caseEvidence = evidenceItems.filter(
+    (item) => item.caseId === currentCaseId,
+  );
+  const steps = getSteps(currentCaseId);
   const currentIndex = steps.findIndex((step) => step.id === questStage);
   const activeGuidance = getActiveGuidance(
+    currentCaseId,
     questStage,
-    collectedEvidenceIds.length,
+    caseEvidence.filter((item) => collectedEvidenceIds.includes(item.id))
+      .length,
+    caseEvidence.length,
   );
   const selectedDiagnosis = diagnosisOptions.find(
-    (option) => option.id === diagnosisId,
+    (option) => option.caseId === currentCaseId && option.id === diagnosisId,
   );
   const selectedIntervention = interventionOptions.find(
-    (option) => option.id === interventionId,
+    (option) => option.caseId === currentCaseId && option.id === interventionId,
   );
 
   return (
@@ -72,7 +60,7 @@ export function QuestLog({
       <div className="eq-panel-header">
         <div>
           <p className="eq-kicker">Mission Guide</p>
-          <h2>The Broken Onboarding Portal</h2>
+          <h2>{caseTitles[currentCaseId]}</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -110,7 +98,7 @@ export function QuestLog({
 
       <div className="eq-mini-section">
         <h3>Evidence</h3>
-        {evidenceItems.map((item) => (
+        {caseEvidence.map((item) => (
           <p key={item.id}>
             {collectedEvidenceIds.includes(item.id) ? "[x]" : "[ ]"}{" "}
             {item.title}
@@ -127,15 +115,57 @@ export function QuestLog({
   );
 }
 
-function getActiveGuidance(questStage: QuestStage, evidenceCount: number) {
+function getSteps(caseId: CaseId) {
+  const room = caseRooms[caseId];
+  const stakeholder = caseId === "sales" ? "Leo" : "Maya";
+  return [
+    {
+      id: "briefing",
+      title: "Reach the case room",
+      description: `Go to ${room} and talk to ${stakeholder}.`,
+    },
+    {
+      id: "investigate",
+      title: "Investigate",
+      description:
+        "Collect each evidence item and read what it says about the performance problem.",
+    },
+    {
+      id: "diagnose",
+      title: "Diagnose",
+      description:
+        "Choose the root cause that best explains the full evidence pattern.",
+    },
+    {
+      id: "design",
+      title: "Design",
+      description:
+        "Choose the enablement intervention that changes behavior and creates a useful metric.",
+    },
+    {
+      id: "complete",
+      title: "Measure",
+      description: "Review the business impact and earned canvas.",
+    },
+  ] as const;
+}
+
+function getActiveGuidance(
+  caseId: CaseId,
+  questStage: QuestStage,
+  evidenceCount: number,
+  evidenceTotal: number,
+) {
+  const room = caseRooms[caseId];
+  const stakeholder = caseId === "sales" ? "Leo" : "Maya";
   if (questStage === "briefing") {
-    return "Leave the lab, enter Operations Suite, and talk to Maya before collecting evidence.";
+    return `Enter ${room} and talk to ${stakeholder}. They frame the business request before you inspect evidence.`;
   }
   if (questStage === "investigate") {
-    return `Collect the three evidence items. Each one points to a different part of the performance problem. Evidence collected: ${evidenceCount}/3.`;
+    return `Collect ${evidenceTotal} evidence items. Each one points to a different part of the performance problem. Evidence collected: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Press interact to open the decision panel, then decide whether the root cause is training, workflow, tool friction, or reinforcement.";
+    return "Open the decision panel and pick the root cause that connects all evidence. Do not just pick the most training-looking answer.";
   }
   if (questStage === "design") {
     return "Choose the intervention that fits the root cause. The best answer should change behavior and create a measurable signal.";

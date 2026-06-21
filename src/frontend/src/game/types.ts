@@ -1,4 +1,6 @@
-export type SceneId = "lab" | "hub" | "operations";
+export type SceneId = "lab" | "hub" | "operations" | "sales";
+
+export type CaseId = "onboarding" | "sales";
 
 export type Direction = "down" | "left" | "right" | "up";
 
@@ -72,6 +74,7 @@ export interface Prop {
 
 export interface Evidence {
   id: string;
+  caseId: CaseId;
   title: string;
   sceneId: SceneId;
   position: Position;
@@ -87,6 +90,7 @@ export interface GameCharacter {
   role: string;
   sceneId: SceneId;
   position: Position;
+  patrol?: Position[];
   sprite: SheetSprite;
   dialogue: Record<QuestStage, string[]>;
 }
@@ -105,16 +109,20 @@ export interface Scene {
 
 export interface DiagnosisOption {
   id: string;
+  caseId: CaseId;
   label: string;
   explanation: string;
   correct: boolean;
+  evidenceHint: string;
 }
 
 export interface InterventionOption {
   id: string;
+  caseId: CaseId;
   label: string;
   explanation: string;
   correct: boolean;
+  tradeoff: string;
 }
 
 export interface EarnedArtifact {
@@ -143,10 +151,21 @@ export interface PlayerState {
 export interface DialogueState {
   characterId: string;
   lineIndex: number;
+  openedAt: number;
+}
+
+export interface CharacterState {
+  position: Position;
+  direction: Direction;
+  patrolIndex: number;
+  isMoving: boolean;
 }
 
 export interface GameState {
   player: PlayerState;
+  currentCaseId: CaseId;
+  completedCaseIds: CaseId[];
+  characterStates: Record<string, CharacterState>;
   questStage: QuestStage;
   collectedEvidenceIds: string[];
   diagnosisId: string | null;

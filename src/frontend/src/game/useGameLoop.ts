@@ -1,6 +1,18 @@
 import { useCallback, useEffect, useRef } from "react";
-import { characters, earnedCanvas, evidenceItems, scenes } from "./levels";
-import type { GameState, InputState, Position, Rect } from "./types";
+import {
+  characters,
+  earnedArtifactsByCase,
+  evidenceItems,
+  scenes,
+} from "./levels";
+import type {
+  CharacterState,
+  Direction,
+  GameState,
+  InputState,
+  Position,
+  Rect,
+} from "./types";
 import { INTERACT_DISTANCE, TILE_SIZE } from "./types";
 
 interface UseGameLoopArgs {
@@ -38,6 +50,7 @@ export function useGameLoop({
     const nearby = evidenceItems.find((item) => {
       if (
         item.sceneId !== state.player.sceneId ||
+        item.caseId !== state.currentCaseId ||
         state.collectedEvidenceIds.includes(item.id)
       ) {
         return false;
@@ -53,8 +66,9 @@ export function useGameLoop({
     }
 
     if (state.questStage === "briefing") {
+      const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
-        "Talk to Maya first. She frames the case before you inspect evidence.",
+        `Talk to ${stakeholder} first. They frame the case before you inspect evidence.`,
       );
       return true;
     }
@@ -64,7 +78,12 @@ export function useGameLoop({
         ...previous.collectedEvidenceIds,
         nearby.id,
       ];
-      const allCollected = collectedEvidenceIds.length === evidenceItems.length;
+      const caseEvidence = evidenceItems.filter(
+        (item) => item.caseId === previous.currentCaseId,
+      );
+      const allCollected = caseEvidence.every((item) =>
+        collectedEvidenceIds.includes(item.id),
+      );
       return {
         ...previous,
         collectedEvidenceIds,
@@ -87,7 +106,12 @@ export function useGameLoop({
     setGameState((previous) => ({
       ...previous,
       overlay: "dialogue",
-      dialogue: { characterId: character.id, lineIndex: 0 },
+      dialogue: {
+        characterId: character.id,
+        lineIndex: 0,
+        openedAt: Date.now(),
+      },
+      characterStates: faceCharacterTowardPlayer(previous, character.id),
     }));
     return true;
   }, [gameStateRef, setGameState]);
@@ -129,14 +153,36 @@ export function useGameLoop({
       pointInRect(state.player.position, item.rect),
     );
     if (portal) {
+      if (
+        portal.targetSceneId === "sales" &&
+        !state.completedCaseIds.includes("onboarding")
+      ) {
+        setGameState((previous) => ({
+          ...previous,
+          toast: {
+            id: Date.now(),
+            message:
+              "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first canvas.",
+          },
+        }));
+        return;
+      }
+      const caseTransition = getCaseTransition(state, portal.targetSceneId);
       setGameState((previous) => ({
         ...previous,
+        ...caseTransition,
         player: {
           ...previous.player,
           sceneId: portal.targetSceneId,
           position: portal.targetPosition,
         },
-        toast: { id: Date.now(), message: `Entered ${portal.label}` },
+        toast: {
+          id: Date.now(),
+          message:
+            "toast" in caseTransition && caseTransition.toast
+              ? `${caseTransition.toast.message} Entered ${portal.label}.`
+              : `Entered ${portal.label}`,
+        },
       }));
       return;
     }
@@ -175,10 +221,18 @@ export function useGameLoop({
           const nextState = {
             ...state,
             player: { ...state.player, isMoving: false },
+            characterStates: moveCharacters(state, delta),
           };
           gameStateRef.current = nextState;
           setGameState(nextState);
         }
+      } else if (state.player.hasStarted && state.overlay === "dialogue") {
+        const nextState = {
+          ...state,
+          characterStates: faceActiveCharacterTowardPlayer(state),
+        };
+        gameStateRef.current = nextState;
+        setGameState(nextState);
       }
 
       frameRef.current = requestAnimationFrame(tick);
@@ -262,9 +316,15 @@ export function completeIntervention(
   setGameState((previous) => ({
     ...previous,
     questStage: "complete",
-    earnedArtifact: earnedCanvas,
+    completedCaseIds: previous.completedCaseIds.includes(previous.currentCaseId)
+      ? previous.completedCaseIds
+      : [...previous.completedCaseIds, previous.currentCaseId],
+    earnedArtifact: earnedArtifactsByCase[previous.currentCaseId],
     overlay: "canvas",
-    toast: { id: Date.now(), message: "Earned: Enablement Diagnostic Canvas" },
+    toast: {
+      id: Date.now(),
+      message: `Earned: ${earnedArtifactsByCase[previous.currentCaseId].title}`,
+    },
   }));
 }
 
@@ -311,8 +371,28 @@ function moveWithinScene(
     pointInRect(nextPosition, item.rect),
   );
   if (edgePortal) {
+    if (
+      edgePortal.targetSceneId === "sales" &&
+      !state.completedCaseIds.includes("onboarding")
+    ) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false,
+        },
+        toast: {
+          id: Date.now(),
+          message:
+            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first canvas.",
+        },
+      };
+    }
+    const caseTransition = getCaseTransition(state, edgePortal.targetSceneId);
     return {
       ...state,
+      ...caseTransition,
       player: {
         ...state.player,
         sceneId: edgePortal.targetSceneId,
@@ -320,7 +400,13 @@ function moveWithinScene(
         direction,
         isMoving: false,
       },
-      toast: { id: Date.now(), message: `Entered ${edgePortal.label}` },
+      toast: {
+        id: Date.now(),
+        message:
+          "toast" in caseTransition && caseTransition.toast
+            ? `${caseTransition.toast.message} Entered ${edgePortal.label}.`
+            : `Entered ${edgePortal.label}`,
+      },
     };
   }
 
@@ -351,11 +437,16 @@ function moveWithinScene(
     };
   }
 
-  const characterBlocked = characters.some(
-    (character) =>
+  const characterBlocked = characters.some((character) => {
+    const characterState = state.characterStates[character.id];
+    return (
       character.sceneId === scene.id &&
-      distanceInPixels(bounded, character.position) < 38,
-  );
+      distanceInPixels(
+        bounded,
+        characterState?.position ?? character.position,
+      ) < 38
+    );
+  });
   if (characterBlocked) {
     return {
       ...state,
@@ -369,8 +460,28 @@ function moveWithinScene(
 
   const portal = scene.portals.find((item) => pointInRect(bounded, item.rect));
   if (portal) {
+    if (
+      portal.targetSceneId === "sales" &&
+      !state.completedCaseIds.includes("onboarding")
+    ) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false,
+        },
+        toast: {
+          id: Date.now(),
+          message:
+            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first canvas.",
+        },
+      };
+    }
+    const caseTransition = getCaseTransition(state, portal.targetSceneId);
     return {
       ...state,
+      ...caseTransition,
       player: {
         ...state.player,
         sceneId: portal.targetSceneId,
@@ -378,7 +489,13 @@ function moveWithinScene(
         direction,
         isMoving: false,
       },
-      toast: { id: Date.now(), message: `Entered ${portal.label}` },
+      toast: {
+        id: Date.now(),
+        message:
+          "toast" in caseTransition && caseTransition.toast
+            ? `${caseTransition.toast.message} Entered ${portal.label}.`
+            : `Entered ${portal.label}`,
+      },
     };
   }
 
@@ -390,6 +507,7 @@ function moveWithinScene(
       direction,
       isMoving: true,
     },
+    characterStates: moveCharacters(state, 1),
   };
 }
 
@@ -398,11 +516,119 @@ function getNearbyCharacter(state: GameState) {
     if (character.sceneId !== state.player.sceneId) {
       return false;
     }
+    const characterState = state.characterStates[character.id];
     return (
-      distanceInPixels(state.player.position, character.position) <
-      INTERACT_DISTANCE
+      distanceInPixels(
+        state.player.position,
+        characterState?.position ?? character.position,
+      ) < INTERACT_DISTANCE
     );
   });
+}
+
+function getCaseTransition(
+  state: GameState,
+  targetSceneId: GameState["player"]["sceneId"],
+) {
+  if (
+    targetSceneId === "sales" &&
+    state.completedCaseIds.includes("onboarding") &&
+    state.currentCaseId !== "sales"
+  ) {
+    return {
+      currentCaseId: "sales" as const,
+      questStage: "briefing" as const,
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      earnedArtifact: null,
+      overlay: "none" as const,
+      dialogue: null,
+      toast: {
+        id: Date.now(),
+        message:
+          "New case started: investigate why demos are not converting into qualified next steps.",
+      },
+    };
+  }
+  return {};
+}
+
+function moveCharacters(state: GameState, delta: number) {
+  const nextStates: Record<string, CharacterState> = {
+    ...state.characterStates,
+  };
+  for (const character of characters) {
+    const patrol = character.patrol;
+    const current =
+      nextStates[character.id] ??
+      ({
+        position: character.position,
+        direction: "down",
+        patrolIndex: 0,
+        isMoving: false,
+      } satisfies CharacterState);
+
+    if (
+      !patrol ||
+      patrol.length < 2 ||
+      character.sceneId !== state.player.sceneId
+    ) {
+      nextStates[character.id] = { ...current, isMoving: false };
+      continue;
+    }
+
+    const targetIndex = (current.patrolIndex + 1) % patrol.length;
+    const target = patrol[targetIndex];
+    const dx = target.x - current.position.x;
+    const dy = target.y - current.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < 0.04) {
+      nextStates[character.id] = {
+        ...current,
+        patrolIndex: targetIndex,
+        isMoving: false,
+      };
+      continue;
+    }
+
+    const speed = 0.012 * delta;
+    const step = Math.min(speed, distance);
+    const nextPosition = {
+      x: current.position.x + (dx / distance) * step,
+      y: current.position.y + (dy / distance) * step,
+    };
+    nextStates[character.id] = {
+      ...current,
+      position: nextPosition,
+      direction: getDirection(current.position, nextPosition),
+      isMoving: true,
+    };
+  }
+  return nextStates;
+}
+
+function faceActiveCharacterTowardPlayer(state: GameState) {
+  if (!state.dialogue) {
+    return state.characterStates;
+  }
+  return faceCharacterTowardPlayer(state, state.dialogue.characterId);
+}
+
+function faceCharacterTowardPlayer(state: GameState, characterId: string) {
+  const current = state.characterStates[characterId];
+  if (!current) {
+    return state.characterStates;
+  }
+  return {
+    ...state.characterStates,
+    [characterId]: {
+      ...current,
+      direction: getDirection(current.position, state.player.position),
+      isMoving: false,
+    },
+  };
 }
 
 function getNearbyInspectableProp(state: GameState) {
@@ -442,7 +668,7 @@ function distanceInPixels(a: Position, b: Position) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-function getDirection(previous: Position, next: Position) {
+function getDirection(previous: Position, next: Position): Direction {
   const dx = next.x - previous.x;
   const dy = next.y - previous.y;
   if (Math.abs(dx) > Math.abs(dy)) {

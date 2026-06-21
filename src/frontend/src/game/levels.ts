@@ -139,13 +139,29 @@ export const scenes: Scene[] = [
         targetSceneId: "operations",
         targetPosition: { x: 13, y: 15 },
       },
+      {
+        id: "hub-to-sales",
+        label: "Sales Strategy Studio",
+        rect: { x: 7, y: 5.2, width: 2, height: 1.8 },
+        targetSceneId: "sales",
+        targetPosition: { x: 13, y: 15 },
+      },
     ],
     blocks: [
       { x: 29, y: 3, width: 4, height: 4 },
+      { x: 6, y: 3, width: 4, height: 4 },
       { x: 18, y: 18, width: 6, height: 3 },
       { x: 20, y: 9, width: 2, height: 2 },
     ],
     props: [
+      {
+        id: "sales-building",
+        label: "Sales Strategy Studio",
+        position: { x: 6, y: 3 },
+        size: { width: 4, height: 4 },
+        sprite: exteriorSprite(192, 48, 192, 144),
+        collision: true,
+      },
       {
         id: "operations-building",
         label: "Operations Suite",
@@ -245,6 +261,66 @@ export const scenes: Scene[] = [
       },
     ],
   },
+  {
+    id: "sales",
+    name: "Sales Strategy Studio",
+    subtitle: "Case: demo quality is not turning into pipeline",
+    width: 26,
+    height: 18,
+    theme: "interior",
+    portals: [
+      {
+        id: "sales-to-hub",
+        label: "Organization Floor",
+        rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
+        targetSceneId: "hub",
+        targetPosition: { x: 8, y: 7.2 },
+      },
+    ],
+    blocks: [
+      { x: 0, y: 0, width: 26, height: 1 },
+      { x: 0, y: 0, width: 1, height: 18 },
+      { x: 25, y: 0, width: 1, height: 18 },
+      { x: 0, y: 17, width: 12, height: 1 },
+      { x: 14, y: 17, width: 12, height: 1 },
+    ],
+    props: [
+      {
+        id: "deal-review-table",
+        description:
+          "Deal reviews show reps can demo features, but discovery notes rarely connect the demo to business pain.",
+        position: { x: 5, y: 4 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 288),
+        collision: true,
+      },
+      {
+        id: "pipeline-board",
+        description:
+          "The board shows plenty of demos but weak next-step conversion. The issue is not activity volume.",
+        position: { x: 18, y: 4 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(432, 384),
+        collision: true,
+      },
+      {
+        id: "call-coaching-station",
+        description:
+          "The coaching station points to inconsistent discovery prompts and limited manager reinforcement after training.",
+        position: { x: 11, y: 10 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 384),
+        collision: true,
+      },
+      {
+        id: "sales-plant",
+        position: { x: 21, y: 10.5 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(288, 192),
+        collision: true,
+      },
+    ],
+  },
 ];
 
 export const characters: GameCharacter[] = [
@@ -254,6 +330,12 @@ export const characters: GameCharacter[] = [
     role: "Operations Manager",
     sceneId: "operations",
     position: { x: 13, y: 7 },
+    patrol: [
+      { x: 13, y: 7 },
+      { x: 15, y: 7.5 },
+      { x: 15, y: 9 },
+      { x: 12.5, y: 9 },
+    ],
     sprite: { image: "ameliaIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
@@ -285,6 +367,12 @@ export const characters: GameCharacter[] = [
     role: "New Hire",
     sceneId: "hub",
     position: { x: 8.5, y: 10.5 },
+    patrol: [
+      { x: 8.5, y: 10.5 },
+      { x: 11, y: 10.5 },
+      { x: 11, y: 12 },
+      { x: 8.5, y: 12 },
+    ],
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
@@ -298,11 +386,49 @@ export const characters: GameCharacter[] = [
       complete: ["The new canvas makes the next step obvious."],
     },
   },
+  {
+    id: "leo",
+    name: "Leo",
+    role: "Sales Enablement Lead",
+    sceneId: "sales",
+    position: { x: 13, y: 7 },
+    patrol: [
+      { x: 13, y: 7 },
+      { x: 10.5, y: 8 },
+      { x: 13, y: 9.5 },
+      { x: 15.5, y: 8 },
+    ],
+    sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
+    dialogue: {
+      briefing: [
+        "Sales leadership says reps need better demo training.",
+        "Maybe. But demos are happening. The problem is that too few demos become real next steps.",
+        "Inspect the evidence before deciding whether this is a training gap, coaching gap, message gap, or process gap.",
+      ],
+      investigate: [
+        "Look for the pattern, not the loudest complaint.",
+        "If reps can explain features but cannot connect value to buyer pain, the intervention should not be a generic product course.",
+      ],
+      diagnose: [
+        "You have enough evidence. What is actually blocking demo-to-opportunity conversion?",
+        "A sales enablement answer should connect behavior, manager reinforcement, and measurable pipeline impact.",
+      ],
+      design: [
+        "Good. Now pick an intervention that changes sales behavior at the point of work.",
+        "The best option should help reps prepare, help managers coach, and give leaders a metric to inspect.",
+      ],
+      complete: [
+        "That is the sales enablement story: not more content, better revenue behavior.",
+        "You earned the Sales Enablement Impact Canvas.",
+      ],
+    },
+  },
 ];
 
 export const evidenceItems: Evidence[] = [
   {
     id: "interview-note",
+    caseId: "onboarding",
     title: "Interview Note",
     sceneId: "operations",
     position: { x: 6.5, y: 8 },
@@ -315,6 +441,7 @@ export const evidenceItems: Evidence[] = [
   },
   {
     id: "process-map",
+    caseId: "onboarding",
     title: "Process Map",
     sceneId: "operations",
     position: { x: 12.5, y: 12 },
@@ -327,6 +454,7 @@ export const evidenceItems: Evidence[] = [
   },
   {
     id: "performance-metric",
+    caseId: "onboarding",
     title: "Performance Metric",
     sceneId: "operations",
     position: { x: 19.5, y: 8 },
@@ -337,53 +465,171 @@ export const evidenceItems: Evidence[] = [
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384),
   },
+  {
+    id: "demo-call-review",
+    caseId: "sales",
+    title: "Demo Call Review",
+    sceneId: "sales",
+    position: { x: 6.5, y: 8 },
+    summary:
+      "Reps describe product features clearly, but only 34% ask a second-layer discovery question before the demo.",
+    insight:
+      "The behavior gap is discovery depth and value framing, not basic product knowledge.",
+    metric: "Discovery depth: 34%",
+    sprite: officeSprite(336, 288),
+  },
+  {
+    id: "crm-stage-audit",
+    caseId: "sales",
+    title: "CRM Stage Audit",
+    sceneId: "sales",
+    position: { x: 12.5, y: 12 },
+    summary:
+      "Demo completion is high, but next-step conversion drops when business pain is missing from the opportunity notes.",
+    insight:
+      "The sales process needs a stronger qualification habit and clearer manager inspection points.",
+    metric: "Demo-to-next-step: 41%",
+    sprite: officeSprite(384, 384),
+  },
+  {
+    id: "manager-coaching-note",
+    caseId: "sales",
+    title: "Manager Coaching Note",
+    sceneId: "sales",
+    position: { x: 19.5, y: 8 },
+    summary:
+      "Managers coach demos inconsistently because there is no shared rubric for value messaging.",
+    insight:
+      "Reinforcement is weak. A one-time workshop would fade without a coaching system.",
+    metric: "Coaching rubric use: 18%",
+    sprite: officeSprite(432, 384),
+  },
 ];
 
 export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "more-elearning",
+    caseId: "onboarding",
     label: "New hires need more eLearning.",
     explanation:
       "This treats every symptom as a knowledge gap and ignores handoffs, manager reinforcement, and tool access delays.",
     correct: false,
+    evidenceHint:
+      "The evidence shows conflicting instructions and access delays, not missing orientation content.",
   },
   {
     id: "workflow-reinforcement",
+    caseId: "onboarding",
     label: "The main issue is an unclear workflow with weak reinforcement.",
     explanation:
       "Correct. The evidence shows inconsistent instructions, delayed access, and a gap after orientation.",
     correct: true,
+    evidenceHint:
+      "Interview notes, process handoffs, and week-two tickets all point to workflow plus reinforcement.",
   },
   {
     id: "software-broken",
+    caseId: "onboarding",
     label: "The software is broken.",
     explanation:
       "Tool access is part of the problem, but the evidence does not support software failure as the root cause.",
     correct: false,
+    evidenceHint:
+      "Access delay matters, but nothing says the tool itself fails after access is granted.",
+  },
+  {
+    id: "sales-product-training",
+    caseId: "sales",
+    label: "Reps need deeper product training before every demo.",
+    explanation:
+      "The call review says reps explain features clearly. More product content misses the buyer-conversation gap.",
+    correct: false,
+    evidenceHint:
+      "Feature explanation is not the weak signal; discovery depth and next-step conversion are.",
+  },
+  {
+    id: "sales-discovery-coaching",
+    caseId: "sales",
+    label:
+      "The root cause is weak discovery habits with inconsistent manager coaching.",
+    explanation:
+      "Correct. The evidence connects shallow discovery, missing pain notes, and low rubric use.",
+    correct: true,
+    evidenceHint:
+      "The call review, CRM audit, and coaching note triangulate the same behavior gap.",
+  },
+  {
+    id: "sales-more-activity",
+    caseId: "sales",
+    label: "The team needs more demo activity.",
+    explanation:
+      "Activity is not the bottleneck. Demos are happening; conversion after the demo is the issue.",
+    correct: false,
+    evidenceHint:
+      "The pipeline signal points to quality of next step, not quantity of demos.",
   },
 ];
 
 export const interventionOptions: InterventionOption[] = [
   {
     id: "training-module",
+    caseId: "onboarding",
     label: "Build a longer training module.",
     explanation:
       "A longer module adds content, but it does not fix ownership, timing, or manager follow-through.",
     correct: false,
+    tradeoff:
+      "Fast to ship, but it leaves managers and access handoffs untouched.",
   },
   {
     id: "diagnostic-canvas",
+    caseId: "onboarding",
     label: "Create a manager checklist, job aid, and diagnostic dashboard.",
     explanation:
       "Correct. This supports the workflow, reinforces expectations, and creates measurable visibility.",
     correct: true,
+    tradeoff:
+      "Requires manager adoption, but it addresses workflow, reinforcement, and measurement together.",
   },
   {
     id: "announcement",
+    caseId: "onboarding",
     label: "Send a one-time announcement.",
     explanation:
       "Communication helps awareness, but one message will not sustain a changed onboarding behavior.",
     correct: false,
+    tradeoff:
+      "Low effort, low behavior change. It does not create a new operating habit.",
+  },
+  {
+    id: "sales-demo-certification",
+    caseId: "sales",
+    label: "Require a demo certification for every rep.",
+    explanation:
+      "Certification may improve consistency, but the evidence points to discovery and manager reinforcement before the demo.",
+    correct: false,
+    tradeoff:
+      "It measures presentation skill more than buyer diagnosis or pipeline behavior.",
+  },
+  {
+    id: "sales-coaching-system",
+    caseId: "sales",
+    label:
+      "Create a discovery guide, manager coaching rubric, and pipeline inspection dashboard.",
+    explanation:
+      "Correct. This changes pre-demo behavior, gives managers a coaching tool, and tracks conversion.",
+    correct: true,
+    tradeoff:
+      "It takes coordination with sales leaders, but it connects enablement work to revenue behavior.",
+  },
+  {
+    id: "sales-slack-reminder",
+    caseId: "sales",
+    label: "Send weekly Slack tips about better discovery.",
+    explanation:
+      "Tips can reinforce a habit, but alone they do not give reps practice, manager coaching, or measurement.",
+    correct: false,
+    tradeoff: "Useful as a support tactic, weak as the core intervention.",
   },
 ];
 
@@ -423,5 +669,48 @@ export const earnedCanvas: EarnedArtifact = {
     },
   ],
 };
+
+export const salesCanvas: EarnedArtifact = {
+  id: "sales-enablement-impact-canvas",
+  title: "Sales Enablement Impact Canvas",
+  subtitle: "Case: Demo quality is not converting into next steps",
+  sections: [
+    {
+      label: "Business Problem",
+      value:
+        "Demos are happening, but too few convert into qualified next steps.",
+    },
+    {
+      label: "Root Cause",
+      value:
+        "Reps explain features, but discovery is shallow and managers lack a consistent coaching rubric.",
+    },
+    {
+      label: "Intervention",
+      value:
+        "Discovery guide, manager coaching rubric, call-review practice, and pipeline inspection dashboard.",
+    },
+    {
+      label: "Accessibility / Inclusion",
+      value:
+        "Use plain-language prompts, accessible templates, role-play options, and clear examples for varied experience levels.",
+    },
+    {
+      label: "Responsible AI Support",
+      value:
+        "Use AI to summarize call patterns and draft coaching prompts, with manager review before use.",
+    },
+    {
+      label: "Expected Impact",
+      value:
+        "Demo-to-next-step conversion improves from 41% to 56%; rubric use increases; discovery quality becomes visible.",
+    },
+  ],
+};
+
+export const earnedArtifactsByCase = {
+  onboarding: earnedCanvas,
+  sales: salesCanvas,
+} as const;
 
 export const initialPosition = { x: 13, y: 15.2 };
