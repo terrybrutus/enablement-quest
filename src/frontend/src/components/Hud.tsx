@@ -16,6 +16,7 @@ interface HudProps {
   evidenceCount: number;
   evidenceTotal: number;
   hasArtifact: boolean;
+  nextObjective: string;
   inputRef: MutableRefObject<InputState>;
   onOpenQuest: () => void;
   onOpenBackpack: () => void;
@@ -38,6 +39,7 @@ export function Hud({
   evidenceCount,
   evidenceTotal,
   hasArtifact,
+  nextObjective,
   inputRef,
   onOpenQuest,
   onOpenBackpack,
@@ -53,6 +55,7 @@ export function Hud({
             <div>
               <p className="eq-kicker">{sceneName}</p>
               <h1>{sceneSubtitle}</h1>
+              <p className="eq-next-objective">{nextObjective}</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <span className="eq-pill">
                   <Crosshair className="h-3.5 w-3.5" />

@@ -3,6 +3,7 @@ import {
   diagnosisOptions,
   earnedCanvas,
   evidenceItems,
+  initialPosition,
   interventionOptions,
   scenes,
 } from "@/game/levels";
@@ -20,7 +21,7 @@ import { TitleScreen } from "./TitleScreen";
 
 const initialGameState: GameState = {
   player: {
-    position: { x: 20.5, y: 15.2 },
+    position: initialPosition,
     direction: "down",
     isMoving: false,
     sceneId: "lab",
@@ -30,6 +31,7 @@ const initialGameState: GameState = {
   collectedEvidenceIds: [],
   diagnosisId: null,
   interventionId: null,
+  activeEvidenceId: null,
   earnedArtifact: null,
   overlay: "briefing",
   dialogue: null,
@@ -112,12 +114,24 @@ export default function GameCanvas() {
       ) ?? null
     );
   }, [gameState.dialogue]);
+  const activeEvidence = useMemo(
+    () =>
+      evidenceItems.find((item) => item.id === gameState.activeEvidenceId) ??
+      null,
+    [gameState.activeEvidenceId],
+  );
+  const nextObjective = getNextObjective(
+    gameState.questStage,
+    gameState.collectedEvidenceIds.length,
+    gameState.player.sceneId,
+  );
 
   const closeOverlay = useCallback(() => {
     setGameState((previous) => ({
       ...previous,
       overlay: "none",
       dialogue: null,
+      activeEvidenceId: null,
     }));
   }, []);
 
@@ -126,8 +140,40 @@ export default function GameCanvas() {
       ...previous,
       overlay: previous.overlay === overlay ? "none" : overlay,
       dialogue: null,
+      activeEvidenceId: null,
     }));
   }, []);
+
+  const closeEvidenceReview = useCallback(() => {
+    setGameState((previous) => ({
+      ...previous,
+      activeEvidenceId: null,
+      overlay: previous.questStage === "diagnose" ? "decision" : "none",
+      toast:
+        previous.questStage === "diagnose"
+          ? {
+              id: Date.now(),
+              message: "All evidence reviewed. Make the diagnosis.",
+            }
+          : previous.toast,
+    }));
+  }, []);
+
+  useEffect(() => {
+    if (gameState.overlay !== "evidence") {
+      return;
+    }
+
+    const handleEvidenceKey = (event: KeyboardEvent) => {
+      if (event.key === " " || event.key === "Enter") {
+        event.preventDefault();
+        closeEvidenceReview();
+      }
+    };
+
+    window.addEventListener("keydown", handleEvidenceKey);
+    return () => window.removeEventListener("keydown", handleEvidenceKey);
+  }, [closeEvidenceReview, gameState.overlay]);
 
   const startMission = useCallback(() => {
     setGameState((previous) => ({
@@ -258,6 +304,7 @@ export default function GameCanvas() {
         evidenceCount={gameState.collectedEvidenceIds.length}
         evidenceTotal={evidenceItems.length}
         hasArtifact={Boolean(gameState.earnedArtifact)}
+        nextObjective={nextObjective}
         onOpenQuest={() => setOverlay("quest")}
         onOpenBackpack={() => setOverlay("backpack")}
         onOpenSettings={() => setOverlay("settings")}
@@ -317,6 +364,13 @@ export default function GameCanvas() {
         />
       )}
 
+      {gameState.overlay === "evidence" && activeEvidence && (
+        <EvidencePanel
+          evidence={activeEvidence}
+          onContinue={closeEvidenceReview}
+        />
+      )}
+
       {gameState.overlay === "decision" && (
         <DecisionPanel
           diagnosisId={gameState.diagnosisId}
@@ -343,6 +397,70 @@ export default function GameCanvas() {
         />
       )}
     </div>
+  );
+}
+
+function getNextObjective(
+  questStage: GameState["questStage"],
+  evidenceCount: number,
+  sceneId: GameState["player"]["sceneId"],
+) {
+  if (questStage === "briefing") {
+    return sceneId === "operations"
+      ? "Talk to Maya before collecting evidence."
+      : "Enter Operations Suite and talk to Maya.";
+  }
+  if (questStage === "investigate") {
+    return `Inspect evidence: ${evidenceCount}/3 collected.`;
+  }
+  if (questStage === "diagnose") {
+    return "Press interact to make the diagnosis.";
+  }
+  if (questStage === "design") {
+    return "Choose the intervention that fits the evidence.";
+  }
+  return "Review the earned canvas and business impact.";
+}
+
+function EvidencePanel({
+  evidence,
+  onContinue,
+}: {
+  evidence: (typeof evidenceItems)[number];
+  onContinue: () => void;
+}) {
+  return (
+    <section
+      className="eq-overlay eq-panel eq-evidence"
+      aria-label={evidence.title}
+    >
+      <div className="eq-panel-header">
+        <div>
+          <p className="eq-kicker">Evidence Reviewed</p>
+          <h2>{evidence.title}</h2>
+          {evidence.metric && <p>{evidence.metric}</p>}
+        </div>
+      </div>
+
+      <div className="eq-canvas-grid">
+        <article className="eq-canvas-card">
+          <h3>What you found</h3>
+          <p>{evidence.summary}</p>
+        </article>
+        <article className="eq-canvas-card">
+          <h3>What it means</h3>
+          <p>{evidence.insight}</p>
+        </article>
+      </div>
+
+      <button
+        className="eq-primary-button mt-4"
+        type="button"
+        onClick={onContinue}
+      >
+        Continue investigation
+      </button>
+    </section>
   );
 }
 

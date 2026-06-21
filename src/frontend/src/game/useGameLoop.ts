@@ -68,12 +68,10 @@ export function useGameLoop({
       return {
         ...previous,
         collectedEvidenceIds,
+        activeEvidenceId: nearby.id,
         questStage: allCollected ? "diagnose" : previous.questStage,
-        toast: {
-          id: Date.now(),
-          message: `${nearby.title}: ${nearby.insight}`,
-        },
-        overlay: allCollected ? "decision" : previous.overlay,
+        toast: null,
+        overlay: "evidence",
       };
     });
     return true;
@@ -120,7 +118,7 @@ export function useGameLoop({
         overlay: "decision",
         toast: {
           id: Date.now(),
-          message: "Diagnosis board opened.",
+          message: "Decision panel opened.",
         },
       }));
       return;

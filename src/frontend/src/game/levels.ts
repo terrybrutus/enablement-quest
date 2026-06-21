@@ -28,6 +28,7 @@ export const assetUrls = {
   bobIdle: "/assets/limezu/bob-idle.png",
   roomBuilder: "/assets/limezu/room-builder-48.png",
   office: "/assets/limezu/office-48.png",
+  exteriorWalls: "/assets/limezu/exterior-walls.png",
   exteriorFloors: "/assets/limezu/exterior-floors.png",
   fountain: "/assets/limezu/fountains.png",
   streetLamp: "/assets/limezu/street-lamp.png",
@@ -42,36 +43,49 @@ export const tileSprites = {
   plaza: { image: "exteriorFloors", sx: 288, sy: 96, sw: 48, sh: 48 },
 } as const;
 
+const exteriorSprite = (
+  sx: number,
+  sy: number,
+  sw = 48,
+  sh = 48,
+): SheetSprite => ({
+  image: "exteriorWalls",
+  sx,
+  sy,
+  sw,
+  sh,
+});
+
 export const scenes: Scene[] = [
   {
     id: "lab",
     name: "Learning Systems Lab",
     subtitle: "Base camp for the diagnostic mission",
-    width: 42,
+    width: 26,
     height: 18,
     theme: "interior",
     portals: [
       {
         id: "lab-to-hub",
         label: "Organization Floor",
-        rect: { x: 20, y: 16.2, width: 2, height: 1.8 },
+        rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
         targetPosition: { x: 20.5, y: 21.4 },
       },
     ],
     blocks: [
-      { x: 0, y: 0, width: 42, height: 1 },
+      { x: 0, y: 0, width: 26, height: 1 },
       { x: 0, y: 0, width: 1, height: 18 },
-      { x: 41, y: 0, width: 1, height: 18 },
-      { x: 0, y: 17, width: 20, height: 1 },
-      { x: 22, y: 17, width: 20, height: 1 },
+      { x: 25, y: 0, width: 1, height: 18 },
+      { x: 0, y: 17, width: 12, height: 1 },
+      { x: 14, y: 17, width: 12, height: 1 },
     ],
     props: [
       {
         id: "mission-desk",
         description:
           "This is your case desk. The current case asks whether slow onboarding is really a training problem.",
-        position: { x: 3.2, y: 3.2 },
+        position: { x: 5, y: 4 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(336, 192),
         collision: true,
@@ -80,14 +94,14 @@ export const scenes: Scene[] = [
         id: "analytics-wall",
         description:
           "The dashboard is waiting for evidence. Good enablement work starts with facts, not course requests.",
-        position: { x: 12.5, y: 2 },
+        position: { x: 17, y: 3 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(432, 384),
         collision: true,
       },
       {
         id: "plant-lab",
-        position: { x: 16.5, y: 8.5 },
+        position: { x: 19, y: 10 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
         collision: true,
@@ -96,7 +110,7 @@ export const scenes: Scene[] = [
         id: "lab-console",
         description:
           "The AI workbench can help draft and summarize, but the diagnosis still has to be human-reviewed.",
-        position: { x: 6.5, y: 8.5 },
+        position: { x: 9, y: 10 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(480, 288),
         collision: true,
@@ -116,14 +130,14 @@ export const scenes: Scene[] = [
         label: "Learning Systems Lab",
         rect: { x: 20, y: 19.5, width: 2, height: 1.5 },
         targetSceneId: "lab",
-        targetPosition: { x: 21, y: 15.7 },
+        targetPosition: { x: 13, y: 15.7 },
       },
       {
         id: "hub-to-operations",
         label: "Operations Suite",
         rect: { x: 30, y: 5.2, width: 2, height: 1.8 },
         targetSceneId: "operations",
-        targetPosition: { x: 21, y: 15 },
+        targetPosition: { x: 13, y: 15 },
       },
     ],
     blocks: [
@@ -137,7 +151,7 @@ export const scenes: Scene[] = [
         label: "Operations Suite",
         position: { x: 29, y: 3 },
         size: { width: 4, height: 4 },
-        sprite: officeSprite(528, 0, 192, 192),
+        sprite: exteriorSprite(192, 0, 192, 192),
         collision: true,
       },
       {
@@ -145,7 +159,7 @@ export const scenes: Scene[] = [
         label: "Learning Systems Lab",
         position: { x: 18, y: 18 },
         size: { width: 6, height: 3 },
-        sprite: officeSprite(0, 0, 240, 144),
+        sprite: exteriorSprite(192, 48, 192, 144),
         collision: true,
       },
       {
@@ -175,31 +189,31 @@ export const scenes: Scene[] = [
     id: "operations",
     name: "Operations Suite",
     subtitle: "Case: new hires are taking too long to ramp",
-    width: 42,
+    width: 26,
     height: 18,
     theme: "interior",
     portals: [
       {
         id: "operations-to-hub",
         label: "Organization Floor",
-        rect: { x: 20, y: 16.2, width: 2, height: 1.8 },
+        rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
         targetPosition: { x: 31.5, y: 7.2 },
       },
     ],
     blocks: [
-      { x: 0, y: 0, width: 42, height: 1 },
+      { x: 0, y: 0, width: 26, height: 1 },
       { x: 0, y: 0, width: 1, height: 18 },
-      { x: 41, y: 0, width: 1, height: 18 },
-      { x: 0, y: 17, width: 20, height: 1 },
-      { x: 22, y: 17, width: 20, height: 1 },
+      { x: 25, y: 0, width: 1, height: 18 },
+      { x: 0, y: 17, width: 12, height: 1 },
+      { x: 14, y: 17, width: 12, height: 1 },
     ],
     props: [
       {
         id: "manager-table",
         description:
           "Stakeholder notes point to unclear handoffs and inconsistent manager follow-through.",
-        position: { x: 3.2, y: 3.1 },
+        position: { x: 5, y: 4 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(336, 288),
         collision: true,
@@ -208,7 +222,7 @@ export const scenes: Scene[] = [
         id: "metric-board",
         description:
           "Ramp data shows the problem spikes after orientation, which suggests reinforcement and workflow gaps.",
-        position: { x: 14.2, y: 3.1 },
+        position: { x: 18, y: 4 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(432, 384),
         collision: true,
@@ -217,14 +231,14 @@ export const scenes: Scene[] = [
         id: "process-desk",
         description:
           "The process review desk shows access delays and too many handoffs before new hires can work confidently.",
-        position: { x: 9.4, y: 8.1 },
+        position: { x: 11, y: 10 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(384, 384),
         collision: true,
       },
       {
         id: "office-plant",
-        position: { x: 18.5, y: 10.5 },
+        position: { x: 21, y: 10.5 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
         collision: true,
@@ -239,7 +253,7 @@ export const characters: GameCharacter[] = [
     name: "Maya",
     role: "Operations Manager",
     sceneId: "operations",
-    position: { x: 10.5, y: 6.3 },
+    position: { x: 13, y: 7 },
     sprite: { image: "ameliaIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
@@ -291,7 +305,7 @@ export const evidenceItems: Evidence[] = [
     id: "interview-note",
     title: "Interview Note",
     sceneId: "operations",
-    position: { x: 4.4, y: 6.4 },
+    position: { x: 6.5, y: 8 },
     summary:
       "New hires say they receive multiple versions of the same onboarding instructions.",
     insight:
@@ -303,7 +317,7 @@ export const evidenceItems: Evidence[] = [
     id: "process-map",
     title: "Process Map",
     sceneId: "operations",
-    position: { x: 10.5, y: 11 },
+    position: { x: 12.5, y: 12 },
     summary:
       "The process map has three handoffs before tool access is confirmed.",
     insight:
@@ -315,7 +329,7 @@ export const evidenceItems: Evidence[] = [
     id: "performance-metric",
     title: "Performance Metric",
     sceneId: "operations",
-    position: { x: 16.3, y: 6.5 },
+    position: { x: 19.5, y: 8 },
     summary:
       "Support tickets spike during weeks two and three, after formal orientation ends.",
     insight:
@@ -410,4 +424,4 @@ export const earnedCanvas: EarnedArtifact = {
   ],
 };
 
-export const initialPosition = { x: 20.5, y: 15.2 };
+export const initialPosition = { x: 13, y: 15.2 };
