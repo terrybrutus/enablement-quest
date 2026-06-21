@@ -257,6 +257,7 @@ function drawEvidence(
   const visibleEvidence = evidenceItems.filter(
     (item) =>
       item.sceneId === scene.id &&
+      item.caseId === gameState.currentCaseId &&
       !gameState.collectedEvidenceIds.includes(item.id),
   );
 
@@ -285,9 +286,23 @@ function drawCharacters(
     (character) => character.sceneId === scene.id,
   );
   for (const character of sceneCharacters) {
-    const x = character.position.x * TILE_SIZE - camera.x - 24;
-    const y = character.position.y * TILE_SIZE - camera.y - 48;
-    drawSheetSprite(ctx, assets, character.sprite, x, y, 48, 96);
+    const characterState = gameState.characterStates[character.id];
+    const position = characterState?.position ?? character.position;
+    const direction = characterState?.direction ?? "down";
+    const x = position.x * TILE_SIZE - camera.x - 24;
+    const y = position.y * TILE_SIZE - camera.y - 48;
+    drawSheetSprite(
+      ctx,
+      assets,
+      {
+        ...character.sprite,
+        sx: getDirectionSpriteOffset(direction) * character.sprite.sw,
+      },
+      x,
+      y,
+      48,
+      96,
+    );
     drawLabel(ctx, character.name, x + 24, y - 10, "#bbf7d0");
 
     if (character.id === "maya" && gameState.questStage !== "complete") {
