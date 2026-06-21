@@ -25,13 +25,13 @@ const steps = [
     id: "investigate",
     title: "Investigate",
     description:
-      "Talk to Maya and collect the interview note, process map, and performance metric.",
+      "Talk to Maya, then collect the interview note, process map, and performance metric.",
   },
   {
     id: "diagnose",
     title: "Diagnose",
     description:
-      "Decide whether this is a training problem or a workflow problem.",
+      "Decide whether this is a training problem, workflow problem, tool problem, or reinforcement problem.",
   },
   {
     id: "design",
@@ -53,6 +53,10 @@ export function QuestLog({
   onClose,
 }: QuestLogProps) {
   const currentIndex = steps.findIndex((step) => step.id === questStage);
+  const activeGuidance = getActiveGuidance(
+    questStage,
+    collectedEvidenceIds.length,
+  );
   const selectedDiagnosis = diagnosisOptions.find(
     (option) => option.id === diagnosisId,
   );
@@ -74,6 +78,11 @@ export function QuestLog({
           <X className="h-4 w-4" />
           Close
         </button>
+      </div>
+
+      <div className="eq-mini-section">
+        <h3>What to do next</h3>
+        <p>{activeGuidance}</p>
       </div>
 
       <div className="eq-step-list">
@@ -103,7 +112,8 @@ export function QuestLog({
         <h3>Evidence</h3>
         {evidenceItems.map((item) => (
           <p key={item.id}>
-            {collectedEvidenceIds.includes(item.id) ? "✓" : "○"} {item.title}
+            {collectedEvidenceIds.includes(item.id) ? "[x]" : "[ ]"}{" "}
+            {item.title}
           </p>
         ))}
       </div>
@@ -115,4 +125,20 @@ export function QuestLog({
       </div>
     </section>
   );
+}
+
+function getActiveGuidance(questStage: QuestStage, evidenceCount: number) {
+  if (questStage === "briefing") {
+    return "Leave the lab, enter Operations Suite, and talk to Maya before collecting evidence.";
+  }
+  if (questStage === "investigate") {
+    return `Collect the three evidence items. Each one points to a different part of the performance problem. Evidence collected: ${evidenceCount}/3.`;
+  }
+  if (questStage === "diagnose") {
+    return "Open the diagnosis board and decide whether the root cause is training, workflow, tool friction, or reinforcement.";
+  }
+  if (questStage === "design") {
+    return "Choose the intervention that fits the root cause. The best answer should change behavior and create a measurable signal.";
+  }
+  return "Review the earned canvas. This is the portfolio artifact that explains the problem, evidence, decision, solution, and impact.";
 }
