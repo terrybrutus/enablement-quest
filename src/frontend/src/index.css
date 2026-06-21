@@ -89,14 +89,26 @@
 
 .eq-hud-card {
   border-radius: 18px;
-  padding: 14px 16px;
+  max-width: min(620px, calc(100vw - 24px));
+  padding: 10px 12px;
 }
 
 .eq-hud-card h1 {
   margin: 2px 0 0;
   font-family: var(--font-display), system-ui, sans-serif;
-  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-size: clamp(0.96rem, 1.7vw, 1.2rem);
   font-weight: 800;
+  line-height: 1.15;
+}
+
+.eq-hud-meta {
+  align-items: center;
+  color: #94a3b8;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.74rem;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .eq-next-objective,
@@ -460,17 +472,23 @@
   z-index: 50;
   display: grid;
   place-items: center;
-  background: radial-gradient(
+  background: linear-gradient(rgba(2, 6, 23, 0.28), rgba(2, 6, 23, 0.78)),
+    url("/assets/limezu/full/Tileset_17_MV.png"),
+    radial-gradient(
       circle at 50% 30%,
       rgba(34, 211, 238, 0.17),
       transparent 34%
     ), rgba(2, 6, 23, 0.92);
+  background-position: center, center, center;
+  background-size: cover, 384px 384px, cover;
+  image-rendering: pixelated;
   padding: 18px;
 }
 
 .eq-title-card {
   width: min(760px, 100%);
-  border-radius: 28px;
+  border: 3px solid rgba(103, 232, 249, 0.58);
+  border-radius: 20px;
   padding: clamp(24px, 5vw, 44px);
   text-align: center;
 }
@@ -638,30 +656,18 @@
 
   .eq-hud-card {
     max-width: calc(100vw - 24px);
-    padding: 8px 10px;
+    padding: 7px 9px;
   }
 
   .eq-hud-card h1 {
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     line-height: 1.12;
   }
 
-  .eq-next-objective {
-    font-size: 0.76rem;
-    line-height: 1.25;
-  }
-
-  .eq-hud-card .mt-3 {
-    margin-top: 6px;
-  }
-
-  .eq-hud-card .flex.items-start.gap-3 {
-    gap: 8px;
-  }
-
-  .eq-hud-card .mt-1.h-5.w-5 {
-    height: 16px;
-    width: 16px;
+  .eq-hud-meta {
+    font-size: 0.66rem;
+    gap: 4px;
+    margin-top: 5px;
   }
 
   .eq-kicker {
