@@ -530,6 +530,10 @@
   padding: 6px 10px;
 }
 
+.eq-mobile-control {
+  display: none;
+}
+
 .eq-toast {
   position: absolute;
   left: 50%;
@@ -624,8 +628,10 @@
   }
 
   .eq-title-screen {
-    display: block;
-    padding: 10px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 12px;
   }
 
   .eq-hud-card,
@@ -638,21 +644,20 @@
 
   .eq-hud-card {
     max-width: calc(100vw - 24px);
-    padding: 8px 10px;
+    padding: 6px 8px;
   }
 
   .eq-hud-card h1 {
-    font-size: 0.9rem;
-    line-height: 1.12;
+    display: none;
   }
 
   .eq-next-objective {
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     line-height: 1.25;
   }
 
   .eq-hud-card .mt-3 {
-    margin-top: 6px;
+    margin-top: 5px;
   }
 
   .eq-hud-card .flex.items-start.gap-3 {
@@ -665,12 +670,13 @@
   }
 
   .eq-kicker {
-    font-size: 0.58rem;
+    font-size: 0.56rem;
     letter-spacing: 0.1em;
   }
 
   .eq-pill {
-    padding: 3px 7px;
+    font-size: 0.68rem;
+    padding: 3px 6px;
   }
 
   .eq-hud-button {
@@ -738,16 +744,11 @@
   }
 
   .eq-title-card {
-    left: 10px;
-    max-height: calc(100dvh - 24px);
-    max-width: calc(100vw - 20px);
+    max-height: min(760px, calc(100dvh - 24px));
+    max-width: calc(100vw - 24px);
     overflow: auto;
-    padding: 24px 16px;
-    position: absolute;
-    right: auto;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 370px;
+    padding: 20px 16px;
+    width: 100%;
   }
 
   .eq-title-card * {
@@ -756,22 +757,57 @@
   }
 
   .eq-title-card h1 {
-    font-size: 1.55rem;
+    font-size: clamp(1.7rem, 10vw, 2.25rem);
     line-height: 1.08;
     letter-spacing: -0.04em;
   }
 
   .eq-title-copy {
-    font-size: 0.95rem;
-    line-height: 1.55;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin-bottom: 16px;
+  }
+
+  .eq-title-grid {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .eq-title-grid article {
+    grid-template-columns: auto 1fr;
+    justify-items: start;
+    min-height: 0;
+    padding: 10px;
+    text-align: left;
+  }
+
+  .eq-start-button {
+    min-height: 48px;
+    width: min(260px, 100%);
   }
 
   .eq-control-strip span {
     font-size: 0.7rem;
   }
 
+  .eq-desktop-control {
+    display: none;
+  }
+
+  .eq-mobile-control {
+    display: inline-flex;
+  }
+
   .eq-toast {
-    top: 76px;
+    border-radius: 18px;
+    font-size: 0.78rem;
+    left: 12px;
+    line-height: 1.3;
+    max-width: calc(100vw - 24px);
+    padding: 8px 10px;
+    right: 12px;
+    top: 156px;
+    transform: none;
   }
 
   .eq-touch-button {
