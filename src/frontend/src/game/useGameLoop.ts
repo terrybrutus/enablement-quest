@@ -52,6 +52,13 @@ export function useGameLoop({
       return false;
     }
 
+    if (state.questStage === "briefing") {
+      setToast(
+        "Talk to Maya first. She frames the case before you inspect evidence.",
+      );
+      return true;
+    }
+
     setGameState((previous) => {
       const collectedEvidenceIds = [
         ...previous.collectedEvidenceIds,
@@ -64,13 +71,13 @@ export function useGameLoop({
         questStage: allCollected ? "diagnose" : previous.questStage,
         toast: {
           id: Date.now(),
-          message: `Collected: ${nearby.title}`,
+          message: `${nearby.title}: ${nearby.insight}`,
         },
         overlay: allCollected ? "decision" : previous.overlay,
       };
     });
     return true;
-  }, [gameStateRef, setGameState]);
+  }, [gameStateRef, setGameState, setToast]);
 
   const openNearbyCharacter = useCallback(() => {
     const state = gameStateRef.current;
