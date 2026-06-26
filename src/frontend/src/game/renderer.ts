@@ -322,13 +322,22 @@ function drawEvidence(
         gameState.player.position.x - evidence.position.x,
         gameState.player.position.y - evidence.position.y,
       ) * TILE_SIZE;
+    const evidenceIndex =
+      evidenceItems
+        .filter((item) => item.caseId === gameState.currentCaseId)
+        .findIndex((item) => item.id === evidence.id) + 1;
+    const isExpected = evidence.id === expectedEvidence?.id;
 
     ctx.shadowColor = "#facc15";
-    ctx.shadowBlur = 12 + pulse;
+    ctx.shadowBlur = isExpected ? 18 + pulse : 8;
     drawSheetSprite(ctx, assets, evidence.sprite, x, y, 58, 42);
     ctx.shadowBlur = 0;
 
-    if (evidence.id === expectedEvidence?.id || playerDistance < 130) {
+    if (isExpected) {
+      drawQuestMarker(ctx, x + 29, y + 22, `${evidenceIndex}`);
+    }
+
+    if (isExpected || playerDistance < 130) {
       drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
     }
   }
@@ -364,12 +373,15 @@ function drawCharacters(
     );
     drawLabel(ctx, character.name, x + 24, y - 10, "#bbf7d0");
 
-    if (character.id === "maya" && gameState.questStage !== "complete") {
+    if (character.id === getCurrentCaseOwnerId(gameState)) {
       ctx.strokeStyle = "rgba(250, 204, 21, 0.9)";
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.ellipse(x + 24, y + 91, 22, 8, 0, 0, Math.PI * 2);
       ctx.stroke();
+      if (gameState.questStage === "briefing") {
+        drawQuestMarker(ctx, x + 24, y - 35, "!");
+      }
     }
   }
 }
@@ -419,12 +431,45 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    left: 0,
+    left: 2,
     up: 1,
-    right: 2,
+    right: 0,
     down: 3,
   };
   return offsets[direction];
+}
+
+function getCurrentCaseOwnerId(gameState: GameState) {
+  if (gameState.questStage !== "briefing") {
+    return null;
+  }
+  return gameState.currentCaseId === "sales" ? "leo" : "maya";
+}
+
+function drawQuestMarker(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  label: string,
+) {
+  const pulse = Math.sin(Date.now() / 240) * 2;
+  ctx.save();
+  ctx.shadowColor = "rgba(250, 204, 21, 0.9)";
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = "#facc15";
+  ctx.beginPath();
+  ctx.arc(x, y - 34, 13 + pulse, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(15, 23, 42, 0.9)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = "#111827";
+  ctx.font = "900 13px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, x, y - 34);
+  ctx.restore();
 }
 
 function drawSheetSprite(

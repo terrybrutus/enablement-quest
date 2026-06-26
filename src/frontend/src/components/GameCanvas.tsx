@@ -529,26 +529,26 @@ function getNextObjective(
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Talk to Leo before reviewing the sales evidence."
-        : "Enter Sales Strategy Studio and talk to Leo.";
+        ? "Step 1: talk to Leo, then inspect the marked evidence in order."
+        : "Step 1: enter Sales Strategy Studio and talk to Leo.";
     }
     return sceneId === "operations"
-      ? "Talk to Maya before collecting evidence."
-      : "Enter Operations Suite and talk to Maya.";
+      ? "Step 1: talk to Maya, then inspect the marked evidence in order."
+      : "Step 1: enter Operations Suite and talk to Maya.";
   }
   if (questStage === "investigate") {
     return nextEvidenceTitle
-      ? `Inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
+      ? `Step ${evidenceCount + 2}: inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
       : `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
-    return "Press Interact away from objects to make the diagnosis.";
+    return "Step 5: press Interact away from objects and choose the root cause.";
   }
   if (questStage === "design") {
-    return "Choose the intervention and consider the tradeoff.";
+    return "Step 6: choose the intervention that fits the root cause and metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "First canvas earned. Leave this room, then enter Sales Strategy Studio for the sales enablement case.";
+    return "Step 7: first canvas earned. Leave, then enter Sales Strategy Studio.";
   }
   return "Review the earned canvas and business impact.";
 }
@@ -564,18 +564,35 @@ function EvidencePanel({
     "signal" | "trap" | null
   >(null);
   const hasReadCorrectly = selectedSignal === "signal";
+  const checkOptions = useMemo(() => {
+    const options = [
+      {
+        kind: "signal" as const,
+        label: evidence.signal,
+        feedback:
+          "Good. This is the clue that should shape the root-cause call.",
+      },
+      {
+        kind: "trap" as const,
+        label: evidence.trap,
+        feedback:
+          "Not quite. That jumps to a surface explanation before the full evidence pattern is clear.",
+      },
+    ];
+    return evidence.id.length % 2 === 0 ? options.reverse() : options;
+  }, [evidence.id, evidence.signal, evidence.trap]);
 
   useEffect(() => {
     const handleEvidenceKey = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
       if (key === "1") {
         event.preventDefault();
-        setSelectedSignal("signal");
+        setSelectedSignal(checkOptions[0].kind);
         return;
       }
       if (key === "2") {
         event.preventDefault();
-        setSelectedSignal("trap");
+        setSelectedSignal(checkOptions[1].kind);
         return;
       }
       if ((key === " " || key === "enter") && hasReadCorrectly) {
@@ -586,7 +603,7 @@ function EvidencePanel({
 
     window.addEventListener("keydown", handleEvidenceKey);
     return () => window.removeEventListener("keydown", handleEvidenceKey);
-  }, [hasReadCorrectly, onContinue]);
+  }, [checkOptions, hasReadCorrectly, onContinue]);
 
   return (
     <section
@@ -621,33 +638,18 @@ function EvidencePanel({
           <p className="eq-kicker">Check Your Read</p>
           <h3>Which signal should guide the diagnosis?</h3>
         </div>
-        <button
-          className={`eq-choice ${selectedSignal === "signal" ? "is-selected" : ""}`}
-          type="button"
-          onClick={() => setSelectedSignal("signal")}
-        >
-          <kbd>1</kbd>
-          <span>{evidence.signal}</span>
-          {selectedSignal === "signal" && (
-            <small>
-              Good. This is the clue that should shape the root-cause call.
-            </small>
-          )}
-        </button>
-        <button
-          className={`eq-choice ${selectedSignal === "trap" ? "is-selected" : ""}`}
-          type="button"
-          onClick={() => setSelectedSignal("trap")}
-        >
-          <kbd>2</kbd>
-          <span>{evidence.trap}</span>
-          {selectedSignal === "trap" && (
-            <small>
-              Not quite. That jumps to a surface explanation before the full
-              evidence pattern is clear.
-            </small>
-          )}
-        </button>
+        {checkOptions.map((option, index) => (
+          <button
+            className={`eq-choice ${selectedSignal === option.kind ? "is-selected" : ""}`}
+            key={option.kind}
+            type="button"
+            onClick={() => setSelectedSignal(option.kind)}
+          >
+            <kbd>{index + 1}</kbd>
+            <span>{option.label}</span>
+            {selectedSignal === option.kind && <small>{option.feedback}</small>}
+          </button>
+        ))}
       </div>
 
       <button

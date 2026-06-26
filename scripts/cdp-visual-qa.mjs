@@ -306,7 +306,7 @@ async function runViewport(client, viewport) {
     viewport,
     "ArrowUp",
     "ArrowUp",
-    viewport.mobile ? 7600 : 4600,
+    viewport.mobile ? 7600 : 7200,
   );
   const walkedOperationsState = await captureState(
     send,
