@@ -35,6 +35,12 @@ declare global {
       sceneId: SceneId;
       position: Position;
       direction: GameState["player"]["direction"];
+      collectedEvidenceIds: string[];
+      completedCaseIds: CaseId[];
+      currentCaseId: CaseId;
+      diagnosisId: string | null;
+      interventionId: string | null;
+      dialogue: GameState["dialogue"];
       questStage: GameState["questStage"];
       overlay: GameState["overlay"];
     };
@@ -90,6 +96,12 @@ export default function GameCanvas() {
       sceneId: gameState.player.sceneId,
       position: gameState.player.position,
       direction: gameState.player.direction,
+      collectedEvidenceIds: gameState.collectedEvidenceIds,
+      completedCaseIds: gameState.completedCaseIds,
+      currentCaseId: gameState.currentCaseId,
+      diagnosisId: gameState.diagnosisId,
+      interventionId: gameState.interventionId,
+      dialogue: gameState.dialogue,
       questStage: gameState.questStage,
       overlay: gameState.overlay,
     };
@@ -508,7 +520,7 @@ function getQaScene(): {
     return {
       sceneId,
       caseId,
-      position: { x: 9, y: 9.35 },
+      position: { x: 9, y: 10.25 },
       ...getQaStageState(caseId, qaStage),
     };
   }
@@ -517,7 +529,7 @@ function getQaScene(): {
     return {
       sceneId,
       caseId,
-      position: { x: 9, y: 9.35 },
+      position: { x: 9, y: 10.25 },
       ...getQaStageState(caseId, qaStage),
     };
   }

@@ -95,8 +95,8 @@
 
 .eq-hud-card.is-collapsed {
   align-self: flex-start;
-  max-width: min(282px, calc(100vw - 24px));
-  padding: 8px 40px 8px 12px;
+  max-width: min(260px, calc(100vw - 24px));
+  padding: 7px 50px 7px 11px;
   width: fit-content;
 }
 
@@ -134,11 +134,11 @@
 .eq-hud-summary strong {
   color: #f8fafc;
   display: -webkit-box;
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   line-height: 1.2;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
 }
 
 .eq-hud-card h1 {
@@ -941,8 +941,8 @@
   }
 
   .eq-hud-card.is-collapsed {
-    max-width: min(174px, calc(100vw - 118px));
-    padding: 6px 34px 6px 9px;
+    max-width: min(212px, calc(100vw - 118px));
+    padding: 6px 48px 6px 9px;
   }
 
   .eq-hud-toggle {

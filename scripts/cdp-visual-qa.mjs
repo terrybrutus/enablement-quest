@@ -109,6 +109,24 @@ async function waitForPage(send) {
   });
 }
 
+async function navigateTo(send, url) {
+  await send("Page.navigate", { url });
+  await send("Runtime.evaluate", {
+    expression: "new Promise((resolve) => setTimeout(resolve, 850))",
+    awaitPromise: true,
+  });
+  await waitForPage(send);
+  await send("Page.bringToFront");
+  await send("Runtime.evaluate", {
+    expression: `
+      (() => {
+        window.focus();
+        document.querySelector('[data-ocid="game.canvas_target"]')?.click();
+      })()
+    `,
+  });
+}
+
 async function captureState(send, events, viewportName, stateName) {
   await waitForPage(send);
   await send("Runtime.evaluate", {
@@ -179,6 +197,9 @@ async function holdKey(send, key, code, milliseconds) {
     ArrowLeft: 37,
     ArrowRight: 39,
     ArrowUp: 38,
+    Enter: 13,
+    KeyE: 69,
+    Space: 32,
   };
   await send("Input.dispatchKeyEvent", {
     type: "keyDown",
@@ -196,6 +217,56 @@ async function holdKey(send, key, code, milliseconds) {
     code,
     windowsVirtualKeyCode: keyCodes[key] ?? 0,
   });
+}
+
+async function pressInteract(send) {
+  await holdKey(send, "e", "KeyE", 80);
+}
+
+async function clickButtonIncluding(send, text, options = {}) {
+  const { exact = false } = options;
+  const result = await send("Runtime.evaluate", {
+    returnByValue: true,
+    expression: `
+      (() => {
+        const expected = ${JSON.stringify(text)}.toLowerCase();
+        const buttons = [...document.querySelectorAll('button')];
+        const button = buttons.find((item) => {
+          if (item.disabled) {
+            return false;
+          }
+          const label = (item.innerText || item.getAttribute('aria-label') || '').toLowerCase();
+          return ${exact ? "label === expected" : "label.includes(expected)"};
+        });
+        if (!button) {
+          return false;
+        }
+        button.click();
+        return true;
+      })()
+    `,
+  });
+  if (!result.result.value) {
+    throw new Error(`Unable to click visible button containing: ${text}`);
+  }
+  await send("Runtime.evaluate", {
+    expression: "new Promise((resolve) => setTimeout(resolve, 260))",
+    awaitPromise: true,
+  });
+}
+
+async function waitForOverlay(send, overlay, message) {
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    const state = await getQaState(send);
+    if (state?.overlay === overlay) {
+      return state;
+    }
+    await send("Runtime.evaluate", {
+      expression: "new Promise((resolve) => setTimeout(resolve, 100))",
+      awaitPromise: true,
+    });
+  }
+  return assertQaState(send, (state) => state?.overlay === overlay, message);
 }
 
 async function holdJoystick(send, xDirection, yDirection, milliseconds) {
@@ -303,6 +374,168 @@ async function moveUntil(send, viewport, key, code, predicate, options = {}) {
   return assertQaState(send, predicate, message);
 }
 
+async function moveToCoordinate(send, viewport, target, options = {}) {
+  const {
+    tolerance = viewport.mobile ? 0.32 : 0.22,
+    maxAxisSteps = 46,
+    message = `Player did not reach coordinate ${JSON.stringify(target)}`,
+  } = options;
+
+  const moveAxis = async (axis) => {
+    const state = await getQaState(send);
+    const current = state?.position?.[axis];
+    if (typeof current !== "number") {
+      throw new Error(`${message}. Missing QA position.`);
+    }
+    const goingPositive = target[axis] > current;
+    const key =
+      axis === "x"
+        ? goingPositive
+          ? "ArrowRight"
+          : "ArrowLeft"
+        : goingPositive
+          ? "ArrowDown"
+          : "ArrowUp";
+    await moveUntil(
+      send,
+      viewport,
+      key,
+      key,
+      (nextState) => {
+        const value = nextState?.position?.[axis];
+        if (typeof value !== "number") {
+          return false;
+        }
+        if (goingPositive) {
+          return value >= target[axis] - tolerance;
+        }
+        return value <= target[axis] + tolerance;
+      },
+      {
+        chunkMs: viewport.mobile ? 105 : 70,
+        maxSteps: maxAxisSteps,
+        message,
+      },
+    );
+  };
+
+  await moveAxis("x");
+  await moveAxis("y");
+}
+
+async function moveThrough(send, viewport, waypoints) {
+  for (const waypoint of waypoints) {
+    await moveToCoordinate(send, viewport, waypoint);
+  }
+}
+
+async function advanceDialogueToEnd(send) {
+  await waitForOverlay(send, "dialogue", "Dialogue did not open");
+  await assertQaState(
+    send,
+    (state) => state?.dialogue?.lineIndex === 0,
+    "Dialogue did not start on line 1",
+  );
+
+  for (let step = 0; step < 6; step += 1) {
+    const state = await getQaState(send);
+    if (state?.overlay === "none") {
+      return;
+    }
+    await clickButtonIncluding(send, "Continue");
+  }
+
+  await assertQaState(
+    send,
+    (state) => state?.overlay === "none",
+    "Dialogue did not close after the final line",
+  );
+}
+
+async function collectEvidence(send, viewport, waypoints, signalText, count) {
+  await moveThrough(send, viewport, waypoints);
+  await pressInteract(send);
+  await waitForOverlay(send, "evidence", "Evidence panel did not open");
+  await clickButtonIncluding(send, signalText);
+  await clickButtonIncluding(send, "Continue investigation");
+  await assertQaState(
+    send,
+    (state) => state?.collectedEvidenceIds?.length === count,
+    `Evidence count did not update to ${count}`,
+  );
+}
+
+async function completeOnboardingCase(send, viewport) {
+  await moveThrough(send, viewport, [
+    { x: 6.7, y: 10.25 },
+    { x: 6.7, y: 6.9 },
+    { x: 9.35, y: 6.9 },
+    { x: 9.35, y: 5.75 },
+  ]);
+  await pressInteract(send);
+  await advanceDialogueToEnd(send);
+  await assertQaState(
+    send,
+    (state) => state?.questStage === "investigate",
+    "Talking to Maya did not advance to investigate",
+  );
+
+  await collectEvidence(
+    send,
+    viewport,
+    [
+      { x: 9.6, y: 7.05 },
+      { x: 4.35, y: 7.05 },
+    ],
+    "workflow and reinforcement signal",
+    1,
+  );
+  await collectEvidence(
+    send,
+    viewport,
+    [
+      { x: 6.4, y: 7.05 },
+      { x: 6.4, y: 10.1 },
+      { x: 8.85, y: 10.1 },
+    ],
+    "Multiple handoffs create delay",
+    2,
+  );
+  await collectEvidence(
+    send,
+    viewport,
+    [
+      { x: 16, y: 10.25 },
+      { x: 16, y: 6.7 },
+      { x: 13.55, y: 6.7 },
+    ],
+    "spike happens after formal training",
+    3,
+  );
+
+  await waitForOverlay(send, "decision", "Decision panel did not open");
+  await assertQaState(
+    send,
+    (state) => state?.questStage === "diagnose",
+    "All evidence did not advance the quest to diagnose",
+  );
+  await clickButtonIncluding(send, "workflow is unclear");
+  await assertQaState(
+    send,
+    (state) => state?.questStage === "design",
+    "Correct diagnosis did not advance to design",
+  );
+  await clickButtonIncluding(send, "manager checklist");
+  await waitForOverlay(send, "canvas", "Canvas panel did not open");
+  await assertQaState(
+    send,
+    (state) =>
+      state?.questStage === "complete" &&
+      state.completedCaseIds?.includes("onboarding"),
+    "Correct intervention did not complete onboarding case",
+  );
+}
+
 async function runViewport(client, viewport) {
   const { send, events } = client;
 
@@ -314,7 +547,7 @@ async function runViewport(client, viewport) {
     deviceScaleFactor: viewport.scale,
     mobile: viewport.mobile,
   });
-  await send("Page.navigate", { url: appUrl });
+  await navigateTo(send, appUrl);
   const titleState = await captureState(send, events, viewport.name, "title");
   await send("Runtime.evaluate", {
     expression:
@@ -379,30 +612,57 @@ async function runViewport(client, viewport) {
     viewport.name,
     "operations-walk",
   );
-  await send("Page.navigate", { url: `${appUrl}?qaScene=operations` });
+  await navigateTo(send, `${appUrl}?qaScene=operations`);
   const operationsState = await captureState(
     send,
     events,
     viewport.name,
     "operations",
   );
-  await send("Page.navigate", {
-    url: `${appUrl}?qaScene=operations&qaStage=diagnose`,
-  });
+  await assertQaState(
+    send,
+    (state) =>
+      state?.sceneId === "operations" &&
+      state.position.y >= 10 &&
+      state.position.y <= 10.35,
+    "Direct Operations QA scene did not start at the clear doorway spawn",
+  );
+  await navigateTo(send, `${appUrl}?qaScene=operations&qaStage=diagnose`);
   const onboardingDecisionState = await captureState(
     send,
     events,
     viewport.name,
     "decision-onboarding",
   );
-  await send("Page.navigate", { url: `${appUrl}?qaScene=sales` });
+  await navigateTo(send, `${appUrl}?qaScene=operations&qaRun=actual`);
+  await assertQaState(
+    send,
+    (state) => state?.sceneId === "operations",
+    "Actual-flow QA did not load Operations Suite",
+  );
+  await completeOnboardingCase(send, viewport);
+  const onboardingCompleteState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "onboarding-complete-flow",
+  );
+  await navigateTo(send, `${appUrl}?qaScene=sales`);
   const salesState = await captureState(
     send,
     events,
     viewport.name,
     "sales",
   );
-  await send("Page.navigate", { url: `${appUrl}?qaScene=sales&qaStage=design` });
+  await assertQaState(
+    send,
+    (state) =>
+      state?.sceneId === "sales" &&
+      state.position.y >= 10 &&
+      state.position.y <= 10.35,
+    "Direct Sales QA scene did not start at the clear doorway spawn",
+  );
+  await navigateTo(send, `${appUrl}?qaScene=sales&qaStage=design`);
   const salesDecisionState = await captureState(
     send,
     events,
@@ -430,6 +690,7 @@ async function runViewport(client, viewport) {
       walkedOperationsState,
       operationsState,
       onboardingDecisionState,
+      onboardingCompleteState,
       salesState,
       salesDecisionState,
     ],

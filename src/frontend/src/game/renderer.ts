@@ -450,9 +450,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    left: 0,
+    left: 2,
     up: 1,
-    right: 2,
+    right: 0,
     down: 3,
   };
   return offsets[direction];

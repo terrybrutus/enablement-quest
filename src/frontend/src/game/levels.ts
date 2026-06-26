@@ -222,14 +222,14 @@ export const scenes: Scene[] = [
         label: "Operations Suite",
         rect: { x: 20.4, y: 6.45, width: 3.4, height: 1.7 },
         targetSceneId: "operations",
-        targetPosition: { x: 9, y: 9.35 },
+        targetPosition: { x: 9, y: 10.25 },
       },
       {
         id: "hub-to-sales",
         label: "Sales Strategy Studio",
         rect: { x: 6, y: 6.45, width: 3.4, height: 1.7 },
         targetSceneId: "sales",
-        targetPosition: { x: 9, y: 9.35 },
+        targetPosition: { x: 9, y: 10.25 },
       },
     ],
     blocks: [
