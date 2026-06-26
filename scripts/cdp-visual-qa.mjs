@@ -299,14 +299,14 @@ async function runViewport(client, viewport) {
     viewport,
     "ArrowRight",
     "ArrowRight",
-    viewport.mobile ? 5000 : 3400,
+    viewport.mobile ? 3000 : 1700,
   );
   await moveForViewport(
     send,
     viewport,
     "ArrowUp",
     "ArrowUp",
-    viewport.mobile ? 11800 : 7200,
+    viewport.mobile ? 7600 : 4600,
   );
   const walkedOperationsState = await captureState(
     send,

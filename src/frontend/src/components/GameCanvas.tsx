@@ -497,21 +497,21 @@ function getQaScene(): {
     return {
       sceneId,
       caseId: "onboarding" as const,
-      position: { x: 9, y: 10.6 },
+      position: { x: 9, y: 9.35 },
     };
   }
   if (sceneId === "sales") {
     return {
       sceneId,
       caseId: "sales" as const,
-      position: { x: 9, y: 10.6 },
+      position: { x: 9, y: 9.35 },
     };
   }
   if (sceneId === "hub") {
     return {
       sceneId,
       caseId: "onboarding" as const,
-      position: { x: 20.5, y: 22.4 },
+      position: { x: 15, y: 10.8 },
     };
   }
   return null;

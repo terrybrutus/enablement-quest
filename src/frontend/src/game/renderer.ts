@@ -148,19 +148,10 @@ function drawSceneBase(
         continue;
       }
 
-      let sprite: SheetSprite = floorSprite;
-      if (
-        scene.theme === "interior" &&
-        scene.id === "operations" &&
-        (row + col) % 4 === 0
-      ) {
-        sprite = tileSprites.labFloor;
-      }
-
       drawSheetSprite(
         ctx,
         assets,
-        sprite,
+        floorSprite,
         col * TILE_SIZE - camera.x,
         row * TILE_SIZE - camera.y,
         TILE_SIZE,
@@ -316,18 +307,30 @@ function drawEvidence(
       item.caseId === gameState.currentCaseId &&
       !gameState.collectedEvidenceIds.includes(item.id),
   );
+  const expectedEvidence = evidenceItems.find(
+    (item) =>
+      item.caseId === gameState.currentCaseId &&
+      !gameState.collectedEvidenceIds.includes(item.id),
+  );
 
   for (const evidence of visibleEvidence) {
     const x = evidence.position.x * TILE_SIZE - camera.x;
     const y = evidence.position.y * TILE_SIZE - camera.y;
     const pulse = Math.sin(Date.now() / 260) * 3;
+    const playerDistance =
+      Math.hypot(
+        gameState.player.position.x - evidence.position.x,
+        gameState.player.position.y - evidence.position.y,
+      ) * TILE_SIZE;
 
     ctx.shadowColor = "#facc15";
     ctx.shadowBlur = 12 + pulse;
     drawSheetSprite(ctx, assets, evidence.sprite, x, y, 58, 42);
     ctx.shadowBlur = 0;
 
-    drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
+    if (evidence.id === expectedEvidence?.id || playerDistance < 130) {
+      drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
+    }
   }
 }
 
@@ -416,9 +419,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    left: 2,
+    left: 0,
     up: 1,
-    right: 0,
+    right: 2,
     down: 3,
   };
   return offsets[direction];
