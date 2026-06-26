@@ -245,19 +245,17 @@ function drawPortals(
     drawSheetSprite(
       ctx,
       assets,
-      tileSprites.doorway,
+      scene.floorSprite ?? tileSprites.labFloor,
       px,
       py + height - TILE_SIZE,
       width,
       TILE_SIZE,
     );
-    ctx.fillStyle = "rgba(34, 211, 238, 0.08)";
-    ctx.fillRect(
-      px + 8,
-      py + height - TILE_SIZE + 8,
-      width - 16,
-      TILE_SIZE - 16,
-    );
+    ctx.strokeStyle = "rgba(34, 211, 238, 0.56)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px + 10, py + height - TILE_SIZE + 8, width - 20, 28);
+    ctx.fillStyle = "rgba(34, 211, 238, 0.1)";
+    ctx.fillRect(px + 12, py + height - TILE_SIZE + 10, width - 24, 24);
   }
 }
 
@@ -327,18 +325,39 @@ function drawEvidence(
         .filter((item) => item.caseId === gameState.currentCaseId)
         .findIndex((item) => item.id === evidence.id) + 1;
     const isExpected = evidence.id === expectedEvidence?.id;
+    const stationX = x - 13;
+    const stationY = y + 17;
 
     ctx.shadowColor = "#facc15";
-    ctx.shadowBlur = isExpected ? 18 + pulse : 8;
-    drawSheetSprite(ctx, assets, evidence.sprite, x, y, 58, 42);
+    ctx.shadowBlur = isExpected ? 12 + pulse : 0;
+    drawSheetSprite(
+      ctx,
+      assets,
+      scene.floorSprite ?? tileSprites.labFloor,
+      stationX,
+      stationY,
+      72,
+      48,
+    );
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(15, 23, 42, 0.32)";
+    ctx.fillRect(stationX + 7, stationY + 8, 58, 32);
+    ctx.strokeStyle = isExpected
+      ? "rgba(250, 204, 21, 0.72)"
+      : "rgba(148, 163, 184, 0.38)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(stationX + 7, stationY + 8, 58, 32);
+    ctx.shadowColor = "#facc15";
+    ctx.shadowBlur = isExpected ? 8 + pulse : 0;
+    drawSheetSprite(ctx, assets, evidence.sprite, x + 5, y, 48, 48);
     ctx.shadowBlur = 0;
 
     if (isExpected) {
-      drawQuestMarker(ctx, x + 29, y + 22, `${evidenceIndex}`);
+      drawQuestMarker(ctx, x + 29, y + 26, `${evidenceIndex}`);
     }
 
     if (isExpected || playerDistance < 130) {
-      drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
+      drawLabel(ctx, evidence.title, x + 29, y - 8, "#fef3c7");
     }
   }
 }
@@ -431,9 +450,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    left: 2,
+    left: 0,
     up: 1,
-    right: 0,
+    right: 2,
     down: 3,
   };
   return offsets[direction];
