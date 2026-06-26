@@ -155,6 +155,31 @@ async function captureState(send, events, viewportName, stateName) {
   };
 }
 
+async function holdKey(send, key, code, milliseconds) {
+  const keyCodes = {
+    ArrowDown: 40,
+    ArrowLeft: 37,
+    ArrowRight: 39,
+    ArrowUp: 38,
+  };
+  await send("Input.dispatchKeyEvent", {
+    type: "keyDown",
+    key,
+    code,
+    windowsVirtualKeyCode: keyCodes[key] ?? 0,
+  });
+  await send("Runtime.evaluate", {
+    expression: `new Promise((resolve) => setTimeout(resolve, ${milliseconds}))`,
+    awaitPromise: true,
+  });
+  await send("Input.dispatchKeyEvent", {
+    type: "keyUp",
+    key,
+    code,
+    windowsVirtualKeyCode: keyCodes[key] ?? 0,
+  });
+}
+
 async function runViewport(client, viewport) {
   const { send, events } = client;
 
@@ -178,6 +203,30 @@ async function runViewport(client, viewport) {
     viewport.name,
     "gameplay",
   );
+  await holdKey(send, "ArrowDown", "ArrowDown", 850);
+  const hubState = await captureState(send, events, viewport.name, "hub");
+  await holdKey(send, "ArrowRight", "ArrowRight", 2400);
+  await holdKey(send, "ArrowUp", "ArrowUp", 3900);
+  const walkedOperationsState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "operations-walk",
+  );
+  await send("Page.navigate", { url: `${appUrl}?qaScene=operations` });
+  const operationsState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "operations",
+  );
+  await send("Page.navigate", { url: `${appUrl}?qaScene=sales` });
+  const salesState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "sales",
+  );
 
   const relevantEvents = events
     .filter((event) =>
@@ -192,7 +241,14 @@ async function runViewport(client, viewport) {
 
   return {
     viewport: viewport.name,
-    states: [titleState, gameplayState],
+    states: [
+      titleState,
+      gameplayState,
+      hubState,
+      walkedOperationsState,
+      operationsState,
+      salesState,
+    ],
     events: relevantEvents,
   };
 }

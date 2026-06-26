@@ -6,6 +6,7 @@ import type {
   InterventionOption,
   Scene,
   SheetSprite,
+  TilePatch,
 } from "./types";
 
 const officeSprite = (
@@ -21,6 +22,46 @@ const officeSprite = (
   sh,
 });
 
+const officeExteriorSprite = (
+  sx: number,
+  sy: number,
+  sw: number,
+  sh: number,
+): SheetSprite => ({
+  image: "officeExterior",
+  sx,
+  sy,
+  sw,
+  sh,
+});
+
+const gardenSprite = (
+  sx: number,
+  sy: number,
+  sw = 32,
+  sh = 32,
+): SheetSprite => ({
+  image: "garden",
+  sx,
+  sy,
+  sw,
+  sh,
+});
+
+const tilePatch = (
+  id: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  sprite: SheetSprite,
+): TilePatch => ({
+  id,
+  position: { x, y },
+  size: { width, height },
+  sprite,
+});
+
 export const assetUrls = {
   adamIdle: "/assets/limezu/adam-idle.png",
   adamRun: "/assets/limezu/adam-run.png",
@@ -28,6 +69,9 @@ export const assetUrls = {
   bobIdle: "/assets/limezu/bob-idle.png",
   roomBuilder: "/assets/limezu/room-builder-48.png",
   office: "/assets/limezu/office-48.png",
+  officeExterior: "/assets/limezu/office-exterior-32.png",
+  cityTerrains: "/assets/limezu/city-terrains-32.png",
+  garden: "/assets/limezu/garden-32.png",
   exteriorWalls: "/assets/limezu/exterior-walls.png",
   exteriorFloors: "/assets/limezu/exterior-floors.png",
   fountain: "/assets/limezu/fountains.png",
@@ -37,24 +81,15 @@ export const assetUrls = {
 export const tileSprites = {
   labFloor: { image: "roomBuilder", sx: 528, sy: 528, sw: 48, sh: 48 },
   warmFloor: { image: "roomBuilder", sx: 576, sy: 528, sw: 48, sh: 48 },
+  salesFloor: { image: "roomBuilder", sx: 624, sy: 528, sw: 48, sh: 48 },
   wall: { image: "roomBuilder", sx: 240, sy: 0, sw: 48, sh: 48 },
   grass: { image: "exteriorFloors", sx: 192, sy: 0, sw: 48, sh: 48 },
   path: { image: "exteriorFloors", sx: 0, sy: 0, sw: 48, sh: 48 },
   plaza: { image: "exteriorFloors", sx: 288, sy: 96, sw: 48, sh: 48 },
+  doorway: { image: "exteriorFloors", sx: 96, sy: 96, sw: 48, sh: 48 },
+  gardenGrass: { image: "garden", sx: 32, sy: 0, sw: 32, sh: 32 },
+  hedge: { image: "garden", sx: 0, sy: 0, sw: 32, sh: 32 },
 } as const;
-
-const exteriorSprite = (
-  sx: number,
-  sy: number,
-  sw = 48,
-  sh = 48,
-): SheetSprite => ({
-  image: "exteriorWalls",
-  sx,
-  sy,
-  sw,
-  sh,
-});
 
 export const scenes: Scene[] = [
   {
@@ -64,6 +99,7 @@ export const scenes: Scene[] = [
     width: 26,
     height: 18,
     theme: "interior",
+    floorSprite: tileSprites.labFloor,
     portals: [
       {
         id: "lab-to-hub",
@@ -85,24 +121,24 @@ export const scenes: Scene[] = [
         id: "mission-desk",
         description:
           "This is your case desk. The current case asks whether slow onboarding is really a training problem.",
-        position: { x: 5, y: 4 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(336, 192),
+        position: { x: 3.2, y: 10.2 },
+        size: { width: 6.4, height: 1.35 },
+        sprite: officeSprite(0, 24, 768, 156),
         collision: true,
       },
       {
         id: "analytics-wall",
         description:
           "The dashboard is waiting for evidence. Good enablement work starts with facts, not course requests.",
-        position: { x: 17, y: 3 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(432, 384),
+        position: { x: 15.4, y: 4.4 },
+        size: { width: 5.6, height: 2.1 },
+        sprite: officeSprite(0, 192, 768, 276),
         collision: true,
       },
       {
         id: "plant-lab",
-        position: { x: 19, y: 10 },
-        size: { width: 1, height: 1 },
+        position: { x: 21, y: 12.8 },
+        size: { width: 1, height: 1.35 },
         sprite: officeSprite(288, 192),
         collision: true,
       },
@@ -110,9 +146,18 @@ export const scenes: Scene[] = [
         id: "lab-console",
         description:
           "The AI workbench can help draft and summarize, but the diagnosis still has to be human-reviewed.",
-        position: { x: 9, y: 10 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(480, 288),
+        position: { x: 6.2, y: 4.4 },
+        size: { width: 5.7, height: 2.4 },
+        sprite: officeSprite(0, 480, 768, 240),
+        collision: true,
+      },
+      {
+        id: "lab-server-stack",
+        description:
+          "The server rack stores case artifacts. Evidence matters more than assumptions.",
+        position: { x: 14.4, y: 12.4 },
+        size: { width: 3.2, height: 2.1 },
+        sprite: officeSprite(684, 1596, 84, 132),
         collision: true,
       },
     ],
@@ -124,6 +169,36 @@ export const scenes: Scene[] = [
     width: 42,
     height: 24,
     theme: "exterior",
+    floorSprite: tileSprites.grass,
+    tilePatches: [
+      tilePatch("north-sidewalk", 4, 6.8, 34, 2, tileSprites.path),
+      tilePatch("south-sidewalk", 11, 18.8, 20, 2, tileSprites.path),
+      tilePatch("west-path", 7.2, 6.8, 2, 10, tileSprites.path),
+      tilePatch("east-path", 31, 6.8, 2, 10, tileSprites.path),
+      tilePatch("center-plaza", 16.6, 8.4, 8.8, 5.6, tileSprites.plaza),
+      tilePatch("lab-walk", 20, 13, 2, 6.5, tileSprites.path),
+      tilePatch("sales-walk", 7, 5.9, 2.4, 2.8, tileSprites.doorway),
+      tilePatch("ops-walk", 30, 5.9, 2.4, 2.8, tileSprites.doorway),
+      tilePatch("lab-threshold", 19.8, 18.8, 2.4, 1.8, tileSprites.doorway),
+      tilePatch(
+        "garden-bed-left",
+        11.2,
+        10.6,
+        4.8,
+        3.2,
+        tileSprites.gardenGrass,
+      ),
+      tilePatch(
+        "garden-bed-right",
+        26,
+        10.6,
+        4.8,
+        3.2,
+        tileSprites.gardenGrass,
+      ),
+      tilePatch("hedge-left", 11.2, 10.1, 4.8, 0.6, tileSprites.hedge),
+      tilePatch("hedge-right", 26, 10.1, 4.8, 0.6, tileSprites.hedge),
+    ],
     portals: [
       {
         id: "hub-to-lab",
@@ -135,67 +210,97 @@ export const scenes: Scene[] = [
       {
         id: "hub-to-operations",
         label: "Operations Suite",
-        rect: { x: 30, y: 5.2, width: 2, height: 1.8 },
+        rect: { x: 29.4, y: 5.8, width: 3.4, height: 2.1 },
         targetSceneId: "operations",
         targetPosition: { x: 13, y: 15 },
       },
       {
         id: "hub-to-sales",
         label: "Sales Strategy Studio",
-        rect: { x: 7, y: 5.2, width: 2, height: 1.8 },
+        rect: { x: 6.4, y: 5.8, width: 3.4, height: 2.1 },
         targetSceneId: "sales",
         targetPosition: { x: 13, y: 15 },
       },
     ],
     blocks: [
-      { x: 29, y: 3, width: 4, height: 4 },
-      { x: 6, y: 3, width: 4, height: 4 },
-      { x: 18, y: 18, width: 6, height: 3 },
+      { x: 28.5, y: 2.2, width: 7, height: 4.8 },
+      { x: 4.7, y: 2.4, width: 7.6, height: 4.6 },
+      { x: 17, y: 16.6, width: 8.3, height: 4.4 },
       { x: 20, y: 9, width: 2, height: 2 },
     ],
     props: [
       {
         id: "sales-building",
         label: "Sales Strategy Studio",
-        position: { x: 6, y: 3 },
-        size: { width: 4, height: 4 },
-        sprite: exteriorSprite(192, 48, 192, 144),
+        position: { x: 3.5, y: 1.1 },
+        size: { width: 9.1, height: 6.6 },
+        sprite: officeExteriorSprite(640, 384, 288, 512),
         collision: true,
       },
       {
         id: "operations-building",
         label: "Operations Suite",
-        position: { x: 29, y: 3 },
-        size: { width: 4, height: 4 },
-        sprite: exteriorSprite(192, 0, 192, 192),
+        position: { x: 26.8, y: 0.9 },
+        size: { width: 9.7, height: 6.8 },
+        sprite: officeExteriorSprite(320, 1792, 608, 576),
         collision: true,
       },
       {
         id: "lab-building",
         label: "Learning Systems Lab",
-        position: { x: 18, y: 18 },
-        size: { width: 6, height: 3 },
-        sprite: exteriorSprite(192, 48, 192, 144),
+        position: { x: 16.2, y: 14.1 },
+        size: { width: 9.5, height: 6.7 },
+        sprite: officeExteriorSprite(0, 2432, 512, 576),
         collision: true,
       },
       {
         id: "hub-fountain",
         description:
           "Central plaza. Doorways lead to case rooms; glowing evidence appears inside active case areas.",
-        position: { x: 20.1, y: 9.1 },
-        size: { width: 1.8, height: 1.8 },
+        position: { x: 19.7, y: 9.3 },
+        size: { width: 2.4, height: 2.4 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
         collision: true,
       },
       {
+        id: "garden-bush-a",
+        position: { x: 12.6, y: 11.6 },
+        size: { width: 1, height: 1 },
+        sprite: gardenSprite(64, 32),
+        collision: true,
+      },
+      {
+        id: "garden-bush-b",
+        position: { x: 28.2, y: 11.6 },
+        size: { width: 1, height: 1 },
+        sprite: gardenSprite(96, 32),
+        collision: true,
+      },
+      {
+        id: "plaza-bench-a",
+        description:
+          "A quiet bench near the plaza. The campus is built around evidence, decision, and impact.",
+        position: { x: 16.8, y: 12.8 },
+        size: { width: 2, height: 0.8 },
+        sprite: gardenSprite(512, 528, 128, 64),
+        collision: true,
+      },
+      {
+        id: "plaza-bench-b",
+        position: { x: 23.2, y: 12.8 },
+        size: { width: 2, height: 0.8 },
+        sprite: gardenSprite(512, 528, 128, 64),
+        collision: true,
+      },
+      {
         id: "lamp-a",
-        position: { x: 16.5, y: 10.2 },
+        position: { x: 17.1, y: 10.1 },
         size: { width: 0.8, height: 1.5 },
         sprite: { image: "streetLamp", sx: 0, sy: 0, sw: 48, sh: 96 },
       },
       {
         id: "lamp-b",
-        position: { x: 25, y: 10.2 },
+        position: { x: 24.1, y: 10.1 },
         size: { width: 0.8, height: 1.5 },
         sprite: { image: "streetLamp", sx: 0, sy: 0, sw: 48, sh: 96 },
       },
@@ -208,6 +313,7 @@ export const scenes: Scene[] = [
     width: 26,
     height: 18,
     theme: "interior",
+    floorSprite: tileSprites.warmFloor,
     portals: [
       {
         id: "operations-to-hub",
@@ -229,32 +335,32 @@ export const scenes: Scene[] = [
         id: "manager-table",
         description:
           "Stakeholder notes point to unclear handoffs and inconsistent manager follow-through.",
-        position: { x: 5, y: 4 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(336, 288),
+        position: { x: 3.1, y: 4.2 },
+        size: { width: 5.8, height: 2 },
+        sprite: officeSprite(0, 1632, 288, 204),
         collision: true,
       },
       {
         id: "metric-board",
         description:
           "Ramp data shows the problem spikes after orientation, which suggests reinforcement and workflow gaps.",
-        position: { x: 18, y: 4 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(432, 384),
+        position: { x: 15.9, y: 4 },
+        size: { width: 5.4, height: 1.8 },
+        sprite: officeSprite(0, 192, 768, 276),
         collision: true,
       },
       {
         id: "process-desk",
         description:
           "The process review desk shows access delays and too many handoffs before new hires can work confidently.",
-        position: { x: 11, y: 10 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(384, 384),
+        position: { x: 9.2, y: 9.2 },
+        size: { width: 6.8, height: 2.4 },
+        sprite: officeSprite(0, 1644, 672, 336),
         collision: true,
       },
       {
         id: "office-plant",
-        position: { x: 21, y: 10.5 },
+        position: { x: 21, y: 9.8 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
         collision: true,
@@ -268,6 +374,7 @@ export const scenes: Scene[] = [
     width: 26,
     height: 18,
     theme: "interior",
+    floorSprite: tileSprites.salesFloor,
     portals: [
       {
         id: "sales-to-hub",
@@ -289,32 +396,32 @@ export const scenes: Scene[] = [
         id: "deal-review-table",
         description:
           "Deal reviews show reps can demo features, but discovery notes rarely connect the demo to business pain.",
-        position: { x: 5, y: 4 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(336, 288),
+        position: { x: 3.2, y: 4.3 },
+        size: { width: 6.4, height: 1.35 },
+        sprite: officeSprite(0, 24, 768, 156),
         collision: true,
       },
       {
         id: "pipeline-board",
         description:
           "The board shows plenty of demos but weak next-step conversion. The issue is not activity volume.",
-        position: { x: 18, y: 4 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(432, 384),
+        position: { x: 15.8, y: 3.9 },
+        size: { width: 5.5, height: 2 },
+        sprite: officeSprite(0, 192, 768, 276),
         collision: true,
       },
       {
         id: "call-coaching-station",
         description:
           "The coaching station points to inconsistent discovery prompts and limited manager reinforcement after training.",
-        position: { x: 11, y: 10 },
-        size: { width: 1, height: 1 },
-        sprite: officeSprite(384, 384),
+        position: { x: 9, y: 9.1 },
+        size: { width: 7.2, height: 2.5 },
+        sprite: officeSprite(48, 1944, 720, 324),
         collision: true,
       },
       {
         id: "sales-plant",
-        position: { x: 21, y: 10.5 },
+        position: { x: 21, y: 9.8 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
         collision: true,

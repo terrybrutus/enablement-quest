@@ -255,7 +255,7 @@ export function useGameLoop({
       if (key === "arrowright" || key === "d") {
         inputRef.current.right = true;
       }
-      if (key === "e" || key === "enter" || key === " ") {
+      if ((key === "e" || key === "enter" || key === " ") && !event.repeat) {
         event.preventDefault();
         interact();
       }

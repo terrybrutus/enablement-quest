@@ -73,7 +73,7 @@ export function renderGame(
 
   drawSceneBase(ctx, viewport, scene, camera, assets);
   drawProps(ctx, scene, camera, assets);
-  drawPortals(ctx, scene, camera);
+  drawPortals(ctx, scene, camera, assets);
   drawEvidence(ctx, scene, gameState, camera, assets);
   drawCharacters(ctx, scene, gameState, camera, assets);
   drawPlayer(ctx, gameState, camera, assets);
@@ -126,11 +126,12 @@ function drawSceneBase(
   const startRow = Math.floor(camera.y / TILE_SIZE);
   const endRow = Math.ceil((camera.y + viewport.height) / TILE_SIZE);
   const floorSprite: SheetSprite =
-    scene.theme === "exterior"
+    scene.floorSprite ??
+    (scene.theme === "exterior"
       ? tileSprites.grass
       : scene.id === "operations"
         ? tileSprites.warmFloor
-        : tileSprites.labFloor;
+        : tileSprites.labFloor);
 
   for (let row = startRow; row <= endRow; row += 1) {
     for (let col = startCol; col <= endCol; col += 1) {
@@ -139,15 +140,6 @@ function drawSceneBase(
       }
 
       let sprite: SheetSprite = floorSprite;
-      if (
-        scene.theme === "exterior" &&
-        (row === 8 ||
-          col === 13 ||
-          col === 14 ||
-          (row >= 8 && row <= 11 && col >= 19 && col <= 22))
-      ) {
-        sprite = tileSprites.path;
-      }
       if (
         scene.theme === "interior" &&
         scene.id === "operations" &&
@@ -168,7 +160,35 @@ function drawSceneBase(
     }
   }
 
+  drawTilePatches(ctx, scene, camera, assets);
   drawRoomBorders(ctx, scene, camera, assets);
+}
+
+function drawTilePatches(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  for (const patch of scene.tilePatches ?? []) {
+    const startX = Math.floor(patch.position.x);
+    const startY = Math.floor(patch.position.y);
+    const endX = Math.ceil(patch.position.x + patch.size.width);
+    const endY = Math.ceil(patch.position.y + patch.size.height);
+    for (let row = startY; row < endY; row += 1) {
+      for (let col = startX; col < endX; col += 1) {
+        drawSheetSprite(
+          ctx,
+          assets,
+          patch.sprite,
+          col * TILE_SIZE - camera.x,
+          row * TILE_SIZE - camera.y,
+          TILE_SIZE,
+          TILE_SIZE,
+        );
+      }
+    }
+  }
 }
 
 function drawRoomBorders(
@@ -210,18 +230,34 @@ function drawPortals(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
   camera: { x: number; y: number },
+  assets: LoadedAssets,
 ) {
   for (const portal of scene.portals) {
     const px = portal.rect.x * TILE_SIZE - camera.x;
     const py = portal.rect.y * TILE_SIZE - camera.y;
     const width = portal.rect.width * TILE_SIZE;
     const height = portal.rect.height * TILE_SIZE;
-    const opacity = scene.theme === "exterior" ? 0.08 : 0.14;
-    ctx.fillStyle = `rgba(56, 189, 248, ${opacity})`;
-    ctx.fillRect(px, py, width, height);
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.42)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(px + 4, py + 4, width - 8, height - 8);
+
+    if (scene.theme === "exterior") {
+      continue;
+    }
+
+    drawSheetSprite(
+      ctx,
+      assets,
+      tileSprites.doorway,
+      px,
+      py + height - TILE_SIZE,
+      width,
+      TILE_SIZE,
+    );
+    ctx.fillStyle = "rgba(34, 211, 238, 0.08)";
+    ctx.fillRect(
+      px + 8,
+      py + height - TILE_SIZE + 8,
+      width - 16,
+      TILE_SIZE - 16,
+    );
   }
 }
 
@@ -231,7 +267,10 @@ function drawProps(
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
-  for (const prop of scene.props) {
+  const sortedProps = [...scene.props].sort(
+    (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height),
+  );
+  for (const prop of sortedProps) {
     const px = prop.position.x * TILE_SIZE - camera.x;
     const py = prop.position.y * TILE_SIZE - camera.y;
     const width = prop.size.width * TILE_SIZE;
@@ -360,9 +399,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    left: 2,
+    left: 0,
     up: 1,
-    right: 0,
+    right: 2,
     down: 3,
   };
   return offsets[direction];

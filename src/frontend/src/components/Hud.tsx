@@ -52,7 +52,7 @@ export function Hud({
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
-      <header className="pointer-events-auto absolute left-3 right-3 top-3 flex flex-col gap-3 md:left-5 md:right-5 md:flex-row md:items-start md:justify-between">
+      <header className="pointer-events-auto absolute left-3 right-3 top-3 flex items-start justify-between gap-2 md:left-5 md:right-5 md:gap-3">
         <section
           className={`eq-hud-card max-w-xl ${isGuideExpanded ? "" : "is-collapsed"}`}
         >

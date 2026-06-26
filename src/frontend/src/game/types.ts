@@ -49,10 +49,20 @@ export type AssetKey =
   | "bobIdle"
   | "roomBuilder"
   | "office"
+  | "officeExterior"
+  | "cityTerrains"
+  | "garden"
   | "exteriorWalls"
   | "exteriorFloors"
   | "fountain"
   | "streetLamp";
+
+export interface TilePatch {
+  id: string;
+  position: Position;
+  size: { width: number; height: number };
+  sprite: SheetSprite;
+}
 
 export interface Portal {
   id: string;
@@ -102,6 +112,8 @@ export interface Scene {
   width: number;
   height: number;
   theme: "interior" | "exterior";
+  floorSprite?: SheetSprite;
+  tilePatches?: TilePatch[];
   portals: Portal[];
   props: Prop[];
   blocks: Rect[];

@@ -14,6 +14,8 @@ import type {
   GameState,
   InterventionOption,
   OverlayKind,
+  Position,
+  SceneId,
 } from "@/game/types";
 import { MOVE_SPEED } from "@/game/types";
 import { completeIntervention, useGameLoop } from "@/game/useGameLoop";
@@ -25,43 +27,46 @@ import { NotificationToast } from "./NotificationToast";
 import { QuestLog } from "./QuestLog";
 import { TitleScreen } from "./TitleScreen";
 
-const initialGameState: GameState = {
-  player: {
-    position: initialPosition,
-    direction: "down",
-    isMoving: false,
-    sceneId: "lab",
-    hasStarted: false,
-  },
-  currentCaseId: "onboarding",
-  completedCaseIds: [],
-  characterStates: Object.fromEntries(
-    characters.map((character) => [
-      character.id,
-      {
-        position: character.position,
-        direction: "down",
-        patrolIndex: 0,
-        isMoving: false,
-      },
-    ]),
-  ),
-  questStage: "briefing",
-  collectedEvidenceIds: [],
-  diagnosisId: null,
-  interventionId: null,
-  activeEvidenceId: null,
-  earnedArtifact: null,
-  overlay: "briefing",
-  dialogue: null,
-  toast: null,
-};
+function createInitialGameState(): GameState {
+  const qaScene = getQaScene();
+  return {
+    player: {
+      position: qaScene?.position ?? initialPosition,
+      direction: "down",
+      isMoving: false,
+      sceneId: qaScene?.sceneId ?? "lab",
+      hasStarted: Boolean(qaScene),
+    },
+    currentCaseId: qaScene?.caseId ?? "onboarding",
+    completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
+    characterStates: Object.fromEntries(
+      characters.map((character) => [
+        character.id,
+        {
+          position: character.position,
+          direction: "down",
+          patrolIndex: 0,
+          isMoving: false,
+        },
+      ]),
+    ),
+    questStage: "briefing",
+    collectedEvidenceIds: [],
+    diagnosisId: null,
+    interventionId: null,
+    activeEvidenceId: null,
+    earnedArtifact: null,
+    overlay: qaScene ? "none" : "briefing",
+    dialogue: null,
+    toast: null,
+  };
+}
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [assets, setAssets] = useState<LoadedAssets>({});
-  const [gameState, setGameState] = useState<GameState>(initialGameState);
+  const [gameState, setGameState] = useState<GameState>(createInitialGameState);
   const [moveSpeed, setMoveSpeed] = useState(MOVE_SPEED);
   const gameStateRef = useRef<GameState>(gameState);
 
@@ -231,7 +236,7 @@ export default function GameCanvas() {
       toast: {
         id: Date.now(),
         message:
-          "Mission started: walk into the blue doorway at the bottom center.",
+          "Mission started: walk down through the lab exit, then enter Operations Suite.",
       },
     }));
   }, []);
@@ -283,7 +288,8 @@ export default function GameCanvas() {
       const key = event.key.toLowerCase();
       if (
         gameStateRef.current.overlay === "dialogue" &&
-        (key === "e" || key === "enter" || key === " ")
+        (key === "e" || key === "enter" || key === " ") &&
+        !event.repeat
       ) {
         event.preventDefault();
         advanceDialogue();
@@ -471,6 +477,39 @@ export default function GameCanvas() {
   );
 }
 
+function getQaScene(): {
+  caseId: GameState["currentCaseId"];
+  position: Position;
+  sceneId: SceneId;
+} | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const sceneId = new URLSearchParams(window.location.search).get("qaScene");
+  if (sceneId === "operations") {
+    return {
+      sceneId,
+      caseId: "onboarding" as const,
+      position: { x: 13, y: 15 },
+    };
+  }
+  if (sceneId === "sales") {
+    return {
+      sceneId,
+      caseId: "sales" as const,
+      position: { x: 13, y: 15 },
+    };
+  }
+  if (sceneId === "hub") {
+    return {
+      sceneId,
+      caseId: "onboarding" as const,
+      position: { x: 20.5, y: 21.4 },
+    };
+  }
+  return null;
+}
+
 function getNextObjective(
   caseId: GameState["currentCaseId"],
   questStage: GameState["questStage"],
@@ -493,7 +532,7 @@ function getNextObjective(
     return `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
-    return "Open the decision panel and explain the evidence pattern.";
+    return "Open Guide or Interact away from objects to make the diagnosis.";
   }
   if (questStage === "design") {
     return "Choose the intervention and consider the tradeoff.";
