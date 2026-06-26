@@ -9,9 +9,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
   return (
     <section className="eq-title-screen" aria-label="Enablement Quest briefing">
       <div className="eq-title-world" aria-hidden="true">
-        <span className="eq-title-building is-left" />
-        <span className="eq-title-building is-center" />
-        <span className="eq-title-building is-right" />
+        <span className="eq-title-building is-sales" />
+        <span className="eq-title-building is-lab" />
+        <span className="eq-title-building is-operations" />
         <span className="eq-title-path is-horizontal" />
         <span className="eq-title-path is-vertical" />
         <span className="eq-title-fountain" />
