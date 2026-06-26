@@ -234,22 +234,6 @@ export default function GameCanvas() {
     }));
   }, []);
 
-  useEffect(() => {
-    if (gameState.overlay !== "evidence") {
-      return;
-    }
-
-    const handleEvidenceKey = (event: KeyboardEvent) => {
-      if (event.key === " " || event.key === "Enter") {
-        event.preventDefault();
-        closeEvidenceReview();
-      }
-    };
-
-    window.addEventListener("keydown", handleEvidenceKey);
-    return () => window.removeEventListener("keydown", handleEvidenceKey);
-  }, [closeEvidenceReview, gameState.overlay]);
-
   const startMission = useCallback(() => {
     setGameState((previous) => ({
       ...previous,
@@ -459,6 +443,7 @@ export default function GameCanvas() {
 
       {gameState.overlay === "evidence" && activeEvidence && (
         <EvidencePanel
+          key={activeEvidence.id}
           evidence={activeEvidence}
           onContinue={closeEvidenceReview}
         />
@@ -557,13 +542,13 @@ function getNextObjective(
       : `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
-    return "Open Guide or Interact away from objects to make the diagnosis.";
+    return "Press Interact away from objects to make the diagnosis.";
   }
   if (questStage === "design") {
     return "Choose the intervention and consider the tradeoff.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "Case complete. Go to Sales Strategy Studio for the next scenario.";
+    return "First canvas earned. Leave this room, then enter Sales Strategy Studio for the sales enablement case.";
   }
   return "Review the earned canvas and business impact.";
 }
@@ -575,6 +560,34 @@ function EvidencePanel({
   evidence: (typeof evidenceItems)[number];
   onContinue: () => void;
 }) {
+  const [selectedSignal, setSelectedSignal] = useState<
+    "signal" | "trap" | null
+  >(null);
+  const hasReadCorrectly = selectedSignal === "signal";
+
+  useEffect(() => {
+    const handleEvidenceKey = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (key === "1") {
+        event.preventDefault();
+        setSelectedSignal("signal");
+        return;
+      }
+      if (key === "2") {
+        event.preventDefault();
+        setSelectedSignal("trap");
+        return;
+      }
+      if ((key === " " || key === "enter") && hasReadCorrectly) {
+        event.preventDefault();
+        onContinue();
+      }
+    };
+
+    window.addEventListener("keydown", handleEvidenceKey);
+    return () => window.removeEventListener("keydown", handleEvidenceKey);
+  }, [hasReadCorrectly, onContinue]);
+
   return (
     <section
       className="eq-overlay eq-panel eq-evidence"
@@ -603,12 +616,49 @@ function EvidencePanel({
         </article>
       </div>
 
+      <div className="eq-evidence-check">
+        <div>
+          <p className="eq-kicker">Check Your Read</p>
+          <h3>Which signal should guide the diagnosis?</h3>
+        </div>
+        <button
+          className={`eq-choice ${selectedSignal === "signal" ? "is-selected" : ""}`}
+          type="button"
+          onClick={() => setSelectedSignal("signal")}
+        >
+          <kbd>1</kbd>
+          <span>{evidence.signal}</span>
+          {selectedSignal === "signal" && (
+            <small>
+              Good. This is the clue that should shape the root-cause call.
+            </small>
+          )}
+        </button>
+        <button
+          className={`eq-choice ${selectedSignal === "trap" ? "is-selected" : ""}`}
+          type="button"
+          onClick={() => setSelectedSignal("trap")}
+        >
+          <kbd>2</kbd>
+          <span>{evidence.trap}</span>
+          {selectedSignal === "trap" && (
+            <small>
+              Not quite. That jumps to a surface explanation before the full
+              evidence pattern is clear.
+            </small>
+          )}
+        </button>
+      </div>
+
       <button
         className="eq-primary-button mt-4"
+        disabled={!hasReadCorrectly}
         type="button"
         onClick={onContinue}
       >
-        Continue investigation
+        {hasReadCorrectly
+          ? "Continue investigation"
+          : "Pick the useful signal to continue"}
       </button>
     </section>
   );

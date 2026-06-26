@@ -121,18 +121,18 @@ export const scenes: Scene[] = [
         id: "mission-desk",
         description:
           "This is your case desk. The current case asks whether slow onboarding is really a training problem.",
-        position: { x: 3.2, y: 10.2 },
-        size: { width: 6.4, height: 1.35 },
-        sprite: officeSprite(0, 24, 768, 156),
+        position: { x: 4.2, y: 10 },
+        size: { width: 3.1, height: 2 },
+        sprite: officeSprite(576, 912, 144, 96),
         collision: true,
       },
       {
         id: "analytics-wall",
         description:
           "The dashboard is waiting for evidence. Good enablement work starts with facts, not course requests.",
-        position: { x: 15.4, y: 4.4 },
-        size: { width: 5.6, height: 2.1 },
-        sprite: officeSprite(0, 192, 768, 276),
+        position: { x: 16.1, y: 4.5 },
+        size: { width: 3.1, height: 1.8 },
+        sprite: officeSprite(432, 720, 144, 96),
         collision: true,
       },
       {
@@ -146,9 +146,9 @@ export const scenes: Scene[] = [
         id: "lab-console",
         description:
           "The AI workbench can help draft and summarize, but the diagnosis still has to be human-reviewed.",
-        position: { x: 6.2, y: 4.4 },
-        size: { width: 5.7, height: 2.4 },
-        sprite: officeSprite(0, 480, 768, 240),
+        position: { x: 6.2, y: 4.5 },
+        size: { width: 3.2, height: 2 },
+        sprite: officeSprite(528, 1296, 144, 96),
         collision: true,
       },
       {
@@ -175,7 +175,23 @@ export const scenes: Scene[] = [
       tilePatch("south-sidewalk", 11, 18.8, 20, 2, tileSprites.path),
       tilePatch("west-path", 7.2, 6.8, 2, 10, tileSprites.path),
       tilePatch("east-path", 31, 6.8, 2, 10, tileSprites.path),
-      tilePatch("center-plaza", 16.6, 8.4, 8.8, 5.6, tileSprites.plaza),
+      tilePatch("center-plaza", 13.4, 8.2, 15.2, 6.7, tileSprites.plaza),
+      tilePatch(
+        "plaza-north-lawn",
+        15.8,
+        8.6,
+        10.4,
+        1.2,
+        tileSprites.gardenGrass,
+      ),
+      tilePatch(
+        "plaza-south-lawn",
+        15.8,
+        13.5,
+        10.4,
+        1,
+        tileSprites.gardenGrass,
+      ),
       tilePatch("lab-walk", 20, 13, 2, 6.5, tileSprites.path),
       tilePatch("sales-walk", 7, 5.9, 2.4, 2.8, tileSprites.doorway),
       tilePatch("ops-walk", 30, 5.9, 2.4, 2.8, tileSprites.doorway),
@@ -198,6 +214,8 @@ export const scenes: Scene[] = [
       ),
       tilePatch("hedge-left", 11.2, 10.1, 4.8, 0.6, tileSprites.hedge),
       tilePatch("hedge-right", 26, 10.1, 4.8, 0.6, tileSprites.hedge),
+      tilePatch("plaza-hedge-north", 15.8, 8.2, 10.4, 0.6, tileSprites.hedge),
+      tilePatch("plaza-hedge-south", 15.8, 14.1, 10.4, 0.6, tileSprites.hedge),
     ],
     portals: [
       {
@@ -232,33 +250,33 @@ export const scenes: Scene[] = [
       {
         id: "sales-building",
         label: "Sales Strategy Studio",
-        position: { x: 3.5, y: 1.1 },
-        size: { width: 9.1, height: 6.6 },
-        sprite: officeExteriorSprite(640, 384, 288, 512),
+        position: { x: 4.4, y: 2.3 },
+        size: { width: 7.3, height: 5.3 },
+        sprite: officeExteriorSprite(224, 384, 288, 320),
         collision: true,
       },
       {
         id: "operations-building",
         label: "Operations Suite",
-        position: { x: 26.8, y: 0.9 },
-        size: { width: 9.7, height: 6.8 },
-        sprite: officeExteriorSprite(320, 1792, 608, 576),
+        position: { x: 27.6, y: 2.3 },
+        size: { width: 7.3, height: 5.3 },
+        sprite: officeExteriorSprite(640, 384, 288, 320),
         collision: true,
       },
       {
         id: "lab-building",
         label: "Learning Systems Lab",
-        position: { x: 16.2, y: 14.1 },
-        size: { width: 9.5, height: 6.7 },
-        sprite: officeExteriorSprite(0, 2432, 512, 576),
+        position: { x: 17.4, y: 15.2 },
+        size: { width: 7.3, height: 5.3 },
+        sprite: officeExteriorSprite(224, 384, 288, 320),
         collision: true,
       },
       {
         id: "hub-fountain",
         description:
           "Central plaza. Doorways lead to case rooms; glowing evidence appears inside active case areas.",
-        position: { x: 19.7, y: 9.3 },
-        size: { width: 2.4, height: 2.4 },
+        position: { x: 19.45, y: 9.05 },
+        size: { width: 2.9, height: 2.9 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
         collision: true,
       },
@@ -275,6 +293,26 @@ export const scenes: Scene[] = [
         size: { width: 1, height: 1 },
         sprite: gardenSprite(96, 32),
         collision: true,
+      },
+      {
+        id: "plaza-flower-left",
+        position: { x: 16.2, y: 9.5 },
+        size: { width: 1, height: 1 },
+        sprite: gardenSprite(160, 1024),
+      },
+      {
+        id: "plaza-flower-right",
+        position: { x: 24.8, y: 9.5 },
+        size: { width: 1, height: 1 },
+        sprite: gardenSprite(224, 1024),
+      },
+      {
+        id: "plaza-signpost",
+        description:
+          "Mission Plaza: talk to the case owner first, inspect evidence in order, then make the diagnostic call.",
+        position: { x: 21.8, y: 12.1 },
+        size: { width: 1.2, height: 1.4 },
+        sprite: gardenSprite(512, 496, 64, 64),
       },
       {
         id: "plaza-bench-a",
@@ -314,6 +352,12 @@ export const scenes: Scene[] = [
     height: 18,
     theme: "interior",
     floorSprite: tileSprites.warmFloor,
+    tilePatches: [
+      tilePatch("ops-interview-zone", 5.5, 7.1, 3.7, 2.3, tileSprites.labFloor),
+      tilePatch("ops-process-zone", 9.8, 10.5, 6.3, 3.1, tileSprites.labFloor),
+      tilePatch("ops-metric-zone", 18.3, 7.1, 3.8, 2.3, tileSprites.labFloor),
+      tilePatch("ops-maya-zone", 11.4, 5.7, 3.3, 2.2, tileSprites.plaza),
+    ],
     portals: [
       {
         id: "operations-to-hub",
@@ -335,27 +379,27 @@ export const scenes: Scene[] = [
         id: "manager-table",
         description:
           "Stakeholder notes point to unclear handoffs and inconsistent manager follow-through.",
-        position: { x: 3.1, y: 4.2 },
-        size: { width: 5.8, height: 2 },
-        sprite: officeSprite(0, 1632, 288, 204),
+        position: { x: 4.2, y: 4.5 },
+        size: { width: 3.1, height: 2 },
+        sprite: officeSprite(576, 912, 144, 96),
         collision: true,
       },
       {
         id: "metric-board",
         description:
           "Ramp data shows the problem spikes after orientation, which suggests reinforcement and workflow gaps.",
-        position: { x: 15.9, y: 4 },
-        size: { width: 5.4, height: 1.8 },
-        sprite: officeSprite(0, 192, 768, 276),
+        position: { x: 17.1, y: 4.4 },
+        size: { width: 3.1, height: 1.8 },
+        sprite: officeSprite(432, 720, 144, 96),
         collision: true,
       },
       {
         id: "process-desk",
         description:
           "The process review desk shows access delays and too many handoffs before new hires can work confidently.",
-        position: { x: 9.2, y: 9.2 },
-        size: { width: 6.8, height: 2.4 },
-        sprite: officeSprite(0, 1644, 672, 336),
+        position: { x: 10.8, y: 10 },
+        size: { width: 3.2, height: 2.1 },
+        sprite: officeSprite(528, 1872, 144, 96),
         collision: true,
       },
       {
@@ -363,6 +407,22 @@ export const scenes: Scene[] = [
         position: { x: 21, y: 9.8 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
+        collision: true,
+      },
+      {
+        id: "ops-file-cabinet",
+        description:
+          "A case file cabinet. The strongest recommendation should cite evidence, not preference.",
+        position: { x: 3.2, y: 11.8 },
+        size: { width: 1.1, height: 1.4 },
+        sprite: officeSprite(432, 240),
+        collision: true,
+      },
+      {
+        id: "ops-review-chair",
+        position: { x: 17.3, y: 10.3 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(48, 384),
         collision: true,
       },
     ],
@@ -375,6 +435,12 @@ export const scenes: Scene[] = [
     height: 18,
     theme: "interior",
     floorSprite: tileSprites.salesFloor,
+    tilePatches: [
+      tilePatch("sales-call-zone", 5.5, 7.1, 3.7, 2.3, tileSprites.warmFloor),
+      tilePatch("sales-crm-zone", 9.8, 10.5, 6.3, 3.1, tileSprites.warmFloor),
+      tilePatch("sales-coach-zone", 18.3, 7.1, 3.8, 2.3, tileSprites.warmFloor),
+      tilePatch("sales-leo-zone", 11.4, 5.7, 3.3, 2.2, tileSprites.plaza),
+    ],
     portals: [
       {
         id: "sales-to-hub",
@@ -396,27 +462,27 @@ export const scenes: Scene[] = [
         id: "deal-review-table",
         description:
           "Deal reviews show reps can demo features, but discovery notes rarely connect the demo to business pain.",
-        position: { x: 3.2, y: 4.3 },
-        size: { width: 6.4, height: 1.35 },
-        sprite: officeSprite(0, 24, 768, 156),
+        position: { x: 4.2, y: 4.5 },
+        size: { width: 3.1, height: 2 },
+        sprite: officeSprite(672, 912, 144, 96),
         collision: true,
       },
       {
         id: "pipeline-board",
         description:
           "The board shows plenty of demos but weak next-step conversion. The issue is not activity volume.",
-        position: { x: 15.8, y: 3.9 },
-        size: { width: 5.5, height: 2 },
-        sprite: officeSprite(0, 192, 768, 276),
+        position: { x: 17.1, y: 4.4 },
+        size: { width: 3.1, height: 1.8 },
+        sprite: officeSprite(432, 624, 144, 96),
         collision: true,
       },
       {
         id: "call-coaching-station",
         description:
           "The coaching station points to inconsistent discovery prompts and limited manager reinforcement after training.",
-        position: { x: 9, y: 9.1 },
-        size: { width: 7.2, height: 2.5 },
-        sprite: officeSprite(48, 1944, 720, 324),
+        position: { x: 10.8, y: 10 },
+        size: { width: 3.2, height: 2.1 },
+        sprite: officeSprite(528, 1872, 144, 96),
         collision: true,
       },
       {
@@ -424,6 +490,22 @@ export const scenes: Scene[] = [
         position: { x: 21, y: 9.8 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(288, 192),
+        collision: true,
+      },
+      {
+        id: "sales-whiteboard",
+        description:
+          "A value-message board. Sales enablement should change selling behavior, not just publish messaging.",
+        position: { x: 3.3, y: 11.7 },
+        size: { width: 2, height: 1.3 },
+        sprite: officeSprite(336, 528, 96, 96),
+        collision: true,
+      },
+      {
+        id: "sales-coaching-chair",
+        position: { x: 17.4, y: 10.3 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(0, 384),
         collision: true,
       },
     ],
@@ -545,6 +627,7 @@ export const evidenceItems: Evidence[] = [
       "Evidence points to unclear expectations and inconsistent manager reinforcement.",
     signal:
       "This is a workflow and reinforcement signal, not proof that people forgot the orientation content.",
+    trap: "Treat the leadership training request as proof that a longer course is the answer.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288),
   },
@@ -560,6 +643,7 @@ export const evidenceItems: Evidence[] = [
       "The ramp problem is partly workflow friction, not just missing knowledge.",
     signal:
       "Multiple handoffs create delay. A course cannot fix ownership unless the workflow changes too.",
+    trap: "Convert every missing handoff step into another onboarding lesson.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384),
   },
@@ -575,6 +659,7 @@ export const evidenceItems: Evidence[] = [
       "The system needs reinforcement and job support at the point of work.",
     signal:
       "The spike happens after formal training, so the support system is failing when work actually begins.",
+    trap: "Judge the course by completion rate instead of support tickets and time-to-productivity.",
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384),
   },
@@ -590,6 +675,7 @@ export const evidenceItems: Evidence[] = [
       "The behavior gap is discovery depth and value framing, not basic product knowledge.",
     signal:
       "Reps can present the product; the weak behavior is connecting the demo to buyer pain.",
+    trap: "Treat a feature-heavy demo as proof that product knowledge is the main gap.",
     metric: "Discovery depth: 34%",
     sprite: officeSprite(336, 288),
   },
@@ -605,6 +691,7 @@ export const evidenceItems: Evidence[] = [
       "The sales process needs a stronger qualification habit and clearer manager inspection points.",
     signal:
       "Pipeline quality is dropping after the demo, so the enablement answer needs revenue-behavior measurement.",
+    trap: "Assume more demo activity will fix conversion without changing discovery behavior.",
     metric: "Demo-to-next-step: 41%",
     sprite: officeSprite(384, 384),
   },
@@ -620,6 +707,7 @@ export const evidenceItems: Evidence[] = [
       "Reinforcement is weak. A one-time workshop would fade without a coaching system.",
     signal:
       "Managers need a shared rubric so coaching happens consistently after the enablement event.",
+    trap: "Send a one-time reminder and hope managers reinforce the behavior later.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384),
   },

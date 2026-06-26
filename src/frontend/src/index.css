@@ -292,6 +292,13 @@
   padding: 11px 16px;
 }
 
+.eq-primary-button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+  opacity: 0.58;
+  transform: none;
+}
+
 .eq-ghost-button {
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(15, 23, 42, 0.7);
@@ -491,6 +498,19 @@
 .eq-choice.is-selected {
   border-color: rgba(34, 211, 238, 0.7);
   background: rgba(8, 145, 178, 0.22);
+}
+
+.eq-evidence-check {
+  border: 1px solid rgba(34, 211, 238, 0.18);
+  border-radius: 18px;
+  background: rgba(2, 6, 23, 0.35);
+  margin-top: 14px;
+  padding: 14px;
+}
+
+.eq-evidence-check h3 {
+  color: #e0f2fe;
+  margin: 0;
 }
 
 .eq-canvas-grid {

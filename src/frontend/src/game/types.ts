@@ -91,6 +91,7 @@ export interface Evidence {
   summary: string;
   insight: string;
   signal: string;
+  trap: string;
   metric?: string;
   sprite: SheetSprite;
 }
