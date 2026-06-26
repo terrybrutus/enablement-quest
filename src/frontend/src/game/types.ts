@@ -90,6 +90,7 @@ export interface Evidence {
   position: Position;
   summary: string;
   insight: string;
+  signal: string;
   metric?: string;
   sprite: SheetSprite;
 }

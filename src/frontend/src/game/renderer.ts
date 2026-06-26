@@ -32,6 +32,7 @@ export function loadGameAssets(
   const entries = Object.entries(assetUrls) as Array<[AssetKey, string]>;
   const loaded: LoadedAssets = {};
   let remaining = entries.length;
+  window.__EQ_ASSETS_READY = false;
 
   for (const [key, url] of entries) {
     const image = new Image();
@@ -39,12 +40,14 @@ export function loadGameAssets(
       loaded[key] = image;
       remaining -= 1;
       if (!cancelled && remaining === 0) {
+        window.__EQ_ASSETS_READY = true;
         onReady(loaded);
       }
     };
     image.onerror = () => {
       remaining -= 1;
       if (!cancelled && remaining === 0) {
+        window.__EQ_ASSETS_READY = true;
         onReady(loaded);
       }
     };
@@ -54,6 +57,12 @@ export function loadGameAssets(
   return () => {
     cancelled = true;
   };
+}
+
+declare global {
+  interface Window {
+    __EQ_ASSETS_READY?: boolean;
+  }
 }
 
 export function renderGame(

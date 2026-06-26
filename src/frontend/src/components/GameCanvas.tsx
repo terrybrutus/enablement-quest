@@ -27,6 +27,18 @@ import { NotificationToast } from "./NotificationToast";
 import { QuestLog } from "./QuestLog";
 import { TitleScreen } from "./TitleScreen";
 
+declare global {
+  interface Window {
+    __EQ_QA_STATE?: {
+      sceneId: SceneId;
+      position: Position;
+      direction: GameState["player"]["direction"];
+      questStage: GameState["questStage"];
+      overlay: GameState["overlay"];
+    };
+  }
+}
+
 function createInitialGameState(): GameState {
   const qaScene = getQaScene();
   return {
@@ -72,6 +84,13 @@ export default function GameCanvas() {
 
   useEffect(() => {
     gameStateRef.current = gameState;
+    window.__EQ_QA_STATE = {
+      sceneId: gameState.player.sceneId,
+      position: gameState.player.position,
+      direction: gameState.player.direction,
+      questStage: gameState.questStage,
+      overlay: gameState.overlay,
+    };
   }, [gameState]);
 
   const { inputRef, interact } = useGameLoop({
@@ -175,6 +194,9 @@ export default function GameCanvas() {
     gameState.questStage,
     currentCollectedEvidenceCount,
     currentEvidenceItems.length,
+    currentEvidenceItems.find(
+      (item) => !gameState.collectedEvidenceIds.includes(item.id),
+    )?.title ?? null,
     gameState.player.sceneId,
     gameState.completedCaseIds,
   );
@@ -504,7 +526,7 @@ function getQaScene(): {
     return {
       sceneId,
       caseId: "onboarding" as const,
-      position: { x: 20.5, y: 21.4 },
+      position: { x: 20.5, y: 22.4 },
     };
   }
   return null;
@@ -515,6 +537,7 @@ function getNextObjective(
   questStage: GameState["questStage"],
   evidenceCount: number,
   evidenceTotal: number,
+  nextEvidenceTitle: string | null,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
 ) {
@@ -529,7 +552,9 @@ function getNextObjective(
       : "Enter Operations Suite and talk to Maya.";
   }
   if (questStage === "investigate") {
-    return `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
+    return nextEvidenceTitle
+      ? `Inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
+      : `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
     return "Open Guide or Interact away from objects to make the diagnosis.";
@@ -571,6 +596,10 @@ function EvidencePanel({
         <article className="eq-canvas-card">
           <h3>What it means</h3>
           <p>{evidence.insight}</p>
+        </article>
+        <article className="eq-canvas-card">
+          <h3>Signal to notice</h3>
+          <p>{evidence.signal}</p>
         </article>
       </div>
 

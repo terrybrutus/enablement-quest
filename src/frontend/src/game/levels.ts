@@ -106,7 +106,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
-        targetPosition: { x: 20.5, y: 21.4 },
+        targetPosition: { x: 20.5, y: 22.4 },
       },
     ],
     blocks: [
@@ -320,7 +320,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
-        targetPosition: { x: 31.5, y: 7.2 },
+        targetPosition: { x: 31.5, y: 8.7 },
       },
     ],
     blocks: [
@@ -381,7 +381,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 12, y: 16.2, width: 2, height: 1.8 },
         targetSceneId: "hub",
-        targetPosition: { x: 8, y: 7.2 },
+        targetPosition: { x: 8, y: 8.7 },
       },
     ],
     blocks: [
@@ -543,6 +543,8 @@ export const evidenceItems: Evidence[] = [
       "New hires say they receive multiple versions of the same onboarding instructions.",
     insight:
       "Evidence points to unclear expectations and inconsistent manager reinforcement.",
+    signal:
+      "This is a workflow and reinforcement signal, not proof that people forgot the orientation content.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288),
   },
@@ -556,6 +558,8 @@ export const evidenceItems: Evidence[] = [
       "The process map has three handoffs before tool access is confirmed.",
     insight:
       "The ramp problem is partly workflow friction, not just missing knowledge.",
+    signal:
+      "Multiple handoffs create delay. A course cannot fix ownership unless the workflow changes too.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384),
   },
@@ -569,6 +573,8 @@ export const evidenceItems: Evidence[] = [
       "Support tickets spike during weeks two and three, after formal orientation ends.",
     insight:
       "The system needs reinforcement and job support at the point of work.",
+    signal:
+      "The spike happens after formal training, so the support system is failing when work actually begins.",
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384),
   },
@@ -582,6 +588,8 @@ export const evidenceItems: Evidence[] = [
       "Reps describe product features clearly, but only 34% ask a second-layer discovery question before the demo.",
     insight:
       "The behavior gap is discovery depth and value framing, not basic product knowledge.",
+    signal:
+      "Reps can present the product; the weak behavior is connecting the demo to buyer pain.",
     metric: "Discovery depth: 34%",
     sprite: officeSprite(336, 288),
   },
@@ -595,6 +603,8 @@ export const evidenceItems: Evidence[] = [
       "Demo completion is high, but next-step conversion drops when business pain is missing from the opportunity notes.",
     insight:
       "The sales process needs a stronger qualification habit and clearer manager inspection points.",
+    signal:
+      "Pipeline quality is dropping after the demo, so the enablement answer needs revenue-behavior measurement.",
     metric: "Demo-to-next-step: 41%",
     sprite: officeSprite(384, 384),
   },
@@ -608,6 +618,8 @@ export const evidenceItems: Evidence[] = [
       "Managers coach demos inconsistently because there is no shared rubric for value messaging.",
     insight:
       "Reinforcement is weak. A one-time workshop would fade without a coaching system.",
+    signal:
+      "Managers need a shared rubric so coaching happens consistently after the enablement event.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384),
   },
@@ -617,9 +629,9 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "more-elearning",
     caseId: "onboarding",
-    label: "New hires need more eLearning.",
+    label: "New hires need a clearer orientation course with tool screenshots.",
     explanation:
-      "This treats every symptom as a knowledge gap and ignores handoffs, manager reinforcement, and tool access delays.",
+      "This is plausible, but it treats the symptoms as a knowledge gap and ignores handoffs, manager reinforcement, and access delays.",
     correct: false,
     evidenceHint:
       "The evidence shows conflicting instructions and access delays, not missing orientation content.",
@@ -627,7 +639,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "workflow-reinforcement",
     caseId: "onboarding",
-    label: "The main issue is an unclear workflow with weak reinforcement.",
+    label:
+      "The workflow is unclear and managers lack reinforcement checkpoints.",
     explanation:
       "Correct. The evidence shows inconsistent instructions, delayed access, and a gap after orientation.",
     correct: true,
@@ -637,7 +650,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "software-broken",
     caseId: "onboarding",
-    label: "The software is broken.",
+    label: "The access system is the main blocker.",
     explanation:
       "Tool access is part of the problem, but the evidence does not support software failure as the root cause.",
     correct: false,
@@ -647,7 +660,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "sales-product-training",
     caseId: "sales",
-    label: "Reps need deeper product training before every demo.",
+    label: "Reps need a stricter product-demo certification.",
     explanation:
       "The call review says reps explain features clearly. More product content misses the buyer-conversation gap.",
     correct: false,
@@ -668,12 +681,12 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "sales-more-activity",
     caseId: "sales",
-    label: "The team needs more demo activity.",
+    label: "Marketing should rewrite the demo deck before enablement acts.",
     explanation:
-      "Activity is not the bottleneck. Demos are happening; conversion after the demo is the issue.",
+      "Message clarity may help, but the evidence points to discovery behavior and manager coaching, not just deck content.",
     correct: false,
     evidenceHint:
-      "The pipeline signal points to quality of next step, not quantity of demos.",
+      "The pipeline signal points to behavior before and after the demo, not a standalone content refresh.",
   },
 ];
 
@@ -681,7 +694,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "training-module",
     caseId: "onboarding",
-    label: "Build a longer training module.",
+    label: "Build a cleaner onboarding course and add a knowledge check.",
     explanation:
       "A longer module adds content, but it does not fix ownership, timing, or manager follow-through.",
     correct: false,
@@ -701,7 +714,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "announcement",
     caseId: "onboarding",
-    label: "Send a one-time announcement.",
+    label: "Ask leaders to announce the correct process once.",
     explanation:
       "Communication helps awareness, but one message will not sustain a changed onboarding behavior.",
     correct: false,
@@ -711,7 +724,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "sales-demo-certification",
     caseId: "sales",
-    label: "Require a demo certification for every rep.",
+    label: "Require a stricter demo certification for every rep.",
     explanation:
       "Certification may improve consistency, but the evidence points to discovery and manager reinforcement before the demo.",
     correct: false,
@@ -732,7 +745,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "sales-slack-reminder",
     caseId: "sales",
-    label: "Send weekly Slack tips about better discovery.",
+    label: "Send weekly discovery tips and sample questions.",
     explanation:
       "Tips can reinforce a habit, but alone they do not give reps practice, manager coaching, or measurement.",
     correct: false,

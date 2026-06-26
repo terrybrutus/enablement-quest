@@ -90,6 +90,23 @@ async function waitForPage(send) {
     `,
     awaitPromise: true,
   });
+  await send("Runtime.evaluate", {
+    expression: `
+      new Promise((resolve) => {
+        const startedAt = Date.now();
+        const check = () => {
+          const gameRoot = document.querySelector('[data-ocid="game.root"]');
+          if (!gameRoot || window.__EQ_ASSETS_READY || Date.now() - startedAt > 4500) {
+            requestAnimationFrame(() => requestAnimationFrame(resolve));
+            return;
+          }
+          setTimeout(check, 80);
+        };
+        check();
+      })
+    `,
+    awaitPromise: true,
+  });
 }
 
 async function captureState(send, events, viewportName, stateName) {
@@ -130,6 +147,7 @@ async function captureState(send, events, viewportName, stateName) {
           canvas: rect ? rect.toJSON() : null,
           header: headerRect ? headerRect.toJSON() : null,
           titleOverlay: titleRect ? titleRect.toJSON() : null,
+          qaState: window.__EQ_QA_STATE ?? null,
           hasDialogue: Boolean(dialogue),
           hasPanel: Boolean(panel),
           visibleButtons,
@@ -180,6 +198,77 @@ async function holdKey(send, key, code, milliseconds) {
   });
 }
 
+async function holdJoystick(send, xDirection, yDirection, milliseconds) {
+  const joystick = await send("Runtime.evaluate", {
+    returnByValue: true,
+    expression: `
+      (() => {
+        const element = document.querySelector('.eq-joystick');
+        if (!element) {
+          return null;
+        }
+        const rect = element.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+      })()
+    `,
+  });
+  const center = joystick.result.value;
+  if (!center) {
+    throw new Error("Mobile joystick was not found for QA movement");
+  }
+
+  const target = {
+    x: center.x + xDirection * 36,
+    y: center.y + yDirection * 36,
+  };
+  await send("Input.dispatchMouseEvent", {
+    type: "mousePressed",
+    x: center.x,
+    y: center.y,
+    button: "left",
+    clickCount: 1,
+  });
+  await send("Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    x: target.x,
+    y: target.y,
+    button: "left",
+  });
+  await send("Runtime.evaluate", {
+    expression: `new Promise((resolve) => setTimeout(resolve, ${milliseconds}))`,
+    awaitPromise: true,
+  });
+  await send("Input.dispatchMouseEvent", {
+    type: "mouseReleased",
+    x: target.x,
+    y: target.y,
+    button: "left",
+    clickCount: 1,
+  });
+}
+
+async function moveForViewport(send, viewport, key, code, milliseconds) {
+  if (!viewport.mobile) {
+    await holdKey(send, key, code, milliseconds);
+    return;
+  }
+
+  const directions = {
+    ArrowDown: [0, 1],
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
+    ArrowUp: [0, -1],
+  };
+  const direction = directions[key];
+  if (!direction) {
+    throw new Error(`Unsupported mobile QA direction: ${key}`);
+  }
+  await holdJoystick(send, direction[0], direction[1], milliseconds);
+}
+
 async function runViewport(client, viewport) {
   const { send, events } = client;
 
@@ -203,10 +292,22 @@ async function runViewport(client, viewport) {
     viewport.name,
     "gameplay",
   );
-  await holdKey(send, "ArrowDown", "ArrowDown", 850);
+  await moveForViewport(send, viewport, "ArrowDown", "ArrowDown", 850);
   const hubState = await captureState(send, events, viewport.name, "hub");
-  await holdKey(send, "ArrowRight", "ArrowRight", 2400);
-  await holdKey(send, "ArrowUp", "ArrowUp", 3900);
+  await moveForViewport(
+    send,
+    viewport,
+    "ArrowRight",
+    "ArrowRight",
+    viewport.mobile ? 7000 : 3300,
+  );
+  await moveForViewport(
+    send,
+    viewport,
+    "ArrowUp",
+    "ArrowUp",
+    viewport.mobile ? 10500 : 6500,
+  );
   const walkedOperationsState = await captureState(
     send,
     events,
