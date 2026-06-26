@@ -95,7 +95,7 @@
 
 .eq-hud-card.is-collapsed {
   align-self: flex-start;
-  max-width: min(520px, calc(100vw - 24px));
+  max-width: min(340px, calc(100vw - 24px));
   padding: 10px 44px 10px 13px;
   width: fit-content;
 }
@@ -133,7 +133,7 @@
 
 .eq-hud-summary strong {
   color: #f8fafc;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   line-height: 1.25;
 }
 
@@ -880,7 +880,7 @@
   }
 
   .eq-hud-card.is-collapsed {
-    max-width: min(214px, calc(100vw - 118px));
+    max-width: min(190px, calc(100vw - 118px));
     padding: 6px 34px 6px 9px;
   }
 

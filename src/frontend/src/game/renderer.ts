@@ -288,10 +288,18 @@ function drawProps(
     if (prop.sprite) {
       drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
     }
+  }
 
-    if (prop.label) {
-      drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
+  for (const prop of sortedProps) {
+    if (!prop.label) {
+      continue;
     }
+    const px = prop.position.x * TILE_SIZE - camera.x;
+    const py = prop.position.y * TILE_SIZE - camera.y;
+    const width = prop.size.width * TILE_SIZE;
+    const height = prop.size.height * TILE_SIZE;
+
+    drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
   }
 }
 
