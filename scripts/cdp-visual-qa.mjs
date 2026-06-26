@@ -269,6 +269,40 @@ async function moveForViewport(send, viewport, key, code, milliseconds) {
   await holdJoystick(send, direction[0], direction[1], milliseconds);
 }
 
+async function getQaState(send) {
+  const result = await send("Runtime.evaluate", {
+    returnByValue: true,
+    expression: "window.__EQ_QA_STATE ?? null",
+  });
+  return result.result.value;
+}
+
+async function assertQaState(send, predicate, message) {
+  const state = await getQaState(send);
+  if (!predicate(state)) {
+    throw new Error(`${message}. Current QA state: ${JSON.stringify(state)}`);
+  }
+  return state;
+}
+
+async function moveUntil(send, viewport, key, code, predicate, options = {}) {
+  const {
+    chunkMs = viewport.mobile ? 260 : 180,
+    maxSteps = 36,
+    message = `Movement did not reach expected state for ${key}`,
+  } = options;
+
+  for (let step = 0; step < maxSteps; step += 1) {
+    const state = await getQaState(send);
+    if (predicate(state)) {
+      return state;
+    }
+    await moveForViewport(send, viewport, key, code, chunkMs);
+  }
+
+  return assertQaState(send, predicate, message);
+}
+
 async function runViewport(client, viewport) {
   const { send, events } = client;
 
@@ -292,21 +326,52 @@ async function runViewport(client, viewport) {
     viewport.name,
     "gameplay",
   );
-  await moveForViewport(send, viewport, "ArrowDown", "ArrowDown", 850);
-  const hubState = await captureState(send, events, viewport.name, "hub");
-  await moveForViewport(
+  await moveUntil(
     send,
     viewport,
-    "ArrowRight",
-    "ArrowRight",
-    viewport.mobile ? 3000 : 1700,
+    "ArrowDown",
+    "ArrowDown",
+    (state) => state?.sceneId === "hub",
+    {
+      maxSteps: 18,
+      message: "Player did not exit the lab into the hub",
+    },
   );
-  await moveForViewport(
+  const hubState = await captureState(send, events, viewport.name, "hub");
+
+  await moveUntil(
+    send,
+    viewport,
+    "ArrowDown",
+    "ArrowDown",
+    (state) => state?.sceneId === "hub" && state.position.y >= 12.6,
+    {
+      maxSteps: 12,
+      message: "Player did not reach the south plaza walkway",
+    },
+  );
+
+  await moveUntil(
+    send,
+    viewport,
+    "ArrowRight",
+    "ArrowRight",
+    (state) => state?.sceneId === "hub" && state.position.x >= 21.1,
+    {
+      maxSteps: 22,
+      message: "Player did not reach the Operations walkway x-position",
+    },
+  );
+  await moveUntil(
     send,
     viewport,
     "ArrowUp",
     "ArrowUp",
-    viewport.mobile ? 7600 : 7200,
+    (state) => state?.sceneId === "operations",
+    {
+      maxSteps: 36,
+      message: "Player did not enter Operations Suite from the hub",
+    },
   );
   const walkedOperationsState = await captureState(
     send,
@@ -321,12 +386,28 @@ async function runViewport(client, viewport) {
     viewport.name,
     "operations",
   );
+  await send("Page.navigate", {
+    url: `${appUrl}?qaScene=operations&qaStage=diagnose`,
+  });
+  const onboardingDecisionState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "decision-onboarding",
+  );
   await send("Page.navigate", { url: `${appUrl}?qaScene=sales` });
   const salesState = await captureState(
     send,
     events,
     viewport.name,
     "sales",
+  );
+  await send("Page.navigate", { url: `${appUrl}?qaScene=sales&qaStage=design` });
+  const salesDecisionState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "decision-sales",
   );
 
   const relevantEvents = events
@@ -348,7 +429,9 @@ async function runViewport(client, viewport) {
       hubState,
       walkedOperationsState,
       operationsState,
+      onboardingDecisionState,
       salesState,
+      salesDecisionState,
     ],
     events: relevantEvents,
   };

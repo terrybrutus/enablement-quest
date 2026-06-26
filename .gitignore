@@ -6,4 +6,5 @@ dist/
 .pnpm-store/
 .cache/
 .chrome-cdp-qa/
+.chrome-cdp-qa-*/
 qa-artifacts/
