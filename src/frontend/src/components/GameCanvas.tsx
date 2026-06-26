@@ -10,7 +10,9 @@ import {
 } from "@/game/levels";
 import { type LoadedAssets, loadGameAssets, renderGame } from "@/game/renderer";
 import type {
+  CaseId,
   DiagnosisOption,
+  Evidence,
   GameState,
   InterventionOption,
   OverlayKind,
@@ -62,13 +64,13 @@ function createInitialGameState(): GameState {
         },
       ]),
     ),
-    questStage: "briefing",
-    collectedEvidenceIds: [],
-    diagnosisId: null,
+    questStage: qaScene?.questStage ?? "briefing",
+    collectedEvidenceIds: qaScene?.collectedEvidenceIds ?? [],
+    diagnosisId: qaScene?.diagnosisId ?? null,
     interventionId: null,
     activeEvidenceId: null,
     earnedArtifact: null,
-    overlay: qaScene ? "none" : "briefing",
+    overlay: qaScene?.overlay ?? (qaScene ? "none" : "briefing"),
     dialogue: null,
     toast: null,
   };
@@ -455,6 +457,8 @@ export default function GameCanvas() {
           interventionOptions={currentInterventionOptions}
           diagnosisId={gameState.diagnosisId}
           interventionId={gameState.interventionId}
+          currentCaseId={gameState.currentCaseId}
+          evidenceItems={currentEvidenceItems}
           onChooseDiagnosis={chooseDiagnosis}
           onChooseIntervention={chooseIntervention}
           onClose={closeOverlay}
@@ -486,25 +490,35 @@ export default function GameCanvas() {
 
 function getQaScene(): {
   caseId: GameState["currentCaseId"];
+  collectedEvidenceIds?: string[];
+  diagnosisId?: string | null;
+  overlay?: GameState["overlay"];
   position: Position;
+  questStage?: GameState["questStage"];
   sceneId: SceneId;
 } | null {
   if (typeof window === "undefined") {
     return null;
   }
-  const sceneId = new URLSearchParams(window.location.search).get("qaScene");
+  const searchParams = new URLSearchParams(window.location.search);
+  const sceneId = searchParams.get("qaScene");
+  const qaStage = searchParams.get("qaStage");
   if (sceneId === "operations") {
+    const caseId = "onboarding" as const;
     return {
       sceneId,
-      caseId: "onboarding" as const,
+      caseId,
       position: { x: 9, y: 9.35 },
+      ...getQaStageState(caseId, qaStage),
     };
   }
   if (sceneId === "sales") {
+    const caseId = "sales" as const;
     return {
       sceneId,
-      caseId: "sales" as const,
+      caseId,
       position: { x: 9, y: 9.35 },
+      ...getQaStageState(caseId, qaStage),
     };
   }
   if (sceneId === "hub") {
@@ -515,6 +529,27 @@ function getQaScene(): {
     };
   }
   return null;
+}
+
+function getQaStageState(
+  caseId: GameState["currentCaseId"],
+  qaStage: string | null,
+) {
+  if (qaStage !== "diagnose" && qaStage !== "design") {
+    return {};
+  }
+  const collectedEvidenceIds = evidenceItems
+    .filter((item) => item.caseId === caseId)
+    .map((item) => item.id);
+  const correctDiagnosis = diagnosisOptions.find(
+    (option) => option.caseId === caseId && option.correct,
+  );
+  return {
+    collectedEvidenceIds,
+    diagnosisId: qaStage === "design" ? (correctDiagnosis?.id ?? null) : null,
+    overlay: "decision" as const,
+    questStage: qaStage as GameState["questStage"],
+  };
 }
 
 function getNextObjective(
@@ -722,6 +757,8 @@ function DecisionPanel({
   interventionOptions,
   diagnosisId,
   interventionId,
+  currentCaseId,
+  evidenceItems,
   onChooseDiagnosis,
   onChooseIntervention,
   onClose,
@@ -730,6 +767,8 @@ function DecisionPanel({
   interventionOptions: InterventionOption[];
   diagnosisId: string | null;
   interventionId: string | null;
+  currentCaseId: CaseId;
+  evidenceItems: Evidence[];
   onChooseDiagnosis: (id: string) => void;
   onChooseIntervention: (id: string) => void;
   onClose: () => void;
@@ -738,6 +777,7 @@ function DecisionPanel({
     (option) => option.id === diagnosisId,
   );
   const canChooseIntervention = selectedDiagnosis?.correct ?? false;
+  const synthesis = caseSynthesis[currentCaseId];
 
   return (
     <section
@@ -748,10 +788,35 @@ function DecisionPanel({
         <div>
           <p className="eq-kicker">Diagnostic Decision</p>
           <h2>Is this really a training problem?</h2>
+          <p>{synthesis.prompt}</p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           Close
         </button>
+      </div>
+
+      <div className="eq-case-synthesis" aria-label="Evidence synthesis">
+        <article>
+          <span>Evidence Pattern</span>
+          <p>{synthesis.pattern}</p>
+        </article>
+        <article>
+          <span>Trap To Avoid</span>
+          <p>{synthesis.trap}</p>
+        </article>
+        <article>
+          <span>Business Signal</span>
+          <p>{synthesis.metric}</p>
+        </article>
+      </div>
+
+      <div className="eq-signal-strip">
+        {evidenceItems.map((item) => (
+          <article key={item.id}>
+            <strong>{item.title}</strong>
+            <small>{item.metric}</small>
+          </article>
+        ))}
       </div>
 
       <div className="eq-option-grid">
@@ -808,6 +873,35 @@ function DecisionPanel({
     </section>
   );
 }
+
+const caseSynthesis: Record<
+  CaseId,
+  {
+    metric: string;
+    pattern: string;
+    prompt: string;
+    trap: string;
+  }
+> = {
+  onboarding: {
+    prompt:
+      "Use the evidence pattern, not the original leadership request, to decide what the organization should actually build.",
+    pattern:
+      "The issue shows up across instructions, handoffs, access timing, and week-two support needs.",
+    trap: "A longer onboarding course would feel responsive, but it would not fix ownership or reinforcement.",
+    metric:
+      "The useful outcome is faster time-to-productivity plus fewer support tickets after orientation.",
+  },
+  sales: {
+    prompt:
+      "Use the evidence pattern to decide whether reps need more content or a better revenue-behavior system.",
+    pattern:
+      "Reps can explain features, but discovery depth, opportunity notes, and manager coaching are inconsistent.",
+    trap: "A stricter demo certification measures presentation skill more than buyer diagnosis.",
+    metric:
+      "The useful outcome is improved demo-to-next-step conversion and visible coaching rubric use.",
+  },
+};
 
 function CanvasPanel({
   artifact,

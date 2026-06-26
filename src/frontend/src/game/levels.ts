@@ -187,7 +187,7 @@ export const scenes: Scene[] = [
       tilePatch("lab-walk", 14, 11.9, 2, 3.25, tileSprites.path),
       tilePatch("sales-walk", 6.6, 6.55, 2.4, 2.2, tileSprites.doorway),
       tilePatch("ops-walk", 21, 6.55, 2.4, 2.2, tileSprites.doorway),
-      tilePatch("lab-threshold", 13.8, 15.1, 2.4, 0.85, tileSprites.doorway),
+      tilePatch("lab-threshold", 13.8, 15.75, 2.4, 0.85, tileSprites.doorway),
       tilePatch(
         "garden-bed-left",
         7.9,
@@ -213,7 +213,7 @@ export const scenes: Scene[] = [
       {
         id: "hub-to-lab",
         label: "Learning Systems Lab",
-        rect: { x: 14, y: 15.1, width: 2, height: 0.85 },
+        rect: { x: 14, y: 15.75, width: 2, height: 0.85 },
         targetSceneId: "lab",
         targetPosition: { x: 9, y: 10.6 },
       },
@@ -235,7 +235,7 @@ export const scenes: Scene[] = [
     blocks: [
       { x: 19.4, y: 2.55, width: 7.2, height: 3.5 },
       { x: 3.4, y: 2.55, width: 7.2, height: 3.5 },
-      { x: 12.45, y: 15.1, width: 5.1, height: 1.1 },
+      { x: 12.45, y: 15.75, width: 5.1, height: 1.1 },
       { x: 14, y: 8.3, width: 2, height: 2 },
     ],
     props: [

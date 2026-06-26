@@ -238,6 +238,7 @@
 }
 
 .eq-panel {
+  box-sizing: border-box;
   border-radius: 22px;
   max-height: min(76vh, 720px);
   overflow: auto;
@@ -264,6 +265,10 @@
   transform: translate(-50%, -50%);
 }
 
+.eq-decision {
+  max-height: min(86vh, 720px);
+}
+
 .eq-evidence {
   width: min(760px, calc(100vw - 32px));
 }
@@ -274,6 +279,11 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
+}
+
+.eq-panel-header .eq-ghost-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .eq-panel-header h2,
@@ -476,6 +486,66 @@
   margin: 0 0 8px;
 }
 
+.eq-case-synthesis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 10px;
+}
+
+.eq-case-synthesis article,
+.eq-signal-strip article {
+  min-width: 0;
+  border: 1px solid rgba(34, 211, 238, 0.18);
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 47, 73, 0.38),
+    rgba(15, 23, 42, 0.58)
+  );
+  padding: 11px;
+}
+
+.eq-case-synthesis span,
+.eq-signal-strip small {
+  color: #67e8f9;
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eq-case-synthesis p {
+  color: #dbeafe;
+  font-size: 0.78rem;
+  line-height: 1.38;
+  margin: 6px 0 0;
+}
+
+.eq-signal-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.eq-signal-strip article {
+  padding: 9px 10px;
+}
+
+.eq-signal-strip strong {
+  color: #f8fafc;
+  display: block;
+  font-size: 0.82rem;
+}
+
+.eq-signal-strip small {
+  color: #fde68a;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
 .eq-choice {
   align-items: flex-start;
   justify-content: flex-start;
@@ -484,7 +554,7 @@
   background: rgba(15, 23, 42, 0.55);
   color: #e2e8f0;
   margin-top: 10px;
-  padding: 13px;
+  padding: 11px 13px;
   text-align: left;
 }
 
@@ -950,11 +1020,19 @@
   .eq-evidence,
   .eq-canvas {
     bottom: calc(env(safe-area-inset-bottom) + 84px);
+    box-sizing: border-box;
     left: 12px;
-    right: 12px;
+    max-width: min(366px, calc(100vw - 24px));
+    overflow-x: hidden;
+    right: auto;
     top: auto;
-    width: auto;
+    width: min(366px, calc(100vw - 24px));
     transform: none;
+  }
+
+  .eq-decision * {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .eq-dialogue {
@@ -971,6 +1049,8 @@
 
   .eq-dialogue-actions > div,
   .eq-option-grid,
+  .eq-case-synthesis,
+  .eq-signal-strip,
   .eq-canvas-grid,
   .eq-title-grid {
     grid-template-columns: 1fr;
