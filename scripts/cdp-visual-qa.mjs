@@ -495,8 +495,8 @@ async function completeOnboardingCase(send, viewport) {
     viewport,
     [
       { x: 6.4, y: 7.05 },
-      { x: 6.4, y: 10.1 },
-      { x: 8.85, y: 10.1 },
+      { x: 6.4, y: 10.35 },
+      { x: 8.85, y: 10.35 },
     ],
     "Multiple handoffs create delay",
     2,

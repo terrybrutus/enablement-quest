@@ -202,4 +202,4 @@ export const TILE_SIZE = 48;
 export const PLAYER_WIDTH = 34;
 export const PLAYER_HEIGHT = 52;
 export const MOVE_SPEED = 4.2;
-export const INTERACT_DISTANCE = 70;
+export const INTERACT_DISTANCE = 88;

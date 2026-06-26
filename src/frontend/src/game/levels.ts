@@ -270,16 +270,10 @@ export const scenes: Scene[] = [
       {
         id: "lab-building",
         label: buildingNameplates.lab,
-        position: { x: 12.45, y: 14.95 },
-        size: { width: 5.1, height: 1.9 },
+        position: { x: 11.85, y: 14.15 },
+        size: { width: 6.4, height: 5 },
         sprite: gardenSprite(0, 3904, 704, 544),
         collision: true,
-      },
-      {
-        id: "lab-door",
-        position: { x: 14.05, y: 15.7 },
-        size: { width: 1.85, height: 1.3 },
-        sprite: gardenSprite(256, 4288, 160, 128),
       },
       {
         id: "hub-fountain",
@@ -291,18 +285,40 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
+        id: "ops-roof-dish",
+        position: { x: 22.65, y: 1.95 },
+        size: { width: 1.15, height: 1.2 },
+        sprite: officeExteriorSprite(448, 768, 64, 64),
+      },
+      {
+        id: "sales-roof-sign",
+        position: { x: 5.15, y: 2.05 },
+        size: { width: 2.75, height: 0.65 },
+        sprite: officeExteriorSprite(448, 832, 160, 32),
+      },
+      {
+        id: "ops-service-panels",
+        position: { x: 23.65, y: 6.55 },
+        size: { width: 1.4, height: 1.1 },
+        sprite: officeExteriorSprite(512, 832, 96, 64),
+      },
+      {
+        id: "sales-service-panels",
+        position: { x: 7.65, y: 6.55 },
+        size: { width: 1.4, height: 1.1 },
+        sprite: officeExteriorSprite(512, 832, 96, 64),
+      },
+      {
         id: "garden-bush-a",
         position: { x: 8.4, y: 9.8 },
         size: { width: 1, height: 1 },
         sprite: gardenSprite(64, 32),
-        collision: true,
       },
       {
         id: "garden-bush-b",
         position: { x: 20.2, y: 9.8 },
         size: { width: 1, height: 1 },
         sprite: gardenSprite(96, 32),
-        collision: true,
       },
       {
         id: "plaza-flower-left",
@@ -395,6 +411,19 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
+        id: "ops-chair-cluster",
+        position: { x: 3.45, y: 3.25 },
+        size: { width: 2.4, height: 1.2 },
+        sprite: officeSprite(0, 384, 144, 48),
+      },
+      {
+        id: "ops-whiteboard",
+        position: { x: 1.45, y: 1.55 },
+        size: { width: 2.8, height: 1.45 },
+        sprite: officeSprite(240, 336, 144, 48),
+        collision: true,
+      },
+      {
         id: "metric-board",
         description:
           "Ramp data shows the problem spikes after orientation, which suggests reinforcement and workflow gaps.",
@@ -404,6 +433,12 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
+        id: "ops-ticket-monitor",
+        position: { x: 14.15, y: 2.25 },
+        size: { width: 1.6, height: 1.35 },
+        sprite: officeSprite(432, 576, 96, 96),
+      },
+      {
         id: "process-desk",
         description:
           "The process review desk shows access delays and too many handoffs before new hires can work confidently.",
@@ -411,6 +446,12 @@ export const scenes: Scene[] = [
         size: { width: 3.5, height: 2.25 },
         sprite: officeSprite(336, 1488, 144, 96),
         collision: true,
+      },
+      {
+        id: "ops-handoff-cabinets",
+        position: { x: 7.05, y: 6.35 },
+        size: { width: 2.2, height: 1 },
+        sprite: officeSprite(240, 480, 144, 48),
       },
       {
         id: "ops-support-printers",
@@ -427,6 +468,12 @@ export const scenes: Scene[] = [
         size: { width: 2.55, height: 2.1 },
         sprite: officeSprite(288, 576, 144, 96),
         collision: true,
+      },
+      {
+        id: "ops-floor-plant",
+        position: { x: 15.45, y: 9.1 },
+        size: { width: 1.05, height: 1.35 },
+        sprite: officeSprite(288, 192),
       },
     ],
   },
@@ -478,6 +525,19 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
+        id: "sales-discovery-chairs",
+        position: { x: 3.65, y: 3.1 },
+        size: { width: 2.4, height: 1.2 },
+        sprite: officeSprite(0, 336, 144, 48),
+      },
+      {
+        id: "sales-demo-screens",
+        position: { x: 1.25, y: 5.85 },
+        size: { width: 2.55, height: 2.25 },
+        sprite: officeSprite(288, 336, 144, 96),
+        collision: true,
+      },
+      {
         id: "pipeline-board",
         description:
           "The board shows plenty of demos but weak next-step conversion. The issue is not activity volume.",
@@ -487,6 +547,12 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
+        id: "sales-value-monitor",
+        position: { x: 13.95, y: 2.6 },
+        size: { width: 1.7, height: 1.35 },
+        sprite: officeSprite(432, 480, 96, 96),
+      },
+      {
         id: "call-coaching-station",
         description:
           "The coaching station points to inconsistent discovery prompts and limited manager reinforcement after training.",
@@ -494,6 +560,12 @@ export const scenes: Scene[] = [
         size: { width: 3.5, height: 2.25 },
         sprite: officeSprite(576, 1488, 144, 96),
         collision: true,
+      },
+      {
+        id: "sales-rubric-cards",
+        position: { x: 8.05, y: 6.6 },
+        size: { width: 1.7, height: 1 },
+        sprite: officeSprite(528, 480, 96, 48),
       },
       {
         id: "sales-coaching-tools",
@@ -510,6 +582,12 @@ export const scenes: Scene[] = [
         size: { width: 2.5, height: 2.05 },
         sprite: officeSprite(576, 576, 144, 96),
         collision: true,
+      },
+      {
+        id: "sales-floor-plant",
+        position: { x: 15.5, y: 8.95 },
+        size: { width: 1.05, height: 1.35 },
+        sprite: officeSprite(288, 192),
       },
     ],
   },
