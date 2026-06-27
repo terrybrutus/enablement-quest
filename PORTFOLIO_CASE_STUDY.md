@@ -32,6 +32,7 @@ By the end of the experience, learners should be able to diagnose a workplace en
 4. The player selects an enablement intervention.
 5. The game shows the expected business impact.
 6. The player earns a canvas summarizing the decision.
+7. After the second case, the player sees a final reviewer debrief that translates the complete run into portfolio evidence.
 
 ## Current Cases
 
@@ -79,6 +80,10 @@ Business-impact story:
 
 The proposed solution connects discovery guides, manager coaching rubrics, call-review practice, and pipeline inspection dashboards to improved demo-to-next-step conversion.
 
+Final reviewer debrief:
+
+After both cases are complete, the experience summarizes the full portfolio argument: Terry diagnoses before designing, can work across onboarding and sales enablement contexts, uses a repeatable learning architecture, and connects decisions to measurable business impact.
+
 ## What This Demonstrates To Recruiters
 
 - Performance consulting: diagnosing before designing.
@@ -88,6 +93,7 @@ The proposed solution connects discovery guides, manager coaching rubrics, call-
 - Accessibility awareness: plain language, keyboard support, readable UI, and mobile controls.
 - Responsible AI framing: AI can support summarization and drafting, but humans remain accountable for judgment.
 - Systems thinking: training is treated as one possible intervention, not the default answer.
+- Portfolio translation: the final debrief makes the reviewer-facing value explicit after the playable experience.
 
 ## Resume Bullet Options
 

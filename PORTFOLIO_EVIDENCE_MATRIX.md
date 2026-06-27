@@ -14,6 +14,7 @@ This matrix keeps the portfolio story honest. It maps each recruiter-facing clai
 | Terry considers accessibility and responsive interaction. | The build includes keyboard controls, mobile joystick controls, readable panels, button-based interaction, and a settings control for movement speed. | Title screen controls, HUD, Settings panel, `README.md`. | "I incorporated accessible interaction patterns and responsive controls, while visual polish is still evolving." |
 | Terry can use AI responsibly. | AI is framed as support for summarization and drafting, not as the decision-maker. | `PORTFOLIO_CASE_STUDY.md`, `RESUME_PORTFOLIO_PACKET.md`, dialogue/evidence copy. | "AI supports drafting and analysis; human judgment remains accountable." |
 | Terry can build an interactive proof-of-work artifact. | The repo contains a playable React/TypeScript frontend, Caffeine/ICP project structure, Motoko backend files, and a browser-based game loop. | GitHub repo, `project.json`, `src/frontend`, `src/backend`. | "I built a browser-based interactive prototype with AI-assisted development." |
+| Terry can translate gameplay into recruiter-facing evidence. | After both cases, the final reviewer debrief summarizes performance consulting, sales enablement range, learning architecture, and portfolio talking points. | Final reviewer debrief after the Sales Enablement Impact Canvas; `GameCanvas.tsx`. | "The experience ends by connecting the completed run to the portfolio claims." |
 
 ## Reviewer Path
 
@@ -25,7 +26,8 @@ Use this path when sharing the project with a recruiter or hiring manager who on
 4. Inspect the evidence and answer the "Check Your Read" prompts.
 5. Choose the diagnosis and intervention.
 6. Open the earned canvas and read how the choice connects to business impact.
-7. If time allows, repeat the loop in Sales Strategy Studio for the sales enablement case.
+7. Repeat the loop in Sales Strategy Studio for the sales enablement case.
+8. Read the final reviewer debrief after the Sales Enablement Impact Canvas.
 
 ## Evidence Boundaries
 

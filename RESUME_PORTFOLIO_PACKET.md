@@ -77,6 +77,8 @@ Result:
 
 The project gives recruiters and hiring managers a clearer view of how I approach enablement work: I diagnose before designing, treat training as one possible intervention, and connect learning decisions to outcomes such as ramp speed, support-ticket reduction, confidence, adoption, and conversion behavior.
 
+The current build also ends with a final reviewer debrief after both cases, making the portfolio takeaway explicit instead of expecting reviewers to infer it from the gameplay alone.
+
 ## Portfolio Page Blurb
 
 Enablement Quest: The Learning Systems Lab is an interactive RPG-style learning experience that teaches performance consulting through play. Instead of asking learners to memorize enablement terminology, it asks them to investigate a workplace problem, inspect evidence, diagnose the root cause, choose an intervention, and connect the decision to business impact.
@@ -110,7 +112,7 @@ For a claim-by-claim map of what the current build proves, see [PORTFOLIO_EVIDEN
 
 ## Next Portfolio Upgrade
 
-The current build now includes a lightweight reviewer-facing wrapper on the title screen with creator attribution, a review path, and claim boundaries. The next strongest upgrade is to turn that into a fuller public portfolio page around the game with:
+The current build now includes a lightweight reviewer-facing wrapper on the title screen with creator attribution, a review path, claim boundaries, earned canvases, and a final reviewer debrief after both cases. The next strongest upgrade is to turn that into a fuller public portfolio page around the game with:
 
 - A "What this demonstrates" section before launch
 - Screenshots or short clips of the two cases

@@ -27,6 +27,7 @@ Each case follows the same performance-consulting loop:
 4. The player selects an enablement intervention.
 5. The game shows the expected business impact.
 6. The player earns a canvas summarizing the decision.
+7. After both cases, the final reviewer debrief explains what the full run proves for performance consulting, sales enablement, learning architecture, and portfolio storytelling.
 
 ## What It Demonstrates
 
@@ -36,6 +37,7 @@ Each case follows the same performance-consulting loop:
 - Applying sales enablement thinking to revenue behavior
 - Using plain language and accessible interaction patterns
 - Framing AI as support for research and drafting, with human judgment still accountable
+- Translating the completed experience into a recruiter-facing proof point through the final reviewer debrief
 
 ## Portfolio Materials
 
