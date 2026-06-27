@@ -65,25 +65,54 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         </section>
 
         {isReviewGuideOpen && (
-          <section
-            className="eq-review-guide"
-            aria-label="How to review this portfolio project"
-          >
-            <div>
-              <p>5-minute review path</p>
+          <div className="eq-review-wrapper">
+            <section
+              className="eq-creator-statement"
+              aria-label="Creator statement"
+            >
+              <p>Creator statement</p>
               <span>
-                Talk to Maya, inspect the evidence, choose the root cause, and
-                review the earned business-impact canvas.
+                I built this as a playable portfolio case study, not a generic
+                course demo. The goal is to make my enablement judgment visible:
+                gather evidence, diagnose the real problem, choose the right
+                intervention, and explain the business impact.
               </span>
-            </div>
-            <div>
-              <p>What this proves</p>
-              <span>
-                Terry diagnoses before designing, connects enablement to
-                behavior, and treats training as one possible solution.
-              </span>
-            </div>
-          </section>
+            </section>
+
+            <section
+              className="eq-review-guide"
+              aria-label="How to review this portfolio project"
+            >
+              <div>
+                <p>5-minute review path</p>
+                <span>
+                  Talk to Maya, inspect the evidence, choose the root cause, and
+                  review the earned business-impact canvas.
+                </span>
+              </div>
+              <div>
+                <p>What this proves</p>
+                <span>
+                  Terry diagnoses before designing, connects enablement to
+                  behavior, and treats training as one possible solution.
+                </span>
+              </div>
+              <div>
+                <p>Sales enablement lens</p>
+                <span>
+                  Case 02 moves into Sales Strategy Studio to connect discovery
+                  behavior, coaching, and pipeline signals.
+                </span>
+              </div>
+              <div>
+                <p>Evidence boundary</p>
+                <span>
+                  Metrics are scenario-based impact targets. The strongest proof
+                  is the performance-consulting workflow.
+                </span>
+              </div>
+            </section>
+          </div>
         )}
 
         <div className="eq-title-actions">
