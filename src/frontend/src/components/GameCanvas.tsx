@@ -41,6 +41,7 @@ declare global {
       diagnosisId: string | null;
       interventionId: string | null;
       dialogue: GameState["dialogue"];
+      characterStates: GameState["characterStates"];
       questStage: GameState["questStage"];
       overlay: GameState["overlay"];
     };
@@ -102,6 +103,7 @@ export default function GameCanvas() {
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
       dialogue: gameState.dialogue,
+      characterStates: gameState.characterStates,
       questStage: gameState.questStage,
       overlay: gameState.overlay,
     };
@@ -595,9 +597,9 @@ function getNextObjective(
     return "Step 6: choose the intervention that fits the root cause and metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "Step 7: first canvas earned. Leave, then enter Sales Strategy Studio.";
+    return "Step 7: close the canvas, leave Operations, then enter Sales Strategy Studio.";
   }
-  return "Review the earned canvas and business impact.";
+  return "Mission complete: review both canvases and the business impact story.";
 }
 
 function EvidencePanel({

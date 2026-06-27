@@ -390,7 +390,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
         targetSceneId: "hub",
-        targetPosition: { x: 22.1, y: 7.5 },
+        targetPosition: { x: 22.1, y: 9.25 },
       },
     ],
     blocks: [
@@ -504,7 +504,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
         targetSceneId: "hub",
-        targetPosition: { x: 7.6, y: 7.5 },
+        targetPosition: { x: 7.6, y: 9.25 },
       },
     ],
     blocks: [
@@ -765,7 +765,7 @@ export const evidenceItems: Evidence[] = [
     caseId: "sales",
     title: "CRM Stage Audit",
     sceneId: "sales",
-    position: { x: 9.15, y: 8.85 },
+    position: { x: 9.15, y: 10.05 },
     summary:
       "Demo completion is high, but next-step conversion drops when business pain is missing from the opportunity notes.",
     insight:
@@ -781,7 +781,7 @@ export const evidenceItems: Evidence[] = [
     caseId: "sales",
     title: "Manager Coaching Note",
     sceneId: "sales",
-    position: { x: 13.45, y: 6.2 },
+    position: { x: 13.45, y: 7.15 },
     summary:
       "Managers coach demos inconsistently because there is no shared rubric for value messaging.",
     insight:

@@ -10,6 +10,11 @@ const viewports = [
   { name: "mobile", width: 390, height: 844, mobile: true, scale: 3 },
 ];
 
+const evidenceIdsByCase = {
+  onboarding: ["interview-note", "process-map", "performance-metric"],
+  sales: ["demo-call-review", "crm-stage-audit", "manager-coaching-note"],
+};
+
 let nextId = 1;
 
 async function requestJson(url) {
@@ -379,10 +384,15 @@ async function moveToCoordinate(send, viewport, target, options = {}) {
     tolerance = viewport.mobile ? 0.32 : 0.22,
     maxAxisSteps = 46,
     message = `Player did not reach coordinate ${JSON.stringify(target)}`,
+    stopOnSceneChange = false,
   } = options;
+  const startingSceneId = (await getQaState(send))?.sceneId;
 
   const moveAxis = async (axis) => {
     const state = await getQaState(send);
+    if (stopOnSceneChange && state?.sceneId !== startingSceneId) {
+      return;
+    }
     const current = state?.position?.[axis];
     if (typeof current !== "number") {
       throw new Error(`${message}. Missing QA position.`);
@@ -402,6 +412,9 @@ async function moveToCoordinate(send, viewport, target, options = {}) {
       key,
       key,
       (nextState) => {
+        if (stopOnSceneChange && nextState?.sceneId !== startingSceneId) {
+          return true;
+        }
         const value = nextState?.position?.[axis];
         if (typeof value !== "number") {
           return false;
@@ -420,13 +433,34 @@ async function moveToCoordinate(send, viewport, target, options = {}) {
   };
 
   await moveAxis("x");
+  if (stopOnSceneChange && (await getQaState(send))?.sceneId !== startingSceneId) {
+    return;
+  }
   await moveAxis("y");
 }
 
 async function moveThrough(send, viewport, waypoints) {
   for (const waypoint of waypoints) {
+    const startingSceneId = (await getQaState(send))?.sceneId;
     await moveToCoordinate(send, viewport, waypoint);
+    await assertQaState(
+      send,
+      (state) => state?.sceneId === startingSceneId,
+      `Movement unexpectedly left ${startingSceneId} while routing to ${JSON.stringify(waypoint)}`,
+    );
   }
+}
+
+async function moveNearCharacter(send, viewport, characterId, offset = { x: 0, y: 1.25 }) {
+  const state = await getQaState(send);
+  const character = state?.characterStates?.[characterId];
+  if (!character?.position) {
+    throw new Error(`Character ${characterId} was not available in QA state`);
+  }
+  await moveToCoordinate(send, viewport, {
+    x: character.position.x + offset.x,
+    y: character.position.y + offset.y,
+  });
 }
 
 async function advanceDialogueToEnd(send) {
@@ -460,7 +494,13 @@ async function collectEvidence(send, viewport, waypoints, signalText, count) {
   await clickButtonIncluding(send, "Continue investigation");
   await assertQaState(
     send,
-    (state) => state?.collectedEvidenceIds?.length === count,
+    (state) => {
+      const caseEvidenceIds = evidenceIdsByCase[state?.currentCaseId] ?? [];
+      const collectedForCase = caseEvidenceIds.filter((id) =>
+        state?.collectedEvidenceIds?.includes(id),
+      );
+      return collectedForCase.length === count;
+    },
     `Evidence count did not update to ${count}`,
   );
 }
@@ -495,8 +535,8 @@ async function completeOnboardingCase(send, viewport) {
     viewport,
     [
       { x: 6.4, y: 7.05 },
-      { x: 6.4, y: 10.35 },
-      { x: 8.85, y: 10.35 },
+      { x: 6.4, y: 10.15 },
+      { x: 8.85, y: 10.15 },
     ],
     "Multiple handoffs create delay",
     2,
@@ -533,6 +573,150 @@ async function completeOnboardingCase(send, viewport) {
       state?.questStage === "complete" &&
       state.completedCaseIds?.includes("onboarding"),
     "Correct intervention did not complete onboarding case",
+  );
+}
+
+async function enterSalesAfterOnboarding(send, viewport) {
+  await clickButtonIncluding(send, "Close");
+  await assertQaState(
+    send,
+    (state) => state?.overlay === "none" && state?.questStage === "complete",
+    "Closing the onboarding canvas did not return to play",
+  );
+  const operationsExitRoute = [
+    { x: 16, y: 10.15 },
+    { x: 9, y: 10.15 },
+  ];
+  for (const waypoint of operationsExitRoute) {
+    const state = await getQaState(send);
+    if (state?.sceneId === "hub") {
+      break;
+    }
+    await moveToCoordinate(send, viewport, waypoint, {
+      stopOnSceneChange: true,
+    });
+  }
+  const afterExitApproach = await getQaState(send);
+  if (afterExitApproach?.sceneId !== "hub") {
+    await moveUntil(
+      send,
+      viewport,
+      "ArrowDown",
+      "ArrowDown",
+      (state) => state?.sceneId === "hub",
+      {
+        maxSteps: 16,
+        message: "Player did not leave Operations after onboarding",
+      },
+    );
+  }
+  await assertQaState(
+    send,
+    (state) => state?.sceneId === "hub",
+    "Onboarding exit route did not land in the hub before Sales routing",
+  );
+  const salesRoute = [
+    { x: 22.1, y: 12.75 },
+    { x: 7.6, y: 12.75 },
+  ];
+  for (const waypoint of salesRoute) {
+    const state = await getQaState(send);
+    if (state?.sceneId === "sales") {
+      break;
+    }
+    await moveToCoordinate(send, viewport, waypoint);
+  }
+  const afterSalesRoute = await getQaState(send);
+  if (afterSalesRoute?.sceneId !== "sales") {
+    await moveUntil(
+      send,
+      viewport,
+      "ArrowUp",
+      "ArrowUp",
+      (state) => state?.sceneId === "sales",
+      {
+        maxSteps: 24,
+        message: "Player did not enter Sales Strategy Studio after onboarding",
+      },
+    );
+  }
+  await assertQaState(
+    send,
+    (state) =>
+      state?.sceneId === "sales" &&
+      state?.currentCaseId === "sales" &&
+      state?.questStage === "briefing",
+    "Entering Sales did not start the sales case",
+  );
+}
+
+async function completeSalesCase(send, viewport) {
+  await moveThrough(send, viewport, [
+    { x: 6.4, y: 10.25 },
+  ]);
+  await moveNearCharacter(send, viewport, "leo", { x: 0, y: 1.25 });
+  await pressInteract(send);
+  await advanceDialogueToEnd(send);
+  await assertQaState(
+    send,
+    (state) => state?.questStage === "investigate",
+    "Talking to Leo did not advance to investigate",
+  );
+
+  await collectEvidence(
+    send,
+    viewport,
+    [
+      { x: 6.2, y: 6.9 },
+      { x: 4.75, y: 6.9 },
+    ],
+    "connecting the demo to buyer pain",
+    1,
+  );
+  await collectEvidence(
+    send,
+    viewport,
+    [
+      { x: 6.4, y: 10.05 },
+      { x: 9.15, y: 10.05 },
+    ],
+    "Pipeline quality is dropping after the demo",
+    2,
+  );
+  await collectEvidence(
+    send,
+    viewport,
+    [
+      { x: 11.4, y: 10.05 },
+      { x: 15.8, y: 10.05 },
+      { x: 15.8, y: 7.15 },
+      { x: 13.45, y: 7.15 },
+    ],
+    "shared rubric",
+    3,
+  );
+
+  await waitForOverlay(send, "decision", "Sales decision panel did not open");
+  await assertQaState(
+    send,
+    (state) => state?.questStage === "diagnose",
+    "All sales evidence did not advance the quest to diagnose",
+  );
+  await clickButtonIncluding(send, "weak discovery habits");
+  await assertQaState(
+    send,
+    (state) => state?.questStage === "design",
+    "Correct sales diagnosis did not advance to design",
+  );
+  await clickButtonIncluding(send, "discovery guide");
+  await waitForOverlay(send, "canvas", "Sales canvas panel did not open");
+  await assertQaState(
+    send,
+    (state) =>
+      state?.questStage === "complete" &&
+      state.completedCaseIds?.includes("onboarding") &&
+      state.completedCaseIds?.includes("sales"),
+    "Correct sales intervention did not complete the full mission",
   );
 }
 
@@ -647,6 +831,20 @@ async function runViewport(client, viewport) {
     viewport.name,
     "onboarding-complete-flow",
   );
+  await enterSalesAfterOnboarding(send, viewport);
+  const enteredSalesFromJourneyState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "sales-from-journey",
+  );
+  await completeSalesCase(send, viewport);
+  const salesCompleteState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "sales-complete-flow",
+  );
   await navigateTo(send, `${appUrl}?qaScene=sales`);
   const salesState = await captureState(
     send,
@@ -691,6 +889,8 @@ async function runViewport(client, viewport) {
       operationsState,
       onboardingDecisionState,
       onboardingCompleteState,
+      enteredSalesFromJourneyState,
+      salesCompleteState,
       salesState,
       salesDecisionState,
     ],

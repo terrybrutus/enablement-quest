@@ -132,6 +132,10 @@ export function useGameLoop({
       return;
     }
 
+    if (state.questStage === "briefing" && openNearbyCharacter()) {
+      return;
+    }
+
     if (collectNearbyEvidence()) {
       return;
     }

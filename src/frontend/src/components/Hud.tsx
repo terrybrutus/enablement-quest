@@ -158,6 +158,14 @@ function shortenObjective(objective: string) {
       "Step 7: first canvas earned. Leave, then enter Sales Strategy Studio.",
       "Canvas earned. Go to Sales Studio.",
     )
+    .replace(
+      "Step 7: close the canvas, leave Operations, then enter Sales Strategy Studio.",
+      "Close canvas. Go to Sales Studio.",
+    )
+    .replace(
+      "Mission complete: review both canvases and the business impact story.",
+      "Mission complete. Review impact.",
+    )
     .replace(/^Step \d+:\s*/i, "")
     .replace(/, then /gi, " -> ")
     .replace("marked evidence", "evidence")
