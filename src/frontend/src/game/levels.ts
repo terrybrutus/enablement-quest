@@ -991,6 +991,8 @@ export const earnedCanvas: EarnedArtifact = {
   id: "enablement-diagnostic-canvas",
   title: "Enablement Diagnostic Canvas",
   subtitle: "Case: New hire ramp is slower than expected",
+  portfolioTakeaway:
+    "This canvas shows the performance-consulting move: Terry did not accept the training request at face value. He traced the evidence to workflow, access, reinforcement, and measurement before choosing the intervention.",
   sections: [
     {
       label: "Business Problem",
@@ -1028,6 +1030,8 @@ export const salesCanvas: EarnedArtifact = {
   id: "sales-enablement-impact-canvas",
   title: "Sales Enablement Impact Canvas",
   subtitle: "Case: Demo quality is not converting into next steps",
+  portfolioTakeaway:
+    "This canvas shows the sales enablement move: Terry connects discovery behavior, manager coaching, and pipeline inspection to revenue outcomes instead of treating demo training as the default fix.",
   sections: [
     {
       label: "Business Problem",

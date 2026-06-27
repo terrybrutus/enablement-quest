@@ -948,6 +948,17 @@ function CanvasPanel({
           </article>
         ))}
       </div>
+
+      {artifact.portfolioTakeaway && (
+        <aside
+          className="eq-portfolio-takeaway"
+          aria-label="Portfolio takeaway"
+        >
+          <p className="eq-kicker">Portfolio takeaway</p>
+          <h3>What this proves</h3>
+          <p>{artifact.portfolioTakeaway}</p>
+        </aside>
+      )}
     </section>
   );
 }
