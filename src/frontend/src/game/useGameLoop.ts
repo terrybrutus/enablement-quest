@@ -216,23 +216,29 @@ export function useGameLoop({
       lastTimeRef.current = timestamp;
 
       if (state.player.hasStarted && state.overlay === "none") {
+        const ambientState = {
+          ...state,
+          characterStates: moveCharacters(state, delta),
+        };
         const nextPosition = getNextPosition(
-          state.player.position,
+          ambientState.player.position,
           inputRef.current,
           delta,
           moveSpeed,
         );
         if (nextPosition) {
-          const nextState = moveWithinScene(state, nextPosition);
+          const nextState = moveWithinScene(ambientState, nextPosition);
           if (nextState) {
             gameStateRef.current = nextState;
             setGameState(nextState);
           }
-        } else if (state.player.isMoving) {
+        } else if (
+          state.player.isMoving ||
+          ambientState.characterStates !== state.characterStates
+        ) {
           const nextState = {
-            ...state,
-            player: { ...state.player, isMoving: false },
-            characterStates: moveCharacters(state, delta),
+            ...ambientState,
+            player: { ...ambientState.player, isMoving: false },
           };
           gameStateRef.current = nextState;
           setGameState(nextState);
@@ -516,7 +522,6 @@ function moveWithinScene(
       direction,
       isMoving: true,
     },
-    characterStates: moveCharacters(state, 1),
   };
 }
 
