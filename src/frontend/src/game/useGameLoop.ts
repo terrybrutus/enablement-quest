@@ -556,15 +556,7 @@ function getNearbyPortal(state: GameState) {
 
 function getPortalAtPosition(state: GameState, position: Position) {
   const scene = getCurrentScene(state);
-  return scene.portals.find((portal) => {
-    const forgivingRect = {
-      x: portal.rect.x - 0.75,
-      y: portal.rect.y - 0.75,
-      width: portal.rect.width + 1.5,
-      height: portal.rect.height + 1.5,
-    };
-    return pointInRect(position, forgivingRect);
-  });
+  return scene.portals.find((portal) => pointInRect(position, portal.rect));
 }
 
 function getCaseTransition(

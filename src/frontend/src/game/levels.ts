@@ -928,4 +928,4 @@ export const earnedArtifactsByCase = {
   sales: salesCanvas,
 } as const;
 
-export const initialPosition = { x: 9, y: 10.6 };
+export const initialPosition = { x: 9, y: 9.6 };
