@@ -578,26 +578,26 @@ function getNextObjective(
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Step 1: talk to Leo, then inspect the marked evidence in order."
-        : "Step 1: enter Sales Strategy Studio and talk to Leo.";
+        ? "Talk to Leo first, then inspect the marked evidence in order."
+        : "Enter Sales Strategy Studio and talk to Leo.";
     }
     return sceneId === "operations"
-      ? "Step 1: talk to Maya, then inspect the marked evidence in order."
-      : "Step 1: enter Operations Suite and talk to Maya.";
+      ? "Talk to Maya first, then inspect the marked evidence in order."
+      : "Enter Operations Suite and talk to Maya.";
   }
   if (questStage === "investigate") {
     return nextEvidenceTitle
-      ? `Step ${evidenceCount + 2}: inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
+      ? `Inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
       : `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
-    return "Step 5: press Interact away from objects and choose the root cause.";
+    return "Open the decision panel and choose the root cause.";
   }
   if (questStage === "design") {
-    return "Step 6: choose the intervention that fits the root cause and metric.";
+    return "Choose the intervention that fits the root cause and business metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "Step 7: close the canvas, leave Operations, then enter Sales Strategy Studio.";
+    return "Close the canvas, leave Operations, then enter Sales Strategy Studio.";
   }
   return "Mission complete: review both canvases and the business impact story.";
 }

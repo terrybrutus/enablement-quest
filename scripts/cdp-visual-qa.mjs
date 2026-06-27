@@ -524,7 +524,8 @@ async function completeOnboardingCase(send, viewport) {
     send,
     viewport,
     [
-      { x: 9.6, y: 7.05 },
+      { x: 7, y: 5.25 },
+      { x: 7, y: 7.05 },
       { x: 4.35, y: 7.05 },
     ],
     "workflow and reinforcement signal",
@@ -585,8 +586,8 @@ async function enterSalesAfterOnboarding(send, viewport) {
   );
   const operationsExitRoute = [
     { x: 6.4, y: 7.3 },
-    { x: 6.4, y: 10.2 },
-    { x: 9, y: 10.2 },
+    { x: 6.4, y: 10.45 },
+    { x: 9, y: 10.45 },
   ];
   for (const waypoint of operationsExitRoute) {
     const state = await getQaState(send);
@@ -669,7 +670,7 @@ async function completeSalesCase(send, viewport) {
     viewport,
     [
       { x: 6.2, y: 6.9 },
-      { x: 4.75, y: 6.9 },
+      { x: 6.05, y: 6.9 },
     ],
     "connecting the demo to buyer pain",
     1,

@@ -367,7 +367,7 @@ function drawEvidence(
     }
 
     if (isExpected || playerDistance < 130) {
-      drawLabel(ctx, evidence.title, x + 29, y - 8, "#fef3c7");
+      drawLabel(ctx, evidence.title, x + 29, y - 24, "#fef3c7");
     }
   }
 }
@@ -460,9 +460,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    left: 2,
+    left: 0,
     up: 1,
-    right: 0,
+    right: 2,
     down: 3,
   };
   return offsets[direction];

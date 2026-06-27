@@ -214,13 +214,13 @@ export const scenes: Scene[] = [
       },
       {
         id: "lab-chair",
-        position: { x: 22, y: 5 },
+        position: { x: 14.1, y: 4.85 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(336, 240),
       },
       {
         id: "lab-decoration",
-        position: { x: 7, y: 14 },
+        position: { x: 13.9, y: 7.15 },
         size: { width: 1, height: 1 },
         sprite: officeSprite(432, 240),
       },
@@ -814,7 +814,7 @@ export const evidenceItems: Evidence[] = [
     caseId: "sales",
     title: "Demo Call Review",
     sceneId: "sales",
-    position: { x: 4.75, y: 6.35 },
+    position: { x: 6.05, y: 6.35 },
     summary:
       "Reps describe product features clearly, but only 34% ask a second-layer discovery question before the demo.",
     insight:
