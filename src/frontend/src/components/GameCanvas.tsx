@@ -544,7 +544,7 @@ function getQaScene(): {
     return {
       sceneId,
       caseId: "onboarding" as const,
-      position: { x: 15, y: 10.8 },
+      position: { x: 12.75, y: 9.8 },
     };
   }
   return null;
