@@ -2,7 +2,7 @@
 
 ## Direction
 
-Enablement Quest: The Learning Systems Lab — a dark, immersive top-down RPG learning experience where players explore a modern organization, interact with NPCs, and complete quests to earn learning artifacts.
+Enablement Quest: The Learning Systems Lab — a dark, immersive top-down RPG learning experience where players explore a modern organization, interact with workplace characters, and complete case missions to earn learning artifacts.
 
 ## Tone
 
@@ -45,7 +45,7 @@ Layered game UI: flat dark canvas at bottom, elevated card panels with `shadow-s
 | -------------- | ---------------- | -------------- | ------------------------------------------- |
 | Game Canvas    | bg-background    | —              | Full-viewport tile-based world              |
 | HUD Bar        | bg-card/80       | border-b       | Top overlay: zone name, key hints           |
-| Dialogue Panel | bg-card          | border         | Bottom overlay: NPC portrait + text         |
+| Dialogue Panel | bg-card          | border         | Bottom overlay: character portrait + text   |
 | Quest Log      | bg-card          | border-l       | Slide-out left panel                        |
 | Artifacts      | bg-card          | border-r       | Slide-out right panel                       |
 | Title Splash   | bg-background/95 | —              | Centered overlay on first load              |
