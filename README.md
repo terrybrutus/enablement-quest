@@ -43,6 +43,8 @@ The full portfolio write-up is in [PORTFOLIO_CASE_STUDY.md](./PORTFOLIO_CASE_STU
 
 Resume, interview, and LinkedIn-ready language is in [RESUME_PORTFOLIO_PACKET.md](./RESUME_PORTFOLIO_PACKET.md).
 
+Claim-to-evidence mapping for recruiters is in [PORTFOLIO_EVIDENCE_MATRIX.md](./PORTFOLIO_EVIDENCE_MATRIX.md).
+
 That document includes:
 
 - One-line positioning
@@ -73,4 +75,4 @@ corepack pnpm --filter @caffeine/template-frontend exec vite preview --host 127.
 
 ## Status
 
-The current version proves the core two-case learning loop and portfolio story. It is not yet the final polish target. The next major improvements are richer case challenge, stronger scene composition, audio/transition polish, and a cleaner public portfolio wrapper around the playable experience.
+The current version proves the core two-case learning loop, reviewer-facing title screen, and portfolio story. It is not yet the final polish target. The next major improvements are richer case challenge, stronger scene composition, audio/transition polish, screenshots or short clips, and a fuller public portfolio page around the playable experience.

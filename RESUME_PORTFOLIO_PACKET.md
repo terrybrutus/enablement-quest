@@ -106,9 +106,11 @@ Use truthful phrasing when presenting this project:
 - Do not imply the current metrics are live production results. They are scenario-based impact targets unless real pilot data is collected later.
 - Do not overclaim visual polish until the playable experience has passed a full visual QA pass.
 
+For a claim-by-claim map of what the current build proves, see [PORTFOLIO_EVIDENCE_MATRIX.md](./PORTFOLIO_EVIDENCE_MATRIX.md).
+
 ## Next Portfolio Upgrade
 
-The next strongest upgrade is to add a public portfolio wrapper around the game with:
+The next strongest upgrade is to turn the existing reviewer-facing title screen into a fuller public portfolio wrapper around the game with:
 
 - A short creator statement from Terry Brutus
 - A "What this demonstrates" section before launch
