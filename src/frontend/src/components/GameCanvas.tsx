@@ -486,6 +486,11 @@ export default function GameCanvas() {
             earnedArtifactsByCase[gameState.currentCaseId] ??
             earnedCanvas
           }
+          showFinalDebrief={
+            gameState.currentCaseId === "sales" &&
+            gameState.completedCaseIds.includes("onboarding") &&
+            gameState.completedCaseIds.includes("sales")
+          }
           onClose={closeOverlay}
         />
       )}
@@ -919,9 +924,11 @@ const caseSynthesis: Record<
 
 function CanvasPanel({
   artifact,
+  showFinalDebrief,
   onClose,
 }: {
   artifact: NonNullable<GameState["earnedArtifact"]>;
+  showFinalDebrief: boolean;
   onClose: () => void;
 }) {
   return (
@@ -959,6 +966,49 @@ function CanvasPanel({
           <p>{artifact.portfolioTakeaway}</p>
         </aside>
       )}
+
+      {showFinalDebrief && <FinalReviewerDebrief />}
     </section>
+  );
+}
+
+function FinalReviewerDebrief() {
+  return (
+    <aside className="eq-final-debrief" aria-label="Final reviewer debrief">
+      <p className="eq-kicker">Final reviewer debrief</p>
+      <h3>What this complete run proves</h3>
+      <div className="eq-final-debrief-grid">
+        <article>
+          <strong>Performance consulting</strong>
+          <span>
+            The player does not accept a training request at face value. They
+            interview, inspect evidence, diagnose root cause, then choose the
+            intervention.
+          </span>
+        </article>
+        <article>
+          <strong>Sales enablement range</strong>
+          <span>
+            The second case connects discovery behavior, manager coaching, and
+            pipeline metrics instead of defaulting to more content.
+          </span>
+        </article>
+        <article>
+          <strong>Learning architecture</strong>
+          <span>
+            Each case follows a repeatable loop: investigate, diagnose, design,
+            implement, and measure business impact.
+          </span>
+        </article>
+        <article>
+          <strong>Portfolio talking point</strong>
+          <span>
+            Terry Brutus built this as a playable case study to demonstrate
+            judgment, systems thinking, accessibility, responsible AI use, and
+            measurable enablement outcomes.
+          </span>
+        </article>
+      </div>
+    </aside>
   );
 }

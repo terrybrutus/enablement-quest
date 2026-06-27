@@ -625,6 +625,55 @@
   margin: 0;
 }
 
+.eq-final-debrief {
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(113, 63, 18, 0.26),
+    rgba(15, 23, 42, 0.68)
+  );
+  box-shadow: 0 18px 44px rgba(2, 6, 23, 0.22);
+  margin-top: 14px;
+  padding: 16px;
+}
+
+.eq-final-debrief h3 {
+  color: #fef3c7;
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+}
+
+.eq-final-debrief-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.eq-final-debrief-grid article {
+  border: 1px solid rgba(250, 204, 21, 0.16);
+  border-radius: 15px;
+  background: rgba(2, 6, 23, 0.34);
+  padding: 12px;
+}
+
+.eq-final-debrief-grid strong,
+.eq-final-debrief-grid span {
+  display: block;
+}
+
+.eq-final-debrief-grid strong {
+  color: #fde68a;
+  font-size: 0.86rem;
+  margin-bottom: 6px;
+}
+
+.eq-final-debrief-grid span {
+  color: #dbeafe;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 .eq-title-screen {
   position: absolute;
   inset: 0;
@@ -1210,6 +1259,7 @@
   .eq-case-synthesis,
   .eq-signal-strip,
   .eq-canvas-grid,
+  .eq-final-debrief-grid,
   .eq-title-grid {
     grid-template-columns: 1fr;
     width: 100%;
