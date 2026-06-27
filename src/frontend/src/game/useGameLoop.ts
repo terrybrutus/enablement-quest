@@ -73,14 +73,24 @@ export function useGameLoop({
       return true;
     }
 
+    const caseEvidence = evidenceItems.filter(
+      (item) => item.caseId === state.currentCaseId,
+    );
+    const expectedEvidence = caseEvidence.find(
+      (item) => !state.collectedEvidenceIds.includes(item.id),
+    );
+    if (expectedEvidence && nearby.id !== expectedEvidence.id) {
+      setToast(
+        `Start with ${expectedEvidence.title}. The case works best when you inspect the evidence in order.`,
+      );
+      return true;
+    }
+
     setGameState((previous) => {
       const collectedEvidenceIds = [
         ...previous.collectedEvidenceIds,
         nearby.id,
       ];
-      const caseEvidence = evidenceItems.filter(
-        (item) => item.caseId === previous.currentCaseId,
-      );
       const allCollected = caseEvidence.every((item) =>
         collectedEvidenceIds.includes(item.id),
       );
@@ -122,6 +132,10 @@ export function useGameLoop({
       return;
     }
 
+    if (state.questStage === "briefing" && openNearbyCharacter()) {
+      return;
+    }
+
     if (collectNearbyEvidence()) {
       return;
     }
@@ -148,10 +162,7 @@ export function useGameLoop({
       return;
     }
 
-    const scene = getCurrentScene(state);
-    const portal = scene.portals.find((item) =>
-      pointInRect(state.player.position, item.rect),
-    );
+    const portal = getNearbyPortal(state);
     if (portal) {
       if (
         portal.targetSceneId === "sales" &&
@@ -255,7 +266,7 @@ export function useGameLoop({
       if (key === "arrowright" || key === "d") {
         inputRef.current.right = true;
       }
-      if (key === "e" || key === "enter" || key === " ") {
+      if ((key === "e" || key === "enter" || key === " ") && !event.repeat) {
         event.preventDefault();
         interact();
       }
@@ -367,9 +378,7 @@ function moveWithinScene(
 ): GameState | null {
   const scene = getCurrentScene(state);
   const direction = getDirection(state.player.position, nextPosition);
-  const edgePortal = scene.portals.find((item) =>
-    pointInRect(nextPosition, item.rect),
-  );
+  const edgePortal = getPortalAtPosition(state, nextPosition);
   if (edgePortal) {
     if (
       edgePortal.targetSceneId === "sales" &&
@@ -458,7 +467,7 @@ function moveWithinScene(
     };
   }
 
-  const portal = scene.portals.find((item) => pointInRect(bounded, item.rect));
+  const portal = getPortalAtPosition(state, bounded);
   if (portal) {
     if (
       portal.targetSceneId === "sales" &&
@@ -523,6 +532,33 @@ function getNearbyCharacter(state: GameState) {
         characterState?.position ?? character.position,
       ) < INTERACT_DISTANCE
     );
+  });
+}
+
+function getNearbyPortal(state: GameState) {
+  const scene = getCurrentScene(state);
+  return scene.portals.find((portal) => {
+    if (pointInRect(state.player.position, portal.rect)) {
+      return true;
+    }
+    const portalCenter = {
+      x: portal.rect.x + portal.rect.width / 2,
+      y: portal.rect.y + portal.rect.height / 2,
+    };
+    return distanceInPixels(state.player.position, portalCenter) < 72;
+  });
+}
+
+function getPortalAtPosition(state: GameState, position: Position) {
+  const scene = getCurrentScene(state);
+  return scene.portals.find((portal) => {
+    const forgivingRect = {
+      x: portal.rect.x - 0.75,
+      y: portal.rect.y - 0.75,
+      width: portal.rect.width + 1.5,
+      height: portal.rect.height + 1.5,
+    };
+    return pointInRect(position, forgivingRect);
   });
 }
 

@@ -32,6 +32,7 @@ export function loadGameAssets(
   const entries = Object.entries(assetUrls) as Array<[AssetKey, string]>;
   const loaded: LoadedAssets = {};
   let remaining = entries.length;
+  window.__EQ_ASSETS_READY = false;
 
   for (const [key, url] of entries) {
     const image = new Image();
@@ -39,12 +40,14 @@ export function loadGameAssets(
       loaded[key] = image;
       remaining -= 1;
       if (!cancelled && remaining === 0) {
+        window.__EQ_ASSETS_READY = true;
         onReady(loaded);
       }
     };
     image.onerror = () => {
       remaining -= 1;
       if (!cancelled && remaining === 0) {
+        window.__EQ_ASSETS_READY = true;
         onReady(loaded);
       }
     };
@@ -54,6 +57,12 @@ export function loadGameAssets(
   return () => {
     cancelled = true;
   };
+}
+
+declare global {
+  interface Window {
+    __EQ_ASSETS_READY?: boolean;
+  }
 }
 
 export function renderGame(
@@ -73,7 +82,7 @@ export function renderGame(
 
   drawSceneBase(ctx, viewport, scene, camera, assets);
   drawProps(ctx, scene, camera, assets);
-  drawPortals(ctx, scene, camera);
+  drawPortals(ctx, scene, camera, assets);
   drawEvidence(ctx, scene, gameState, camera, assets);
   drawCharacters(ctx, scene, gameState, camera, assets);
   drawPlayer(ctx, gameState, camera, assets);
@@ -125,19 +134,13 @@ function drawSceneBase(
   const endCol = Math.ceil((camera.x + viewport.width) / TILE_SIZE);
   const startRow = Math.floor(camera.y / TILE_SIZE);
   const endRow = Math.ceil((camera.y + viewport.height) / TILE_SIZE);
-
-  // Use scene-specific floor tile if available
-  let floorSprite: SheetSprite;
-  if (scene.floorTileKey && tileSprites[scene.floorTileKey as keyof typeof tileSprites]) {
-    floorSprite = tileSprites[scene.floorTileKey as keyof typeof tileSprites];
-  } else {
-    floorSprite =
-      scene.theme === "exterior"
-        ? tileSprites.grass
-        : scene.id === "operations"
-          ? tileSprites.warmFloor
-          : tileSprites.labFloor;
-  }
+  const floorSprite: SheetSprite =
+    scene.floorSprite ??
+    (scene.theme === "exterior"
+      ? tileSprites.grass
+      : scene.id === "operations"
+        ? tileSprites.warmFloor
+        : tileSprites.labFloor);
 
   for (let row = startRow; row <= endRow; row += 1) {
     for (let col = startCol; col <= endCol; col += 1) {
@@ -145,39 +148,10 @@ function drawSceneBase(
         continue;
       }
 
-      let sprite: SheetSprite = floorSprite;
-
-      // Add tile variation for visual interest
-      const variation = (row + col) % 3;
-      if (variation === 1 && scene.floorTileKey?.includes("Cyan")) {
-        sprite = tileSprites.labFloorCyan2 || floorSprite;
-      } else if (variation === 2 && scene.floorTileKey?.includes("Warm")) {
-        sprite = tileSprites.operationsFloorWarm2 || floorSprite;
-      } else if (variation === 2 && scene.floorTileKey?.includes("salesFloor")) {
-        sprite = tileSprites.salesFloor2 || floorSprite;
-      }
-
-      if (
-        scene.theme === "exterior" &&
-        (row === 8 ||
-          col === 13 ||
-          col === 14 ||
-          (row >= 8 && row <= 11 && col >= 19 && col <= 22))
-      ) {
-        sprite = tileSprites.pathModern || tileSprites.path;
-      }
-      if (
-        scene.theme === "interior" &&
-        scene.id === "operations" &&
-        (row + col) % 4 === 0
-      ) {
-        sprite = tileSprites.operationsFloorWarm2 || tileSprites.labFloor;
-      }
-
       drawSheetSprite(
         ctx,
         assets,
-        sprite,
+        floorSprite,
         col * TILE_SIZE - camera.x,
         row * TILE_SIZE - camera.y,
         TILE_SIZE,
@@ -186,13 +160,35 @@ function drawSceneBase(
     }
   }
 
-  // Apply scene-specific color tint
-  if (scene.tileColor) {
-    ctx.fillStyle = scene.tileColor.replace(")", ", 0.04)").replace("rgb", "rgba");
-    ctx.fillRect(-camera.x, -camera.y, scene.width * TILE_SIZE, scene.height * TILE_SIZE);
-  }
-
+  drawTilePatches(ctx, scene, camera, assets);
   drawRoomBorders(ctx, scene, camera, assets);
+}
+
+function drawTilePatches(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+  assets: LoadedAssets,
+) {
+  for (const patch of scene.tilePatches ?? []) {
+    const startX = Math.floor(patch.position.x);
+    const startY = Math.floor(patch.position.y);
+    const endX = Math.ceil(patch.position.x + patch.size.width);
+    const endY = Math.ceil(patch.position.y + patch.size.height);
+    for (let row = startY; row < endY; row += 1) {
+      for (let col = startX; col < endX; col += 1) {
+        drawSheetSprite(
+          ctx,
+          assets,
+          patch.sprite,
+          col * TILE_SIZE - camera.x,
+          row * TILE_SIZE - camera.y,
+          TILE_SIZE,
+          TILE_SIZE,
+        );
+      }
+    }
+  }
 }
 
 function drawRoomBorders(
@@ -234,6 +230,7 @@ function drawPortals(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
   camera: { x: number; y: number },
+  assets: LoadedAssets,
 ) {
   for (const portal of scene.portals) {
     const px = portal.rect.x * TILE_SIZE - camera.x;
@@ -241,25 +238,24 @@ function drawPortals(
     const width = portal.rect.width * TILE_SIZE;
     const height = portal.rect.height * TILE_SIZE;
 
-    // Add portal glow effect
-    const pulse = Math.sin(Date.now() / 500) * 0.3 + 0.7;
-    ctx.shadowColor = "#00d4ff";
-    ctx.shadowBlur = 16 * pulse;
+    if (scene.theme === "exterior") {
+      continue;
+    }
 
-    // Draw portal base rectangle
-    const opacity = scene.theme === "exterior" ? 0.08 : 0.14;
-    ctx.fillStyle = `rgba(56, 189, 248, ${opacity * pulse})`;
-    ctx.fillRect(px, py, width, height);
-
-    // Draw portal border with glow
-    ctx.strokeStyle = `rgba(56, 189, 248, ${0.5 * pulse})`;
+    drawSheetSprite(
+      ctx,
+      assets,
+      scene.floorSprite ?? tileSprites.labFloor,
+      px,
+      py + height - TILE_SIZE,
+      width,
+      TILE_SIZE,
+    );
+    ctx.strokeStyle = "rgba(34, 211, 238, 0.56)";
     ctx.lineWidth = 2;
-    ctx.strokeRect(px + 4, py + 4, width - 8, height - 8);
-
-    ctx.shadowBlur = 0;
-
-    // Draw label
-    drawLabel(ctx, portal.label, px + width / 2, py - 8, "#67e8f9");
+    ctx.strokeRect(px + 10, py + height - TILE_SIZE + 8, width - 20, 28);
+    ctx.fillStyle = "rgba(34, 211, 238, 0.1)";
+    ctx.fillRect(px + 12, py + height - TILE_SIZE + 10, width - 24, 24);
   }
 }
 
@@ -269,7 +265,10 @@ function drawProps(
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
-  for (const prop of scene.props) {
+  const sortedProps = [...scene.props].sort(
+    (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height),
+  );
+  for (const prop of sortedProps) {
     const px = prop.position.x * TILE_SIZE - camera.x;
     const py = prop.position.y * TILE_SIZE - camera.y;
     const width = prop.size.width * TILE_SIZE;
@@ -288,17 +287,18 @@ function drawProps(
     if (prop.sprite) {
       drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
     }
+  }
 
-    // Draw subtle highlight on hover/approach (could be enhanced with distance detection)
-    if (prop.glow) {
-      ctx.strokeStyle = "rgba(34, 211, 238, 0.3)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(px - 2, py - 2, width + 4, height + 4);
+  for (const prop of sortedProps) {
+    if (!prop.label) {
+      continue;
     }
+    const px = prop.position.x * TILE_SIZE - camera.x;
+    const py = prop.position.y * TILE_SIZE - camera.y;
+    const width = prop.size.width * TILE_SIZE;
+    const height = prop.size.height * TILE_SIZE;
 
-    if (prop.label) {
-      drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
-    }
+    drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
   }
 }
 
@@ -315,18 +315,60 @@ function drawEvidence(
       item.caseId === gameState.currentCaseId &&
       !gameState.collectedEvidenceIds.includes(item.id),
   );
+  const expectedEvidence = evidenceItems.find(
+    (item) =>
+      item.caseId === gameState.currentCaseId &&
+      !gameState.collectedEvidenceIds.includes(item.id),
+  );
 
   for (const evidence of visibleEvidence) {
     const x = evidence.position.x * TILE_SIZE - camera.x;
     const y = evidence.position.y * TILE_SIZE - camera.y;
     const pulse = Math.sin(Date.now() / 260) * 3;
+    const playerDistance =
+      Math.hypot(
+        gameState.player.position.x - evidence.position.x,
+        gameState.player.position.y - evidence.position.y,
+      ) * TILE_SIZE;
+    const evidenceIndex =
+      evidenceItems
+        .filter((item) => item.caseId === gameState.currentCaseId)
+        .findIndex((item) => item.id === evidence.id) + 1;
+    const isExpected = evidence.id === expectedEvidence?.id;
+    const stationX = x - 13;
+    const stationY = y + 17;
 
     ctx.shadowColor = "#facc15";
-    ctx.shadowBlur = 12 + pulse;
-    drawSheetSprite(ctx, assets, evidence.sprite, x, y, 58, 42);
+    ctx.shadowBlur = isExpected ? 12 + pulse : 0;
+    drawSheetSprite(
+      ctx,
+      assets,
+      scene.floorSprite ?? tileSprites.labFloor,
+      stationX,
+      stationY,
+      72,
+      48,
+    );
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "rgba(15, 23, 42, 0.32)";
+    ctx.fillRect(stationX + 7, stationY + 8, 58, 32);
+    ctx.strokeStyle = isExpected
+      ? "rgba(250, 204, 21, 0.72)"
+      : "rgba(148, 163, 184, 0.38)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(stationX + 7, stationY + 8, 58, 32);
+    ctx.shadowColor = "#facc15";
+    ctx.shadowBlur = isExpected ? 8 + pulse : 0;
+    drawSheetSprite(ctx, assets, evidence.sprite, x + 5, y, 48, 48);
     ctx.shadowBlur = 0;
 
-    drawLabel(ctx, evidence.title, x + 28, y - 8, "#fef3c7");
+    if (isExpected) {
+      drawQuestMarker(ctx, x + 29, y + 26, `${evidenceIndex}`);
+    }
+
+    if (isExpected || playerDistance < 130) {
+      drawLabel(ctx, evidence.title, x + 29, y - 8, "#fef3c7");
+    }
   }
 }
 
@@ -360,12 +402,15 @@ function drawCharacters(
     );
     drawLabel(ctx, character.name, x + 24, y - 10, "#bbf7d0");
 
-    if (character.id === "maya" && gameState.questStage !== "complete") {
+    if (character.id === getCurrentCaseOwnerId(gameState)) {
       ctx.strokeStyle = "rgba(250, 204, 21, 0.9)";
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.ellipse(x + 24, y + 91, 22, 8, 0, 0, Math.PI * 2);
       ctx.stroke();
+      if (gameState.questStage === "briefing") {
+        drawQuestMarker(ctx, x + 24, y - 35, "!");
+      }
     }
   }
 }
@@ -421,6 +466,39 @@ function getDirectionSpriteOffset(direction: Direction) {
     down: 3,
   };
   return offsets[direction];
+}
+
+function getCurrentCaseOwnerId(gameState: GameState) {
+  if (gameState.questStage !== "briefing") {
+    return null;
+  }
+  return gameState.currentCaseId === "sales" ? "leo" : "maya";
+}
+
+function drawQuestMarker(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  label: string,
+) {
+  const pulse = Math.sin(Date.now() / 240) * 2;
+  ctx.save();
+  ctx.shadowColor = "rgba(250, 204, 21, 0.9)";
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = "#facc15";
+  ctx.beginPath();
+  ctx.arc(x, y - 34, 13 + pulse, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(15, 23, 42, 0.9)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = "#111827";
+  ctx.font = "900 13px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, x, y - 34);
+  ctx.restore();
 }
 
 function drawSheetSprite(

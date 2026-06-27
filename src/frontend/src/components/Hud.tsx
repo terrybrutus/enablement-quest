@@ -49,10 +49,11 @@ export function Hud({
   onInteract,
 }: HudProps) {
   const [isGuideExpanded, setIsGuideExpanded] = useState(false);
+  const shortObjective = shortenObjective(nextObjective);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
-      <header className="pointer-events-auto absolute left-3 right-3 top-3 flex flex-col gap-3 md:left-5 md:right-5 md:flex-row md:items-start md:justify-between">
+      <header className="pointer-events-auto absolute left-3 right-3 top-3 flex items-start justify-between gap-2 md:left-5 md:right-5 md:gap-3">
         <section
           className={`eq-hud-card max-w-xl ${isGuideExpanded ? "" : "is-collapsed"}`}
         >
@@ -93,7 +94,7 @@ export function Hud({
           ) : (
             <div className="eq-hud-summary">
               <span>{stageLabels[questStage]}</span>
-              <strong>{nextObjective}</strong>
+              <strong title={nextObjective}>{shortObjective}</strong>
               <small>
                 Evidence {evidenceCount}/{evidenceTotal}
               </small>
@@ -133,6 +134,48 @@ export function Hud({
       <MobileControls inputRef={inputRef} onInteract={onInteract} />
     </div>
   );
+}
+
+function shortenObjective(objective: string) {
+  return objective
+    .replace(
+      "Step 1: enter Operations Suite and talk to Maya.",
+      "Go to Operations, talk to Maya.",
+    )
+    .replace(
+      "Step 1: talk to Maya, then inspect the marked evidence in order.",
+      "Talk to Maya, inspect evidence.",
+    )
+    .replace(
+      "Step 1: enter Sales Strategy Studio and talk to Leo.",
+      "Go to Sales Studio, talk to Leo.",
+    )
+    .replace(
+      "Step 1: talk to Leo, then inspect the marked evidence in order.",
+      "Talk to Leo, inspect evidence.",
+    )
+    .replace(
+      "Step 7: first canvas earned. Leave, then enter Sales Strategy Studio.",
+      "Canvas earned. Go to Sales Studio.",
+    )
+    .replace(
+      "Step 7: close the canvas, leave Operations, then enter Sales Strategy Studio.",
+      "Close canvas. Go to Sales Studio.",
+    )
+    .replace(
+      "Mission complete: review both canvases and the business impact story.",
+      "Mission complete. Review impact.",
+    )
+    .replace(/^Step \d+:\s*/i, "")
+    .replace(/, then /gi, " -> ")
+    .replace("marked evidence", "evidence")
+    .replace("Operations Suite", "Operations")
+    .replace("Sales Strategy Studio", "Sales Studio")
+    .replace(
+      "intervention that fits the root cause and metric",
+      "best intervention",
+    )
+    .replace("press Interact away from objects and choose", "choose");
 }
 
 function MobileControls({

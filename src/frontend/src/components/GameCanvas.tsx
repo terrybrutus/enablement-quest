@@ -10,10 +10,14 @@ import {
 } from "@/game/levels";
 import { type LoadedAssets, loadGameAssets, renderGame } from "@/game/renderer";
 import type {
+  CaseId,
   DiagnosisOption,
+  Evidence,
   GameState,
   InterventionOption,
   OverlayKind,
+  Position,
+  SceneId,
 } from "@/game/types";
 import { MOVE_SPEED } from "@/game/types";
 import { completeIntervention, useGameLoop } from "@/game/useGameLoop";
@@ -25,48 +29,84 @@ import { NotificationToast } from "./NotificationToast";
 import { QuestLog } from "./QuestLog";
 import { TitleScreen } from "./TitleScreen";
 
-const initialGameState: GameState = {
-  player: {
-    position: initialPosition,
-    direction: "down",
-    isMoving: false,
-    sceneId: "lab",
-    hasStarted: false,
-  },
-  currentCaseId: "onboarding",
-  completedCaseIds: [],
-  characterStates: Object.fromEntries(
-    characters.map((character) => [
-      character.id,
-      {
-        position: character.position,
-        direction: "down",
-        patrolIndex: 0,
-        isMoving: false,
-      },
-    ]),
-  ),
-  questStage: "briefing",
-  collectedEvidenceIds: [],
-  diagnosisId: null,
-  interventionId: null,
-  activeEvidenceId: null,
-  earnedArtifact: null,
-  overlay: "briefing",
-  dialogue: null,
-  toast: null,
-};
+declare global {
+  interface Window {
+    __EQ_QA_STATE?: {
+      sceneId: SceneId;
+      position: Position;
+      direction: GameState["player"]["direction"];
+      collectedEvidenceIds: string[];
+      completedCaseIds: CaseId[];
+      currentCaseId: CaseId;
+      diagnosisId: string | null;
+      interventionId: string | null;
+      dialogue: GameState["dialogue"];
+      characterStates: GameState["characterStates"];
+      questStage: GameState["questStage"];
+      overlay: GameState["overlay"];
+    };
+  }
+}
+
+function createInitialGameState(): GameState {
+  const qaScene = getQaScene();
+  return {
+    player: {
+      position: qaScene?.position ?? initialPosition,
+      direction: "down",
+      isMoving: false,
+      sceneId: qaScene?.sceneId ?? "lab",
+      hasStarted: Boolean(qaScene),
+    },
+    currentCaseId: qaScene?.caseId ?? "onboarding",
+    completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
+    characterStates: Object.fromEntries(
+      characters.map((character) => [
+        character.id,
+        {
+          position: character.position,
+          direction: "down",
+          patrolIndex: 0,
+          isMoving: false,
+        },
+      ]),
+    ),
+    questStage: qaScene?.questStage ?? "briefing",
+    collectedEvidenceIds: qaScene?.collectedEvidenceIds ?? [],
+    diagnosisId: qaScene?.diagnosisId ?? null,
+    interventionId: null,
+    activeEvidenceId: null,
+    earnedArtifact: null,
+    overlay: qaScene?.overlay ?? (qaScene ? "none" : "briefing"),
+    dialogue: null,
+    toast: null,
+  };
+}
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [assets, setAssets] = useState<LoadedAssets>({});
-  const [gameState, setGameState] = useState<GameState>(initialGameState);
+  const [gameState, setGameState] = useState<GameState>(createInitialGameState);
   const [moveSpeed, setMoveSpeed] = useState(MOVE_SPEED);
   const gameStateRef = useRef<GameState>(gameState);
 
   useEffect(() => {
     gameStateRef.current = gameState;
+    window.__EQ_QA_STATE = {
+      sceneId: gameState.player.sceneId,
+      position: gameState.player.position,
+      direction: gameState.player.direction,
+      collectedEvidenceIds: gameState.collectedEvidenceIds,
+      completedCaseIds: gameState.completedCaseIds,
+      currentCaseId: gameState.currentCaseId,
+      diagnosisId: gameState.diagnosisId,
+      interventionId: gameState.interventionId,
+      dialogue: gameState.dialogue,
+      characterStates: gameState.characterStates,
+      questStage: gameState.questStage,
+      overlay: gameState.overlay,
+    };
   }, [gameState]);
 
   const { inputRef, interact } = useGameLoop({
@@ -170,6 +210,9 @@ export default function GameCanvas() {
     gameState.questStage,
     currentCollectedEvidenceCount,
     currentEvidenceItems.length,
+    currentEvidenceItems.find(
+      (item) => !gameState.collectedEvidenceIds.includes(item.id),
+    )?.title ?? null,
     gameState.player.sceneId,
     gameState.completedCaseIds,
   );
@@ -207,22 +250,6 @@ export default function GameCanvas() {
     }));
   }, []);
 
-  useEffect(() => {
-    if (gameState.overlay !== "evidence") {
-      return;
-    }
-
-    const handleEvidenceKey = (event: KeyboardEvent) => {
-      if (event.key === " " || event.key === "Enter") {
-        event.preventDefault();
-        closeEvidenceReview();
-      }
-    };
-
-    window.addEventListener("keydown", handleEvidenceKey);
-    return () => window.removeEventListener("keydown", handleEvidenceKey);
-  }, [closeEvidenceReview, gameState.overlay]);
-
   const startMission = useCallback(() => {
     setGameState((previous) => ({
       ...previous,
@@ -231,7 +258,7 @@ export default function GameCanvas() {
       toast: {
         id: Date.now(),
         message:
-          "Mission started: walk into the blue doorway at the bottom center.",
+          "Mission started: walk down through the lab exit, then enter Operations Suite.",
       },
     }));
   }, []);
@@ -283,7 +310,8 @@ export default function GameCanvas() {
       const key = event.key.toLowerCase();
       if (
         gameStateRef.current.overlay === "dialogue" &&
-        (key === "e" || key === "enter" || key === " ")
+        (key === "e" || key === "enter" || key === " ") &&
+        !event.repeat
       ) {
         event.preventDefault();
         advanceDialogue();
@@ -431,6 +459,7 @@ export default function GameCanvas() {
 
       {gameState.overlay === "evidence" && activeEvidence && (
         <EvidencePanel
+          key={activeEvidence.id}
           evidence={activeEvidence}
           onContinue={closeEvidenceReview}
         />
@@ -442,6 +471,8 @@ export default function GameCanvas() {
           interventionOptions={currentInterventionOptions}
           diagnosisId={gameState.diagnosisId}
           interventionId={gameState.interventionId}
+          currentCaseId={gameState.currentCaseId}
+          evidenceItems={currentEvidenceItems}
           onChooseDiagnosis={chooseDiagnosis}
           onChooseIntervention={chooseIntervention}
           onClose={closeOverlay}
@@ -471,37 +502,104 @@ export default function GameCanvas() {
   );
 }
 
+function getQaScene(): {
+  caseId: GameState["currentCaseId"];
+  collectedEvidenceIds?: string[];
+  diagnosisId?: string | null;
+  overlay?: GameState["overlay"];
+  position: Position;
+  questStage?: GameState["questStage"];
+  sceneId: SceneId;
+} | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const searchParams = new URLSearchParams(window.location.search);
+  const sceneId = searchParams.get("qaScene");
+  const qaStage = searchParams.get("qaStage");
+  if (sceneId === "operations") {
+    const caseId = "onboarding" as const;
+    return {
+      sceneId,
+      caseId,
+      position: { x: 9, y: 10.25 },
+      ...getQaStageState(caseId, qaStage),
+    };
+  }
+  if (sceneId === "sales") {
+    const caseId = "sales" as const;
+    return {
+      sceneId,
+      caseId,
+      position: { x: 9, y: 10.25 },
+      ...getQaStageState(caseId, qaStage),
+    };
+  }
+  if (sceneId === "hub") {
+    return {
+      sceneId,
+      caseId: "onboarding" as const,
+      position: { x: 15, y: 10.8 },
+    };
+  }
+  return null;
+}
+
+function getQaStageState(
+  caseId: GameState["currentCaseId"],
+  qaStage: string | null,
+) {
+  if (qaStage !== "diagnose" && qaStage !== "design") {
+    return {};
+  }
+  const collectedEvidenceIds = evidenceItems
+    .filter((item) => item.caseId === caseId)
+    .map((item) => item.id);
+  const correctDiagnosis = diagnosisOptions.find(
+    (option) => option.caseId === caseId && option.correct,
+  );
+  return {
+    collectedEvidenceIds,
+    diagnosisId: qaStage === "design" ? (correctDiagnosis?.id ?? null) : null,
+    overlay: "decision" as const,
+    questStage: qaStage as GameState["questStage"],
+  };
+}
+
 function getNextObjective(
   caseId: GameState["currentCaseId"],
   questStage: GameState["questStage"],
   evidenceCount: number,
   evidenceTotal: number,
+  nextEvidenceTitle: string | null,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
 ) {
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Talk to Leo before reviewing the sales evidence."
-        : "Enter Sales Strategy Studio and talk to Leo.";
+        ? "Step 1: talk to Leo, then inspect the marked evidence in order."
+        : "Step 1: enter Sales Strategy Studio and talk to Leo.";
     }
     return sceneId === "operations"
-      ? "Talk to Maya before collecting evidence."
-      : "Enter Operations Suite and talk to Maya.";
+      ? "Step 1: talk to Maya, then inspect the marked evidence in order."
+      : "Step 1: enter Operations Suite and talk to Maya.";
   }
   if (questStage === "investigate") {
-    return `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
+    return nextEvidenceTitle
+      ? `Step ${evidenceCount + 2}: inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
+      : `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
   }
   if (questStage === "diagnose") {
-    return "Open the decision panel and explain the evidence pattern.";
+    return "Step 5: press Interact away from objects and choose the root cause.";
   }
   if (questStage === "design") {
-    return "Choose the intervention and consider the tradeoff.";
+    return "Step 6: choose the intervention that fits the root cause and metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "Case complete. Go to Sales Strategy Studio for the next scenario.";
+    return "Step 7: close the canvas, leave Operations, then enter Sales Strategy Studio.";
   }
-  return "Review the earned canvas and business impact.";
+  return "Mission complete: review both canvases and the business impact story.";
 }
 
 function EvidencePanel({
@@ -511,6 +609,51 @@ function EvidencePanel({
   evidence: (typeof evidenceItems)[number];
   onContinue: () => void;
 }) {
+  const [selectedSignal, setSelectedSignal] = useState<
+    "signal" | "trap" | null
+  >(null);
+  const hasReadCorrectly = selectedSignal === "signal";
+  const checkOptions = useMemo(() => {
+    const options = [
+      {
+        kind: "signal" as const,
+        label: evidence.signal,
+        feedback:
+          "Good. This is the clue that should shape the root-cause call.",
+      },
+      {
+        kind: "trap" as const,
+        label: evidence.trap,
+        feedback:
+          "Not quite. That jumps to a surface explanation before the full evidence pattern is clear.",
+      },
+    ];
+    return evidence.id.length % 2 === 0 ? options.reverse() : options;
+  }, [evidence.id, evidence.signal, evidence.trap]);
+
+  useEffect(() => {
+    const handleEvidenceKey = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (key === "1") {
+        event.preventDefault();
+        setSelectedSignal(checkOptions[0].kind);
+        return;
+      }
+      if (key === "2") {
+        event.preventDefault();
+        setSelectedSignal(checkOptions[1].kind);
+        return;
+      }
+      if ((key === " " || key === "enter") && hasReadCorrectly) {
+        event.preventDefault();
+        onContinue();
+      }
+    };
+
+    window.addEventListener("keydown", handleEvidenceKey);
+    return () => window.removeEventListener("keydown", handleEvidenceKey);
+  }, [checkOptions, hasReadCorrectly, onContinue]);
+
   return (
     <section
       className="eq-overlay eq-panel eq-evidence"
@@ -533,14 +676,40 @@ function EvidencePanel({
           <h3>What it means</h3>
           <p>{evidence.insight}</p>
         </article>
+        <article className="eq-canvas-card">
+          <h3>Signal to notice</h3>
+          <p>{evidence.signal}</p>
+        </article>
+      </div>
+
+      <div className="eq-evidence-check">
+        <div>
+          <p className="eq-kicker">Check Your Read</p>
+          <h3>Which signal should guide the diagnosis?</h3>
+        </div>
+        {checkOptions.map((option, index) => (
+          <button
+            className={`eq-choice ${selectedSignal === option.kind ? "is-selected" : ""}`}
+            key={option.kind}
+            type="button"
+            onClick={() => setSelectedSignal(option.kind)}
+          >
+            <kbd>{index + 1}</kbd>
+            <span>{option.label}</span>
+            {selectedSignal === option.kind && <small>{option.feedback}</small>}
+          </button>
+        ))}
       </div>
 
       <button
         className="eq-primary-button mt-4"
+        disabled={!hasReadCorrectly}
         type="button"
         onClick={onContinue}
       >
-        Continue investigation
+        {hasReadCorrectly
+          ? "Continue investigation"
+          : "Pick the useful signal to continue"}
       </button>
     </section>
   );
@@ -602,6 +771,8 @@ function DecisionPanel({
   interventionOptions,
   diagnosisId,
   interventionId,
+  currentCaseId,
+  evidenceItems,
   onChooseDiagnosis,
   onChooseIntervention,
   onClose,
@@ -610,6 +781,8 @@ function DecisionPanel({
   interventionOptions: InterventionOption[];
   diagnosisId: string | null;
   interventionId: string | null;
+  currentCaseId: CaseId;
+  evidenceItems: Evidence[];
   onChooseDiagnosis: (id: string) => void;
   onChooseIntervention: (id: string) => void;
   onClose: () => void;
@@ -618,6 +791,7 @@ function DecisionPanel({
     (option) => option.id === diagnosisId,
   );
   const canChooseIntervention = selectedDiagnosis?.correct ?? false;
+  const synthesis = caseSynthesis[currentCaseId];
 
   return (
     <section
@@ -628,10 +802,35 @@ function DecisionPanel({
         <div>
           <p className="eq-kicker">Diagnostic Decision</p>
           <h2>Is this really a training problem?</h2>
+          <p>{synthesis.prompt}</p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           Close
         </button>
+      </div>
+
+      <div className="eq-case-synthesis" aria-label="Evidence synthesis">
+        <article>
+          <span>Evidence Pattern</span>
+          <p>{synthesis.pattern}</p>
+        </article>
+        <article>
+          <span>Trap To Avoid</span>
+          <p>{synthesis.trap}</p>
+        </article>
+        <article>
+          <span>Business Signal</span>
+          <p>{synthesis.metric}</p>
+        </article>
+      </div>
+
+      <div className="eq-signal-strip">
+        {evidenceItems.map((item) => (
+          <article key={item.id}>
+            <strong>{item.title}</strong>
+            <small>{item.metric}</small>
+          </article>
+        ))}
       </div>
 
       <div className="eq-option-grid">
@@ -688,6 +887,35 @@ function DecisionPanel({
     </section>
   );
 }
+
+const caseSynthesis: Record<
+  CaseId,
+  {
+    metric: string;
+    pattern: string;
+    prompt: string;
+    trap: string;
+  }
+> = {
+  onboarding: {
+    prompt:
+      "Use the evidence pattern, not the original leadership request, to decide what the organization should actually build.",
+    pattern:
+      "The issue shows up across instructions, handoffs, access timing, and week-two support needs.",
+    trap: "A longer onboarding course would feel responsive, but it would not fix ownership or reinforcement.",
+    metric:
+      "The useful outcome is faster time-to-productivity plus fewer support tickets after orientation.",
+  },
+  sales: {
+    prompt:
+      "Use the evidence pattern to decide whether reps need more content or a better revenue-behavior system.",
+    pattern:
+      "Reps can explain features, but discovery depth, opportunity notes, and manager coaching are inconsistent.",
+    trap: "A stricter demo certification measures presentation skill more than buyer diagnosis.",
+    metric:
+      "The useful outcome is improved demo-to-next-step conversion and visible coaching rubric use.",
+  },
+};
 
 function CanvasPanel({
   artifact,

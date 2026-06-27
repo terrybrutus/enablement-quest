@@ -8,10 +8,22 @@ interface TitleScreenProps {
 export function TitleScreen({ onStart }: TitleScreenProps) {
   return (
     <section className="eq-title-screen" aria-label="Enablement Quest briefing">
+      <div className="eq-title-world" aria-hidden="true">
+        <span className="eq-title-building is-sales" />
+        <span className="eq-title-building is-lab" />
+        <span className="eq-title-building is-operations" />
+        <span className="eq-title-path is-horizontal" />
+        <span className="eq-title-path is-vertical" />
+        <span className="eq-title-fountain" />
+        <span className="eq-title-avatar" />
+      </div>
       <div className="eq-title-card">
-        <p className="eq-kicker">Enablement Quest</p>
+        <div className="eq-title-meta">
+          <p className="eq-kicker">Enablement Quest</p>
+          <p className="eq-byline">Created by Terry Brutus</p>
+        </div>
         <h1>The Learning Systems Lab</h1>
-        <p className="eq-byline">Created by Terry Brutus</p>
+        <p className="eq-title-mode">Case 01: The Broken Onboarding Portal</p>
         <p className="eq-title-copy">
           Prove that you can diagnose workplace performance problems, design
           enablement solutions, and connect learning decisions to measurable

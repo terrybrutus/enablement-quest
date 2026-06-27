@@ -49,6 +49,9 @@ export type AssetKey =
   | "bobIdle"
   | "roomBuilder"
   | "office"
+  | "officeExterior"
+  | "cityTerrains"
+  | "garden"
   | "exteriorWalls"
   | "exteriorFloors"
   | "fountain"
@@ -72,6 +75,13 @@ export type AssetKey =
   | "bobRunEnhanced"
   | "bobIdleEnhanced"
   | "exteriorFloorsTileset";
+
+export interface TilePatch {
+  id: string;
+  position: Position;
+  size: { width: number; height: number };
+  sprite: SheetSprite;
+}
 
 export interface Portal {
   id: string;
@@ -101,6 +111,8 @@ export interface Evidence {
   position: Position;
   summary: string;
   insight: string;
+  signal: string;
+  trap: string;
   metric?: string;
   sprite: SheetSprite;
 }
@@ -123,6 +135,8 @@ export interface Scene {
   width: number;
   height: number;
   theme: "interior" | "exterior";
+  floorSprite?: SheetSprite;
+  tilePatches?: TilePatch[];
   portals: Portal[];
   props: Prop[];
   blocks: Rect[];
@@ -211,4 +225,4 @@ export const TILE_SIZE = 48;
 export const PLAYER_WIDTH = 34;
 export const PLAYER_HEIGHT = 52;
 export const MOVE_SPEED = 4.2;
-export const INTERACT_DISTANCE = 70;
+export const INTERACT_DISTANCE = 88;
