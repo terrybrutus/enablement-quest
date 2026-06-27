@@ -110,10 +110,8 @@ For a claim-by-claim map of what the current build proves, see [PORTFOLIO_EVIDEN
 
 ## Next Portfolio Upgrade
 
-The next strongest upgrade is to turn the existing reviewer-facing title screen into a fuller public portfolio wrapper around the game with:
+The current build now includes a lightweight reviewer-facing wrapper on the title screen with creator attribution, a review path, and claim boundaries. The next strongest upgrade is to turn that into a fuller public portfolio page around the game with:
 
-- A short creator statement from Terry Brutus
 - A "What this demonstrates" section before launch
-- A "How to review this project" guide for recruiters
 - Screenshots or short clips of the two cases
 - A note explaining that the project is a performance consulting simulation first and a game second
