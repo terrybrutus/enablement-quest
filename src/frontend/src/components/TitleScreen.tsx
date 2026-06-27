@@ -45,6 +45,20 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           </article>
         </div>
 
+        <section
+          className="eq-reviewer-lens"
+          aria-label="What recruiters should review"
+        >
+          <p>Reviewer lens</p>
+          <ul>
+            <li>Performance consulting: diagnose before designing.</li>
+            <li>Sales enablement: connect behavior to pipeline outcomes.</li>
+            <li>
+              Learning architecture: turn evidence into a practical solution.
+            </li>
+          </ul>
+        </section>
+
         <button
           className="eq-primary-button eq-start-button"
           type="button"
