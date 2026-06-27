@@ -954,7 +954,7 @@
 
   .eq-hud-summary span,
   .eq-hud-summary small {
-    font-size: 0.54rem;
+    font-size: 0.62rem;
     letter-spacing: 0.08em;
   }
 
@@ -964,12 +964,13 @@
   }
 
   .eq-hud-card h1 {
-    display: none;
+    font-size: 0.9rem;
+    display: block;
   }
 
   .eq-next-objective {
-    font-size: 0.72rem;
-    line-height: 1.25;
+    font-size: 0.8rem;
+    line-height: 1.3;
   }
 
   .eq-hud-card .mt-3 {
@@ -1012,6 +1013,16 @@
 
   .eq-hud-button kbd {
     display: none;
+  }
+
+  .eq-primary-button {
+    min-height: 44px;
+    font-size: 0.9rem;
+  }
+
+  .eq-choice {
+    padding: 12px;
+    font-size: 0.9rem;
   }
 
   .eq-side-panel,

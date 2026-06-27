@@ -55,7 +55,26 @@ export type AssetKey =
   | "exteriorWalls"
   | "exteriorFloors"
   | "fountain"
-  | "streetLamp";
+  | "streetLamp"
+  | "interiorsTiles"
+  | "roomBuilderTiles"
+  | "officeProps1"
+  | "officeProps2"
+  | "officeProps3"
+  | "officeProps4"
+  | "officeProps5"
+  | "officeProps6"
+  | "officeProps7"
+  | "officeProps10"
+  | "officeProps15"
+  | "officeProps20"
+  | "adamRunEnhanced"
+  | "adamIdleEnhanced"
+  | "ameliaRunEnhanced"
+  | "ameliaIdleEnhanced"
+  | "bobRunEnhanced"
+  | "bobIdleEnhanced"
+  | "exteriorFloorsTileset";
 
 export interface TilePatch {
   id: string;
@@ -70,6 +89,7 @@ export interface Portal {
   rect: Rect;
   targetSceneId: SceneId;
   targetPosition: Position;
+  portalSprite?: SheetSprite;
 }
 
 export interface Prop {
@@ -80,6 +100,7 @@ export interface Prop {
   size: { width: number; height: number };
   sprite?: SheetSprite;
   collision?: boolean;
+  glow?: boolean;
 }
 
 export interface Evidence {
@@ -119,6 +140,8 @@ export interface Scene {
   portals: Portal[];
   props: Prop[];
   blocks: Rect[];
+  tileColor?: string;
+  floorTileKey?: string;
 }
 
 export interface DiagnosisOption {

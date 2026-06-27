@@ -69,6 +69,7 @@ const buildingNameplates = {
 } as const;
 
 export const assetUrls = {
+  // Legacy assets
   adamIdle: "/assets/limezu/adam-idle.png",
   adamRun: "/assets/limezu/adam-run.png",
   ameliaIdle: "/assets/limezu/amelia-idle.png",
@@ -82,9 +83,37 @@ export const assetUrls = {
   exteriorFloors: "/assets/limezu/exterior-floors.png",
   fountain: "/assets/limezu/fountains.png",
   streetLamp: "/assets/limezu/street-lamp.png",
+
+  // New interior tiles with color differentiation
+  interiorsTiles: "/assets/tiles/Interiors_free_48x48.png",
+  roomBuilderTiles: "/assets/tiles/Room_Builder_free_48x48.png",
+
+  // Office props
+  officeProps1: "/assets/props/Modern_Office_Singles_48x48_1.png",
+  officeProps2: "/assets/props/Modern_Office_Singles_48x48_2.png",
+  officeProps3: "/assets/props/Modern_Office_Singles_48x48_3.png",
+  officeProps4: "/assets/props/Modern_Office_Singles_48x48_4.png",
+  officeProps5: "/assets/props/Modern_Office_Singles_48x48_5.png",
+  officeProps6: "/assets/props/Modern_Office_Singles_48x48_6.png",
+  officeProps7: "/assets/props/Modern_Office_Singles_48x48_7.png",
+  officeProps10: "/assets/props/Modern_Office_Singles_48x48_10.png",
+  officeProps15: "/assets/props/Modern_Office_Singles_48x48_15.png",
+  officeProps20: "/assets/props/Modern_Office_Singles_48x48_20.png",
+
+  // Enhanced character sprites
+  adamRunEnhanced: "/assets/characters/Adam_run_16x16.png",
+  adamIdleEnhanced: "/assets/characters/Adam_idle_anim_16x16.png",
+  ameliaRunEnhanced: "/assets/characters/Amelia_run_16x16.png",
+  ameliaIdleEnhanced: "/assets/characters/Amelia_idle_anim_16x16.png",
+  bobRunEnhanced: "/assets/characters/Bob_run_16x16.png",
+  bobIdleEnhanced: "/assets/characters/Bob_idle_anim_16x16.png",
+
+  // Exterior tileset
+  exteriorFloorsTileset: "/assets/tiles/A2_Floors_MV_TILESET.png",
 } as const;
 
 export const tileSprites = {
+  // Original tiles (kept for fallback)
   labFloor: { image: "roomBuilder", sx: 528, sy: 528, sw: 48, sh: 48 },
   warmFloor: { image: "roomBuilder", sx: 576, sy: 528, sw: 48, sh: 48 },
   salesFloor: { image: "roomBuilder", sx: 624, sy: 528, sw: 48, sh: 48 },
@@ -131,6 +160,7 @@ export const scenes: Scene[] = [
         size: { width: 3, height: 2 },
         sprite: officeSprite(336, 1392, 144, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "analytics-wall",
@@ -140,6 +170,7 @@ export const scenes: Scene[] = [
         size: { width: 3, height: 2 },
         sprite: officeSprite(48, 1488, 144, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "plant-lab",
@@ -165,6 +196,33 @@ export const scenes: Scene[] = [
         size: { width: 1.5, height: 1.7 },
         sprite: officeSprite(0, 1152, 96, 96),
         collision: true,
+        glow: true,
+      },
+      {
+        id: "lab-shelf1",
+        position: { x: 2, y: 5 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 192),
+        collision: true,
+      },
+      {
+        id: "lab-shelf2",
+        position: { x: 2, y: 8 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(384, 240),
+        collision: true,
+      },
+      {
+        id: "lab-chair",
+        position: { x: 22, y: 5 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(336, 240),
+      },
+      {
+        id: "lab-decoration",
+        position: { x: 7, y: 14 },
+        size: { width: 1, height: 1 },
+        sprite: officeSprite(432, 240),
       },
     ],
   },
@@ -283,6 +341,7 @@ export const scenes: Scene[] = [
         size: { width: 2.7, height: 2.7 },
         sprite: { image: "fountain", sx: 0, sy: 0, sw: 96, sh: 96 },
         collision: true,
+        glow: true,
       },
       {
         id: "ops-roof-dish",
@@ -422,6 +481,7 @@ export const scenes: Scene[] = [
         size: { width: 2.8, height: 1.45 },
         sprite: officeSprite(240, 336, 144, 48),
         collision: true,
+        glow: true,
       },
       {
         id: "metric-board",
@@ -431,6 +491,7 @@ export const scenes: Scene[] = [
         size: { width: 2.9, height: 2.35 },
         sprite: officeSprite(384, 1296, 96, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "ops-ticket-monitor",
@@ -446,6 +507,7 @@ export const scenes: Scene[] = [
         size: { width: 3.5, height: 2.25 },
         sprite: officeSprite(336, 1488, 144, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "ops-handoff-cabinets",
@@ -536,6 +598,7 @@ export const scenes: Scene[] = [
         size: { width: 2.55, height: 2.25 },
         sprite: officeSprite(288, 336, 144, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "pipeline-board",
@@ -545,6 +608,7 @@ export const scenes: Scene[] = [
         size: { width: 3, height: 2.4 },
         sprite: officeSprite(672, 1296, 96, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "sales-value-monitor",
@@ -560,6 +624,7 @@ export const scenes: Scene[] = [
         size: { width: 3.5, height: 2.25 },
         sprite: officeSprite(576, 1488, 144, 96),
         collision: true,
+        glow: true,
       },
       {
         id: "sales-rubric-cards",
@@ -603,8 +668,8 @@ export const characters: GameCharacter[] = [
     patrol: [
       { x: 9, y: 4.65 },
       { x: 10.35, y: 4.95 },
-      { x: 10.1, y: 6.45 },
-      { x: 8.25, y: 6.35 },
+      { x: 10.1, y: 5.65 },
+      { x: 8.25, y: 5.55 },
     ],
     sprite: { image: "ameliaIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
@@ -717,7 +782,7 @@ export const evidenceItems: Evidence[] = [
     caseId: "onboarding",
     title: "Process Map",
     sceneId: "operations",
-    position: { x: 8.85, y: 8.85 },
+    position: { x: 6.6, y: 9.1 },
     summary:
       "The process map has three handoffs before tool access is confirmed.",
     insight:
@@ -765,7 +830,7 @@ export const evidenceItems: Evidence[] = [
     caseId: "sales",
     title: "CRM Stage Audit",
     sceneId: "sales",
-    position: { x: 9.15, y: 10.05 },
+    position: { x: 6.25, y: 9.8 },
     summary:
       "Demo completion is high, but next-step conversion drops when business pain is missing from the opportunity notes.",
     insight:

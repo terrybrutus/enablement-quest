@@ -535,8 +535,7 @@ async function completeOnboardingCase(send, viewport) {
     viewport,
     [
       { x: 6.4, y: 7.05 },
-      { x: 6.4, y: 10.15 },
-      { x: 8.85, y: 10.15 },
+      { x: 6.4, y: 9.1 },
     ],
     "Multiple handoffs create delay",
     2,
@@ -545,7 +544,8 @@ async function completeOnboardingCase(send, viewport) {
     send,
     viewport,
     [
-      { x: 16, y: 10.25 },
+      { x: 6.4, y: 7.3 },
+      { x: 16, y: 7.3 },
       { x: 16, y: 6.7 },
       { x: 13.55, y: 6.7 },
     ],
@@ -584,8 +584,9 @@ async function enterSalesAfterOnboarding(send, viewport) {
     "Closing the onboarding canvas did not return to play",
   );
   const operationsExitRoute = [
-    { x: 16, y: 10.15 },
-    { x: 9, y: 10.15 },
+    { x: 6.4, y: 7.3 },
+    { x: 6.4, y: 10.2 },
+    { x: 9, y: 10.2 },
   ];
   for (const waypoint of operationsExitRoute) {
     const state = await getQaState(send);
@@ -677,8 +678,7 @@ async function completeSalesCase(send, viewport) {
     send,
     viewport,
     [
-      { x: 6.4, y: 10.05 },
-      { x: 9.15, y: 10.05 },
+      { x: 6.25, y: 9.8 },
     ],
     "Pipeline quality is dropping after the demo",
     2,
@@ -687,9 +687,8 @@ async function completeSalesCase(send, viewport) {
     send,
     viewport,
     [
-      { x: 11.4, y: 10.05 },
-      { x: 15.8, y: 10.05 },
-      { x: 15.8, y: 7.15 },
+      { x: 6.25, y: 7.3 },
+      { x: 15.8, y: 7.3 },
       { x: 13.45, y: 7.15 },
     ],
     "shared rubric",

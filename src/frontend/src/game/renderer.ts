@@ -274,6 +274,16 @@ function drawProps(
     const width = prop.size.width * TILE_SIZE;
     const height = prop.size.height * TILE_SIZE;
 
+    // Add glow effect for interactive props
+    if (prop.glow) {
+      const pulse = Math.sin(Date.now() / 400) * 2 + 4;
+      ctx.shadowColor = "#22d3ee";
+      ctx.shadowBlur = 8 + pulse;
+      ctx.fillStyle = "rgba(34, 211, 238, 0.1)";
+      ctx.fillRect(px - 4, py - 4, width + 8, height + 8);
+      ctx.shadowBlur = 0;
+    }
+
     if (prop.sprite) {
       drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
     }
