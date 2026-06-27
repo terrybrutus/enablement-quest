@@ -139,34 +139,29 @@ export function Hud({
 function shortenObjective(objective: string) {
   return objective
     .replace(
-      "Step 1: enter Operations Suite and talk to Maya.",
+      "Enter Operations Suite and talk to Maya.",
       "Go to Operations, talk to Maya.",
     )
     .replace(
-      "Step 1: talk to Maya, then inspect the marked evidence in order.",
+      "Talk to Maya first, then inspect the marked evidence in order.",
       "Talk to Maya, inspect evidence.",
     )
     .replace(
-      "Step 1: enter Sales Strategy Studio and talk to Leo.",
+      "Enter Sales Strategy Studio and talk to Leo.",
       "Go to Sales Studio, talk to Leo.",
     )
     .replace(
-      "Step 1: talk to Leo, then inspect the marked evidence in order.",
+      "Talk to Leo first, then inspect the marked evidence in order.",
       "Talk to Leo, inspect evidence.",
     )
     .replace(
-      "Step 7: first canvas earned. Leave, then enter Sales Strategy Studio.",
-      "Canvas earned. Go to Sales Studio.",
-    )
-    .replace(
-      "Step 7: close the canvas, leave Operations, then enter Sales Strategy Studio.",
+      "Close the canvas, leave Operations, then enter Sales Strategy Studio.",
       "Close canvas. Go to Sales Studio.",
     )
     .replace(
       "Mission complete: review both canvases and the business impact story.",
       "Mission complete. Review impact.",
     )
-    .replace(/^Step \d+:\s*/i, "")
     .replace(/, then /gi, " -> ")
     .replace("marked evidence", "evidence")
     .replace("Operations Suite", "Operations")
@@ -175,7 +170,7 @@ function shortenObjective(objective: string) {
       "intervention that fits the root cause and metric",
       "best intervention",
     )
-    .replace("press Interact away from objects and choose", "choose");
+    .replace("Open the decision panel and choose", "Choose");
 }
 
 function MobileControls({

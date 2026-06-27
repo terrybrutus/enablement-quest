@@ -199,7 +199,7 @@ export function useGameLoop({
     }
 
     setToast(
-      "Nothing important to inspect here. Look for people, glowing evidence, or doorways.",
+      "There is nothing useful to inspect here yet. Look for people, glowing evidence, or doorways.",
     );
   }, [
     collectNearbyEvidence,
