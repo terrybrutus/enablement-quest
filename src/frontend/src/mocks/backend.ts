@@ -1,6 +1,37 @@
 import type { backendInterface } from "../backend";
 import { QuestStatus } from "../backend";
 
+const onboardingQuestDescription =
+  "Maya has identified a new-hire ramp problem. Review the evidence in Operations Suite, diagnose the root cause, and choose an enablement intervention.";
+
+const diagnosticArtifact = {
+  id: BigInt(1),
+  title: "Enablement Diagnostic Canvas",
+  description:
+    "A diagnostic artifact connecting onboarding evidence, root cause, intervention, and business impact.",
+  earnedAt: BigInt(Date.now()),
+};
+
+const onboardingQuest = {
+  id: BigInt(1),
+  status: QuestStatus.notStarted,
+  title: "Diagnose the Onboarding Ramp Problem",
+  observedWaypoints: [],
+  description: onboardingQuestDescription,
+  giverNpcId: BigInt(1),
+  zoneId: BigInt(2),
+  requiredWaypoints: [BigInt(1), BigInt(2), BigInt(3)],
+};
+
+const playerState = {
+  principal: { toText: () => "mock" } as any,
+  activeQuests: [],
+  artifacts: [],
+  completedQuestIds: [],
+  position: { x: BigInt(10 * 48 + 24), y: BigInt(7 * 48 + 24) },
+  currentZoneId: BigInt(1),
+};
+
 export const mockBackend: backendInterface = {
   __artifacts: async () => [],
   __npcs: async () => [],
@@ -8,31 +39,17 @@ export const mockBackend: backendInterface = {
   __quests: async () => [],
   __waypoints: async () => [],
   __zones: async () => [],
-  completeQuest: async () => ({
-    id: BigInt(1),
-    title: "Onboarding Flow Mastery",
-    description: "A comprehensive guide to optimizing new-hire onboarding.",
-    earnedAt: BigInt(Date.now()),
-  }),
-  getArtifactsForPlayer: async () => [
-    {
-      id: BigInt(1),
-      title: "Onboarding Flow Mastery",
-      description: "A comprehensive guide to optimizing new-hire onboarding.",
-      earnedAt: BigInt(Date.now()),
-    },
-  ],
+  completeQuest: async () => diagnosticArtifact,
+  getArtifactsForPlayer: async () => [diagnosticArtifact],
   getNpc: async () => ({
     id: BigInt(1),
-    name: "Maya Chen",
+    name: "Maya",
     dialogue: [
-      "Welcome to The Commons! I'm Maya, the Learning Architect here.",
-      "I've been mapping how new hires navigate our onboarding process.",
-      "There are three critical pain points I've identified — would you help me observe them?",
-      "Walk to each glowing marker and interact with them to document the issues.",
-      "Once you've observed all three, come back and I'll reward you with something special!",
+      "Leadership thinks new hires need more training, but the evidence points to something messier.",
+      "Inspect the interview note, process map, and performance metric before choosing a solution.",
+      "The goal is to diagnose the root cause, not just build the first requested course.",
     ],
-    position: { x: BigInt(12 * 48 + 24), y: BigInt(8 * 48 + 24) },
+    position: { x: BigInt(9 * 48 + 24), y: BigInt(5 * 48 + 24) },
     zoneId: BigInt(2),
   }),
   getNpcsInZone: async (zoneId) => {
@@ -40,75 +57,44 @@ export const mockBackend: backendInterface = {
       return [
         {
           id: BigInt(1),
-          name: "Maya Chen",
+          name: "Maya",
           dialogue: [
-            "Welcome to The Commons! I'm Maya, the Learning Architect here.",
-            "I've been mapping how new hires navigate our onboarding process.",
-            "There are three critical pain points I've identified — would you help me observe them?",
-            "Walk to each glowing marker and interact with them to document the issues.",
-            "Once you've observed all three, come back and I'll reward you with something special!",
+            "Leadership thinks new hires need more training, but the evidence points to something messier.",
+            "Inspect the interview note, process map, and performance metric before choosing a solution.",
+            "The goal is to diagnose the root cause, not just build the first requested course.",
           ],
-          position: { x: BigInt(12 * 48 + 24), y: BigInt(8 * 48 + 24) },
+          position: { x: BigInt(9 * 48 + 24), y: BigInt(5 * 48 + 24) },
           zoneId: BigInt(2),
         },
       ];
     }
     return [];
   },
-  getPlayerState: async () => ({
-    principal: { toText: () => "mock" } as any,
-    activeQuests: [],
-    artifacts: [],
-    completedQuestIds: [],
-    position: { x: BigInt(10 * 48 + 24), y: BigInt(7 * 48 + 24) },
-    currentZoneId: BigInt(1),
-  }),
-  getQuest: async () => ({
-    id: BigInt(1),
-    status: QuestStatus.notStarted,
-    title: "Map the Onboarding Flow",
-    observedWaypoints: [],
-    description:
-      "Maya Chen has identified three pain points in the onboarding process. Visit each marked location in The Commons to observe and document the issues.",
-    giverNpcId: BigInt(1),
-    zoneId: BigInt(2),
-    requiredWaypoints: [BigInt(1), BigInt(2), BigInt(3)],
-  }),
-  getQuestsForPlayer: async () => [
-    {
-      id: BigInt(1),
-    status: QuestStatus.notStarted,
-      title: "Map the Onboarding Flow",
-      observedWaypoints: [],
-      description:
-        "Maya Chen has identified three pain points in the onboarding process. Visit each marked location in The Commons to observe and document the issues.",
-      giverNpcId: BigInt(1),
-      zoneId: BigInt(2),
-      requiredWaypoints: [BigInt(1), BigInt(2), BigInt(3)],
-    },
-  ],
+  getPlayerState: async () => playerState,
+  getQuest: async () => onboardingQuest,
+  getQuestsForPlayer: async () => [onboardingQuest],
   getWaypointsInZone: async (zoneId) => {
     if (zoneId === BigInt(2)) {
       return [
         {
           id: BigInt(1),
           observed: false,
-          waypointLabel: "Confusing Documentation",
-          position: { x: BigInt(5 * 48 + 24), y: BigInt(6 * 48 + 24) },
+          waypointLabel: "Interview Note",
+          position: { x: BigInt(4 * 48 + 24), y: BigInt(7 * 48 + 24) },
           zoneId: BigInt(2),
         },
         {
           id: BigInt(2),
           observed: false,
-          waypointLabel: "Tool Access Delays",
-          position: { x: BigInt(18 * 48 + 24), y: BigInt(5 * 48 + 24) },
+          waypointLabel: "Process Map",
+          position: { x: BigInt(6 * 48 + 24), y: BigInt(9 * 48 + 24) },
           zoneId: BigInt(2),
         },
         {
           id: BigInt(3),
           observed: false,
-          waypointLabel: "Unclear Role Expectations",
-          position: { x: BigInt(14 * 48 + 24), y: BigInt(12 * 48 + 24) },
+          waypointLabel: "Performance Metric",
+          position: { x: BigInt(14 * 48 + 24), y: BigInt(7 * 48 + 24) },
           zoneId: BigInt(2),
         },
       ];
@@ -119,17 +105,17 @@ export const mockBackend: backendInterface = {
     if (id === BigInt(1)) {
       return {
         id: BigInt(1),
-        height: BigInt(15),
-        name: "The Lab",
-        width: BigInt(20),
+        height: BigInt(13),
+        name: "Learning Systems Lab",
+        width: BigInt(18),
       };
     }
     if (id === BigInt(2)) {
       return {
         id: BigInt(2),
-        height: BigInt(16),
-        name: "The Commons",
-        width: BigInt(24),
+        height: BigInt(13),
+        name: "Operations Suite",
+        width: BigInt(18),
       };
     }
     return null;
@@ -137,53 +123,26 @@ export const mockBackend: backendInterface = {
   getZones: async () => [
     {
       id: BigInt(1),
-      height: BigInt(15),
-      name: "The Lab",
-      width: BigInt(20),
+      height: BigInt(13),
+      name: "Learning Systems Lab",
+      width: BigInt(18),
     },
     {
       id: BigInt(2),
-      height: BigInt(16),
-      name: "The Commons",
-      width: BigInt(24),
+      height: BigInt(13),
+      name: "Operations Suite",
+      width: BigInt(18),
     },
   ],
-  initPlayerState: async () => ({
-    principal: { toText: () => "mock" } as any,
-    activeQuests: [],
-    artifacts: [],
-    completedQuestIds: [],
-    position: { x: BigInt(10 * 48 + 24), y: BigInt(7 * 48 + 24) },
-    currentZoneId: BigInt(1),
-  }),
+  initPlayerState: async () => playerState,
   observeWaypoint: async () => ({
-    id: BigInt(1),
+    ...onboardingQuest,
     status: QuestStatus.inProgress,
-    title: "Map the Onboarding Flow",
     observedWaypoints: [BigInt(1)],
-    description:
-      "Maya Chen has identified three pain points in the onboarding process. Visit each marked location in The Commons to observe and document the issues.",
-    giverNpcId: BigInt(1),
-    zoneId: BigInt(2),
-    requiredWaypoints: [BigInt(1), BigInt(2), BigInt(3)],
   }),
   startQuest: async () => ({
-    id: BigInt(1),
+    ...onboardingQuest,
     status: QuestStatus.inProgress,
-    title: "Map the Onboarding Flow",
-    observedWaypoints: [],
-    description:
-      "Maya Chen has identified three pain points in the onboarding process. Visit each marked location in The Commons to observe and document the issues.",
-    giverNpcId: BigInt(1),
-    zoneId: BigInt(2),
-    requiredWaypoints: [BigInt(1), BigInt(2), BigInt(3)],
   }),
-  updatePlayerPosition: async () => ({
-    principal: { toText: () => "mock" } as any,
-    activeQuests: [],
-    artifacts: [],
-    completedQuestIds: [],
-    position: { x: BigInt(10 * 48 + 24), y: BigInt(7 * 48 + 24) },
-    currentZoneId: BigInt(1),
-  }),
+  updatePlayerPosition: async () => playerState,
 };
