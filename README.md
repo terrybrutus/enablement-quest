@@ -41,6 +41,8 @@ Each case follows the same performance-consulting loop:
 
 The full portfolio write-up is in [PORTFOLIO_CASE_STUDY.md](./PORTFOLIO_CASE_STUDY.md).
 
+Resume, interview, and LinkedIn-ready language is in [RESUME_PORTFOLIO_PACKET.md](./RESUME_PORTFOLIO_PACKET.md).
+
 That document includes:
 
 - One-line positioning

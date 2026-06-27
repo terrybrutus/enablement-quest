@@ -95,6 +95,8 @@ The proposed solution connects discovery guides, manager coaching rubrics, call-
 - Created a two-case enablement learning experience covering onboarding performance and sales pipeline conversion, with earned artifacts that translate player decisions into diagnostic and impact canvases.
 - Developed an interactive portfolio artifact demonstrating learning architecture, sales enablement judgment, accessibility considerations, responsible AI use, and measurable business-outcome alignment.
 
+For role-specific resume bullets, interview framing, LinkedIn copy, and evidence boundaries, see [RESUME_PORTFOLIO_PACKET.md](./RESUME_PORTFOLIO_PACKET.md).
+
 ## LinkedIn Post Draft
 
 I built Enablement Quest: The Learning Systems Lab to explore a question I think every enablement and learning team should ask before building anything:
