@@ -166,6 +166,7 @@ export interface EarnedArtifact {
   id: string;
   title: string;
   subtitle: string;
+  portfolioTakeaway?: string;
   sections: Array<{
     label: string;
     value: string;
