@@ -244,7 +244,8 @@ export default function GameCanvas() {
         previous.questStage === "diagnose"
           ? {
               id: Date.now(),
-              message: "All evidence reviewed. Make the diagnosis.",
+              message:
+                "Step 3 of 5: all evidence is reviewed. Choose the root cause.",
             }
           : previous.toast,
     }));
@@ -253,12 +254,27 @@ export default function GameCanvas() {
   const startMission = useCallback(() => {
     setGameState((previous) => ({
       ...previous,
-      player: { ...previous.player, hasStarted: true },
+      player: {
+        ...previous.player,
+        hasStarted: true,
+        sceneId: "operations",
+        position: { x: 9, y: 6.45 },
+        direction: "up",
+        isMoving: false,
+      },
+      currentCaseId: "onboarding",
+      questStage: "briefing",
+      collectedEvidenceIds: [],
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      earnedArtifact: null,
+      dialogue: null,
       overlay: "none",
       toast: {
         id: Date.now(),
         message:
-          "Mission started: walk down through the lab exit, then enter Operations Suite.",
+          "Step 1 of 5: talk with Maya. The question is whether training is really the fix.",
       },
     }));
   }, []);
@@ -293,7 +309,7 @@ export default function GameCanvas() {
             previous.questStage === "briefing"
               ? {
                   id: Date.now(),
-                  message: `Guide updated: inspect ${currentEvidenceItems.length} evidence items.`,
+                  message: `Step 2 of 5: inspect ${currentEvidenceItems.length} evidence items. Each one asks you to spot the useful clue.`,
                 }
               : previous.toast,
         };
@@ -335,8 +351,8 @@ export default function GameCanvas() {
         toast: {
           id: Date.now(),
           message: option.correct
-            ? "Diagnosis accepted. Now choose the intervention that fits the evidence."
-            : "Not quite. Re-check the evidence before choosing the intervention.",
+            ? "Step 4 of 5: diagnosis accepted. Choose the solution that fits the evidence."
+            : "Not quite. Re-check the evidence pattern before choosing a solution.",
         },
       }));
     },
@@ -355,7 +371,8 @@ export default function GameCanvas() {
           interventionId: id,
           toast: {
             id: Date.now(),
-            message: "That intervention does not fit the root cause yet.",
+            message:
+              "That solution does not fix the root cause yet. Try again from the evidence pattern.",
           },
         }));
         return;
@@ -583,26 +600,26 @@ function getNextObjective(
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Talk to Leo first, then inspect the marked evidence in order."
-        : "Enter Sales Strategy Studio and talk to Leo.";
+        ? "Step 1 of 5: talk with Leo to hear the sales enablement request."
+        : "Optional advanced case: enter Sales Strategy Studio and talk with Leo.";
     }
     return sceneId === "operations"
-      ? "Talk to Maya first, then inspect the marked evidence in order."
-      : "Enter Operations Suite and talk to Maya.";
+      ? "Step 1 of 5: talk with Maya. Listen for the leader's training request, then question it."
+      : "Enter Operations Suite and talk with Maya.";
   }
   if (questStage === "investigate") {
     return nextEvidenceTitle
-      ? `Inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
-      : `Inspect evidence: ${evidenceCount}/${evidenceTotal} collected.`;
+      ? `Step 2 of 5: inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
+      : `Evidence reviewed: ${evidenceCount}/${evidenceTotal}. Open the diagnosis panel.`;
   }
   if (questStage === "diagnose") {
-    return "Open the decision panel and choose the root cause.";
+    return "Step 3 of 5: choose the root cause. Do not accept the training request at face value.";
   }
   if (questStage === "design") {
-    return "Choose the intervention that fits the root cause and business metric.";
+    return "Step 4 of 5: choose the solution that changes behavior and creates a useful metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "Close the canvas, leave Operations, then enter Sales Strategy Studio.";
+    return "Step 5 of 5: review the canvas. This is the portfolio proof; Sales Strategy Studio is optional next.";
   }
   return "Mission complete: review both canvases and the business impact story.";
 }
@@ -690,7 +707,7 @@ function EvidencePanel({
       <div className="eq-evidence-check">
         <div>
           <p className="eq-kicker">Check Your Read</p>
-          <h3>Which signal should guide the diagnosis?</h3>
+          <h3>Which clue should guide the diagnosis?</h3>
         </div>
         {checkOptions.map((option, index) => (
           <button
@@ -714,7 +731,7 @@ function EvidencePanel({
       >
         {hasReadCorrectly
           ? "Continue investigation"
-          : "Pick the useful signal to continue"}
+          : "Pick the useful clue to continue"}
       </button>
     </section>
   );
@@ -842,7 +859,7 @@ function DecisionPanel({
         <div>
           <h3>1. Diagnose the root cause</h3>
           <p className="eq-decision-prompt">
-            Which explanation best connects all three evidence signals?
+            Which explanation best connects all three evidence clues?
           </p>
           {diagnosisOptions.map((option) => (
             <button
@@ -866,8 +883,8 @@ function DecisionPanel({
         <div className={!canChooseIntervention ? "is-disabled" : ""}>
           <h3>2. Select the intervention</h3>
           <p className="eq-decision-prompt">
-            Which solution changes behavior and creates a metric leaders can
-            inspect?
+            Which solution changes the daily work and gives leaders a metric
+            they can inspect?
           </p>
           {interventionOptions.map((option) => (
             <button

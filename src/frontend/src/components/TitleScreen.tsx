@@ -28,25 +28,29 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <p className="eq-byline">Created by Terry Brutus</p>
         </div>
         <h1>The Learning Systems Lab</h1>
-        <p className="eq-title-mode">Case 01: The Broken Onboarding Portal</p>
+        <p className="eq-title-mode">
+          Guided Case: The Broken Onboarding Request
+        </p>
         <p className="eq-title-copy">
-          Prove that you can diagnose workplace performance problems, design
-          enablement solutions, and connect learning decisions to measurable
-          business impact.
+          A leader asks for more training. Your job is to investigate whether
+          training is really the fix, choose a better solution when needed, and
+          show the business impact.
         </p>
 
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>Interview the stakeholder and inspect evidence.</span>
+            <span>Talk with the case owner and read three evidence cards.</span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
-            <span>Diagnose whether this is really a training problem.</span>
+            <span>Decide what is actually causing the workplace problem.</span>
           </article>
           <article>
             <LineChart className="h-5 w-5" />
-            <span>Choose a solution and connect it to business impact.</span>
+            <span>
+              Choose a solution and review the business-impact canvas.
+            </span>
           </article>
         </div>
 
@@ -56,10 +60,12 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         >
           <p>Reviewer lens</p>
           <ul>
-            <li>Performance consulting: diagnose before designing.</li>
-            <li>Sales enablement: connect behavior to pipeline outcomes.</li>
+            <li>Performance consulting: Terry diagnoses before designing.</li>
             <li>
-              Learning architecture: turn evidence into a practical solution.
+              Learning architecture: evidence becomes a practical solution.
+            </li>
+            <li>
+              Business impact: every decision points to a measurable result.
             </li>
           </ul>
         </section>
@@ -74,8 +80,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <span>
                 I built this as a playable portfolio case study, not a generic
                 course demo. The goal is to make my enablement judgment visible:
-                gather evidence, diagnose the real problem, choose the right
-                intervention, and explain the business impact.
+                question the training request, gather evidence, diagnose the
+                real problem, choose the right intervention, and explain the
+                business impact.
               </span>
             </section>
 
@@ -86,22 +93,24 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <div>
                 <p>5-minute review path</p>
                 <span>
-                  Talk to Maya, inspect the evidence, choose the root cause, and
-                  review the earned business-impact canvas.
+                  Talk with Maya, inspect three evidence cards, choose the root
+                  cause, choose the intervention, and review the business-impact
+                  canvas.
                 </span>
               </div>
               <div>
                 <p>What this proves</p>
                 <span>
-                  Terry diagnoses before designing, connects enablement to
-                  behavior, and treats training as one possible solution.
+                  Terry solves performance problems instead of automatically
+                  building training. The experience shows judgment, not just
+                  course production.
                 </span>
               </div>
               <div>
                 <p>Sales enablement lens</p>
                 <span>
-                  Case 02 moves into Sales Strategy Studio to connect discovery
-                  behavior, coaching, and pipeline signals.
+                  After the first case, Case 02 moves into Sales Strategy Studio
+                  to connect discovery behavior, coaching, and pipeline signals.
                 </span>
               </div>
               <div>
@@ -122,7 +131,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             onClick={onStart}
             data-ocid="title.start_button"
           >
-            Start the case
+            Start guided case
             <ArrowRight className="h-5 w-5" />
           </button>
           <button

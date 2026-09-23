@@ -27,11 +27,11 @@ interface HudProps {
 }
 
 const stageLabels: Record<QuestStage, string> = {
-  briefing: "Briefing",
-  investigate: "Investigate",
-  diagnose: "Diagnose",
-  design: "Design",
-  complete: "Measure",
+  briefing: "Step 1 of 5",
+  investigate: "Step 2 of 5",
+  diagnose: "Step 3 of 5",
+  design: "Step 4 of 5",
+  complete: "Step 5 of 5",
 };
 
 export function Hud({
@@ -50,6 +50,7 @@ export function Hud({
 }: HudProps) {
   const [isGuideExpanded, setIsGuideExpanded] = useState(false);
   const shortObjective = shortenObjective(nextObjective);
+  const stepLabel = getStepLabel(questStage, evidenceCount, evidenceTotal);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
@@ -80,7 +81,7 @@ export function Hud({
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   <span className="eq-pill">
                     <Crosshair className="h-3.5 w-3.5" />
-                    {stageLabels[questStage]}
+                    {stepLabel}
                   </span>
                   <span className="eq-pill">
                     Evidence {evidenceCount}/{evidenceTotal}
@@ -93,7 +94,7 @@ export function Hud({
             </div>
           ) : (
             <div className="eq-hud-summary">
-              <span>{stageLabels[questStage]}</span>
+              <span>{stepLabel}</span>
               <strong title={nextObjective}>{shortObjective}</strong>
               <small>
                 Evidence {evidenceCount}/{evidenceTotal}
@@ -138,6 +139,17 @@ export function Hud({
 
 function shortenObjective(objective: string) {
   return objective
+    .replace("Step 1 of 6: ", "")
+    .replace("Step 2 of 6: ", "")
+    .replace("Step 3 of 6: ", "")
+    .replace("Step 4 of 6: ", "")
+    .replace("Step 5 of 6: ", "")
+    .replace("Step 6 of 6: ", "")
+    .replace("Step 1 of 5: ", "")
+    .replace("Step 2 of 5: ", "")
+    .replace("Step 3 of 5: ", "")
+    .replace("Step 4 of 5: ", "")
+    .replace("Step 5 of 5: ", "")
     .replace(
       "Enter Operations Suite and talk to Maya.",
       "Go to Operations, talk to Maya.",
@@ -171,6 +183,29 @@ function shortenObjective(objective: string) {
       "best intervention",
     )
     .replace("Open the decision panel and choose", "Choose");
+}
+
+function getStepLabel(
+  questStage: QuestStage,
+  evidenceCount: number,
+  evidenceTotal: number,
+) {
+  if (questStage === "investigate") {
+    return stageLabels.investigate;
+  }
+  if (questStage === "briefing") {
+    return stageLabels.briefing;
+  }
+  if (questStage === "diagnose") {
+    return stageLabels.diagnose;
+  }
+  if (questStage === "design") {
+    return stageLabels.design;
+  }
+  if (questStage === "complete") {
+    return stageLabels.complete;
+  }
+  return `Evidence ${evidenceCount}/${evidenceTotal}`;
 }
 
 function MobileControls({

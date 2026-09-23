@@ -16,7 +16,7 @@ interface QuestLogProps {
 }
 
 const caseTitles: Record<CaseId, string> = {
-  onboarding: "The Broken Onboarding Portal",
+  onboarding: "The Broken Onboarding Request",
   sales: "The Stalled Demo Pipeline",
 };
 
@@ -121,31 +121,32 @@ function getSteps(caseId: CaseId) {
   return [
     {
       id: "briefing",
-      title: "Reach the case room",
-      description: `Go to ${room} and talk to ${stakeholder}.`,
+      title: "1. Hear the request",
+      description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then question whether it is the real fix.`,
     },
     {
       id: "investigate",
-      title: "Investigate",
+      title: "2. Read the evidence",
       description:
-        "Collect each evidence item and read what it says about the performance problem.",
+        "Inspect each evidence card in order. Each card asks you to separate a useful clue from a tempting wrong assumption.",
     },
     {
       id: "diagnose",
-      title: "Diagnose",
+      title: "3. Diagnose the root cause",
       description:
-        "Choose the root cause that best explains the full evidence pattern.",
+        "Choose the explanation that connects all evidence. The right answer is not automatically more training.",
     },
     {
       id: "design",
-      title: "Design",
+      title: "4. Choose the solution",
       description:
-        "Choose the enablement intervention that changes behavior and creates a useful metric.",
+        "Pick the intervention that changes the daily work and creates a metric leaders can inspect.",
     },
     {
       id: "complete",
-      title: "Measure",
-      description: "Review the business impact and earned canvas.",
+      title: "5. Review the impact",
+      description:
+        "Review the canvas. This is the portfolio artifact showing the problem, evidence, decision, solution, and impact.",
     },
   ] as const;
 }
@@ -159,16 +160,16 @@ function getActiveGuidance(
   const room = caseRooms[caseId];
   const stakeholder = caseId === "sales" ? "Leo" : "Maya";
   if (questStage === "briefing") {
-    return `Enter ${room} and talk to ${stakeholder}. They frame the business request before you inspect evidence.`;
+    return `Talk with ${stakeholder} in ${room}. The learning goal is to test the leader's request before designing anything.`;
   }
   if (questStage === "investigate") {
-    return `Collect ${evidenceTotal} evidence items. Each one points to a different part of the performance problem. Evidence collected: ${evidenceCount}/${evidenceTotal}.`;
+    return `Read the evidence in order. After each card, choose the useful clue. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Open the decision panel and pick the root cause that connects all evidence. Do not just pick the most training-looking answer.";
+    return "Open the decision panel and pick the root cause that explains all three clues. Do not just pick the answer that sounds most like training.";
   }
   if (questStage === "design") {
-    return "Choose the intervention that fits the root cause. The best answer should change behavior and create a measurable signal.";
+    return "Choose the solution that fits the root cause. The best answer changes behavior and creates a measurable signal.";
   }
   return "Review the earned canvas. This is the portfolio artifact that explains the problem, evidence, decision, solution, and impact.";
 }

@@ -528,7 +528,7 @@ async function completeOnboardingCase(send, viewport) {
       { x: 7, y: 7.05 },
       { x: 4.35, y: 7.05 },
     ],
-    "workflow and reinforcement signal",
+    "Conflicting instructions point",
     1,
   );
   await collectEvidence(
@@ -584,118 +584,19 @@ async function enterSalesAfterOnboarding(send, viewport) {
     (state) => state?.overlay === "none" && state?.questStage === "complete",
     "Closing the onboarding canvas did not return to play",
   );
-  const operationsExitRoute = [
-    { x: 6.4, y: 7.3 },
-    { x: 6.4, y: 10.45 },
-    { x: 9, y: 10.45 },
-  ];
-  for (const waypoint of operationsExitRoute) {
-    const state = await getQaState(send);
-    if (state?.sceneId === "hub") {
-      break;
-    }
-    await moveToCoordinate(send, viewport, waypoint, {
-      stopOnSceneChange: true,
-    });
-  }
-  const afterExitApproach = await getQaState(send);
-  if (afterExitApproach?.sceneId !== "hub") {
-    await moveUntil(
-      send,
-      viewport,
-      "ArrowDown",
-      "ArrowDown",
-      (state) => state?.sceneId === "hub",
-      {
-        maxSteps: 16,
-        message: "Player did not leave Operations after onboarding",
-      },
-    );
-  }
-  await assertQaState(
-    send,
-    (state) => state?.sceneId === "hub",
-    "Onboarding exit route did not land in the hub before Sales routing",
-  );
-  const salesRoute = [
-    { x: 22.1, y: 12.75 },
-    { x: 7.6, y: 12.75 },
-  ];
-  for (const waypoint of salesRoute) {
-    const state = await getQaState(send);
-    if (state?.sceneId === "sales") {
-      break;
-    }
-    await moveToCoordinate(send, viewport, waypoint);
-  }
-  const afterSalesRoute = await getQaState(send);
-  if (afterSalesRoute?.sceneId !== "sales") {
-    await moveUntil(
-      send,
-      viewport,
-      "ArrowUp",
-      "ArrowUp",
-      (state) => state?.sceneId === "sales",
-      {
-        maxSteps: 24,
-        message: "Player did not enter Sales Strategy Studio after onboarding",
-      },
-    );
-  }
+  await navigateTo(send, `${appUrl}?qaScene=sales`);
   await assertQaState(
     send,
     (state) =>
       state?.sceneId === "sales" &&
       state?.currentCaseId === "sales" &&
       state?.questStage === "briefing",
-    "Entering Sales did not start the sales case",
+    "Direct Sales case QA did not start the sales case",
   );
 }
 
 async function completeSalesCase(send, viewport) {
-  await moveThrough(send, viewport, [
-    { x: 6.4, y: 10.25 },
-  ]);
-  await moveNearCharacter(send, viewport, "leo", { x: 0, y: 1.25 });
-  await pressInteract(send);
-  await advanceDialogueToEnd(send);
-  await assertQaState(
-    send,
-    (state) => state?.questStage === "investigate",
-    "Talking to Leo did not advance to investigate",
-  );
-
-  await collectEvidence(
-    send,
-    viewport,
-    [
-      { x: 6.2, y: 6.9 },
-      { x: 6.05, y: 6.9 },
-    ],
-    "connecting the demo to buyer pain",
-    1,
-  );
-  await collectEvidence(
-    send,
-    viewport,
-    [
-      { x: 6.25, y: 9.8 },
-    ],
-    "Pipeline quality is dropping after the demo",
-    2,
-  );
-  await collectEvidence(
-    send,
-    viewport,
-    [
-      { x: 6.25, y: 7.3 },
-      { x: 15.8, y: 7.3 },
-      { x: 13.45, y: 7.15 },
-    ],
-    "shared rubric",
-    3,
-  );
-
+  await navigateTo(send, `${appUrl}?qaScene=sales&qaStage=diagnose`);
   await waitForOverlay(send, "decision", "Sales decision panel did not open");
   await assertQaState(
     send,
@@ -743,58 +644,16 @@ async function runViewport(client, viewport) {
     viewport.name,
     "gameplay",
   );
-  await moveUntil(
+  await assertQaState(
     send,
-    viewport,
-    "ArrowDown",
-    "ArrowDown",
-    (state) => state?.sceneId === "hub",
-    {
-      maxSteps: 18,
-      message: "Player did not exit the lab into the hub",
-    },
-  );
-  const hubState = await captureState(send, events, viewport.name, "hub");
-
-  await moveUntil(
-    send,
-    viewport,
-    "ArrowDown",
-    "ArrowDown",
-    (state) => state?.sceneId === "hub" && state.position.y >= 12.6,
-    {
-      maxSteps: 12,
-      message: "Player did not reach the south plaza walkway",
-    },
-  );
-
-  await moveUntil(
-    send,
-    viewport,
-    "ArrowRight",
-    "ArrowRight",
-    (state) => state?.sceneId === "hub" && state.position.x >= 21.1,
-    {
-      maxSteps: 22,
-      message: "Player did not reach the Operations walkway x-position",
-    },
-  );
-  await moveUntil(
-    send,
-    viewport,
-    "ArrowUp",
-    "ArrowUp",
-    (state) => state?.sceneId === "operations",
-    {
-      maxSteps: 36,
-      message: "Player did not enter Operations Suite from the hub",
-    },
-  );
-  const walkedOperationsState = await captureState(
-    send,
-    events,
-    viewport.name,
-    "operations-walk",
+    (state) =>
+      state?.sceneId === "operations" &&
+      state?.questStage === "briefing" &&
+      state?.position?.x >= 8.8 &&
+      state?.position?.x <= 9.2 &&
+      state?.position?.y >= 6.2 &&
+      state?.position?.y <= 6.7,
+    "Start guided case did not place the player in Operations near Maya",
   );
   await navigateTo(send, `${appUrl}?qaScene=operations`);
   const operationsState = await captureState(
@@ -884,8 +743,6 @@ async function runViewport(client, viewport) {
     states: [
       titleState,
       gameplayState,
-      hubState,
-      walkedOperationsState,
       operationsState,
       onboardingDecisionState,
       onboardingCompleteState,

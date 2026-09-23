@@ -531,25 +531,25 @@ export const characters: GameCharacter[] = [
     sprite: { image: "ameliaIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
-        "I need help. Leadership thinks new hires need more training.",
-        "But the pattern feels messier than that. Ramp is slow, support tickets are up, and managers keep improvising.",
-        "Start by inspecting the evidence in this room before we decide what to build.",
+        "I need help. Leadership asked for more onboarding training because new hires are taking too long to ramp.",
+        "That might be part of it, but slow ramp can also come from unclear workflow, late tool access, or managers reinforcing different expectations.",
+        "Your job is to investigate before designing. Inspect the evidence, then decide whether training is actually the right fix.",
       ],
       investigate: [
-        "Do not jump to a course yet. Gather the interview note, process map, and performance metric first.",
-        "The real question is whether this is a knowledge gap, workflow gap, tool friction, or reinforcement problem.",
+        "Good. Read the interview note, process map, and performance metric in order.",
+        "After each one, ask: what clue helps explain the real work problem, and what tempting assumption should I avoid?",
       ],
       diagnose: [
-        "You have the evidence. Now make the call: is this actually a training problem?",
-        "Use judgment. The obvious answer is not always the useful answer.",
+        "Now make the call. If you built training tomorrow, what would still be broken?",
+        "Use the full evidence pattern. The useful answer should explain all three clues, not just the loudest complaint.",
       ],
       design: [
-        "Good diagnosis. Now choose the intervention that fits the cause.",
-        "A strong enablement solution changes behavior and gives leaders a metric to watch.",
+        "Good diagnosis. Now choose the solution that fits the cause.",
+        "A strong enablement solution changes the daily work, supports managers, and gives leaders a metric to watch.",
       ],
       complete: [
-        "That is the difference between building training and solving a performance problem.",
-        "You earned the Enablement Diagnostic Canvas. It explains the evidence, root cause, intervention, and business impact.",
+        "That is the difference between building a course and solving a performance problem.",
+        "You earned the Enablement Diagnostic Canvas. It shows the request, evidence, root cause, solution, and expected business impact.",
       ],
     },
   },
@@ -625,12 +625,12 @@ export const evidenceItems: Evidence[] = [
     sceneId: "operations",
     position: { x: 4.35, y: 6.2 },
     summary:
-      "New hires say they receive multiple versions of the same onboarding instructions.",
+      "New hires say they receive multiple versions of the same onboarding instructions from different people.",
     insight:
-      "Evidence points to unclear expectations and inconsistent manager reinforcement.",
+      "The issue is not simply forgetting content. People are getting different expectations after the formal onboarding session.",
     signal:
-      "This is a workflow and reinforcement signal, not proof that people forgot the orientation content.",
-    trap: "Treat the leadership training request as proof that a longer course is the answer.",
+      "Conflicting instructions point to workflow and manager reinforcement, not just a missing lesson.",
+    trap: "Treat the leader's training request as proof that a longer course is the answer.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288),
   },
@@ -643,9 +643,9 @@ export const evidenceItems: Evidence[] = [
     summary:
       "The process map has three handoffs before tool access is confirmed.",
     insight:
-      "The ramp problem is partly workflow friction, not just missing knowledge.",
+      "A learner cannot perform the job confidently if the workflow delays access and ownership is unclear.",
     signal:
-      "Multiple handoffs create delay. A course cannot fix ownership unless the workflow changes too.",
+      "Multiple handoffs create delay. Training cannot fix ownership unless the workflow changes too.",
     trap: "Convert every missing handoff step into another onboarding lesson.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384),
@@ -659,7 +659,7 @@ export const evidenceItems: Evidence[] = [
     summary:
       "Support tickets spike during weeks two and three, after formal orientation ends.",
     insight:
-      "The system needs reinforcement and job support at the point of work.",
+      "The support system is weakest when new hires start doing real work, after the course is already complete.",
     signal:
       "The spike happens after formal training, so the support system is failing when work actually begins.",
     trap: "Judge the course by completion rate instead of support tickets and time-to-productivity.",
@@ -731,7 +731,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "workflow-reinforcement",
     caseId: "onboarding",
     label:
-      "The workflow is unclear and managers lack reinforcement checkpoints.",
+      "The workflow is unclear and managers lack consistent follow-up checkpoints.",
     explanation:
       "Correct. The evidence shows inconsistent instructions, delayed access, and a gap after orientation.",
     correct: true,
@@ -797,7 +797,7 @@ export const interventionOptions: InterventionOption[] = [
     caseId: "onboarding",
     label: "Create a manager checklist, job aid, and diagnostic dashboard.",
     explanation:
-      "Correct. This supports the workflow, reinforces expectations, and creates measurable visibility.",
+      "Correct. This supports the workflow, reinforces expectations, and creates visible measures leaders can inspect.",
     correct: true,
     tradeoff:
       "Requires manager adoption, but it addresses workflow, reinforcement, and measurement together.",
@@ -849,7 +849,7 @@ export const earnedCanvas: EarnedArtifact = {
   title: "Enablement Diagnostic Canvas",
   subtitle: "Case: New hire ramp is slower than expected",
   portfolioTakeaway:
-    "This canvas shows the performance-consulting move: Terry did not accept the training request at face value. He traced the evidence to workflow, access, reinforcement, and measurement before choosing the intervention.",
+    "This canvas shows the performance-consulting move: Terry did not accept the training request at face value. He traced the evidence to workflow, access, reinforcement, and measurement before choosing a solution.",
   sections: [
     {
       label: "Business Problem",
