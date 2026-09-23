@@ -858,6 +858,8 @@ function DecisionPanel({
         ))}
       </div>
 
+      <DecisionChecklist canChooseIntervention={canChooseIntervention} />
+
       <DecisionCoach
         selectedDiagnosis={selectedDiagnosis}
         selectedIntervention={selectedIntervention}
@@ -916,6 +918,46 @@ function DecisionPanel({
           ))}
         </div>
       </div>
+    </section>
+  );
+}
+
+function DecisionChecklist({
+  canChooseIntervention,
+}: {
+  canChooseIntervention: boolean;
+}) {
+  return (
+    <section className="eq-decision-checklist" aria-label="Decision tests">
+      <div>
+        <p className="eq-kicker">Use These Three Tests</p>
+        <h3>
+          {canChooseIntervention
+            ? "Before choosing a solution"
+            : "Before choosing the root cause"}
+        </h3>
+      </div>
+      <ol>
+        <li>
+          <strong>Explains every clue</strong>
+          <span>
+            The answer should connect all three clues, not just the loudest
+            complaint.
+          </span>
+        </li>
+        <li>
+          <strong>Changes the work</strong>
+          <span>
+            The best fix changes daily behavior, handoffs, coaching, or tools.
+          </span>
+        </li>
+        <li>
+          <strong>Can be measured</strong>
+          <span>
+            Leaders should be able to inspect a business signal after the fix.
+          </span>
+        </li>
+      </ol>
     </section>
   );
 }
