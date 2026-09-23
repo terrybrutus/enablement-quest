@@ -812,6 +812,9 @@ function DecisionPanel({
   const selectedDiagnosis = diagnosisOptions.find(
     (option) => option.id === diagnosisId,
   );
+  const selectedIntervention = interventionOptions.find(
+    (option) => option.id === interventionId,
+  );
   const canChooseIntervention = selectedDiagnosis?.correct ?? false;
   const synthesis = caseSynthesis[currentCaseId];
 
@@ -855,6 +858,12 @@ function DecisionPanel({
         ))}
       </div>
 
+      <DecisionCoach
+        selectedDiagnosis={selectedDiagnosis}
+        selectedIntervention={selectedIntervention}
+        canChooseIntervention={canChooseIntervention}
+      />
+
       <div className="eq-option-grid">
         <div>
           <h3>1. Diagnose the root cause</h3>
@@ -883,8 +892,9 @@ function DecisionPanel({
         <div className={!canChooseIntervention ? "is-disabled" : ""}>
           <h3>2. Select the intervention</h3>
           <p className="eq-decision-prompt">
-            Which solution changes the daily work and gives leaders a metric
-            they can inspect?
+            {canChooseIntervention
+              ? "Which solution changes the daily work and gives leaders a metric they can inspect?"
+              : "Choose the correct root cause first. The solution is locked until the diagnosis fits the evidence."}
           </p>
           {interventionOptions.map((option) => (
             <button
@@ -907,6 +917,74 @@ function DecisionPanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function DecisionCoach({
+  selectedDiagnosis,
+  selectedIntervention,
+  canChooseIntervention,
+}: {
+  selectedDiagnosis: DiagnosisOption | undefined;
+  selectedIntervention: InterventionOption | undefined;
+  canChooseIntervention: boolean;
+}) {
+  if (!selectedDiagnosis) {
+    return (
+      <aside className="eq-decision-coach" aria-label="Decision coaching">
+        <strong>How to decide</strong>
+        <span>
+          Do not pick the option that sounds most familiar. Pick the one that
+          explains every evidence card at the same time.
+        </span>
+      </aside>
+    );
+  }
+
+  if (!canChooseIntervention) {
+    return (
+      <aside
+        className="eq-decision-coach is-warning"
+        aria-label="Decision coaching"
+      >
+        <strong>Re-check the evidence</strong>
+        <span>
+          {selectedDiagnosis.explanation} Look again at the evidence check:{" "}
+          {selectedDiagnosis.evidenceHint}
+        </span>
+      </aside>
+    );
+  }
+
+  if (!selectedIntervention) {
+    return (
+      <aside
+        className="eq-decision-coach is-success"
+        aria-label="Decision coaching"
+      >
+        <strong>Good diagnosis</strong>
+        <span>
+          {selectedDiagnosis.explanation} Now choose the intervention that
+          changes the workflow, reinforces behavior, and gives leaders a useful
+          metric.
+        </span>
+      </aside>
+    );
+  }
+
+  return (
+    <aside
+      className={`eq-decision-coach ${selectedIntervention.correct ? "is-success" : "is-warning"}`}
+      aria-label="Decision coaching"
+    >
+      <strong>
+        {selectedIntervention.correct ? "Strong solution" : "Not enough yet"}
+      </strong>
+      <span>
+        {selectedIntervention.explanation} Tradeoff:{" "}
+        {selectedIntervention.tradeoff}
+      </span>
+    </aside>
   );
 }
 
