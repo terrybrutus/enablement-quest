@@ -1026,6 +1026,10 @@ function CanvasPanel({
   showFinalDebrief: boolean;
   onClose: () => void;
 }) {
+  const businessProblem = getArtifactSection(artifact, "Business Problem");
+  const rootCause = getArtifactSection(artifact, "Root Cause");
+  const impact = getArtifactSection(artifact, "Expected Impact");
+
   return (
     <section
       className="eq-overlay eq-panel eq-canvas"
@@ -1040,6 +1044,21 @@ function CanvasPanel({
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           Close
         </button>
+      </div>
+
+      <div className="eq-case-outcome" aria-label="Case outcome summary">
+        <article>
+          <span>Before</span>
+          <strong>{businessProblem}</strong>
+        </article>
+        <article>
+          <span>Decision</span>
+          <strong>{rootCause}</strong>
+        </article>
+        <article>
+          <span>Impact</span>
+          <strong>{impact}</strong>
+        </article>
       </div>
 
       <div className="eq-canvas-grid">
@@ -1064,6 +1083,16 @@ function CanvasPanel({
 
       {showFinalDebrief && <FinalReviewerDebrief />}
     </section>
+  );
+}
+
+function getArtifactSection(
+  artifact: NonNullable<GameState["earnedArtifact"]>,
+  label: string,
+) {
+  return (
+    artifact.sections.find((section) => section.label === label)?.value ??
+    "Not captured yet."
   );
 }
 
