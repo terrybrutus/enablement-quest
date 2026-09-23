@@ -162,6 +162,7 @@ function drawSceneBase(
 
   drawTilePatches(ctx, scene, camera, assets);
   drawExteriorLandmarks(ctx, scene, camera);
+  drawInteriorLandmarks(ctx, scene, camera);
   drawRoomBorders(ctx, scene, camera, assets);
 }
 
@@ -411,6 +412,131 @@ function drawCampusPlaque(
   ctx.stroke();
   ctx.fillStyle = "#f8fafc";
   ctx.fillText(text, x, y + 5);
+  ctx.restore();
+}
+
+function drawInteriorLandmarks(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+) {
+  if (scene.id !== "operations" && scene.id !== "sales") {
+    return;
+  }
+
+  const theme =
+    scene.id === "operations"
+      ? {
+          accent: "#f59e0b",
+          fill: "rgba(120, 53, 15, 0.16)",
+          title: "Onboarding Diagnostic Room",
+          zones: [
+            {
+              rect: { x: 6.9, y: 2.8, width: 4.2, height: 2.5 },
+            },
+            {
+              rect: { x: 2.2, y: 4.1, width: 4.7, height: 2.9 },
+            },
+            {
+              rect: { x: 7.1, y: 7.2, width: 4.4, height: 3.1 },
+            },
+            {
+              rect: { x: 11.8, y: 3.8, width: 4.2, height: 3 },
+            },
+          ],
+        }
+      : {
+          accent: "#22d3ee",
+          fill: "rgba(8, 145, 178, 0.15)",
+          title: "Sales Enablement Studio",
+          zones: [
+            {
+              rect: { x: 4.5, y: 3.5, width: 4.2, height: 2.7 },
+            },
+            {
+              rect: { x: 2.5, y: 5.4, width: 4.4, height: 3.1 },
+            },
+            {
+              rect: { x: 6.7, y: 7.6, width: 5.6, height: 2.7 },
+            },
+            {
+              rect: { x: 11.9, y: 4.1, width: 4.5, height: 3.5 },
+            },
+          ],
+        };
+
+  drawInteriorHeader(ctx, scene, camera, theme.title, theme.accent);
+  for (const zone of theme.zones) {
+    drawLearningZone(ctx, camera, zone.rect, theme.fill, theme.accent);
+  }
+  drawExitGuide(ctx, scene, camera, theme.accent);
+}
+
+function drawInteriorHeader(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+  title: string,
+  accent: string,
+) {
+  const x = scene.width * TILE_SIZE * 0.5 - camera.x;
+  const y = 1.45 * TILE_SIZE - camera.y;
+  ctx.save();
+  ctx.font = "900 14px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  const width = ctx.measureText(title).width + 42;
+  ctx.fillStyle = "rgba(2, 6, 23, 0.78)";
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2;
+  roundRect(ctx, x - width / 2, y - 18, width, 34, 10);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f8fafc";
+  ctx.fillText(title, x, y + 5);
+  ctx.restore();
+}
+
+function drawLearningZone(
+  ctx: CanvasRenderingContext2D,
+  camera: { x: number; y: number },
+  rect: { x: number; y: number; width: number; height: number },
+  fill: string,
+  accent: string,
+) {
+  const x = rect.x * TILE_SIZE - camera.x;
+  const y = rect.y * TILE_SIZE - camera.y;
+  const width = rect.width * TILE_SIZE;
+  const height = rect.height * TILE_SIZE;
+  ctx.save();
+  ctx.fillStyle = fill;
+  ctx.strokeStyle = `${accent}88`;
+  ctx.lineWidth = 2;
+  roundRect(ctx, x, y, width, height, 12);
+  ctx.fill();
+  ctx.setLineDash([8, 6]);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawExitGuide(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+  accent: string,
+) {
+  const x = scene.width * TILE_SIZE * 0.5 - camera.x;
+  const y = (scene.height - 1.65) * TILE_SIZE - camera.y;
+  ctx.save();
+  ctx.strokeStyle = accent;
+  ctx.fillStyle = `${accent}20`;
+  ctx.lineWidth = 2;
+  roundRect(ctx, x - 62, y - 18, 124, 34, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.font = "800 11px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#e0f2fe";
+  ctx.fillText("Exit to campus", x, y + 5);
   ctx.restore();
 }
 
@@ -683,9 +809,9 @@ function drawPlayer(
 
 function getDirectionSpriteOffset(direction: Direction) {
   const offsets: Record<Direction, number> = {
-    right: 0,
+    left: 0,
     up: 1,
-    left: 2,
+    right: 2,
     down: 3,
   };
   return offsets[direction];

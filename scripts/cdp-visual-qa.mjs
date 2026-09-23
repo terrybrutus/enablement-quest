@@ -524,8 +524,7 @@ async function completeOnboardingCase(send, viewport) {
     send,
     viewport,
     [
-      { x: 7, y: 5.25 },
-      { x: 7, y: 7.05 },
+      { x: 9.35, y: 7.05 },
       { x: 4.35, y: 7.05 },
     ],
     "Conflicting instructions point",
