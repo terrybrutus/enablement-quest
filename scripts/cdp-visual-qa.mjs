@@ -655,6 +655,8 @@ async function runViewport(client, viewport) {
       state?.position?.y <= 6.7,
     "Start guided case did not place the player in Operations near Maya",
   );
+  await navigateTo(send, `${appUrl}?qaScene=hub`);
+  const hubState = await captureState(send, events, viewport.name, "hub");
   await navigateTo(send, `${appUrl}?qaScene=operations`);
   const operationsState = await captureState(
     send,
@@ -743,6 +745,7 @@ async function runViewport(client, viewport) {
     states: [
       titleState,
       gameplayState,
+      hubState,
       operationsState,
       onboardingDecisionState,
       onboardingCompleteState,

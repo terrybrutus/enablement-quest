@@ -49,7 +49,6 @@ export type AssetKey =
   | "bobIdle"
   | "roomBuilder"
   | "office"
-  | "officeExterior"
   | "cityTerrains"
   | "garden"
   | "exteriorWalls"

@@ -22,19 +22,6 @@ const officeSprite = (
   sh,
 });
 
-const officeExteriorSprite = (
-  sx: number,
-  sy: number,
-  sw: number,
-  sh: number,
-): SheetSprite => ({
-  image: "officeExterior",
-  sx,
-  sy,
-  sw,
-  sh,
-});
-
 const tilePatch = (
   id: string,
   x: number,
@@ -49,12 +36,6 @@ const tilePatch = (
   sprite,
 });
 
-const buildingNameplates = {
-  lab: "Learning Systems Lab",
-  operations: "Operations Suite",
-  sales: "Sales Strategy Studio",
-} as const;
-
 export const assetUrls = {
   // Legacy assets
   adamIdle: "/assets/limezu/adam-idle.png",
@@ -63,7 +44,6 @@ export const assetUrls = {
   bobIdle: "/assets/limezu/bob-idle.png",
   roomBuilder: "/assets/limezu/room-builder-48.png",
   office: "/assets/limezu/office-48.png",
-  officeExterior: "/assets/limezu/office-exterior-32.png",
   cityTerrains: "/assets/limezu/city-terrains-32.png",
   garden: "/assets/limezu/garden-32.png",
   exteriorWalls: "/assets/limezu/exterior-walls.png",
@@ -220,7 +200,7 @@ export const scenes: Scene[] = [
     width: 30,
     height: 18,
     theme: "exterior",
-    floorSprite: tileSprites.grass,
+    floorSprite: tileSprites.gardenGrass,
     tilePatches: [
       tilePatch("north-sidewalk", 2.5, 7.55, 25, 2, tileSprites.path),
       tilePatch("west-path", 6.6, 7.55, 2.2, 3.95, tileSprites.path),
@@ -259,32 +239,7 @@ export const scenes: Scene[] = [
       { x: 3, y: 3.1, width: 7.1, height: 4.45 },
       { x: 11, y: 11.2, width: 8.2, height: 4 },
     ],
-    props: [
-      {
-        id: "sales-building",
-        label: buildingNameplates.sales,
-        position: { x: 3, y: 2.5 },
-        size: { width: 7.1, height: 6.6 },
-        sprite: officeExteriorSprite(0, 2432, 384, 608),
-        collision: true,
-      },
-      {
-        id: "operations-building",
-        label: buildingNameplates.operations,
-        position: { x: 18.9, y: 2.5 },
-        size: { width: 8.5, height: 6.6 },
-        sprite: officeExteriorSprite(352, 1792, 640, 608),
-        collision: true,
-      },
-      {
-        id: "lab-building",
-        label: buildingNameplates.lab,
-        position: { x: 11, y: 11.05 },
-        size: { width: 8.2, height: 5.15 },
-        sprite: officeExteriorSprite(352, 1792, 640, 608),
-        collision: true,
-      },
-    ],
+    props: [],
   },
   {
     id: "operations",

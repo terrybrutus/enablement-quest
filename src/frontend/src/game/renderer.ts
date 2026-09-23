@@ -161,6 +161,7 @@ function drawSceneBase(
   }
 
   drawTilePatches(ctx, scene, camera, assets);
+  drawExteriorLandmarks(ctx, scene, camera);
   drawRoomBorders(ctx, scene, camera, assets);
 }
 
@@ -189,6 +190,228 @@ function drawTilePatches(
       }
     }
   }
+}
+
+function drawExteriorLandmarks(
+  ctx: CanvasRenderingContext2D,
+  scene: Scene,
+  camera: { x: number; y: number },
+) {
+  if (scene.id !== "hub") {
+    return;
+  }
+
+  const buildings = [
+    {
+      rect: { x: 3, y: 2.7, width: 7.1, height: 4.85 },
+      label: "Sales Strategy Studio",
+      accent: "#22d3ee",
+      fill: "#164e63",
+      door: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 },
+    },
+    {
+      rect: { x: 18.9, y: 2.7, width: 8.5, height: 4.85 },
+      label: "Operations Suite",
+      accent: "#f59e0b",
+      fill: "#713f12",
+      door: { x: 21.55, y: 7.02, width: 1.05, height: 0.72 },
+    },
+    {
+      rect: { x: 11, y: 11.2, width: 8.2, height: 4 },
+      label: "Learning Systems Lab",
+      accent: "#a78bfa",
+      fill: "#4c1d95",
+      door: { x: 14.45, y: 14.72, width: 1.1, height: 0.72 },
+    },
+  ];
+
+  for (const building of buildings) {
+    drawCampusBuilding(
+      ctx,
+      building.rect.x * TILE_SIZE - camera.x,
+      building.rect.y * TILE_SIZE - camera.y,
+      building.rect.width * TILE_SIZE,
+      building.rect.height * TILE_SIZE,
+      building.fill,
+      building.accent,
+      building.label,
+    );
+
+    drawCampusDoor(
+      ctx,
+      building.door.x * TILE_SIZE - camera.x,
+      building.door.y * TILE_SIZE - camera.y,
+      building.door.width * TILE_SIZE,
+      building.door.height * TILE_SIZE,
+      building.accent,
+    );
+  }
+
+  drawCampusFountain(
+    ctx,
+    15 * TILE_SIZE - camera.x,
+    9.45 * TILE_SIZE - camera.y,
+  );
+  drawCampusPlanting(ctx, camera);
+  drawCampusPlaque(
+    ctx,
+    "Choose a case",
+    15 * TILE_SIZE - camera.x,
+    7.2 * TILE_SIZE - camera.y,
+  );
+}
+
+function drawCampusPlanting(
+  ctx: CanvasRenderingContext2D,
+  camera: { x: number; y: number },
+) {
+  const shrubs = [
+    { x: 4.4, y: 8.15 },
+    { x: 9.2, y: 8.15 },
+    { x: 20.1, y: 8.15 },
+    { x: 25.4, y: 8.15 },
+    { x: 12.2, y: 15.7 },
+    { x: 18.1, y: 15.7 },
+    { x: 13.2, y: 9.95 },
+    { x: 16.8, y: 9.95 },
+  ];
+
+  ctx.save();
+  for (const shrub of shrubs) {
+    const x = shrub.x * TILE_SIZE - camera.x;
+    const y = shrub.y * TILE_SIZE - camera.y;
+    ctx.fillStyle = "rgba(20, 83, 45, 0.86)";
+    ctx.beginPath();
+    ctx.arc(x - 10, y, 13, 0, Math.PI * 2);
+    ctx.arc(x + 2, y - 6, 15, 0, Math.PI * 2);
+    ctx.arc(x + 14, y, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(134, 239, 172, 0.42)";
+    ctx.beginPath();
+    ctx.arc(x - 4, y - 9, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawCampusBuilding(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  fill: string,
+  accent: string,
+  label: string,
+) {
+  ctx.save();
+  ctx.shadowColor = "rgba(0, 0, 0, 0.38)";
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 8;
+  ctx.fillStyle = "rgba(15, 23, 42, 0.42)";
+  roundRect(ctx, x + 8, y + 18, width - 16, height - 4, 14);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+
+  ctx.fillStyle = fill;
+  roundRect(ctx, x, y + 20, width, height - 20, 14);
+  ctx.fill();
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.moveTo(x + width * 0.12, y + 34);
+  ctx.lineTo(x + width / 2, y);
+  ctx.lineTo(x + width * 0.88, y + 34);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = "rgba(15, 23, 42, 0.82)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.24)";
+  for (let index = 0; index < 3; index += 1) {
+    const windowX = x + width * (0.2 + index * 0.27);
+    ctx.fillRect(windowX, y + height * 0.42, 28, 24);
+    ctx.fillRect(windowX, y + height * 0.62, 28, 24);
+  }
+
+  drawCampusPlaque(ctx, label, x + width / 2, y + height * 0.22);
+  ctx.restore();
+}
+
+function drawCampusDoor(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  accent: string,
+) {
+  ctx.save();
+  ctx.fillStyle = "rgba(2, 6, 23, 0.8)";
+  roundRect(ctx, x, y, width, height, 8);
+  ctx.fill();
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(x + width - 13, y + height / 2, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCampusFountain(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
+  ctx.save();
+  ctx.fillStyle = "rgba(14, 165, 233, 0.18)";
+  ctx.strokeStyle = "rgba(125, 211, 252, 0.9)";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.ellipse(x, y, 58, 34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(186, 230, 253, 0.9)";
+  ctx.lineWidth = 3;
+  for (let index = 0; index < 3; index += 1) {
+    ctx.beginPath();
+    ctx.arc(x, y - 4, 14 + index * 12, Math.PI * 1.05, Math.PI * 1.95);
+    ctx.stroke();
+  }
+  ctx.fillStyle = "#67e8f9";
+  ctx.beginPath();
+  ctx.arc(x, y - 5, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawCampusPlaque(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+) {
+  ctx.save();
+  ctx.font = "900 13px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  const width = Math.min(ctx.measureText(text).width + 30, 230);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.86)";
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.22)";
+  ctx.lineWidth = 1;
+  roundRect(ctx, x - width / 2, y - 15, width, 30, 10);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#f8fafc";
+  ctx.fillText(text, x, y + 5);
+  ctx.restore();
 }
 
 function drawRoomBorders(
