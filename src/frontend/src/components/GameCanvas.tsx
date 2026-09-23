@@ -1142,6 +1142,21 @@ function CanvasPanel({
         ))}
       </div>
 
+      {artifact.learnerDebrief && (
+        <aside className="eq-learner-debrief" aria-label="Learner debrief">
+          <p className="eq-kicker">Learner debrief</p>
+          <h3>{artifact.learnerDebrief.headline}</h3>
+          <div>
+            {artifact.learnerDebrief.points.map((point) => (
+              <article key={point.label}>
+                <strong>{point.label}</strong>
+                <span>{point.value}</span>
+              </article>
+            ))}
+          </div>
+        </aside>
+      )}
+
       {artifact.portfolioTakeaway && (
         <aside
           className="eq-portfolio-takeaway"

@@ -784,6 +784,54 @@
   padding: 14px;
 }
 
+.eq-learner-debrief {
+  border: 1px solid rgba(125, 211, 252, 0.24);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 47, 73, 0.24),
+    rgba(30, 41, 59, 0.42)
+  );
+  margin-top: 14px;
+  padding: 14px 16px;
+}
+
+.eq-learner-debrief h3 {
+  color: #f8fafc;
+  font-size: 1rem;
+  margin: 0 0 10px;
+}
+
+.eq-learner-debrief > div {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eq-learner-debrief article {
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.26);
+  padding: 11px;
+}
+
+.eq-learner-debrief strong,
+.eq-learner-debrief span {
+  display: block;
+}
+
+.eq-learner-debrief strong {
+  color: #bae6fd;
+  font-size: 0.82rem;
+  margin-bottom: 5px;
+}
+
+.eq-learner-debrief span {
+  color: #dbeafe;
+  font-size: 0.8rem;
+  line-height: 1.42;
+}
+
 .eq-portfolio-takeaway {
   border: 1px solid rgba(52, 211, 153, 0.24);
   border-radius: 18px;
@@ -1483,6 +1531,7 @@
   .eq-decision-checklist ol,
   .eq-case-outcome,
   .eq-canvas-grid,
+  .eq-learner-debrief > div,
   .eq-final-debrief-grid,
   .eq-title-grid {
     grid-template-columns: 1fr;

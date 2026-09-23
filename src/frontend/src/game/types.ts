@@ -167,6 +167,13 @@ export interface EarnedArtifact {
   id: string;
   title: string;
   subtitle: string;
+  learnerDebrief?: {
+    headline: string;
+    points: Array<{
+      label: string;
+      value: string;
+    }>;
+  };
   portfolioTakeaway?: string;
   sections: Array<{
     label: string;

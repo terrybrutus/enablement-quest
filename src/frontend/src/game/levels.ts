@@ -827,6 +827,26 @@ export const earnedCanvas: EarnedArtifact = {
   id: "enablement-diagnostic-canvas",
   title: "Enablement Diagnostic Case Summary",
   subtitle: "Case: New hire ramp is slower than expected",
+  learnerDebrief: {
+    headline: "What you practiced",
+    points: [
+      {
+        label: "Diagnose",
+        value:
+          "You tested the training request against clues from people, process, tools, and follow-up.",
+      },
+      {
+        label: "Design",
+        value:
+          "You chose support that changes the work: checklist, job aid, handoff map, and dashboard.",
+      },
+      {
+        label: "Measure",
+        value:
+          "You connected the fix to ramp time, support tickets, and confidence.",
+      },
+    ],
+  },
   portfolioTakeaway:
     "This case summary shows the performance-consulting move: Terry did not accept the training request at face value. He traced the clues to workflow, access, reinforcement, and measurement before choosing a solution.",
   sections: [
@@ -866,6 +886,26 @@ export const salesCanvas: EarnedArtifact = {
   id: "sales-enablement-impact-canvas",
   title: "Sales Enablement Impact Case Summary",
   subtitle: "Case: Demo quality is not converting into next steps",
+  learnerDebrief: {
+    headline: "What you practiced",
+    points: [
+      {
+        label: "Diagnose",
+        value:
+          "You separated product knowledge from the sales behavior blocking next steps.",
+      },
+      {
+        label: "Design",
+        value:
+          "You chose a coaching system that supports reps before, during, and after demos.",
+      },
+      {
+        label: "Measure",
+        value:
+          "You tied enablement work to conversion, rubric use, and discovery quality.",
+      },
+    ],
+  },
   portfolioTakeaway:
     "This case summary shows the sales enablement move: Terry connects discovery behavior, manager coaching, and pipeline inspection to revenue outcomes instead of treating demo training as the default fix.",
   sections: [
