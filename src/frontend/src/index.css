@@ -134,11 +134,38 @@
 .eq-hud-summary strong {
   color: #f8fafc;
   display: -webkit-box;
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   line-height: 1.2;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
+}
+
+.eq-hud-coach {
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 14px;
+  background: rgba(8, 47, 73, 0.18);
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 10px 12px;
+}
+
+.eq-hud-coach strong,
+.eq-hud-coach span {
+  display: block;
+}
+
+.eq-hud-coach strong {
+  color: #e0f2fe;
+  font-size: 0.88rem;
+  line-height: 1.25;
+}
+
+.eq-hud-coach span {
+  color: #b6c6d9;
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .eq-hud-card h1 {
@@ -190,6 +217,11 @@
   border-color: rgba(52, 211, 153, 0.35);
   background: rgba(5, 150, 105, 0.18);
   color: #bbf7d0;
+}
+
+.eq-learning-purpose {
+  border-color: rgba(52, 211, 153, 0.24);
+  background: rgba(6, 78, 59, 0.12);
 }
 
 .eq-hud-button,
@@ -1425,7 +1457,7 @@
   }
 
   .eq-hud-summary strong {
-    font-size: 0.62rem;
+    font-size: 0.74rem;
     line-height: 1.18;
   }
 
@@ -1437,6 +1469,19 @@
   .eq-next-objective {
     font-size: 0.8rem;
     line-height: 1.3;
+  }
+
+  .eq-hud-coach {
+    margin-top: 7px;
+    padding: 8px 9px;
+  }
+
+  .eq-hud-coach strong {
+    font-size: 0.78rem;
+  }
+
+  .eq-hud-coach span {
+    font-size: 0.72rem;
   }
 
   .eq-hud-card .mt-3 {

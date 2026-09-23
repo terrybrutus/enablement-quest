@@ -136,13 +136,7 @@ export function useGameLoop({
       setGameState((previous) => ({
         ...previous,
         overlay: "decision",
-        toast: {
-          id: Date.now(),
-          message:
-            previous.questStage === "diagnose"
-              ? "Choices opened. Choose the root cause that explains every clue."
-              : "Choices opened. Choose the solution that fits the root cause.",
-        },
+        toast: null,
       }));
       return;
     }
@@ -190,13 +184,10 @@ export function useGameLoop({
           sceneId: portal.targetSceneId,
           position: portal.targetPosition,
         },
-        toast: {
-          id: Date.now(),
-          message:
-            "toast" in caseTransition && caseTransition.toast
-              ? `${caseTransition.toast.message} Entered ${portal.label}.`
-              : `Entered ${portal.label}`,
-        },
+        toast:
+          "toast" in caseTransition && caseTransition.toast
+            ? caseTransition.toast
+            : null,
       }));
       return;
     }
@@ -418,13 +409,10 @@ function moveWithinScene(
         direction,
         isMoving: false,
       },
-      toast: {
-        id: Date.now(),
-        message:
-          "toast" in caseTransition && caseTransition.toast
-            ? `${caseTransition.toast.message} Entered ${edgePortal.label}.`
-            : `Entered ${edgePortal.label}`,
-      },
+      toast:
+        "toast" in caseTransition && caseTransition.toast
+          ? caseTransition.toast
+          : null,
     };
   }
 
@@ -507,13 +495,10 @@ function moveWithinScene(
         direction,
         isMoving: false,
       },
-      toast: {
-        id: Date.now(),
-        message:
-          "toast" in caseTransition && caseTransition.toast
-            ? `${caseTransition.toast.message} Entered ${portal.label}.`
-            : `Entered ${portal.label}`,
-      },
+      toast:
+        "toast" in caseTransition && caseTransition.toast
+          ? caseTransition.toast
+          : null,
     };
   }
 

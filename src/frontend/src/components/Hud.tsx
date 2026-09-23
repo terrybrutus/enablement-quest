@@ -19,6 +19,8 @@ interface HudProps {
   evidenceTotal: number;
   hasArtifact: boolean;
   nextObjective: string;
+  coachAction: string;
+  coachReason: string;
   inputRef: MutableRefObject<InputState>;
   onOpenQuest: () => void;
   onOpenCaseFile: () => void;
@@ -42,14 +44,17 @@ export function Hud({
   evidenceTotal,
   hasArtifact,
   nextObjective,
+  coachAction,
+  coachReason,
   inputRef,
   onOpenQuest,
   onOpenCaseFile,
   onOpenSettings,
   onInteract,
 }: HudProps) {
-  const [isGuideExpanded, setIsGuideExpanded] = useState(false);
-  const shortObjective = shortenObjective(nextObjective);
+  const [isGuideExpanded, setIsGuideExpanded] = useState(
+    () => typeof window !== "undefined" && window.innerWidth > 780,
+  );
   const stepLabel = getStepLabel(questStage, evidenceCount, evidenceTotal);
 
   return (
@@ -78,6 +83,10 @@ export function Hud({
                 <p className="eq-kicker">{sceneName}</p>
                 <h1>{sceneSubtitle}</h1>
                 <p className="eq-next-objective">{nextObjective}</p>
+                <div className="eq-hud-coach">
+                  <strong>Do this next: {coachAction}</strong>
+                  <span>Why it matters: {coachReason}</span>
+                </div>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   <span className="eq-pill">
                     <Crosshair className="h-3.5 w-3.5" />
@@ -95,7 +104,7 @@ export function Hud({
           ) : (
             <div className="eq-hud-summary">
               <span>{stepLabel}</span>
-              <strong title={nextObjective}>{shortObjective}</strong>
+              <strong title={nextObjective}>{coachAction}</strong>
               <small>
                 Clues {evidenceCount}/{evidenceTotal}
               </small>
@@ -135,56 +144,6 @@ export function Hud({
       <MobileControls inputRef={inputRef} onInteract={onInteract} />
     </div>
   );
-}
-
-function shortenObjective(objective: string) {
-  return objective
-    .replace("Step 1 of 6: ", "")
-    .replace("Step 2 of 6: ", "")
-    .replace("Step 3 of 6: ", "")
-    .replace("Step 4 of 6: ", "")
-    .replace("Step 5 of 6: ", "")
-    .replace("Step 6 of 6: ", "")
-    .replace("Step 1 of 5: ", "")
-    .replace("Step 2 of 5: ", "")
-    .replace("Step 3 of 5: ", "")
-    .replace("Step 4 of 5: ", "")
-    .replace("Step 5 of 5: ", "")
-    .replace(
-      "Enter Operations Suite and talk to Maya.",
-      "Go to Operations, talk to Maya.",
-    )
-    .replace(
-      "Talk to Maya first, then inspect the marked evidence in order.",
-      "Talk to Maya, check clues.",
-    )
-    .replace(
-      "Enter Sales Strategy Studio and talk to Leo.",
-      "Go to Sales Studio, talk to Leo.",
-    )
-    .replace(
-      "Talk to Leo first, then inspect the marked evidence in order.",
-      "Talk to Leo, check clues.",
-    )
-    .replace(
-      "Close the case summary, leave Operations, then enter Sales Strategy Studio.",
-      "Close summary. Go to Sales Studio.",
-    )
-    .replace(
-      "Case complete: review both summaries and the business impact story.",
-      "Case complete. Review impact.",
-    )
-    .replace(/, then /gi, " -> ")
-    .replace("marked evidence", "clues")
-    .replace("Evidence reviewed", "Clues reviewed")
-    .replace("Evidence ", "Clues ")
-    .replace("Operations Suite", "Operations")
-    .replace("Sales Strategy Studio", "Sales Studio")
-    .replace(
-      "intervention that fits the root cause and metric",
-      "best intervention",
-    )
-    .replace("Open the decision panel and choose", "Choose");
 }
 
 function getStepLabel(

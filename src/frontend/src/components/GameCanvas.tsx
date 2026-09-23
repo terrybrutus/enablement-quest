@@ -216,6 +216,14 @@ export default function GameCanvas() {
     gameState.player.sceneId,
     gameState.completedCaseIds,
   );
+  const coachPrompt = getCoachPrompt(
+    gameState.currentCaseId,
+    gameState.questStage,
+    currentCollectedEvidenceCount,
+    currentEvidenceItems.length,
+    gameState.player.sceneId,
+    gameState.completedCaseIds,
+  );
 
   const closeOverlay = useCallback(() => {
     setGameState((previous) => ({
@@ -271,11 +279,7 @@ export default function GameCanvas() {
       earnedArtifact: null,
       dialogue: null,
       overlay: "none",
-      toast: {
-        id: Date.now(),
-        message:
-          "Step 1 of 5: talk with Maya. Your job is to test whether training is really the fix.",
-      },
+      toast: null,
     }));
   }, []);
 
@@ -305,13 +309,7 @@ export default function GameCanvas() {
           questStage: nextStage,
           overlay: "none",
           dialogue: null,
-          toast:
-            previous.questStage === "briefing"
-              ? {
-                  id: Date.now(),
-                  message: `Step 2 of 5: inspect ${currentEvidenceItems.length} clues. For each clue, separate the useful signal from the tempting assumption.`,
-                }
-              : previous.toast,
+          toast: previous.questStage === "briefing" ? null : previous.toast,
         };
       }
       return {
@@ -319,7 +317,7 @@ export default function GameCanvas() {
         dialogue: { ...previous.dialogue, lineIndex: nextIndex },
       };
     });
-  }, [currentEvidenceItems.length]);
+  }, []);
 
   useEffect(() => {
     const handleDialogueKeys = (event: KeyboardEvent) => {
@@ -348,12 +346,13 @@ export default function GameCanvas() {
         ...previous,
         diagnosisId: id,
         questStage: option.correct ? "design" : previous.questStage,
-        toast: {
-          id: Date.now(),
-          message: option.correct
-            ? "Step 4 of 5: diagnosis accepted. Now choose the solution that fixes the real work problem."
-            : "Not quite. Re-check the clue pattern before choosing a solution.",
-        },
+        toast: option.correct
+          ? null
+          : {
+              id: Date.now(),
+              message:
+                "Not quite. Re-check the clue pattern before choosing a solution.",
+            },
       }));
     },
     [currentDiagnosisOptions],
@@ -407,6 +406,8 @@ export default function GameCanvas() {
           evidenceTotal={currentEvidenceItems.length}
           hasArtifact={Boolean(gameState.earnedArtifact)}
           nextObjective={nextObjective}
+          coachAction={coachPrompt.action}
+          coachReason={coachPrompt.reason}
           onOpenQuest={() => setOverlay("quest")}
           onOpenCaseFile={() => setOverlay("backpack")}
           onOpenSettings={() => setOverlay("settings")}
@@ -649,6 +650,76 @@ function getNextObjective(
     return "Step 5 of 5: review the case summary. It shows the before, decision, solution, and impact.";
   }
   return "Case complete: review both summaries and the business impact story.";
+}
+
+function getCoachPrompt(
+  caseId: GameState["currentCaseId"],
+  questStage: GameState["questStage"],
+  evidenceCount: number,
+  evidenceTotal: number,
+  sceneId: GameState["player"]["sceneId"],
+  completedCaseIds: GameState["completedCaseIds"],
+) {
+  const caseOwner = caseId === "sales" ? "Leo" : "Maya";
+  const room = caseId === "sales" ? "Sales Studio" : "Operations";
+
+  if (questStage === "briefing") {
+    return sceneId === (caseId === "sales" ? "sales" : "operations")
+      ? {
+          action: `Talk with ${caseOwner}`,
+          reason:
+            "real enablement starts by understanding the business request before building a solution.",
+        }
+      : {
+          action: `Enter ${room}`,
+          reason:
+            "the case begins with the person asking for help, not with a template or course idea.",
+        };
+  }
+
+  if (questStage === "investigate") {
+    return evidenceCount < evidenceTotal
+      ? {
+          action: `Review clue ${evidenceCount + 1} of ${evidenceTotal}`,
+          reason:
+            "each clue helps you separate the real performance problem from the tempting quick fix.",
+        }
+      : {
+          action: "Choose the root cause",
+          reason:
+            "a good diagnosis explains all clues at once, not just the loudest complaint.",
+        };
+  }
+
+  if (questStage === "diagnose") {
+    return {
+      action: "Choose the root cause",
+      reason:
+        "this is where you prove judgment: training is only right when the clues show a knowledge or skill gap.",
+    };
+  }
+
+  if (questStage === "design") {
+    return {
+      action: "Choose the intervention",
+      reason:
+        "the best solution changes daily work and gives leaders a business signal they can inspect.",
+    };
+  }
+
+  if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
+    return {
+      action: "Review the case summary",
+      reason:
+        "the summary turns the playthrough into a portfolio artifact: problem, decision, solution, and impact.",
+    };
+  }
+
+  return {
+    action: "Review both case summaries",
+    reason:
+      "together, the cases show both performance consulting and sales enablement judgment.",
+  };
 }
 
 function EvidencePanel({

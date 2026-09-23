@@ -84,6 +84,15 @@ export function QuestLog({
         </ol>
       </div>
 
+      <div className="eq-mini-section eq-learning-purpose">
+        <h3>What you are practicing</h3>
+        <p>
+          You are learning to pause before building training, gather clues,
+          diagnose the real work problem, choose the right enablement support,
+          and connect the choice to a business result.
+        </p>
+      </div>
+
       <div className="eq-step-list">
         {steps.map((step, index) => {
           const done = index < currentIndex || questStage === "complete";
