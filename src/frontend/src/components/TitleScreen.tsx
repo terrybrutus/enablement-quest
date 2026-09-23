@@ -32,9 +32,21 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           Guided Case: The Broken Onboarding Request
         </p>
         <p className="eq-title-copy">
-          A leader asks for more training. Your job is to investigate whether
-          training is really the fix, choose a better solution when needed, and
-          show the business impact.
+          A leader asks for more training. In this short workplace case, you
+          decide whether training is actually the fix.
+        </p>
+
+        <section className="eq-plain-start" aria-label="Plain language start">
+          <p>No gaming knowledge needed.</p>
+          <span>
+            Talk with Maya, review three clues, choose the real problem, then
+            pick the solution that improves the business result.
+          </span>
+        </section>
+
+        <p className="eq-title-copy eq-title-copy-secondary">
+          This is a playable case study about judgment: diagnose before you
+          design.
         </p>
 
         <div className="eq-title-grid">
@@ -49,29 +61,31 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <article>
             <LineChart className="h-5 w-5" />
             <span>
-              Choose a solution and review the business-impact canvas.
+              Choose a solution and review the business-impact summary.
             </span>
           </article>
         </div>
 
-        <section
-          className="eq-reviewer-lens"
-          aria-label="What recruiters should review"
-        >
-          <p>Reviewer lens</p>
-          <ul>
-            <li>Performance consulting: Terry diagnoses before designing.</li>
-            <li>
-              Learning architecture: evidence becomes a practical solution.
-            </li>
-            <li>
-              Business impact: every decision points to a measurable result.
-            </li>
-          </ul>
-        </section>
-
         {isReviewGuideOpen && (
           <div className="eq-review-wrapper">
+            <section
+              className="eq-reviewer-lens"
+              aria-label="What recruiters should review"
+            >
+              <p>Reviewer lens</p>
+              <ul>
+                <li>
+                  Performance consulting: Terry diagnoses before designing.
+                </li>
+                <li>
+                  Learning architecture: evidence becomes a practical solution.
+                </li>
+                <li>
+                  Business impact: every decision points to a measurable result.
+                </li>
+              </ul>
+            </section>
+
             <section
               className="eq-creator-statement"
               aria-label="Creator statement"
@@ -95,7 +109,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
                 <span>
                   Talk with Maya, inspect three evidence cards, choose the root
                   cause, choose the intervention, and review the business-impact
-                  canvas.
+                  summary.
                 </span>
               </div>
               <div>
