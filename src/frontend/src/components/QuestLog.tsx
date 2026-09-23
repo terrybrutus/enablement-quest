@@ -55,11 +55,11 @@ export function QuestLog({
   return (
     <section
       className="eq-overlay eq-panel eq-side-panel"
-      aria-label="Mission guide"
+      aria-label="Case guide"
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Mission Guide</p>
+          <p className="eq-kicker">Case Guide</p>
           <h2>{caseTitles[currentCaseId]}</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
@@ -146,7 +146,7 @@ function getSteps(caseId: CaseId) {
       id: "complete",
       title: "5. Review the impact",
       description:
-        "Review the canvas. This is the portfolio artifact showing the problem, evidence, decision, solution, and impact.",
+        "Review the case summary. It shows the problem, evidence, decision, solution, and business impact.",
     },
   ] as const;
 }
@@ -171,5 +171,5 @@ function getActiveGuidance(
   if (questStage === "design") {
     return "Choose the solution that fits the root cause. The best answer changes behavior and creates a measurable signal.";
   }
-  return "Review the earned canvas. This is the portfolio artifact that explains the problem, evidence, decision, solution, and impact.";
+  return "Review the case summary. It explains the problem, evidence, decision, solution, and business impact.";
 }

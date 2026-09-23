@@ -151,7 +151,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             Interact: E / Space / Enter
           </span>
           <span className="eq-desktop-control">Guide: Q</span>
-          <span className="eq-desktop-control">Backpack: B</span>
+          <span className="eq-desktop-control">Case File: B</span>
           <span className="eq-mobile-control">Move: joystick</span>
           <span className="eq-mobile-control">Interact: button</span>
         </div>

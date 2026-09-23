@@ -616,7 +616,7 @@ async function completeSalesCase(send, viewport) {
       state?.questStage === "complete" &&
       state.completedCaseIds?.includes("onboarding") &&
       state.completedCaseIds?.includes("sales"),
-    "Correct sales intervention did not complete the full mission",
+    "Correct sales intervention did not complete the full case",
   );
 }
 

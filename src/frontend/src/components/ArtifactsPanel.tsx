@@ -1,6 +1,6 @@
 import { evidenceItems } from "@/game/levels";
 import type { EarnedArtifact } from "@/game/types";
-import { Backpack, FileText, X } from "lucide-react";
+import { FileText, FolderOpen, X } from "lucide-react";
 
 interface ArtifactsPanelProps {
   collectedEvidenceIds: string[];
@@ -22,12 +22,12 @@ export function ArtifactsPanel({
   return (
     <section
       className="eq-overlay eq-panel eq-side-panel is-right"
-      aria-label="Backpack"
+      aria-label="Case file"
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Backpack</p>
-          <h2>Evidence and artifacts</h2>
+          <p className="eq-kicker">Case File</p>
+          <h2>Evidence and summaries</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -37,10 +37,10 @@ export function ArtifactsPanel({
 
       {collected.length === 0 ? (
         <div className="eq-empty">
-          <Backpack className="h-8 w-8" />
+          <FolderOpen className="h-8 w-8" />
           <p>
             No evidence collected yet. Enter Operations Suite and inspect the
-            case artifacts.
+            case evidence.
           </p>
         </div>
       ) : (
@@ -65,7 +65,7 @@ export function ArtifactsPanel({
           type="button"
           onClick={onOpenCanvas}
         >
-          Open {earnedArtifact.title}
+          Open case summary
         </button>
       )}
     </section>

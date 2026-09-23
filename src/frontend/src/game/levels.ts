@@ -97,7 +97,7 @@ export const scenes: Scene[] = [
   {
     id: "lab",
     name: "Learning Systems Lab",
-    subtitle: "Base camp for the diagnostic mission",
+    subtitle: "Base camp for the diagnostic case",
     width: 18,
     height: 13,
     theme: "interior",
@@ -158,7 +158,7 @@ export const scenes: Scene[] = [
       {
         id: "lab-server-stack",
         description:
-          "The server rack stores case artifacts. Evidence matters more than assumptions.",
+          "The server rack stores case evidence. Evidence matters more than assumptions.",
         position: { x: 4.1, y: 8.5 },
         size: { width: 1.5, height: 1.7 },
         sprite: officeSprite(0, 1152, 96, 96),

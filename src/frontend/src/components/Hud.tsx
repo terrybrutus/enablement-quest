@@ -1,8 +1,8 @@
 import type { InputState, QuestStage } from "@/game/types";
 import {
-  Backpack,
   ClipboardList,
   Crosshair,
+  FolderOpen,
   Hand,
   Info,
   MapPin,
@@ -21,7 +21,7 @@ interface HudProps {
   nextObjective: string;
   inputRef: MutableRefObject<InputState>;
   onOpenQuest: () => void;
-  onOpenBackpack: () => void;
+  onOpenCaseFile: () => void;
   onOpenSettings: () => void;
   onInteract: () => void;
 }
@@ -44,7 +44,7 @@ export function Hud({
   nextObjective,
   inputRef,
   onOpenQuest,
-  onOpenBackpack,
+  onOpenCaseFile,
   onOpenSettings,
   onInteract,
 }: HudProps) {
@@ -115,10 +115,10 @@ export function Hud({
           <button
             className="eq-hud-button"
             type="button"
-            onClick={onOpenBackpack}
+            onClick={onOpenCaseFile}
           >
-            <Backpack className="h-4 w-4" />
-            <span>Backpack</span>
+            <FolderOpen className="h-4 w-4" />
+            <span>Case File</span>
             <kbd>B</kbd>
           </button>
           <button
@@ -171,8 +171,8 @@ function shortenObjective(objective: string) {
       "Close canvas. Go to Sales Studio.",
     )
     .replace(
-      "Mission complete: review both canvases and the business impact story.",
-      "Mission complete. Review impact.",
+      "Case complete: review both summaries and the business impact story.",
+      "Case complete. Review impact.",
     )
     .replace(/, then /gi, " -> ")
     .replace("marked evidence", "evidence")

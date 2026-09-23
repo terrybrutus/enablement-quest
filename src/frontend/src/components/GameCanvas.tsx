@@ -408,7 +408,7 @@ export default function GameCanvas() {
           hasArtifact={Boolean(gameState.earnedArtifact)}
           nextObjective={nextObjective}
           onOpenQuest={() => setOverlay("quest")}
-          onOpenBackpack={() => setOverlay("backpack")}
+          onOpenCaseFile={() => setOverlay("backpack")}
           onOpenSettings={() => setOverlay("settings")}
           onInteract={interact}
           inputRef={inputRef}
@@ -621,7 +621,7 @@ function getNextObjective(
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return "Step 5 of 5: review the canvas. This is the portfolio proof; Sales Strategy Studio is optional next.";
   }
-  return "Mission complete: review both canvases and the business impact story.";
+  return "Case complete: review both summaries and the business impact story.";
 }
 
 function EvidencePanel({
@@ -755,7 +755,7 @@ function SettingsPanel({
         <div>
           <p className="eq-kicker">Settings</p>
           <h2>Play Options</h2>
-          <p>Adjust movement without changing the mission.</p>
+          <p>Adjust movement without changing the case.</p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           Close
@@ -955,7 +955,7 @@ function CanvasPanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Earned Artifact</p>
+          <p className="eq-kicker">Case Summary</p>
           <h2>{artifact.title}</h2>
           <p>{artifact.subtitle}</p>
         </div>
