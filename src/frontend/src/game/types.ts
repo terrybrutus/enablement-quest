@@ -150,6 +150,7 @@ export interface DiagnosisOption {
   explanation: string;
   correct: boolean;
   evidenceHint: string;
+  learningTakeaway: string;
 }
 
 export interface InterventionOption {
@@ -159,6 +160,7 @@ export interface InterventionOption {
   explanation: string;
   correct: boolean;
   tradeoff: string;
+  learningTakeaway: string;
 }
 
 export interface EarnedArtifact {

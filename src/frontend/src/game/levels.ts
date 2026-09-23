@@ -681,6 +681,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     correct: false,
     evidenceHint:
       "The clues show conflicting instructions and access delays, not missing orientation content.",
+    learningTakeaway:
+      "Do not label a problem as training until the clues show people lack knowledge or skill.",
   },
   {
     id: "workflow-reinforcement",
@@ -692,6 +694,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     correct: true,
     evidenceHint:
       "Interview notes, process handoffs, and week-two tickets all point to workflow plus reinforcement.",
+    learningTakeaway:
+      "A strong diagnosis explains the whole work system: process, manager behavior, tools, and follow-up.",
   },
   {
     id: "software-broken",
@@ -702,6 +706,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     correct: false,
     evidenceHint:
       "Access delay matters, but nothing says the tool itself fails after access is granted.",
+    learningTakeaway:
+      "A contributing factor is not always the root cause. Look for the pattern that explains the full case.",
   },
   {
     id: "sales-product-training",
@@ -712,6 +718,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     correct: false,
     evidenceHint:
       "Feature explanation is not the weak signal; discovery depth and next-step conversion are.",
+    learningTakeaway:
+      "Sales enablement should target the behavior that changes pipeline outcomes, not just product knowledge.",
   },
   {
     id: "sales-discovery-coaching",
@@ -723,6 +731,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     correct: true,
     evidenceHint:
       "The call review, CRM audit, and coaching note triangulate the same behavior gap.",
+    learningTakeaway:
+      "When multiple clues point to the same sales behavior, design for practice, coaching, and inspection.",
   },
   {
     id: "sales-more-activity",
@@ -733,6 +743,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     correct: false,
     evidenceHint:
       "The pipeline signal points to behavior before and after the demo, not a standalone content refresh.",
+    learningTakeaway:
+      "Content may support the solution, but it rarely replaces behavior change and manager reinforcement.",
   },
 ];
 
@@ -746,6 +758,8 @@ export const interventionOptions: InterventionOption[] = [
     correct: false,
     tradeoff:
       "Fast to ship, but it leaves managers and access handoffs untouched.",
+    learningTakeaway:
+      "A course is useful only when the root cause is knowledge or skill. This case needs work-system support.",
   },
   {
     id: "diagnostic-canvas",
@@ -756,6 +770,8 @@ export const interventionOptions: InterventionOption[] = [
     correct: true,
     tradeoff:
       "Requires manager adoption, but it addresses workflow, reinforcement, and measurement together.",
+    learningTakeaway:
+      "The best enablement solution changes the workflow and gives leaders a signal they can inspect.",
   },
   {
     id: "announcement",
@@ -766,6 +782,8 @@ export const interventionOptions: InterventionOption[] = [
     correct: false,
     tradeoff:
       "Low effort, low behavior change. It does not create a new operating habit.",
+    learningTakeaway:
+      "Awareness is not adoption. Sustainable enablement needs reinforcement in the flow of work.",
   },
   {
     id: "sales-demo-certification",
@@ -776,6 +794,8 @@ export const interventionOptions: InterventionOption[] = [
     correct: false,
     tradeoff:
       "It measures presentation skill more than buyer diagnosis or pipeline behavior.",
+    learningTakeaway:
+      "Certification can validate a skill, but it should not distract from the behavior blocking revenue.",
   },
   {
     id: "sales-coaching-system",
@@ -787,6 +807,8 @@ export const interventionOptions: InterventionOption[] = [
     correct: true,
     tradeoff:
       "It takes coordination with sales leaders, but it connects enablement work to revenue behavior.",
+    learningTakeaway:
+      "Sales enablement is strongest when rep practice, manager coaching, and pipeline measurement reinforce each other.",
   },
   {
     id: "sales-slack-reminder",
@@ -796,6 +818,8 @@ export const interventionOptions: InterventionOption[] = [
       "Tips can reinforce a habit, but alone they do not give reps practice, manager coaching, or measurement.",
     correct: false,
     tradeoff: "Useful as a support tactic, weak as the core intervention.",
+    learningTakeaway:
+      "Tips can support behavior change, but they do not create practice, coaching, or accountability by themselves.",
   },
 ];
 

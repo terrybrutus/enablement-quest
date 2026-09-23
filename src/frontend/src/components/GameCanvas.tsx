@@ -74,7 +74,7 @@ function createInitialGameState(): GameState {
     questStage: qaScene?.questStage ?? "briefing",
     collectedEvidenceIds: qaScene?.collectedEvidenceIds ?? [],
     diagnosisId: qaScene?.diagnosisId ?? null,
-    interventionId: null,
+    interventionId: qaScene?.interventionId ?? null,
     activeEvidenceId: null,
     earnedArtifact: null,
     overlay: qaScene?.overlay ?? (qaScene ? "none" : "briefing"),
@@ -528,6 +528,7 @@ function getQaScene(): {
   caseId: GameState["currentCaseId"];
   collectedEvidenceIds?: string[];
   diagnosisId?: string | null;
+  interventionId?: string | null;
   overlay?: GameState["overlay"];
   position: Position;
   questStage?: GameState["questStage"];
@@ -539,13 +540,15 @@ function getQaScene(): {
   const searchParams = new URLSearchParams(window.location.search);
   const sceneId = searchParams.get("qaScene");
   const qaStage = searchParams.get("qaStage");
+  const qaDiagnosis = searchParams.get("qaDiagnosis");
+  const qaIntervention = searchParams.get("qaIntervention");
   if (sceneId === "operations") {
     const caseId = "onboarding" as const;
     return {
       sceneId,
       caseId,
       position: { x: 9, y: 10.25 },
-      ...getQaStageState(caseId, qaStage),
+      ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention),
     };
   }
   if (sceneId === "sales") {
@@ -554,7 +557,7 @@ function getQaScene(): {
       sceneId,
       caseId,
       position: { x: 9, y: 10.25 },
-      ...getQaStageState(caseId, qaStage),
+      ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention),
     };
   }
   if (sceneId === "hub") {
@@ -570,6 +573,8 @@ function getQaScene(): {
 function getQaStageState(
   caseId: GameState["currentCaseId"],
   qaStage: string | null,
+  qaDiagnosis: string | null,
+  qaIntervention: string | null,
 ) {
   if (qaStage !== "diagnose" && qaStage !== "design") {
     return {};
@@ -580,9 +585,31 @@ function getQaStageState(
   const correctDiagnosis = diagnosisOptions.find(
     (option) => option.caseId === caseId && option.correct,
   );
+  const wrongDiagnosis = diagnosisOptions.find(
+    (option) => option.caseId === caseId && !option.correct,
+  );
+  const correctIntervention = interventionOptions.find(
+    (option) => option.caseId === caseId && option.correct,
+  );
+  const wrongIntervention = interventionOptions.find(
+    (option) => option.caseId === caseId && !option.correct,
+  );
+  const diagnosisId =
+    qaDiagnosis === "wrong"
+      ? (wrongDiagnosis?.id ?? null)
+      : qaStage === "design" || qaDiagnosis === "correct"
+        ? (correctDiagnosis?.id ?? null)
+        : null;
+  const interventionId =
+    qaIntervention === "wrong"
+      ? (wrongIntervention?.id ?? null)
+      : qaIntervention === "correct"
+        ? (correctIntervention?.id ?? null)
+        : null;
   return {
     collectedEvidenceIds,
-    diagnosisId: qaStage === "design" ? (correctDiagnosis?.id ?? null) : null,
+    diagnosisId,
+    interventionId,
     overlay: "decision" as const,
     questStage: qaStage as GameState["questStage"],
   };
@@ -994,6 +1021,7 @@ function DecisionCoach({
           {selectedDiagnosis.explanation} Look again at the clue check:{" "}
           {selectedDiagnosis.evidenceHint}
         </span>
+        <small>Lesson: {selectedDiagnosis.learningTakeaway}</small>
       </aside>
     );
   }
@@ -1010,6 +1038,7 @@ function DecisionCoach({
           changes the workflow, reinforces behavior, and gives leaders a useful
           metric.
         </span>
+        <small>Lesson: {selectedDiagnosis.learningTakeaway}</small>
       </aside>
     );
   }
@@ -1026,6 +1055,7 @@ function DecisionCoach({
         {selectedIntervention.explanation} Tradeoff:{" "}
         {selectedIntervention.tradeoff}
       </span>
+      <small>Lesson: {selectedIntervention.learningTakeaway}</small>
     </aside>
   );
 }

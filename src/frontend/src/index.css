@@ -658,6 +658,16 @@
   line-height: 1.45;
 }
 
+.eq-decision-coach small {
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  color: #f8fafc;
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-top: 5px;
+  padding-top: 7px;
+}
+
 .eq-decision-coach.is-warning {
   border-color: rgba(251, 191, 36, 0.32);
   background: linear-gradient(

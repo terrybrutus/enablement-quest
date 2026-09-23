@@ -678,6 +678,16 @@ async function runViewport(client, viewport) {
     viewport.name,
     "decision-onboarding",
   );
+  await navigateTo(
+    send,
+    `${appUrl}?qaScene=operations&qaStage=diagnose&qaDiagnosis=wrong`,
+  );
+  const onboardingWrongDecisionState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "decision-onboarding-wrong",
+  );
   await navigateTo(send, `${appUrl}?qaScene=operations&qaRun=actual`);
   await assertQaState(
     send,
@@ -727,6 +737,16 @@ async function runViewport(client, viewport) {
     viewport.name,
     "decision-sales",
   );
+  await navigateTo(
+    send,
+    `${appUrl}?qaScene=sales&qaStage=design&qaIntervention=correct`,
+  );
+  const salesCorrectSolutionState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "decision-sales-correct-solution",
+  );
 
   const relevantEvents = events
     .filter((event) =>
@@ -747,11 +767,13 @@ async function runViewport(client, viewport) {
       hubState,
       operationsState,
       onboardingDecisionState,
+      onboardingWrongDecisionState,
       onboardingCompleteState,
       enteredSalesFromJourneyState,
       salesCompleteState,
       salesState,
       salesDecisionState,
+      salesCorrectSolutionState,
     ],
     events: relevantEvents,
   };
