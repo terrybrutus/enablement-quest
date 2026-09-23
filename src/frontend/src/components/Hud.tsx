@@ -84,10 +84,10 @@ export function Hud({
                     {stepLabel}
                   </span>
                   <span className="eq-pill">
-                    Evidence {evidenceCount}/{evidenceTotal}
+                    Clues {evidenceCount}/{evidenceTotal}
                   </span>
                   {hasArtifact && (
-                    <span className="eq-pill is-success">Canvas earned</span>
+                    <span className="eq-pill is-success">Summary earned</span>
                   )}
                 </div>
               </div>
@@ -97,7 +97,7 @@ export function Hud({
               <span>{stepLabel}</span>
               <strong title={nextObjective}>{shortObjective}</strong>
               <small>
-                Evidence {evidenceCount}/{evidenceTotal}
+                Clues {evidenceCount}/{evidenceTotal}
               </small>
             </div>
           )}
@@ -156,7 +156,7 @@ function shortenObjective(objective: string) {
     )
     .replace(
       "Talk to Maya first, then inspect the marked evidence in order.",
-      "Talk to Maya, inspect evidence.",
+      "Talk to Maya, check clues.",
     )
     .replace(
       "Enter Sales Strategy Studio and talk to Leo.",
@@ -164,18 +164,20 @@ function shortenObjective(objective: string) {
     )
     .replace(
       "Talk to Leo first, then inspect the marked evidence in order.",
-      "Talk to Leo, inspect evidence.",
+      "Talk to Leo, check clues.",
     )
     .replace(
-      "Close the canvas, leave Operations, then enter Sales Strategy Studio.",
-      "Close canvas. Go to Sales Studio.",
+      "Close the case summary, leave Operations, then enter Sales Strategy Studio.",
+      "Close summary. Go to Sales Studio.",
     )
     .replace(
       "Case complete: review both summaries and the business impact story.",
       "Case complete. Review impact.",
     )
     .replace(/, then /gi, " -> ")
-    .replace("marked evidence", "evidence")
+    .replace("marked evidence", "clues")
+    .replace("Evidence reviewed", "Clues reviewed")
+    .replace("Evidence ", "Clues ")
     .replace("Operations Suite", "Operations")
     .replace("Sales Strategy Studio", "Sales Studio")
     .replace(
@@ -205,7 +207,7 @@ function getStepLabel(
   if (questStage === "complete") {
     return stageLabels.complete;
   }
-  return `Evidence ${evidenceCount}/${evidenceTotal}`;
+  return `Clues ${evidenceCount}/${evidenceTotal}`;
 }
 
 function MobileControls({

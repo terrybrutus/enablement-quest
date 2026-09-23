@@ -68,7 +68,7 @@ export function useGameLoop({
     if (state.questStage === "briefing") {
       const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
-        `Talk to ${stakeholder} first. They frame the case before you inspect evidence.`,
+        `Talk to ${stakeholder} first. They explain the case before you inspect clues.`,
       );
       return true;
     }
@@ -81,7 +81,7 @@ export function useGameLoop({
     );
     if (expectedEvidence && nearby.id !== expectedEvidence.id) {
       setToast(
-        `Start with ${expectedEvidence.title}. The case works best when you inspect the evidence in order.`,
+        `Start with ${expectedEvidence.title}. The case works best when you inspect clues in order.`,
       );
       return true;
     }
@@ -132,6 +132,21 @@ export function useGameLoop({
       return;
     }
 
+    if (state.questStage === "diagnose" || state.questStage === "design") {
+      setGameState((previous) => ({
+        ...previous,
+        overlay: "decision",
+        toast: {
+          id: Date.now(),
+          message:
+            previous.questStage === "diagnose"
+              ? "Choices opened. Choose the root cause that explains every clue."
+              : "Choices opened. Choose the solution that fits the root cause.",
+        },
+      }));
+      return;
+    }
+
     if (state.questStage === "briefing" && openNearbyCharacter()) {
       return;
     }
@@ -150,18 +165,6 @@ export function useGameLoop({
       return;
     }
 
-    if (state.questStage === "diagnose") {
-      setGameState((previous) => ({
-        ...previous,
-        overlay: "decision",
-        toast: {
-          id: Date.now(),
-          message: "Decision panel opened.",
-        },
-      }));
-      return;
-    }
-
     const portal = getNearbyPortal(state);
     if (portal) {
       if (
@@ -173,7 +176,7 @@ export function useGameLoop({
           toast: {
             id: Date.now(),
             message:
-              "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first canvas.",
+              "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary.",
           },
         }));
         return;
@@ -199,7 +202,7 @@ export function useGameLoop({
     }
 
     setToast(
-      "There is nothing useful to inspect here yet. Look for people, glowing evidence, or doorways.",
+      "There is nothing useful to inspect here yet. Look for people, marked clues, or doorways.",
     );
   }, [
     collectNearbyEvidence,
@@ -400,7 +403,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first canvas.",
+            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary.",
         },
       };
     }
@@ -489,7 +492,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first canvas.",
+            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary.",
         },
       };
     }

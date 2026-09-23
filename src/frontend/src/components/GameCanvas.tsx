@@ -245,7 +245,7 @@ export default function GameCanvas() {
           ? {
               id: Date.now(),
               message:
-                "Step 3 of 5: all evidence is reviewed. Choose the root cause.",
+                "Step 3 of 5: all clues are reviewed. Press Interact anywhere to choose the root cause.",
             }
           : previous.toast,
     }));
@@ -274,7 +274,7 @@ export default function GameCanvas() {
       toast: {
         id: Date.now(),
         message:
-          "Step 1 of 5: talk with Maya. The question is whether training is really the fix.",
+          "Step 1 of 5: talk with Maya. Your job is to test whether training is really the fix.",
       },
     }));
   }, []);
@@ -309,7 +309,7 @@ export default function GameCanvas() {
             previous.questStage === "briefing"
               ? {
                   id: Date.now(),
-                  message: `Step 2 of 5: inspect ${currentEvidenceItems.length} evidence items. Each one asks you to spot the useful clue.`,
+                  message: `Step 2 of 5: inspect ${currentEvidenceItems.length} clues. For each clue, separate the useful signal from the tempting assumption.`,
                 }
               : previous.toast,
         };
@@ -351,8 +351,8 @@ export default function GameCanvas() {
         toast: {
           id: Date.now(),
           message: option.correct
-            ? "Step 4 of 5: diagnosis accepted. Choose the solution that fits the evidence."
-            : "Not quite. Re-check the evidence pattern before choosing a solution.",
+            ? "Step 4 of 5: diagnosis accepted. Now choose the solution that fixes the real work problem."
+            : "Not quite. Re-check the clue pattern before choosing a solution.",
         },
       }));
     },
@@ -372,7 +372,7 @@ export default function GameCanvas() {
           toast: {
             id: Date.now(),
             message:
-              "That solution does not fix the root cause yet. Try again from the evidence pattern.",
+              "That solution does not fix the root cause yet. Try again from the clue pattern.",
           },
         }));
         return;
@@ -600,26 +600,26 @@ function getNextObjective(
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Step 1 of 5: talk with Leo to hear the sales enablement request."
+        ? "Step 1 of 5: talk with Leo. Listen for the sales problem, then look for the real cause."
         : "Optional advanced case: enter Sales Strategy Studio and talk with Leo.";
     }
     return sceneId === "operations"
-      ? "Step 1 of 5: talk with Maya. Listen for the leader's training request, then question it."
+      ? "Step 1 of 5: talk with Maya. Listen to the training request, then question whether training is enough."
       : "Enter Operations Suite and talk with Maya.";
   }
   if (questStage === "investigate") {
     return nextEvidenceTitle
-      ? `Step 2 of 5: inspect ${nextEvidenceTitle}. Evidence ${evidenceCount}/${evidenceTotal}.`
-      : `Evidence reviewed: ${evidenceCount}/${evidenceTotal}. Open the diagnosis panel.`;
+      ? `Step 2 of 5: inspect ${nextEvidenceTitle}. Clue ${evidenceCount + 1} of ${evidenceTotal}.`
+      : `All clues reviewed: ${evidenceCount}/${evidenceTotal}. Press Interact anywhere to choose the root cause.`;
   }
   if (questStage === "diagnose") {
-    return "Step 3 of 5: choose the root cause. Do not accept the training request at face value.";
+    return "Step 3 of 5: press Interact anywhere, then choose the root cause that explains every clue.";
   }
   if (questStage === "design") {
-    return "Step 4 of 5: choose the solution that changes behavior and creates a useful metric.";
+    return "Step 4 of 5: press Interact anywhere, then choose the solution that changes behavior and creates a useful metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
-    return "Step 5 of 5: review the canvas. This is the portfolio proof; Sales Strategy Studio is optional next.";
+    return "Step 5 of 5: review the case summary. It shows the before, decision, solution, and impact.";
   }
   return "Case complete: review both summaries and the business impact story.";
 }
@@ -647,7 +647,7 @@ function EvidencePanel({
         kind: "trap" as const,
         label: evidence.trap,
         feedback:
-          "Not quite. That jumps to a surface explanation before the full evidence pattern is clear.",
+          "Not quite. That jumps to a surface explanation before the full clue pattern is clear.",
       },
     ];
     return evidence.id.length % 2 === 0 ? options.reverse() : options;
@@ -683,7 +683,7 @@ function EvidencePanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Evidence Reviewed</p>
+          <p className="eq-kicker">Clue Reviewed</p>
           <h2>{evidence.title}</h2>
           {evidence.metric && <p>{evidence.metric}</p>}
         </div>
@@ -834,9 +834,9 @@ function DecisionPanel({
         </button>
       </div>
 
-      <div className="eq-case-synthesis" aria-label="Evidence synthesis">
+      <div className="eq-case-synthesis" aria-label="Clue synthesis">
         <article>
-          <span>Evidence Pattern</span>
+          <span>Clue Pattern</span>
           <p>{synthesis.pattern}</p>
         </article>
         <article>
@@ -868,7 +868,7 @@ function DecisionPanel({
         <div>
           <h3>1. Diagnose the root cause</h3>
           <p className="eq-decision-prompt">
-            Which explanation best connects all three evidence clues?
+            Which explanation best connects all three clues?
           </p>
           {diagnosisOptions.map((option) => (
             <button
@@ -882,7 +882,7 @@ function DecisionPanel({
                 <small>
                   {option.explanation}
                   <br />
-                  Evidence check: {option.evidenceHint}
+                  Clue check: {option.evidenceHint}
                 </small>
               )}
             </button>
@@ -894,7 +894,7 @@ function DecisionPanel({
           <p className="eq-decision-prompt">
             {canChooseIntervention
               ? "Which solution changes the daily work and gives leaders a metric they can inspect?"
-              : "Choose the correct root cause first. The solution is locked until the diagnosis fits the evidence."}
+              : "Choose the correct root cause first. The solution is locked until the diagnosis fits the clues."}
           </p>
           {interventionOptions.map((option) => (
             <button
@@ -935,7 +935,7 @@ function DecisionCoach({
         <strong>How to decide</strong>
         <span>
           Do not pick the option that sounds most familiar. Pick the one that
-          explains every evidence card at the same time.
+          explains every clue at the same time.
         </span>
       </aside>
     );
@@ -947,9 +947,9 @@ function DecisionCoach({
         className="eq-decision-coach is-warning"
         aria-label="Decision coaching"
       >
-        <strong>Re-check the evidence</strong>
+        <strong>Re-check the clues</strong>
         <span>
-          {selectedDiagnosis.explanation} Look again at the evidence check:{" "}
+          {selectedDiagnosis.explanation} Look again at the clue check:{" "}
           {selectedDiagnosis.evidenceHint}
         </span>
       </aside>
@@ -999,7 +999,7 @@ const caseSynthesis: Record<
 > = {
   onboarding: {
     prompt:
-      "Use the evidence pattern, not the original leadership request, to decide what the organization should actually build.",
+      "Use the clue pattern, not the original leadership request, to decide what the organization should actually build.",
     pattern:
       "The issue shows up across instructions, handoffs, access timing, and week-two support needs.",
     trap: "A longer onboarding course would feel responsive, but it would not fix ownership or reinforcement.",
@@ -1008,7 +1008,7 @@ const caseSynthesis: Record<
   },
   sales: {
     prompt:
-      "Use the evidence pattern to decide whether reps need more content or a better revenue-behavior system.",
+      "Use the clue pattern to decide whether reps need more content or a better revenue-behavior system.",
     pattern:
       "Reps can explain features, but discovery depth, opportunity notes, and manager coaching are inconsistent.",
     trap: "A stricter demo certification measures presentation skill more than buyer diagnosis.",
@@ -1106,7 +1106,7 @@ function FinalReviewerDebrief() {
           <strong>Performance consulting</strong>
           <span>
             The player does not accept a training request at face value. They
-            interview, inspect evidence, diagnose root cause, then choose the
+            interview, inspect clues, diagnose root cause, then choose the
             intervention.
           </span>
         </article>

@@ -132,7 +132,7 @@ export const scenes: Scene[] = [
       {
         id: "analytics-wall",
         description:
-          "The dashboard is waiting for evidence. Good enablement work starts with facts, not course requests.",
+          "The dashboard is waiting for clues. Good enablement work starts with facts, not course requests.",
         position: { x: 6.9, y: 1.35 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(48, 1488, 144, 96),
@@ -158,7 +158,7 @@ export const scenes: Scene[] = [
       {
         id: "lab-server-stack",
         description:
-          "The server rack stores case evidence. Evidence matters more than assumptions.",
+          "The server rack stores case clues. Clues matter more than assumptions.",
         position: { x: 4.1, y: 8.5 },
         size: { width: 1.5, height: 1.7 },
         sprite: officeSprite(0, 1152, 96, 96),
@@ -488,7 +488,7 @@ export const characters: GameCharacter[] = [
       briefing: [
         "I need help. Leadership asked for more onboarding training because new hires are taking too long to ramp.",
         "That might be part of it, but slow ramp can also come from unclear workflow, late tool access, or managers reinforcing different expectations.",
-        "Your job is to investigate before designing. Inspect the evidence, then decide whether training is actually the right fix.",
+        "Your job is to investigate before designing. Check the clues, then decide whether training is actually the right fix.",
       ],
       investigate: [
         "Good. Read the interview note, process map, and performance metric in order.",
@@ -496,7 +496,7 @@ export const characters: GameCharacter[] = [
       ],
       diagnose: [
         "Now make the call. If you built training tomorrow, what would still be broken?",
-        "Use the full evidence pattern. The useful answer should explain all three clues, not just the loudest complaint.",
+        "Use the full clue pattern. The useful answer should explain all three clues, not just the loudest complaint.",
       ],
       design: [
         "Good diagnosis. Now choose the solution that fits the cause.",
@@ -504,7 +504,7 @@ export const characters: GameCharacter[] = [
       ],
       complete: [
         "That is the difference between building a course and solving a performance problem.",
-        "You earned the Enablement Diagnostic Canvas. It shows the request, evidence, root cause, solution, and expected business impact.",
+        "You earned the case summary. It shows the request, clues, root cause, solution, and expected business impact.",
       ],
     },
   },
@@ -530,7 +530,7 @@ export const characters: GameCharacter[] = [
       ],
       diagnose: ["If the path were clearer, I would need fewer check-ins."],
       design: ["A manager checklist and one source of truth would help a lot."],
-      complete: ["The new canvas makes the next step obvious."],
+      complete: ["The new case summary makes the next step obvious."],
     },
   },
   {
@@ -550,14 +550,14 @@ export const characters: GameCharacter[] = [
       briefing: [
         "Sales leadership says reps need better demo training.",
         "Maybe. But demos are happening. The problem is that too few demos become real next steps.",
-        "Inspect the evidence before deciding whether this is a training gap, coaching gap, message gap, or process gap.",
+        "Check the clues before deciding whether this is a training gap, coaching gap, message gap, or process gap.",
       ],
       investigate: [
         "Look for the pattern, not the loudest complaint.",
         "If reps can explain features but cannot connect value to buyer pain, the intervention should not be a generic product course.",
       ],
       diagnose: [
-        "You have enough evidence. What is actually blocking demo-to-opportunity conversion?",
+        "You have enough clues. What is actually blocking demo-to-opportunity conversion?",
         "A sales enablement answer should connect behavior, manager reinforcement, and measurable pipeline impact.",
       ],
       design: [
@@ -566,7 +566,7 @@ export const characters: GameCharacter[] = [
       ],
       complete: [
         "That is the sales enablement story: not more content, better revenue behavior.",
-        "You earned the Sales Enablement Impact Canvas.",
+        "You earned the sales enablement case summary.",
       ],
     },
   },
@@ -680,7 +680,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
       "This is plausible, but it treats the symptoms as a knowledge gap and ignores handoffs, manager reinforcement, and access delays.",
     correct: false,
     evidenceHint:
-      "The evidence shows conflicting instructions and access delays, not missing orientation content.",
+      "The clues show conflicting instructions and access delays, not missing orientation content.",
   },
   {
     id: "workflow-reinforcement",
@@ -688,7 +688,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     label:
       "The workflow is unclear and managers lack consistent follow-up checkpoints.",
     explanation:
-      "Correct. The evidence shows inconsistent instructions, delayed access, and a gap after orientation.",
+      "Correct. The clues show inconsistent instructions, delayed access, and a gap after orientation.",
     correct: true,
     evidenceHint:
       "Interview notes, process handoffs, and week-two tickets all point to workflow plus reinforcement.",
@@ -698,7 +698,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     caseId: "onboarding",
     label: "The access system is the main blocker.",
     explanation:
-      "Tool access is part of the problem, but the evidence does not support software failure as the root cause.",
+      "Tool access is part of the problem, but the clues do not support software failure as the root cause.",
     correct: false,
     evidenceHint:
       "Access delay matters, but nothing says the tool itself fails after access is granted.",
@@ -719,7 +719,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     label:
       "The root cause is weak discovery habits with inconsistent manager coaching.",
     explanation:
-      "Correct. The evidence connects shallow discovery, missing pain notes, and low rubric use.",
+      "Correct. The clues connect shallow discovery, missing pain notes, and low rubric use.",
     correct: true,
     evidenceHint:
       "The call review, CRM audit, and coaching note triangulate the same behavior gap.",
@@ -729,7 +729,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     caseId: "sales",
     label: "Marketing should rewrite the demo deck before enablement acts.",
     explanation:
-      "Message clarity may help, but the evidence points to discovery behavior and manager coaching, not just deck content.",
+      "Message clarity may help, but the clues point to discovery behavior and manager coaching, not just deck content.",
     correct: false,
     evidenceHint:
       "The pipeline signal points to behavior before and after the demo, not a standalone content refresh.",
@@ -772,7 +772,7 @@ export const interventionOptions: InterventionOption[] = [
     caseId: "sales",
     label: "Require a stricter demo certification for every rep.",
     explanation:
-      "Certification may improve consistency, but the evidence points to discovery and manager reinforcement before the demo.",
+      "Certification may improve consistency, but the clues point to discovery and manager reinforcement before the demo.",
     correct: false,
     tradeoff:
       "It measures presentation skill more than buyer diagnosis or pipeline behavior.",
@@ -801,10 +801,10 @@ export const interventionOptions: InterventionOption[] = [
 
 export const earnedCanvas: EarnedArtifact = {
   id: "enablement-diagnostic-canvas",
-  title: "Enablement Diagnostic Canvas",
+  title: "Enablement Diagnostic Case Summary",
   subtitle: "Case: New hire ramp is slower than expected",
   portfolioTakeaway:
-    "This canvas shows the performance-consulting move: Terry did not accept the training request at face value. He traced the evidence to workflow, access, reinforcement, and measurement before choosing a solution.",
+    "This case summary shows the performance-consulting move: Terry did not accept the training request at face value. He traced the clues to workflow, access, reinforcement, and measurement before choosing a solution.",
   sections: [
     {
       label: "Business Problem",
@@ -840,10 +840,10 @@ export const earnedCanvas: EarnedArtifact = {
 
 export const salesCanvas: EarnedArtifact = {
   id: "sales-enablement-impact-canvas",
-  title: "Sales Enablement Impact Canvas",
+  title: "Sales Enablement Impact Case Summary",
   subtitle: "Case: Demo quality is not converting into next steps",
   portfolioTakeaway:
-    "This canvas shows the sales enablement move: Terry connects discovery behavior, manager coaching, and pipeline inspection to revenue outcomes instead of treating demo training as the default fix.",
+    "This case summary shows the sales enablement move: Terry connects discovery behavior, manager coaching, and pipeline inspection to revenue outcomes instead of treating demo training as the default fix.",
   sections: [
     {
       label: "Business Problem",

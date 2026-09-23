@@ -52,7 +52,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>Talk with the case owner and read three evidence cards.</span>
+            <span>Talk with the case owner and check three clues.</span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
@@ -78,7 +78,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
                   Performance consulting: Terry diagnoses before designing.
                 </li>
                 <li>
-                  Learning architecture: evidence becomes a practical solution.
+                  Learning architecture: clues become a practical solution.
                 </li>
                 <li>
                   Business impact: every decision points to a measurable result.
@@ -94,9 +94,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <span>
                 I built this as a playable portfolio case study, not a generic
                 course demo. The goal is to make my enablement judgment visible:
-                question the training request, gather evidence, diagnose the
-                real problem, choose the right intervention, and explain the
-                business impact.
+                question the training request, gather clues, diagnose the real
+                problem, choose the right intervention, and explain the business
+                impact.
               </span>
             </section>
 
@@ -107,8 +107,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <div>
                 <p>5-minute review path</p>
                 <span>
-                  Talk with Maya, inspect three evidence cards, choose the root
-                  cause, choose the intervention, and review the business-impact
+                  Talk with Maya, check three clues, choose the root cause,
+                  choose the intervention, and review the business-impact
                   summary.
                 </span>
               </div>
@@ -128,7 +128,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
                 </span>
               </div>
               <div>
-                <p>Evidence boundary</p>
+                <p>Scenario boundary</p>
                 <span>
                   Metrics are scenario-based impact targets. The strongest proof
                   is the performance-consulting workflow.

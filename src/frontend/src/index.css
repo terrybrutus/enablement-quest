@@ -366,6 +366,42 @@
   gap: 10px;
 }
 
+.eq-simple-path {
+  counter-reset: simple-path;
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eq-simple-path li {
+  align-items: center;
+  color: #dbeafe;
+  display: grid;
+  font-size: 0.84rem;
+  gap: 8px;
+  grid-template-columns: auto 1fr;
+  line-height: 1.35;
+}
+
+.eq-simple-path li::before {
+  align-items: center;
+  background: rgba(34, 211, 238, 0.14);
+  border: 1px solid rgba(34, 211, 238, 0.32);
+  border-radius: 999px;
+  color: #67e8f9;
+  content: counter(simple-path);
+  counter-increment: simple-path;
+  display: inline-flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  font-weight: 900;
+  height: 22px;
+  justify-content: center;
+  width: 22px;
+}
+
 .eq-step {
   display: grid;
   grid-template-columns: auto 1fr;

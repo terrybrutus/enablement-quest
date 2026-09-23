@@ -73,6 +73,17 @@ export function QuestLog({
         <p>{activeGuidance}</p>
       </div>
 
+      <div className="eq-mini-section">
+        <h3>The simple path</h3>
+        <ol className="eq-simple-path">
+          <li>Hear what the leader asked for.</li>
+          <li>Check the clues before building anything.</li>
+          <li>Decide what is really causing the problem.</li>
+          <li>Choose the solution that changes the work.</li>
+          <li>Review the business impact.</li>
+        </ol>
+      </div>
+
       <div className="eq-step-list">
         {steps.map((step, index) => {
           const done = index < currentIndex || questStage === "complete";
@@ -97,7 +108,7 @@ export function QuestLog({
       </div>
 
       <div className="eq-mini-section">
-        <h3>Evidence</h3>
+        <h3>Clues collected</h3>
         {caseEvidence.map((item) => (
           <p key={item.id}>
             {collectedEvidenceIds.includes(item.id) ? "[x]" : "[ ]"}{" "}
@@ -122,19 +133,19 @@ function getSteps(caseId: CaseId) {
     {
       id: "briefing",
       title: "1. Hear the request",
-      description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then question whether it is the real fix.`,
+      description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then ask whether that request solves the real problem.`,
     },
     {
       id: "investigate",
-      title: "2. Read the evidence",
+      title: "2. Check the clues",
       description:
-        "Inspect each evidence card in order. Each card asks you to separate a useful clue from a tempting wrong assumption.",
+        "Inspect each clue in order. Each one asks you to separate the useful signal from a tempting wrong assumption.",
     },
     {
       id: "diagnose",
       title: "3. Diagnose the root cause",
       description:
-        "Choose the explanation that connects all evidence. The right answer is not automatically more training.",
+        "Choose the explanation that connects all clues. The right answer is not automatically more training.",
     },
     {
       id: "design",
@@ -146,7 +157,7 @@ function getSteps(caseId: CaseId) {
       id: "complete",
       title: "5. Review the impact",
       description:
-        "Review the case summary. It shows the problem, evidence, decision, solution, and business impact.",
+        "Review the case summary. It shows the problem, clues, decision, solution, and business impact.",
     },
   ] as const;
 }
@@ -160,16 +171,16 @@ function getActiveGuidance(
   const room = caseRooms[caseId];
   const stakeholder = caseId === "sales" ? "Leo" : "Maya";
   if (questStage === "briefing") {
-    return `Talk with ${stakeholder} in ${room}. The learning goal is to test the leader's request before designing anything.`;
+    return `Talk with ${stakeholder} in ${room}. The learning goal is simple: test the leader's request before designing anything.`;
   }
   if (questStage === "investigate") {
-    return `Read the evidence in order. After each card, choose the useful clue. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
+    return `Check the clues in order. After each clue, choose the useful signal. Clues reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Open the decision panel and pick the root cause that explains all three clues. Do not just pick the answer that sounds most like training.";
+    return "Press Interact anywhere to open the choices screen. Pick the root cause that explains all three clues.";
   }
   if (questStage === "design") {
-    return "Choose the solution that fits the root cause. The best answer changes behavior and creates a measurable signal.";
+    return "Press Interact anywhere to reopen the choices screen. Choose the solution that fits the root cause.";
   }
-  return "Review the case summary. It explains the problem, evidence, decision, solution, and business impact.";
+  return "Review the case summary. It explains the problem, clues, decision, solution, and business impact.";
 }
