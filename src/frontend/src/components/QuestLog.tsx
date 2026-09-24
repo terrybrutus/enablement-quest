@@ -186,10 +186,10 @@ function getActiveGuidance(
     return `Check the clues in order. After each clue, choose the useful signal. Clues reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Press Interact anywhere to open the choices screen. Pick the root cause that explains all three clues.";
+    return "Press Talk / Inspect anywhere to open the choices screen. Pick the root cause that explains all three clues.";
   }
   if (questStage === "design") {
-    return "Press Interact anywhere to reopen the choices screen. Choose the solution that fits the root cause.";
+    return "Press Talk / Inspect anywhere to reopen the choices screen. Choose the solution that fits the root cause.";
   }
   return "Review the case summary. It explains the problem, clues, decision, solution, and business impact.";
 }

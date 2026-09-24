@@ -114,7 +114,7 @@ export function Hud({
 
         <nav
           className="flex gap-2 self-end md:self-auto"
-          aria-label="Game controls"
+          aria-label="Case controls"
         >
           <button className="eq-hud-button" type="button" onClick={onOpenQuest}>
             <ClipboardList className="h-4 w-4" />
@@ -127,7 +127,7 @@ export function Hud({
             onClick={onOpenCaseFile}
           >
             <FolderOpen className="h-4 w-4" />
-            <span>Case File</span>
+            <span>Case Notes</span>
             <kbd>B</kbd>
           </button>
           <button
@@ -241,7 +241,7 @@ function MobileControls({
 
       <button className="eq-touch-interact" type="button" onClick={onInteract}>
         <Hand className="h-5 w-5" />
-        Interact
+        Talk / Inspect
       </button>
     </div>
   );

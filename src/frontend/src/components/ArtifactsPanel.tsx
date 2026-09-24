@@ -22,11 +22,11 @@ export function ArtifactsPanel({
   return (
     <section
       className="eq-overlay eq-panel eq-side-panel is-right"
-      aria-label="Case file"
+      aria-label="Case notes"
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Case File</p>
+          <p className="eq-kicker">Case Notes</p>
           <h2>Clues and summaries</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>

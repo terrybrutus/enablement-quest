@@ -145,7 +145,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             onClick={onStart}
             data-ocid="title.start_button"
           >
-            Start guided case
+            Begin the 5-minute case
             <ArrowRight className="h-5 w-5" />
           </button>
           <button
@@ -162,12 +162,12 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-control-strip">
           <span className="eq-desktop-control">Move: WASD / arrows</span>
           <span className="eq-desktop-control">
-            Interact: E / Space / Enter
+            Talk / Inspect: E / Space / Enter
           </span>
           <span className="eq-desktop-control">Guide: Q</span>
-          <span className="eq-desktop-control">Case File: B</span>
+          <span className="eq-desktop-control">Case Notes: B</span>
           <span className="eq-mobile-control">Move: joystick</span>
-          <span className="eq-mobile-control">Interact: button</span>
+          <span className="eq-mobile-control">Talk / Inspect: button</span>
         </div>
       </div>
     </section>

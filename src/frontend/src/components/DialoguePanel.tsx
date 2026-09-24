@@ -38,9 +38,9 @@ export function DialoguePanel({
 
       <div className="eq-dialogue-actions">
         <span className="eq-keyboard-hint">
-          Press <kbd>E</kbd>, <kbd>Space</kbd>, or <kbd>Enter</kbd>
+          Press <kbd>E</kbd>, <kbd>Space</kbd>, or <kbd>Enter</kbd> to continue
         </span>
-        <span className="eq-touch-hint">Tap Continue or Interact</span>
+        <span className="eq-touch-hint">Tap Continue or Talk / Inspect</span>
         <div>
           <button className="eq-ghost-button" type="button" onClick={onClose}>
             <X className="h-4 w-4" />

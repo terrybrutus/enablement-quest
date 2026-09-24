@@ -253,7 +253,7 @@ export default function GameCanvas() {
           ? {
               id: Date.now(),
               message:
-                "Step 3 of 5: all clues are reviewed. Press Interact anywhere to choose the root cause.",
+                "Step 3 of 5: all clues are reviewed. Press Talk / Inspect anywhere to choose the root cause.",
             }
           : previous.toast,
     }));
@@ -637,13 +637,13 @@ function getNextObjective(
   if (questStage === "investigate") {
     return nextEvidenceTitle
       ? `Step 2 of 5: inspect ${nextEvidenceTitle}. Clue ${evidenceCount + 1} of ${evidenceTotal}.`
-      : `All clues reviewed: ${evidenceCount}/${evidenceTotal}. Press Interact anywhere to choose the root cause.`;
+      : `All clues reviewed: ${evidenceCount}/${evidenceTotal}. Press Talk / Inspect anywhere to choose the root cause.`;
   }
   if (questStage === "diagnose") {
-    return "Step 3 of 5: press Interact anywhere, then choose the root cause that explains every clue.";
+    return "Step 3 of 5: press Talk / Inspect anywhere, then choose the root cause that explains every clue.";
   }
   if (questStage === "design") {
-    return "Step 4 of 5: press Interact anywhere, then choose the solution that changes behavior and creates a useful metric.";
+    return "Step 4 of 5: press Talk / Inspect anywhere, then choose the solution that changes behavior and creates a useful metric.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return "Step 5 of 5: review the case summary. It shows the before, decision, solution, and impact.";
@@ -877,9 +877,10 @@ function SettingsPanel({
       <div className="eq-mini-section">
         <h3>Controls</h3>
         <p>
-          Desktop: WASD or arrow keys to move. E, Space, or Enter to interact.
+          Desktop: WASD or arrow keys to move. E, Space, or Enter to talk or
+          inspect.
         </p>
-        <p>Mobile: use the joystick and Interact button.</p>
+        <p>Mobile: use the joystick and Talk / Inspect button.</p>
       </div>
     </section>
   );
@@ -1290,8 +1291,8 @@ function FinalReviewerDebrief() {
         <article>
           <strong>Performance consulting</strong>
           <span>
-            The player does not accept a training request at face value. They
-            interview, inspect clues, diagnose root cause, then choose the
+            You do not accept a training request at face value. You interview,
+            inspect clues, diagnose the root cause, then choose the
             intervention.
           </span>
         </article>
