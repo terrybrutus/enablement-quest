@@ -77,7 +77,7 @@ export function QuestLog({
         <h3>The simple path</h3>
         <ol className="eq-simple-path">
           <li>Hear what the leader asked for.</li>
-          <li>Check the clues before building anything.</li>
+          <li>Review the evidence before building anything.</li>
           <li>Decide what is really causing the problem.</li>
           <li>Choose the solution that changes the work.</li>
           <li>Review the business impact.</li>
@@ -87,7 +87,7 @@ export function QuestLog({
       <div className="eq-mini-section eq-learning-purpose">
         <h3>What you are practicing</h3>
         <p>
-          You are learning to pause before building training, gather clues,
+          You are learning to pause before building training, gather evidence,
           diagnose the real work problem, choose the right enablement support,
           and connect the choice to a business result.
         </p>
@@ -126,7 +126,7 @@ export function QuestLog({
       </div>
 
       <div className="eq-mini-section">
-        <h3>Clues collected</h3>
+        <h3>Evidence reviewed</h3>
         {caseEvidence.map((item) => (
           <p key={item.id}>
             {collectedEvidenceIds.includes(item.id) ? "[x]" : "[ ]"}{" "}
@@ -155,15 +155,15 @@ function getSteps(caseId: CaseId) {
     },
     {
       id: "investigate",
-      title: "2. Check the clues",
+      title: "2. Review the evidence",
       description:
-        "Inspect each clue in order. Each one asks you to separate the useful signal from a tempting wrong assumption.",
+        "Inspect each evidence item in order. Each one asks you to separate the useful signal from a tempting wrong assumption.",
     },
     {
       id: "diagnose",
       title: "3. Diagnose the root cause",
       description:
-        "Choose the explanation that connects all clues. The right answer is not automatically more training.",
+        "Choose the explanation that connects all evidence. The right answer is not automatically more training.",
     },
     {
       id: "design",
@@ -175,7 +175,7 @@ function getSteps(caseId: CaseId) {
       id: "complete",
       title: "5. Review the impact",
       description:
-        "Review the case summary. It shows the problem, clues, decision, solution, and business impact.",
+        "Review the case summary. It shows the problem, evidence, decision, solution, and business impact.",
     },
   ] as const;
 }
@@ -192,13 +192,13 @@ function getActiveGuidance(
     return `Talk with ${stakeholder} in ${room}. The learning goal is simple: test the leader's request before designing anything.`;
   }
   if (questStage === "investigate") {
-    return `Check the clues in order. After each clue, choose the useful signal. Clues reviewed: ${evidenceCount}/${evidenceTotal}.`;
+    return `Review the evidence in order. After each item, choose the useful signal. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Press Talk / Inspect anywhere to open the choices screen. Pick the root cause that explains all three clues.";
+    return "Press Talk / Inspect anywhere to open the choices screen. Pick the root cause that explains all three evidence items.";
   }
   if (questStage === "design") {
     return "Press Talk / Inspect anywhere to reopen the choices screen. Choose the solution that fits the root cause.";
   }
-  return "Review the case summary. It explains the problem, clues, decision, solution, and business impact.";
+  return "Review the case summary. It explains the problem, evidence, decision, solution, and business impact.";
 }

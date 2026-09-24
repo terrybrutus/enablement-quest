@@ -39,8 +39,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <section className="eq-plain-start" aria-label="Plain language start">
           <p>No gaming knowledge needed.</p>
           <span>
-            Talk with Maya, review three clues, choose the real problem, then
-            pick the solution that improves the business result.
+            Talk with Maya, review three pieces of evidence, choose the real
+            problem, then pick the solution that improves the business result.
           </span>
         </section>
 
@@ -70,7 +70,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>Talk with the case owner and check three clues.</span>
+            <span>
+              Talk with the case owner and review three evidence items.
+            </span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
@@ -96,7 +98,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
                   Performance consulting: Terry diagnoses before designing.
                 </li>
                 <li>
-                  Learning architecture: clues become a practical solution.
+                  Learning architecture: evidence becomes a practical solution.
                 </li>
                 <li>
                   Business impact: every decision points to a measurable result.
@@ -112,9 +114,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <span>
                 I built this as a playable portfolio case study, not a generic
                 course demo. The goal is to make my enablement judgment visible:
-                question the training request, gather clues, diagnose the real
-                problem, choose the right intervention, and explain the business
-                impact.
+                question the training request, gather evidence, diagnose the
+                real problem, choose the right intervention, and explain the
+                business impact.
               </span>
             </section>
 
@@ -125,8 +127,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <div>
                 <p>5-minute review path</p>
                 <span>
-                  Talk with Maya, check three clues, choose the root cause,
-                  choose the intervention, and review the business-impact
+                  Talk with Maya, review three evidence items, choose the root
+                  cause, choose the intervention, and review the business-impact
                   summary.
                 </span>
               </div>

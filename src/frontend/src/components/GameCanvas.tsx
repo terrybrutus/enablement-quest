@@ -259,7 +259,7 @@ export default function GameCanvas() {
           ? {
               id: Date.now(),
               message:
-                "Step 3 of 5: all clues are reviewed. Press Talk / Inspect anywhere to choose the root cause.",
+                "Step 3 of 5: all evidence is reviewed. Press Talk / Inspect anywhere to choose the root cause.",
             }
           : previous.toast,
     }));
@@ -357,7 +357,7 @@ export default function GameCanvas() {
           : {
               id: Date.now(),
               message:
-                "Not quite. Re-check the clue pattern before choosing a solution.",
+                "Not quite. Re-check the evidence pattern before choosing a solution.",
             },
       }));
     },
@@ -377,7 +377,7 @@ export default function GameCanvas() {
           toast: {
             id: Date.now(),
             message:
-              "That solution does not fix the root cause yet. Try again from the clue pattern.",
+              "That solution does not fix the root cause yet. Try again from the evidence pattern.",
           },
         }));
         return;
@@ -644,11 +644,11 @@ function getNextObjective(
   }
   if (questStage === "investigate") {
     return nextEvidenceTitle
-      ? `Step 2 of 5: inspect ${nextEvidenceTitle}. Clue ${evidenceCount + 1} of ${evidenceTotal}.`
-      : `All clues reviewed: ${evidenceCount}/${evidenceTotal}. Press Talk / Inspect anywhere to choose the root cause.`;
+      ? `Step 2 of 5: review ${nextEvidenceTitle}. Evidence ${evidenceCount + 1} of ${evidenceTotal}.`
+      : `All evidence reviewed: ${evidenceCount}/${evidenceTotal}. Press Talk / Inspect anywhere to choose the root cause.`;
   }
   if (questStage === "diagnose") {
-    return "Step 3 of 5: press Talk / Inspect anywhere, then choose the root cause that explains every clue.";
+    return "Step 3 of 5: press Talk / Inspect anywhere, then choose the root cause that explains all the evidence.";
   }
   if (questStage === "design") {
     return "Step 4 of 5: press Talk / Inspect anywhere, then choose the solution that changes behavior and creates a useful metric.";
@@ -687,14 +687,14 @@ function getCoachPrompt(
   if (questStage === "investigate") {
     return evidenceCount < evidenceTotal
       ? {
-          action: `Review clue ${evidenceCount + 1} of ${evidenceTotal}`,
+          action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
           reason:
-            "each clue helps you separate the real performance problem from the tempting quick fix.",
+            "each evidence item helps you separate the real performance problem from the tempting quick fix.",
         }
       : {
           action: "Choose the root cause",
           reason:
-            "a good diagnosis explains all clues at once, not just the loudest complaint.",
+            "a good diagnosis explains all evidence at once, not just the loudest complaint.",
         };
   }
 
@@ -702,7 +702,7 @@ function getCoachPrompt(
     return {
       action: "Choose the root cause",
       reason:
-        "this is where you prove judgment: training is only right when the clues show a knowledge or skill gap.",
+        "this is where you prove judgment: training is only right when the evidence shows a knowledge or skill gap.",
     };
   }
 
@@ -756,13 +756,13 @@ function EvidencePanel({
         kind: "signal" as const,
         label: evidence.signal,
         feedback:
-          "Good. This is the clue that should shape the root-cause call.",
+          "Good. This is the signal that should shape the root-cause call.",
       },
       {
         kind: "trap" as const,
         label: evidence.trap,
         feedback:
-          "Not quite. That jumps to a surface explanation before the full clue pattern is clear.",
+          "Not quite. That jumps to a surface explanation before the full evidence pattern is clear.",
       },
     ];
     return evidence.id.length % 2 === 0 ? options.reverse() : options;
@@ -798,19 +798,28 @@ function EvidencePanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Clue Reviewed</p>
+          <p className="eq-kicker">Evidence Reviewed</p>
           <h2>{evidence.title}</h2>
           <p>
-            Clue {evidenceIndex + 1} of {caseEvidence.length}
+            Evidence {evidenceIndex + 1} of {caseEvidence.length}
             {evidence.metric ? ` | ${evidence.metric}` : ""}
           </p>
         </div>
       </div>
 
+      <aside className="eq-evidence-purpose" aria-label="Evidence purpose">
+        <strong>Why this matters</strong>
+        <span>
+          Do not memorize this item. Ask what it proves about the work system,
+          then decide whether the leader's training request still fits the
+          evidence.
+        </span>
+      </aside>
+
       <aside className="eq-running-case" aria-label="Running case pattern">
         <div>
           <p className="eq-kicker">Running Case Pattern</p>
-          <h3>What the clues are starting to prove</h3>
+          <h3>What the evidence is starting to prove</h3>
         </div>
         <ol>
           {runningEvidence.map((item) => (
@@ -840,7 +849,7 @@ function EvidencePanel({
       <div className="eq-evidence-check">
         <div>
           <p className="eq-kicker">Check Your Read</p>
-          <h3>Which clue should guide the diagnosis?</h3>
+          <h3>Which signal should guide the diagnosis?</h3>
         </div>
         {checkOptions.map((option, index) => (
           <button
@@ -864,7 +873,7 @@ function EvidencePanel({
       >
         {hasReadCorrectly
           ? "Continue investigation"
-          : "Pick the useful clue to continue"}
+          : "Pick the useful signal to continue"}
       </button>
     </section>
   );
@@ -980,7 +989,7 @@ function DecisionPanel({
           <h3>1. Diagnose the root cause</h3>
           <p className="eq-decision-prompt">
             Which answer would still make sense if a leader challenged you to
-            defend it with all three clues?
+            defend it with all three evidence items?
           </p>
           {diagnosisOptions.map((option) => (
             <button
@@ -994,7 +1003,7 @@ function DecisionPanel({
                 <small>
                   {option.explanation}
                   <br />
-                  Clue check: {option.evidenceHint}
+                  Evidence check: {option.evidenceHint}
                   <br />
                   <span className="eq-choice-consequence">
                     Workplace consequence: {option.consequence}
@@ -1043,7 +1052,7 @@ function DecisionPanel({
         canChooseIntervention={canChooseIntervention}
       />
 
-      <div className="eq-case-synthesis" aria-label="Clue synthesis">
+      <div className="eq-case-synthesis" aria-label="Evidence synthesis">
         <article>
           <span>What Must Be Explained</span>
           <p>{synthesis.pattern}</p>
@@ -1053,7 +1062,7 @@ function DecisionPanel({
           <p>{synthesis.trap}</p>
         </article>
         <article>
-          <span>Business Signal</span>
+          <span>Business Result</span>
           <p>{synthesis.metric}</p>
         </article>
       </div>
@@ -1106,10 +1115,10 @@ function DecisionChecklist({
         ) : (
           <>
             <li>
-              <strong>Explains every clue</strong>
+              <strong>Explains all evidence</strong>
               <span>
-                The diagnosis should connect all three clues, not just the
-                loudest complaint.
+                The diagnosis should connect all three evidence items, not just
+                the loudest complaint.
               </span>
             </li>
             <li>
@@ -1160,10 +1169,11 @@ function DecisionCoach({
         className="eq-decision-coach is-warning"
         aria-label="Decision coaching"
       >
-        <strong>Re-check the clues</strong>
+        <strong>Re-check the evidence</strong>
         <span>
           This answer misses part of the system. Before choosing a fix, make
-          sure the root cause explains every clue, not just the loudest request.
+          sure the root cause explains every evidence item, not just the loudest
+          request.
         </span>
         <small>Lesson: {selectedDiagnosis.learningTakeaway}</small>
       </aside>
@@ -1197,7 +1207,7 @@ function DecisionCoach({
       <span>
         {selectedIntervention.correct
           ? "This solution fits the evidence and connects enablement work to a business signal."
-          : "This solution leaves at least one important clue unresolved."}
+          : "This solution leaves at least one important evidence item unresolved."}
       </span>
       <small>Lesson: {selectedIntervention.learningTakeaway}</small>
     </aside>
@@ -1401,7 +1411,7 @@ function FinalReviewerDebrief() {
           <strong>Performance consulting</strong>
           <span>
             You do not accept a training request at face value. You interview,
-            inspect clues, diagnose the root cause, then choose the
+            inspect evidence, diagnose the root cause, then choose the
             intervention.
           </span>
         </article>

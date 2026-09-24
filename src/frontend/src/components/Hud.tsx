@@ -91,7 +91,7 @@ export function Hud({
                     {stepLabel}
                   </span>
                   <span className="eq-pill">
-                    Clues {evidenceCount}/{evidenceTotal}
+                    Evidence {evidenceCount}/{evidenceTotal}
                   </span>
                   {hasArtifact && (
                     <span className="eq-pill is-success">Summary earned</span>
@@ -104,7 +104,7 @@ export function Hud({
               <span>{stepLabel}</span>
               <strong title={nextObjective}>{coachAction}</strong>
               <small>
-                Clues {evidenceCount}/{evidenceTotal}
+                Evidence {evidenceCount}/{evidenceTotal}
               </small>
             </div>
           )}
@@ -150,7 +150,7 @@ function getStepLabel(
   evidenceTotal: number,
 ) {
   if (questStage === "investigate") {
-    return stageLabels.investigate;
+    return `Step 2 of 5: evidence ${evidenceCount}/${evidenceTotal}`;
   }
   if (questStage === "briefing") {
     return stageLabels.briefing;
@@ -164,7 +164,7 @@ function getStepLabel(
   if (questStage === "complete") {
     return stageLabels.complete;
   }
-  return `Clues ${evidenceCount}/${evidenceTotal}`;
+  return `Evidence ${evidenceCount}/${evidenceTotal}`;
 }
 
 function MobileControls({
