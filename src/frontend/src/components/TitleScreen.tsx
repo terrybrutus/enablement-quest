@@ -200,7 +200,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             onClick={onStart}
             data-ocid="title.start_button"
           >
-            Begin the 5-minute case
+            Begin Case 01
             <ArrowRight className="h-5 w-5" />
           </button>
           <button

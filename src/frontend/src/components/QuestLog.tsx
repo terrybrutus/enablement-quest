@@ -51,6 +51,7 @@ export function QuestLog({
   const selectedIntervention = interventionOptions.find(
     (option) => option.caseId === currentCaseId && option.id === interventionId,
   );
+  const finishGuidance = getFinishGuidance(currentCaseId, questStage);
 
   return (
     <section
@@ -95,11 +96,7 @@ export function QuestLog({
 
       <div className="eq-mini-section eq-finish-card">
         <h3>How you finish</h3>
-        <p>
-          Complete this case by earning a case summary. That summary is the
-          portfolio artifact: it explains the problem, evidence, decision,
-          solution, and measurable impact in plain language.
-        </p>
+        <p>{finishGuidance}</p>
       </div>
 
       <div className="eq-step-list">
@@ -201,4 +198,17 @@ function getActiveGuidance(
     return "Press Talk / Inspect anywhere to reopen the choices screen. Choose the solution that fits the root cause.";
   }
   return "Review the case summary. It explains the problem, evidence, decision, solution, and business impact.";
+}
+
+function getFinishGuidance(caseId: CaseId, questStage: QuestStage) {
+  if (caseId === "onboarding" && questStage === "complete") {
+    return "Case 01 is the performance-consulting proof. Use the case summary button to start Case 02, where the same diagnosis loop shifts into sales enablement.";
+  }
+  if (caseId === "onboarding") {
+    return "Finish Case 01 by earning a plain-language case summary. That summary unlocks Case 02, the sales enablement version of the same diagnostic pattern.";
+  }
+  if (questStage === "complete") {
+    return "After Case 02, review the final debrief. That is the portfolio proof: performance consulting, sales enablement, learning architecture, and business impact in plain language.";
+  }
+  return "Finish Case 02 by earning the sales enablement summary. That second summary completes the portfolio path and unlocks the final reviewer debrief.";
 }
