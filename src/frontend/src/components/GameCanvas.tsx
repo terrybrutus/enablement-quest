@@ -542,6 +542,7 @@ export default function GameCanvas() {
           diagnosisId={gameState.diagnosisId}
           interventionId={gameState.interventionId}
           currentCaseId={gameState.currentCaseId}
+          caseEvidence={currentEvidenceItems}
           onChooseDiagnosis={chooseDiagnosis}
           onChooseIntervention={chooseIntervention}
           onClose={closeOverlay}
@@ -1101,6 +1102,7 @@ function DecisionPanel({
   diagnosisId,
   interventionId,
   currentCaseId,
+  caseEvidence,
   onChooseDiagnosis,
   onChooseIntervention,
   onClose,
@@ -1110,6 +1112,7 @@ function DecisionPanel({
   diagnosisId: string | null;
   interventionId: string | null;
   currentCaseId: CaseId;
+  caseEvidence: Evidence[];
   onChooseDiagnosis: (id: string) => void;
   onChooseIntervention: (id: string) => void;
   onClose: () => void;
@@ -1142,15 +1145,15 @@ function DecisionPanel({
       <aside className="eq-decision-brief" aria-label="Plain language brief">
         <strong>Your role in this moment</strong>
         <span>
-          Read this like a real workplace decision. You are not guessing a game
-          answer; you are deciding what you would recommend to leaders and how
-          you would defend it with the evidence you collected.
+          Choose the answer you could defend to leaders with the evidence below.
         </span>
         <em>
-          Watch for the trap: some choices are useful support tactics, but they
-          are not strong enough to be the main recommendation.
+          Trap to avoid: the easiest thing to build is not always the thing that
+          solves the work problem.
         </em>
       </aside>
+
+      <EvidenceRecap caseEvidence={caseEvidence} />
 
       <CaseMap
         selectedDiagnosis={selectedDiagnosis}
@@ -1242,6 +1245,32 @@ function DecisionPanel({
       </div>
 
       <DecisionChecklist canChooseIntervention={canChooseIntervention} />
+    </section>
+  );
+}
+
+function EvidenceRecap({ caseEvidence }: { caseEvidence: Evidence[] }) {
+  return (
+    <section className="eq-evidence-recap" aria-label="Evidence recap">
+      <div>
+        <p className="eq-kicker">Evidence Recap</p>
+        <h3>Use these facts before choosing</h3>
+        <span>
+          The strongest answer should explain all three items together. If an
+          option only explains one item, it is probably a partial fix.
+        </span>
+      </div>
+      <ol>
+        {caseEvidence.map((item, index) => (
+          <li key={item.id}>
+            <strong>
+              {index + 1}. {item.title}
+            </strong>
+            <span>{item.signal}</span>
+            {item.metric && <small>{item.metric}</small>}
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

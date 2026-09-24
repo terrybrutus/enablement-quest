@@ -826,6 +826,76 @@
   line-height: 1.38;
 }
 
+.eq-evidence-recap {
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 78, 59, 0.22),
+    rgba(15, 23, 42, 0.62)
+  );
+  margin: 0 0 14px;
+  padding: 14px;
+}
+
+.eq-evidence-recap h3 {
+  color: #dcfce7;
+  font-size: 1rem;
+  margin: 2px 0 4px;
+}
+
+.eq-evidence-recap > div > span {
+  color: #cbd5e1;
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.42;
+  margin-bottom: 11px;
+}
+
+.eq-evidence-recap ol {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eq-evidence-recap li {
+  border: 1px solid rgba(52, 211, 153, 0.16);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.26);
+  padding: 10px;
+}
+
+.eq-evidence-recap strong,
+.eq-evidence-recap span,
+.eq-evidence-recap small {
+  display: block;
+}
+
+.eq-evidence-recap strong {
+  color: #a7f3d0;
+  font-size: 0.76rem;
+  margin-bottom: 5px;
+}
+
+.eq-evidence-recap span {
+  color: #e2e8f0;
+  font-size: 0.76rem;
+  line-height: 1.36;
+}
+
+.eq-evidence-recap small {
+  color: #fde68a;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
 .eq-decision-prompt {
   color: #aebdd0;
   font-size: 0.82rem;
@@ -2346,6 +2416,33 @@
     margin-top: 5px;
   }
 
+  .eq-decision .eq-evidence-recap {
+    margin-bottom: 10px;
+    padding: 10px;
+  }
+
+  .eq-decision .eq-evidence-recap h3 {
+    font-size: 0.9rem;
+  }
+
+  .eq-decision .eq-evidence-recap > div > span {
+    font-size: 0.76rem;
+    margin-bottom: 8px;
+  }
+
+  .eq-decision .eq-evidence-recap ol {
+    gap: 7px;
+    grid-template-columns: 1fr;
+  }
+
+  .eq-decision .eq-evidence-recap li {
+    padding: 8px 9px;
+  }
+
+  .eq-decision .eq-evidence-recap span {
+    font-size: 0.74rem;
+  }
+
   .eq-decision .eq-option-grid {
     gap: 10px;
   }
@@ -2386,6 +2483,7 @@
   .eq-dialogue-actions > div,
   .eq-option-grid,
   .eq-case-map ol,
+  .eq-evidence-recap ol,
   .eq-case-synthesis,
   .eq-signal-strip,
   .eq-decision-checklist ol,
