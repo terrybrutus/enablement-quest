@@ -102,6 +102,33 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           before you build the fix.
         </p>
 
+        <section
+          className="eq-reviewer-proof-strip"
+          aria-label="What reviewers should look for"
+        >
+          <article>
+            <p>Business lens</p>
+            <span>
+              The player must question a request, inspect clues, and choose a
+              fix tied to measurable outcomes.
+            </span>
+          </article>
+          <article>
+            <p>Enablement lens</p>
+            <span>
+              Case 01 shows performance consulting. Case 02 shows sales
+              enablement: behavior, coaching, and pipeline signals.
+            </span>
+          </article>
+          <article>
+            <p>Portfolio lens</p>
+            <span>
+              The finished run produces copyable resume, portfolio, LinkedIn,
+              and interview language.
+            </span>
+          </article>
+        </section>
+
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
@@ -128,9 +155,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
                 <li>
                   Performance consulting: Terry diagnoses before designing.
                 </li>
-                <li>
-                  Learning architecture: evidence becomes a practical solution.
-                </li>
+                <li>Learning architecture: clues become a practical fix.</li>
                 <li>
                   Business impact: every decision points to a measurable result.
                 </li>
@@ -145,9 +170,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <span>
                 I built this as a playable portfolio case study, not a generic
                 course demo. The goal is to make my enablement judgment visible:
-                question the training request, gather evidence, diagnose the
-                real problem, choose the right intervention, and explain the
-                business impact.
+                question the training request, inspect clues, diagnose the real
+                problem, choose the right intervention, and explain the business
+                impact.
               </span>
             </section>
 

@@ -154,6 +154,7 @@ async function captureState(send, events, viewportName, stateName) {
         const dialogue = document.querySelector('.eq-dialogue');
         const panel = document.querySelector('.eq-panel');
         const doneWhenCues = document.querySelectorAll('.eq-step-outcome');
+        const reviewerProofStrip = document.querySelector('.eq-reviewer-proof-strip');
         const fullText = document.body.innerText.toLowerCase();
         const title = document.body.innerText.slice(0, 1200);
         const visibleButtons = [...document.querySelectorAll('button')]
@@ -179,6 +180,7 @@ async function captureState(send, events, viewportName, stateName) {
           hasFinalProof: fullText.includes('resume bullet') && fullText.includes('portfolio blurb'),
           hasLinkedInStarter: fullText.includes('linkedin post starter'),
           hasDoneWhenCue: doneWhenCues.length > 0,
+          hasReviewerProofStrip: Boolean(reviewerProofStrip),
           hasPanel: Boolean(panel),
           visibleButtons,
           text: title,
