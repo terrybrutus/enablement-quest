@@ -861,6 +861,38 @@
   margin: 0;
 }
 
+.eq-evidence-check > div > p:last-child {
+  color: #aebdd0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin: 6px 0 0;
+}
+
+.eq-evidence-takeaway {
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 78, 59, 0.22),
+    rgba(15, 23, 42, 0.58)
+  );
+  color: #d1fae5;
+  display: grid;
+  gap: 5px;
+  margin-top: 12px;
+  padding: 12px 14px;
+}
+
+.eq-evidence-takeaway strong {
+  color: #a7f3d0;
+  font-size: 0.82rem;
+}
+
+.eq-evidence-takeaway span {
+  font-size: 0.82rem;
+  line-height: 1.42;
+}
+
 .eq-evidence-purpose {
   border: 1px solid rgba(125, 211, 252, 0.2);
   border-radius: 16px;

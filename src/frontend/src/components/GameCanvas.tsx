@@ -916,6 +916,10 @@ function EvidencePanel({
         <div>
           <p className="eq-kicker">Check Your Read</p>
           <h3>What is the best read of this evidence?</h3>
+          <p>
+            The goal is not to guess. Choose the interpretation you would use
+            later when explaining the root cause to a leader.
+          </p>
         </div>
         {checkOptions.map((option, index) => (
           <button
@@ -931,6 +935,15 @@ function EvidencePanel({
         ))}
       </div>
 
+      {hasReadCorrectly && (
+        <aside className="eq-evidence-takeaway" aria-label="Evidence takeaway">
+          <strong>Saved for the final recommendation</strong>
+          <span>
+            This evidence now supports your diagnosis: {evidence.signal}
+          </span>
+        </aside>
+      )}
+
       <button
         className="eq-primary-button mt-4"
         disabled={!hasReadCorrectly}
@@ -938,8 +951,8 @@ function EvidencePanel({
         onClick={onContinue}
       >
         {hasReadCorrectly
-          ? "Continue investigation"
-          : "Pick the useful signal to continue"}
+          ? "Save evidence and continue"
+          : "Choose the useful signal to continue"}
       </button>
     </section>
   );

@@ -502,7 +502,7 @@ async function collectEvidence(
     ? await captureState(send, events, viewport.name, stateName)
     : null;
   await clickButtonIncluding(send, signalText);
-  await clickButtonIncluding(send, "Continue investigation");
+  await clickButtonIncluding(send, "Save evidence and continue");
   await assertQaState(
     send,
     (state) => {
