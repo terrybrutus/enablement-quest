@@ -226,6 +226,7 @@ export default function GameCanvas() {
     gameState.completedCaseIds,
   );
   const hasBlockingOverlay = [
+    "briefing",
     "canvas",
     "decision",
     "dialogue",
@@ -286,7 +287,7 @@ export default function GameCanvas() {
       activeCanvasCaseId: null,
       earnedArtifact: null,
       dialogue: null,
-      overlay: "none",
+      overlay: "briefing",
       toast: null,
     }));
   }, []);
@@ -467,7 +468,7 @@ export default function GameCanvas() {
       )}
 
       {gameState.overlay === "briefing" && gameState.player.hasStarted && (
-        <TitleScreen onStart={startMission} onClose={closeOverlay} />
+        <CaseBriefingPanel onClose={closeOverlay} />
       )}
 
       {gameState.overlay === "dialogue" &&
@@ -579,6 +580,56 @@ export default function GameCanvas() {
         />
       )}
     </div>
+  );
+}
+
+function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
+  return (
+    <section
+      className="eq-overlay eq-panel eq-start-briefing"
+      aria-label="Case 01 start briefing"
+    >
+      <p className="eq-kicker">Case 01 Start Here</p>
+      <h2>The Broken Onboarding Request</h2>
+      <p className="eq-start-briefing-lede">
+        A leader asked for more training because new hires are ramping too
+        slowly. Your job is to find out whether training is really the answer.
+      </p>
+
+      <div className="eq-start-briefing-grid">
+        <article>
+          <strong>First thing to do</strong>
+          <span>
+            Walk to Maya and press Talk / Inspect. She owns the request and will
+            point you to the first clue.
+          </span>
+        </article>
+        <article>
+          <strong>How to win this case</strong>
+          <span>
+            Listen, inspect three clues, choose the real cause, choose the fix,
+            then review the business result.
+          </span>
+        </article>
+        <article>
+          <strong>What this proves</strong>
+          <span>
+            You can slow down, diagnose the work problem, and explain a
+            practical enablement solution in plain language.
+          </span>
+        </article>
+      </div>
+
+      <div className="eq-start-briefing-controls">
+        <span>Move: arrows, WASD, or joystick</span>
+        <span>Talk / Inspect: E, Space, Enter, or button</span>
+        <span>Help anytime: Q or Help</span>
+      </div>
+
+      <button className="eq-primary-button" type="button" onClick={onClose}>
+        Start with Maya
+      </button>
+    </section>
   );
 }
 

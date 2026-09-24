@@ -719,6 +719,12 @@ async function runViewport(client, viewport) {
     viewport.name,
     "gameplay",
   );
+  await clickButtonIncluding(send, "Start with Maya");
+  await assertQaState(
+    send,
+    (state) => state?.overlay === "none" && state?.questStage === "briefing",
+    "Start briefing did not dismiss into the case",
+  );
   await holdKey(send, "q", "KeyQ", 40);
   await waitForOverlay(send, "quest", "Help panel did not open");
   const guideState = await captureState(send, events, viewport.name, "guide");
