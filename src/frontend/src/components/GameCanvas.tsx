@@ -626,7 +626,7 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
           <strong>3. Make the recommendation</strong>
           <span>
             Choose the real cause, choose the fix, then review the case summary
-            you could explain to a recruiter or leader.
+            you could explain to a client or team lead.
           </span>
         </article>
         <article>
@@ -855,7 +855,7 @@ function getCoachPrompt(
     return {
       action: "Review the case summary",
       reason:
-        "the summary turns the playthrough into a portfolio artifact: problem, decision, fix, and impact.",
+        "the summary turns the playthrough into a teachable client recommendation: problem, decision, fix, and impact.",
     };
   }
 
@@ -1159,10 +1159,10 @@ function DecisionPanel({
       </div>
 
       <aside className="eq-decision-brief" aria-label="Plain language brief">
-        <strong>Your role in this moment</strong>
+        <strong>Your task</strong>
         <span>
-          Act like the enablement consultant in the room. Choose the answer you
-          could defend to leaders with the evidence below.
+          Choose the cause you can defend with evidence. Then choose the fix
+          that would actually change the work.
         </span>
         <em>
           Trap to avoid: the easiest thing to build is not always the thing that
@@ -1170,22 +1170,14 @@ function DecisionPanel({
         </em>
       </aside>
 
-      <DecisionRule />
-
       <EvidenceRecap caseEvidence={caseEvidence} />
-
-      <CaseMap
-        selectedDiagnosis={selectedDiagnosis}
-        selectedIntervention={selectedIntervention}
-        synthesis={synthesis}
-      />
 
       <div className="eq-option-grid">
         <div>
-          <h3>1. Name the real cause</h3>
+          <h3>Click one: name the real cause</h3>
           <p className="eq-decision-prompt">
-            Which answer would still make sense if a leader challenged you to
-            defend it with all three evidence items?
+            Pick the answer that explains all three evidence items, not just one
+            symptom.
           </p>
           {diagnosisOptions.map((option) => (
             <button
@@ -1211,7 +1203,7 @@ function DecisionPanel({
         </div>
 
         <div className={!canChooseIntervention ? "is-disabled" : ""}>
-          <h3>2. Pick the practical fix</h3>
+          <h3>Then click one: pick the practical fix</h3>
           <p className="eq-decision-prompt">
             {canChooseIntervention
               ? "Which fix changes the work, gives managers something to reinforce, and creates a metric leaders can inspect?"
@@ -1247,54 +1239,6 @@ function DecisionPanel({
         selectedIntervention={selectedIntervention}
         canChooseIntervention={canChooseIntervention}
       />
-
-      <div className="eq-case-synthesis" aria-label="Evidence synthesis">
-        <article>
-          <span>What Must Be Explained</span>
-          <p>{synthesis.pattern}</p>
-        </article>
-        <article>
-          <span>Tempting Wrong Turn</span>
-          <p>{synthesis.trap}</p>
-        </article>
-        <article>
-          <span>Business Result</span>
-          <p>{synthesis.metric}</p>
-        </article>
-      </div>
-
-      <DecisionChecklist canChooseIntervention={canChooseIntervention} />
-    </section>
-  );
-}
-
-function DecisionRule() {
-  return (
-    <section className="eq-decision-rule" aria-label="Three question rule">
-      <div>
-        <p className="eq-kicker">Simple rule</p>
-        <h3>Answer these three questions before clicking</h3>
-      </div>
-      <ol>
-        <li>
-          <strong>What is happening?</strong>
-          <span>
-            Name the visible workplace problem without jumping to a fix.
-          </span>
-        </li>
-        <li>
-          <strong>Why is it happening?</strong>
-          <span>
-            Find the cause that explains all the evidence, not one clue.
-          </span>
-        </li>
-        <li>
-          <strong>What should change?</strong>
-          <span>
-            Choose support that changes work behavior and can be measured.
-          </span>
-        </li>
-      </ol>
     </section>
   );
 }
@@ -1303,11 +1247,10 @@ function EvidenceRecap({ caseEvidence }: { caseEvidence: Evidence[] }) {
   return (
     <section className="eq-evidence-recap" aria-label="Evidence recap">
       <div>
-        <p className="eq-kicker">Evidence Recap</p>
-        <h3>Use these facts before choosing</h3>
+        <p className="eq-kicker">Quick evidence check</p>
+        <h3>Base your click on these facts</h3>
         <span>
-          The strongest answer should explain all three items together. If an
-          option only explains one item, it is probably a partial fix.
+          The best answer should explain the full pattern, not just one clue.
         </span>
       </div>
       <ol>
@@ -1320,123 +1263,6 @@ function EvidenceRecap({ caseEvidence }: { caseEvidence: Evidence[] }) {
             {item.metric && <small>{item.metric}</small>}
           </li>
         ))}
-      </ol>
-    </section>
-  );
-}
-
-function CaseMap({
-  selectedDiagnosis,
-  selectedIntervention,
-  synthesis,
-}: {
-  selectedDiagnosis: DiagnosisOption | undefined;
-  selectedIntervention: InterventionOption | undefined;
-  synthesis: (typeof caseSynthesis)[CaseId];
-}) {
-  return (
-    <section className="eq-case-map" aria-label="Case map">
-      <div>
-        <p className="eq-kicker">Plain-Language Case Map</p>
-        <h3>How this case turns into a real recommendation</h3>
-      </div>
-      <ol>
-        <li>
-          <strong>1. Decision question</strong>
-          <span>{synthesis.question}</span>
-        </li>
-        <li>
-          <strong>2. Evidence pattern</strong>
-          <span>{synthesis.pattern}</span>
-        </li>
-        <li>
-          <strong>3. Cause</strong>
-          <span>
-            {selectedDiagnosis?.label ??
-              "Choose the cause that explains every evidence item."}
-          </span>
-        </li>
-        <li>
-          <strong>4. Fix</strong>
-          <span>
-            {selectedIntervention?.label ??
-              "Choose the support that changes the work and can be measured."}
-          </span>
-        </li>
-        <li>
-          <strong>5. Impact</strong>
-          <span>{synthesis.metric}</span>
-        </li>
-      </ol>
-    </section>
-  );
-}
-
-function DecisionChecklist({
-  canChooseIntervention,
-}: {
-  canChooseIntervention: boolean;
-}) {
-  return (
-    <section className="eq-decision-checklist" aria-label="Decision tests">
-      <div>
-        <p className="eq-kicker">Use These Three Tests</p>
-        <h3>
-          {canChooseIntervention
-            ? "Before choosing a fix"
-            : "Before choosing the cause"}
-        </h3>
-      </div>
-      <ol>
-        {canChooseIntervention ? (
-          <>
-            <li>
-              <strong>Changes the work</strong>
-              <span>
-                The best fix changes daily behavior, handoffs, coaching, or
-                tools.
-              </span>
-            </li>
-            <li>
-              <strong>Creates reinforcement</strong>
-              <span>
-                Someone should be able to coach, inspect, or support the new
-                behavior after launch.
-              </span>
-            </li>
-            <li>
-              <strong>Can be measured</strong>
-              <span>
-                Leaders should be able to inspect a business signal after the
-                fix.
-              </span>
-            </li>
-          </>
-        ) : (
-          <>
-            <li>
-              <strong>Explains all evidence</strong>
-              <span>
-                The diagnosis should connect all three evidence items, not just
-                the loudest complaint.
-              </span>
-            </li>
-            <li>
-              <strong>Separates request from cause</strong>
-              <span>
-                A leader may ask for training even when the evidence points to
-                workflow, coaching, tools, or communication.
-              </span>
-            </li>
-            <li>
-              <strong>Points to a measurable fix</strong>
-              <span>
-                The cause should lead to a fix that can improve a business
-                signal.
-              </span>
-            </li>
-          </>
-        )}
       </ol>
     </section>
   );
@@ -1562,24 +1388,8 @@ function CanvasPanel({
   const businessProblem = getArtifactSection(artifact, "Business Problem");
   const rootCause = getArtifactSection(artifact, "Root Cause");
   const impact = getArtifactSection(artifact, "Expected Impact");
-  const [copyStatus, setCopyStatus] = useState<"copied" | "idle" | "failed">(
-    "idle",
-  );
-  const portfolioSummary = useMemo(
-    () => buildPortfolioSummary(artifact),
-    [artifact],
-  );
   const showCompletionProof =
     showFinalDebrief || artifact.id === "sales-enablement-impact-canvas";
-
-  const copyPortfolioSummary = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(portfolioSummary);
-      setCopyStatus("copied");
-    } catch {
-      setCopyStatus("failed");
-    }
-  }, [portfolioSummary]);
 
   return (
     <section
@@ -1641,45 +1451,6 @@ function CanvasPanel({
           </div>
         </aside>
       )}
-
-      {artifact.portfolioTakeaway && (
-        <aside
-          className="eq-portfolio-takeaway"
-          aria-label="Portfolio takeaway"
-        >
-          <p className="eq-kicker">Portfolio takeaway</p>
-          <h3>What this proves</h3>
-          <p>{artifact.portfolioTakeaway}</p>
-        </aside>
-      )}
-
-      <aside
-        className="eq-share-summary"
-        aria-label="Shareable portfolio summary"
-      >
-        <div>
-          <p className="eq-kicker">Shareable summary</p>
-          <h3>Copy this as the portfolio takeaway</h3>
-          <p>
-            This turns the playthrough into plain language a recruiter can
-            understand without playing the full case.
-          </p>
-        </div>
-        <textarea readOnly value={portfolioSummary} />
-        <div className="eq-share-actions">
-          <button
-            className="eq-primary-button"
-            type="button"
-            onClick={copyPortfolioSummary}
-          >
-            Copy portfolio summary
-          </button>
-          {copyStatus === "copied" && <span>Copied.</span>}
-          {copyStatus === "failed" && (
-            <span>Copy was blocked. Select the text above instead.</span>
-          )}
-        </div>
-      </aside>
 
       {canStartSalesCase && (
         <aside className="eq-next-case" aria-label="Next case">
@@ -1807,26 +1578,6 @@ function ReflectionPanel({
   );
 }
 
-function buildPortfolioSummary(
-  artifact: NonNullable<GameState["earnedArtifact"]>,
-) {
-  const sections = Object.fromEntries(
-    artifact.sections.map((section) => [section.label, section.value]),
-  );
-  return [
-    `${artifact.title}: ${artifact.subtitle}`,
-    "",
-    `Business problem: ${sections["Business Problem"] ?? "Not captured."}`,
-    `Root cause: ${sections["Root Cause"] ?? "Not captured."}`,
-    `Practical fix: ${sections.Intervention ?? "Not captured."}`,
-    `Expected impact: ${sections["Expected Impact"] ?? "Not captured."}`,
-    "",
-    artifact.portfolioTakeaway
-      ? `Portfolio takeaway: ${artifact.portfolioTakeaway}`
-      : "Portfolio takeaway: This case demonstrates performance diagnosis, solution design, and business-impact thinking.",
-  ].join("\n");
-}
-
 function getArtifactSection(
   artifact: NonNullable<GameState["earnedArtifact"]>,
   label: string,
@@ -1839,16 +1590,15 @@ function getArtifactSection(
 
 function FinalReviewerDebrief() {
   return (
-    <aside className="eq-final-debrief" aria-label="Final reviewer debrief">
-      <p className="eq-kicker">Final reviewer debrief</p>
-      <h3>What this complete run proves</h3>
-      <section className="eq-final-proof-hero" aria-label="Portfolio proof">
-        <strong>Terry can diagnose before designing.</strong>
+    <aside className="eq-final-debrief" aria-label="Facilitator debrief">
+      <p className="eq-kicker">Facilitator debrief</p>
+      <h3>What this learning journey practiced</h3>
+      <section className="eq-final-proof-hero" aria-label="Learning proof">
+        <strong>Diagnose before designing.</strong>
         <span>
-          The completed run shows the full enablement move: question the
-          request, inspect evidence, identify the root cause, choose a practical
-          intervention, and connect the recommendation to measurable business
-          impact.
+          The completed run shows the enablement move: question the request,
+          inspect evidence, identify the root cause, choose a practical
+          intervention, and connect the recommendation to measurable outcomes.
         </span>
       </section>
       <div className="eq-final-debrief-grid">
@@ -1875,55 +1625,45 @@ function FinalReviewerDebrief() {
           </span>
         </article>
         <article>
-          <strong>Portfolio talking point</strong>
+          <strong>Client-ready takeaway</strong>
           <span>
-            Terry Brutus built this as a playable case study to demonstrate
-            judgment, systems thinking, accessibility, responsible AI use, and
-            measurable enablement outcomes.
+            The experience can be used to teach enablement teams how to slow
+            down, test assumptions, and recommend support that fits the real
+            business problem.
           </span>
         </article>
       </div>
-      <section
-        className="eq-final-proof"
-        aria-label="Resume and portfolio proof"
-      >
+      <section className="eq-final-proof" aria-label="Team debrief prompts">
         <article>
-          <p className="eq-kicker">Resume bullet</p>
+          <p className="eq-kicker">Team discussion</p>
           <span>
-            Designed and developed an interactive enablement case simulator that
-            teaches learners to diagnose workplace performance problems, choose
-            targeted interventions, and connect learning decisions to measurable
-            business outcomes.
+            Where did the team want to jump straight to a fix, and what evidence
+            changed the recommendation?
           </span>
         </article>
         <article>
-          <p className="eq-kicker">Portfolio blurb</p>
+          <p className="eq-kicker">Application</p>
           <span>
-            This project turns enablement strategy into a playable case study:
-            reviewers can see the full thinking process from stakeholder request
-            to evidence, root cause, fix, and impact.
+            What real request at work should be diagnosed before anyone builds
+            training, content, or a communication plan?
           </span>
         </article>
       </section>
-      <section
-        className="eq-final-use"
-        aria-label="How to use this portfolio project"
-      >
+      <section className="eq-final-use" aria-label="Facilitator wrap-up">
         <article>
-          <p className="eq-kicker">LinkedIn post starter</p>
+          <p className="eq-kicker">Plain-language lesson</p>
           <span>
-            I built Enablement Quest to show how I approach workplace
-            performance problems: investigate the request, inspect evidence,
-            diagnose the root cause, choose the right support, and connect the
-            decision to business impact.
+            Good enablement is not just building the requested asset. It is
+            understanding what is blocking performance and choosing the support
+            that changes the work.
           </span>
         </article>
         <article>
-          <p className="eq-kicker">Interview answer</p>
+          <p className="eq-kicker">Next action</p>
           <span>
-            This project demonstrates that I do more than build training. I use
-            performance consulting, sales enablement thinking, accessibility,
-            and measurement to decide what support the business actually needs.
+            Pick one real workplace problem and ask: what evidence would prove
+            whether this is training, workflow, coaching, tools, communication,
+            or measurement?
           </span>
         </article>
       </section>

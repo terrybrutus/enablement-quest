@@ -259,7 +259,7 @@ function getFinishGuidance(caseId: CaseId, questStage: QuestStage) {
     return "Finish Case 01 by earning a plain-language case summary. That summary unlocks Case 02, the sales enablement version of the same diagnostic pattern.";
   }
   if (questStage === "complete") {
-    return "After Case 02, review the final debrief. That is the portfolio proof: performance consulting, sales enablement, learning architecture, and business impact in plain language.";
+    return "After Case 02, review the final debrief. It connects performance consulting, sales enablement, learning architecture, and business impact in plain language.";
   }
-  return "Finish Case 02 by earning the sales enablement summary. That second summary completes the portfolio path and unlocks the final reviewer debrief.";
+  return "Finish Case 02 by earning the sales enablement summary. That second summary completes the learning path and unlocks the facilitator debrief.";
 }

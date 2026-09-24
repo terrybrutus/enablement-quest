@@ -78,5 +78,5 @@ const conversationPurpose: Record<QuestStage, string> = {
   design:
     "Listen for the support, reinforcement, and metric the solution needs.",
   complete:
-    "Turn the case into a plain-language portfolio story: problem, decision, fix, and impact.",
+    "Turn the case into a plain-language recommendation: problem, decision, fix, and impact.",
 };

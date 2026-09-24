@@ -32,10 +32,10 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
       >
         <div className="eq-title-meta">
           <p className="eq-kicker">Enablement Quest</p>
-          <p className="eq-byline">Created by Terry Brutus</p>
+          <p className="eq-byline">A workplace diagnosis simulation</p>
         </div>
         <h1>The Learning Systems Lab</h1>
-        <p className="eq-title-mode">Two-case portfolio path</p>
+        <p className="eq-title-mode">Two-case learning path</p>
         <p className="eq-title-copy">
           A plain-language RPG case study where you diagnose workplace problems,
           choose enablement fixes, and see the business impact.
@@ -55,10 +55,10 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           </article>
           <article>
             <p>What you leave with</p>
-            <strong>A portfolio-ready proof of judgment.</strong>
+            <strong>A repeatable diagnosis habit.</strong>
             <span>
-              The final debrief gives plain-language resume, LinkedIn,
-              interview, and portfolio language tied to business impact.
+              The final debrief helps learners explain the problem, evidence,
+              cause, recommendation, and measurable impact.
             </span>
           </article>
         </section>
@@ -109,7 +109,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             Begin Case 01
             <ArrowRight className="h-5 w-5" />
           </button>
-          <span>Start now; review the portfolio details after the run.</span>
+          <span>Start now; use the debrief after the run.</span>
         </div>
 
         <section className="eq-finish-line" aria-label="How to finish">
@@ -150,10 +150,10 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             </span>
           </article>
           <article>
-            <p>Portfolio lens</p>
+            <p>Learning lens</p>
             <span>
-              The finished run produces copyable resume, portfolio, LinkedIn,
-              and interview language.
+              The finished run gives learners a practical way to explain their
+              recommendation in plain language.
             </span>
           </article>
         </section>
@@ -179,13 +179,11 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <div className="eq-review-wrapper">
             <section
               className="eq-reviewer-lens"
-              aria-label="What recruiters should review"
+              aria-label="What facilitators should review"
             >
-              <p>Reviewer lens</p>
+              <p>Facilitator lens</p>
               <ul>
-                <li>
-                  Performance consulting: Terry diagnoses before designing.
-                </li>
+                <li>Performance consulting: diagnose before designing.</li>
                 <li>
                   Learning architecture: evidence becomes a practical fix.
                 </li>
@@ -197,36 +195,34 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
 
             <section
               className="eq-creator-statement"
-              aria-label="Creator statement"
+              aria-label="Learning purpose"
             >
-              <p>Creator statement</p>
+              <p>Learning purpose</p>
               <span>
-                I built this as a playable portfolio case study, not a generic
-                course demo. The goal is to make my enablement judgment visible:
-                question the training request, inspect evidence, diagnose the
-                real problem, choose the right intervention, and explain the
-                business impact.
+                This playable case study helps learners slow down before
+                building training. The goal is to question the request, inspect
+                evidence, diagnose the real problem, choose the right support,
+                and explain the business impact.
               </span>
             </section>
 
             <section
               className="eq-review-guide"
-              aria-label="How to review this portfolio project"
+              aria-label="How to use this learning experience"
             >
               <div>
-                <p>Portfolio review path</p>
+                <p>Facilitation path</p>
                 <span>
                   Complete Case 01 for performance consulting, then Case 02 for
-                  sales enablement. The final debrief gives the resume and
-                  portfolio language.
+                  sales enablement. The final debrief gives team discussion
+                  prompts and plain-language takeaways.
                 </span>
               </div>
               <div>
-                <p>What this proves</p>
+                <p>What learners practice</p>
                 <span>
-                  Terry solves performance problems instead of automatically
-                  building training. The experience shows judgment, not just
-                  course production.
+                  Learners practice solving performance problems instead of
+                  automatically building training.
                 </span>
               </div>
               <div>
@@ -264,7 +260,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             onClick={() => setIsReviewGuideOpen((value) => !value)}
             data-ocid="title.review_guide_button"
           >
-            {isReviewGuideOpen ? "Hide review guide" : "How to review"}
+            {isReviewGuideOpen ? "Hide facilitator guide" : "Facilitator guide"}
           </button>
         </div>
 

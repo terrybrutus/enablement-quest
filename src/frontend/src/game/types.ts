@@ -179,7 +179,6 @@ export interface EarnedArtifact {
       value: string;
     }>;
   };
-  portfolioTakeaway?: string;
   sections: Array<{
     label: string;
     value: string;

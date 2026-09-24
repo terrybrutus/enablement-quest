@@ -913,8 +913,6 @@ export const earnedCanvas: EarnedArtifact = {
       },
     ],
   },
-  portfolioTakeaway:
-    "This case summary shows the performance-consulting move: Terry did not accept the training request at face value. He traced the evidence to workflow, access, reinforcement, and measurement before choosing a solution.",
   sections: [
     {
       label: "Business Problem",
@@ -972,8 +970,6 @@ export const salesCanvas: EarnedArtifact = {
       },
     ],
   },
-  portfolioTakeaway:
-    "This case summary shows the sales enablement move: Terry connects discovery behavior, manager coaching, and pipeline inspection to revenue outcomes instead of treating demo training as the default fix.",
   sections: [
     {
       label: "Business Problem",
