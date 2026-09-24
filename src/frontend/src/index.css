@@ -774,6 +774,57 @@
   padding-left: 8px;
 }
 
+.eq-decision-rule {
+  border: 1px solid rgba(52, 211, 153, 0.22);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 78, 59, 0.22),
+    rgba(15, 23, 42, 0.62)
+  );
+  margin: 0 0 14px;
+  padding: 14px;
+}
+
+.eq-decision-rule h3 {
+  color: #dcfce7;
+  font-size: 1rem;
+  margin: 2px 0 10px;
+}
+
+.eq-decision-rule ol {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eq-decision-rule li {
+  border: 1px solid rgba(52, 211, 153, 0.16);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.26);
+  padding: 10px;
+}
+
+.eq-decision-rule strong,
+.eq-decision-rule span {
+  display: block;
+}
+
+.eq-decision-rule strong {
+  color: #a7f3d0;
+  font-size: 0.78rem;
+  margin-bottom: 5px;
+}
+
+.eq-decision-rule span {
+  color: #e2e8f0;
+  font-size: 0.76rem;
+  line-height: 1.36;
+}
+
 .eq-case-map {
   border: 1px solid rgba(34, 211, 238, 0.2);
   border-radius: 18px;
@@ -2533,6 +2584,7 @@
 
   .eq-dialogue-actions > div,
   .eq-option-grid,
+  .eq-decision-rule ol,
   .eq-case-map ol,
   .eq-evidence-recap ol,
   .eq-case-synthesis,

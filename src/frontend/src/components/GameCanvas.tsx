@@ -1133,7 +1133,7 @@ function DecisionPanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Decision Point</p>
+          <p className="eq-kicker">Make the Recommendation</p>
           <h2>{synthesis.question}</h2>
           <p>{synthesis.prompt}</p>
         </div>
@@ -1145,13 +1145,16 @@ function DecisionPanel({
       <aside className="eq-decision-brief" aria-label="Plain language brief">
         <strong>Your role in this moment</strong>
         <span>
-          Choose the answer you could defend to leaders with the evidence below.
+          Act like the enablement consultant in the room. Choose the answer you
+          could defend to leaders with the evidence below.
         </span>
         <em>
           Trap to avoid: the easiest thing to build is not always the thing that
           solves the work problem.
         </em>
       </aside>
+
+      <DecisionRule />
 
       <EvidenceRecap caseEvidence={caseEvidence} />
 
@@ -1245,6 +1248,37 @@ function DecisionPanel({
       </div>
 
       <DecisionChecklist canChooseIntervention={canChooseIntervention} />
+    </section>
+  );
+}
+
+function DecisionRule() {
+  return (
+    <section className="eq-decision-rule" aria-label="Three question rule">
+      <div>
+        <p className="eq-kicker">Simple rule</p>
+        <h3>Answer these three questions before clicking</h3>
+      </div>
+      <ol>
+        <li>
+          <strong>What is happening?</strong>
+          <span>
+            Name the visible workplace problem without jumping to a fix.
+          </span>
+        </li>
+        <li>
+          <strong>Why is it happening?</strong>
+          <span>
+            Find the cause that explains all the evidence, not one clue.
+          </span>
+        </li>
+        <li>
+          <strong>What should change?</strong>
+          <span>
+            Choose support that changes work behavior and can be measured.
+          </span>
+        </li>
+      </ol>
     </section>
   );
 }

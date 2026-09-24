@@ -179,6 +179,10 @@ async function captureState(send, events, viewportName, stateName) {
           hasDialogue: Boolean(dialogue),
           hasFinalProof: fullText.includes('resume bullet') && fullText.includes('portfolio blurb'),
           hasLinkedInStarter: fullText.includes('linkedin post starter'),
+          hasDecisionRule:
+            fullText.includes('answer these three questions before clicking') &&
+            fullText.includes('what is happening?') &&
+            fullText.includes('what should change?'),
           hasDoneWhenCue: doneWhenCues.length > 0,
           hasReviewerProofStrip: Boolean(reviewerProofStrip),
           hasPanel: Boolean(panel),
