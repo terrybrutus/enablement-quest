@@ -1278,6 +1278,57 @@
   line-height: 1.42;
 }
 
+.eq-summary-bridge {
+  border: 1px solid rgba(125, 211, 252, 0.22);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 47, 73, 0.26),
+    rgba(15, 23, 42, 0.58)
+  );
+  margin: 0 0 14px;
+  padding: 13px 14px;
+}
+
+.eq-summary-bridge h3 {
+  color: #e0f2fe;
+  font-size: 1rem;
+  margin: 2px 0 10px;
+}
+
+.eq-summary-bridge ol {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eq-summary-bridge li {
+  border: 1px solid rgba(125, 211, 252, 0.14);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.26);
+  padding: 10px;
+}
+
+.eq-summary-bridge strong,
+.eq-summary-bridge span {
+  display: block;
+}
+
+.eq-summary-bridge strong {
+  color: #a7f3d0;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+}
+
+.eq-summary-bridge span {
+  color: #dbeafe;
+  font-size: 0.78rem;
+  line-height: 1.38;
+}
+
 .eq-canvas-card {
   border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 18px;
@@ -2487,6 +2538,7 @@
   .eq-case-synthesis,
   .eq-signal-strip,
   .eq-decision-checklist ol,
+  .eq-summary-bridge ol,
   .eq-case-outcome,
   .eq-canvas-grid,
   .eq-learner-debrief > div,

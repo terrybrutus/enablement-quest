@@ -1547,6 +1547,8 @@ function CanvasPanel({
         </button>
       </div>
 
+      <SummaryBridge artifact={artifact} />
+
       <div className="eq-case-outcome" aria-label="Case outcome summary">
         <article>
           <span>Before</span>
@@ -1650,6 +1652,30 @@ function CanvasPanel({
 
       {showCompletionProof && <FinalReviewerDebrief />}
     </section>
+  );
+}
+
+function SummaryBridge({
+  artifact,
+}: {
+  artifact: NonNullable<GameState["earnedArtifact"]>;
+}) {
+  const debrief = artifact.learnerDebrief;
+  return (
+    <aside className="eq-summary-bridge" aria-label="What you practiced">
+      <div>
+        <p className="eq-kicker">What you practiced</p>
+        <h3>The decision loop you completed</h3>
+      </div>
+      <ol>
+        {(debrief?.points ?? []).map((point) => (
+          <li key={point.label}>
+            <strong>{point.label}</strong>
+            <span>{point.value}</span>
+          </li>
+        ))}
+      </ol>
+    </aside>
   );
 }
 
