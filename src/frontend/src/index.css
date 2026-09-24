@@ -743,6 +743,16 @@
   line-height: 1.45;
 }
 
+.eq-decision-brief em {
+  border-left: 2px solid rgba(251, 191, 36, 0.6);
+  color: #fde68a;
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+  margin-top: 4px;
+  padding-left: 8px;
+}
+
 .eq-case-map {
   border: 1px solid rgba(34, 211, 238, 0.2);
   border-radius: 18px;

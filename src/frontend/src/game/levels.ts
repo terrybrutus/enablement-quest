@@ -712,14 +712,14 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "more-elearning",
     caseId: "onboarding",
     label:
-      "Make orientation clearer with screenshots, examples, and a knowledge check.",
+      "Improve orientation with clearer role examples and a stronger knowledge check.",
     explanation:
-      "This is plausible, but it treats the symptoms as a knowledge gap and ignores handoffs, manager reinforcement, and access delays.",
+      "This is tempting because the leader asked for training and the course can probably be improved. It still treats the problem as a content gap while the clues point to handoffs, access, and manager follow-up.",
     correct: false,
     consequence:
-      "You would ship more content, but new hires would still receive mixed instructions and wait on access.",
+      "You would ship something visible, but new hires could still receive mixed instructions, wait on access, and need support after orientation ends.",
     evidenceHint:
-      "The evidence shows conflicting instructions and access delays, not missing orientation content.",
+      "The clues show conflicting instructions, delayed access, and week-two support tickets. None of those are solved by a knowledge check alone.",
     learningTakeaway:
       "Do not label a problem as training until the evidence shows people lack knowledge or skill.",
   },
@@ -728,7 +728,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     caseId: "onboarding",
     label: "Standardize the handoffs and give managers follow-up checkpoints.",
     explanation:
-      "Correct. The evidence shows inconsistent instructions, delayed access, and a gap after orientation.",
+      "Correct. This explains the full pattern: inconsistent instructions, delayed access, and weak support after orientation.",
     correct: true,
     consequence:
       "The solution space opens beyond training: clarify ownership, reinforce manager behavior, and track ramp signals.",
@@ -740,14 +740,15 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "software-broken",
     caseId: "onboarding",
-    label: "Focus on tool access because new hires are blocked too long.",
+    label:
+      "Escalate tool access as the main issue because new hires are blocked too long.",
     explanation:
-      "Tool access is part of the problem, but the evidence does not support software failure as the root cause.",
+      "This is a smart partial read because access delay is real. It fails as the main diagnosis because the clues also show mixed expectations and weak follow-up after access is granted.",
     correct: false,
     consequence:
-      "You would improve one symptom, but managers could still give inconsistent expectations after access is fixed.",
+      "You would improve one bottleneck, but managers could still give inconsistent expectations and new hires could still need help in weeks two and three.",
     evidenceHint:
-      "Access delay matters, but nothing says the tool itself fails after access is granted.",
+      "Access delay matters, but it does not explain the conflicting instructions or the support-ticket spike by itself.",
     learningTakeaway:
       "A contributing factor is not always the root cause. Look for the pattern that explains the full case.",
   },
@@ -755,12 +756,12 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "sales-product-training",
     caseId: "sales",
     label:
-      "Tighten product-demo certification so reps present more consistently.",
+      "Tighten demo certification so reps present the product more consistently.",
     explanation:
-      "The call review says reps explain features clearly. More product content misses the buyer-conversation gap.",
+      "This sounds reasonable because the problem appears during demos. But the call review says reps already explain features clearly; the gap is discovery depth and value connection.",
     correct: false,
     consequence:
-      "Reps might sound more polished, but discovery depth and demo-to-next-step conversion would likely stay weak.",
+      "Reps might sound more polished, but shallow discovery and weak next-step conversion would likely remain.",
     evidenceHint:
       "Feature explanation is not the weak signal; discovery depth and next-step conversion are.",
     learningTakeaway:
@@ -772,7 +773,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     label:
       "Coach discovery habits and give managers a shared inspection rubric.",
     explanation:
-      "Correct. The evidence connects shallow discovery, missing pain notes, and low rubric use.",
+      "Correct. This explains all three clues: shallow discovery, missing business pain in CRM notes, and inconsistent manager coaching.",
     correct: true,
     consequence:
       "The solution can target the revenue behavior itself: rep practice, manager coaching, and pipeline inspection.",
@@ -784,14 +785,14 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "sales-more-activity",
     caseId: "sales",
-    label: "Refresh the demo deck so reps can tell a clearer product story.",
+    label: "Refresh the demo deck so reps tell a sharper value story.",
     explanation:
-      "Message clarity may help, but the evidence points to discovery behavior and manager coaching, not just deck content.",
+      "This is plausible because messaging can improve demos. It still misses the evidence that reps are not uncovering buyer pain before the story begins.",
     correct: false,
     consequence:
-      "A better deck might support reps, but it would not create the coaching habit or inspection signal leaders need.",
+      "A better deck could support reps, but it would not create deeper discovery, manager coaching, or a pipeline inspection habit.",
     evidenceHint:
-      "The pipeline signal points to behavior before and after the demo, not a standalone content refresh.",
+      "The pipeline signal points to behavior before and after the demo, not only the deck used during it.",
     learningTakeaway:
       "Content may support the solution, but it rarely replaces behavior change and manager reinforcement.",
   },
@@ -801,12 +802,13 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "training-module",
     caseId: "onboarding",
-    label: "Publish a cleaner onboarding course with role-specific examples.",
+    label:
+      "Publish a cleaner onboarding course and require completion by week one.",
     explanation:
-      "A longer module adds content, but it does not fix ownership, timing, or manager follow-through.",
+      "This is easy to approve because it is familiar and trackable. It does not fix ownership, access timing, or manager follow-through.",
     correct: false,
     consequence:
-      "Course completion could improve while ramp time and week-two support tickets remain stubborn.",
+      "Completion could rise while ramp time and week-two support tickets stay stubborn.",
     tradeoff:
       "Fast to ship, but it leaves managers and access handoffs untouched.",
     learningTakeaway:
@@ -817,7 +819,7 @@ export const interventionOptions: InterventionOption[] = [
     caseId: "onboarding",
     label: "Create a handoff checklist, manager job aid, and ramp dashboard.",
     explanation:
-      "Correct. This supports the workflow, reinforces expectations, and creates visible measures leaders can inspect.",
+      "Correct. This supports the workflow, reinforces expectations, and creates visible measures leaders can inspect after launch.",
     correct: true,
     consequence:
       "Managers get a repeatable operating habit, new hires get clearer support, and leaders can inspect ramp health.",
@@ -829,12 +831,13 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "announcement",
     caseId: "onboarding",
-    label: "Send a leadership message that clarifies the official process.",
+    label:
+      "Send a leader-backed process update and ask teams to follow it immediately.",
     explanation:
-      "Communication helps awareness, but one message will not sustain a changed onboarding behavior.",
+      "Communication is useful, and leaders often reach for it first. But one announcement does not create a repeatable handoff or manager follow-up habit.",
     correct: false,
     consequence:
-      "People may know the official process for a week, but the old handoff habits can return quickly.",
+      "People may know the official process for a week, but old handoff habits can return quickly.",
     tradeoff:
       "Low effort, low behavior change. It does not create a new operating habit.",
     learningTakeaway:
@@ -843,9 +846,10 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "sales-demo-certification",
     caseId: "sales",
-    label: "Require reps to pass a stricter demo certification.",
+    label:
+      "Require reps to pass a stricter demo certification before advancing deals.",
     explanation:
-      "Certification may improve consistency, but the evidence points to discovery and manager reinforcement before the demo.",
+      "Certification feels rigorous, but it mostly tests presentation. The evidence points to discovery and manager reinforcement before and after the demo.",
     correct: false,
     consequence:
       "Reps may pass a presentation test while still failing to uncover buyer pain before the demo.",
@@ -860,7 +864,7 @@ export const interventionOptions: InterventionOption[] = [
     label:
       "Build a discovery guide, coaching rubric, and pipeline inspection dashboard.",
     explanation:
-      "Correct. This changes pre-demo behavior, gives managers a coaching tool, and tracks conversion.",
+      "Correct. This changes pre-demo behavior, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
     correct: true,
     consequence:
       "Reps practice the behavior that affects pipeline, managers coach from a shared rubric, and leaders see conversion signals.",
@@ -872,9 +876,10 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "sales-slack-reminder",
     caseId: "sales",
-    label: "Send weekly discovery tips and sample questions to the team.",
+    label:
+      "Send weekly discovery tips and sample questions after every pipeline call.",
     explanation:
-      "Tips can reinforce a habit, but alone they do not give reps practice, manager coaching, or measurement.",
+      "Tips can reinforce a habit, and they are cheap to send. Alone, they do not give reps practice, manager coaching, or measurement.",
     correct: false,
     consequence:
       "The team receives helpful reminders, but there is no reliable practice loop or manager accountability.",

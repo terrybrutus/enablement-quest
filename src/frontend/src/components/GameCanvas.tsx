@@ -1143,6 +1143,10 @@ function DecisionPanel({
           answer; you are deciding what you would recommend to leaders and how
           you would defend it with the clues you collected.
         </span>
+        <em>
+          Watch for the trap: some choices are useful support tactics, but they
+          are not strong enough to be the main recommendation.
+        </em>
       </aside>
 
       <CaseMap
