@@ -1,10 +1,11 @@
-import type { GameCharacter } from "@/game/types";
+import type { GameCharacter, QuestStage } from "@/game/types";
 import { ArrowRight, X } from "lucide-react";
 
 interface DialoguePanelProps {
   character: GameCharacter;
   line: string;
   lineIndex: number;
+  stage: QuestStage;
   totalLines: number;
   onAdvance: () => void;
   onClose: () => void;
@@ -14,6 +15,7 @@ export function DialoguePanel({
   character,
   line,
   lineIndex,
+  stage,
   totalLines,
   onAdvance,
   onClose,
@@ -35,6 +37,11 @@ export function DialoguePanel({
       </div>
 
       <p>{line}</p>
+
+      <aside className="eq-dialogue-learning" aria-label="Conversation purpose">
+        <strong>Listen for</strong>
+        <span>{conversationPurpose[stage]}</span>
+      </aside>
 
       <div className="eq-dialogue-actions">
         <span className="eq-keyboard-hint">
@@ -60,3 +67,16 @@ export function DialoguePanel({
     </section>
   );
 }
+
+const conversationPurpose: Record<QuestStage, string> = {
+  briefing:
+    "Separate the leader's request from the real performance problem before you build anything.",
+  investigate:
+    "Connect what this person says to the evidence pattern you are collecting.",
+  diagnose:
+    "Check whether your root-cause answer explains what would still be broken after more training.",
+  design:
+    "Listen for the support, reinforcement, and metric the solution needs.",
+  complete:
+    "Turn the case into a plain-language portfolio story: problem, decision, solution, and impact.",
+};

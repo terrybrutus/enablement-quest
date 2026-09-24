@@ -681,6 +681,13 @@ async function runViewport(client, viewport) {
     viewport.name,
     "operations",
   );
+  await navigateTo(send, `${appUrl}?qaScene=operations&qaDialogue=maya`);
+  const onboardingDialogueState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "dialogue-onboarding",
+  );
   await assertQaState(
     send,
     (state) =>
@@ -785,6 +792,7 @@ async function runViewport(client, viewport) {
       gameplayState,
       hubState,
       operationsState,
+      onboardingDialogueState,
       onboardingDecisionState,
       onboardingWrongDecisionState,
       firstEvidenceState,

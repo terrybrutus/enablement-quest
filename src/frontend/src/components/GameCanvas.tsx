@@ -79,7 +79,7 @@ function createInitialGameState(): GameState {
     activeCanvasCaseId: null,
     earnedArtifact: null,
     overlay: qaScene?.overlay ?? (qaScene ? "none" : "briefing"),
-    dialogue: null,
+    dialogue: qaScene?.dialogue ?? null,
     toast: null,
   };
 }
@@ -487,6 +487,7 @@ export default function GameCanvas() {
               gameState.dialogue.lineIndex,
               activeCharacter.dialogue[gameState.questStage].length - 1,
             )}
+            stage={gameState.questStage}
             totalLines={activeCharacter.dialogue[gameState.questStage].length}
             onAdvance={advanceDialogue}
             onClose={closeOverlay}
@@ -585,6 +586,7 @@ function getQaScene(): {
   caseId: GameState["currentCaseId"];
   collectedEvidenceIds?: string[];
   diagnosisId?: string | null;
+  dialogue?: GameState["dialogue"];
   interventionId?: string | null;
   overlay?: GameState["overlay"];
   position: Position;
@@ -597,6 +599,7 @@ function getQaScene(): {
   const searchParams = new URLSearchParams(window.location.search);
   const sceneId = searchParams.get("qaScene");
   const qaStage = searchParams.get("qaStage");
+  const qaDialogue = searchParams.get("qaDialogue");
   const qaDiagnosis = searchParams.get("qaDiagnosis");
   const qaIntervention = searchParams.get("qaIntervention");
   if (sceneId === "operations") {
@@ -605,6 +608,7 @@ function getQaScene(): {
       sceneId,
       caseId,
       position: { x: 9, y: 10.25 },
+      ...getQaDialogueState("maya", qaDialogue),
       ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention),
     };
   }
@@ -614,6 +618,7 @@ function getQaScene(): {
       sceneId,
       caseId,
       position: { x: 9, y: 10.25 },
+      ...getQaDialogueState("leo", qaDialogue),
       ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention),
     };
   }
@@ -625,6 +630,20 @@ function getQaScene(): {
     };
   }
   return null;
+}
+
+function getQaDialogueState(characterId: string, qaDialogue: string | null) {
+  if (qaDialogue !== characterId) {
+    return {};
+  }
+  return {
+    dialogue: {
+      characterId,
+      lineIndex: 0,
+      openedAt: Date.now() - 1000,
+    },
+    overlay: "dialogue" as const,
+  };
 }
 
 function getQaStageState(

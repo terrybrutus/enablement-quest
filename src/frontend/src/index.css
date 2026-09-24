@@ -384,6 +384,28 @@
   line-height: 1.6;
 }
 
+.eq-dialogue-learning {
+  border: 1px solid rgba(125, 211, 252, 0.18);
+  border-radius: 16px;
+  background: rgba(8, 47, 73, 0.28);
+  color: #dbeafe;
+  display: grid;
+  gap: 4px;
+  margin: -4px 0 14px;
+  padding: 10px 12px;
+}
+
+.eq-dialogue-learning strong {
+  color: #bae6fd;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.eq-dialogue-learning span {
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
 .eq-dialogue-actions > div {
   display: flex;
   gap: 8px;
