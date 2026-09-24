@@ -29,11 +29,11 @@ interface HudProps {
 }
 
 const stageLabels: Record<QuestStage, string> = {
-  briefing: "1. Hear the request",
-  investigate: "2. Review evidence",
-  diagnose: "3. Name the cause",
-  design: "4. Choose the fix",
-  complete: "5. Review impact",
+  briefing: "Step 1 of 5",
+  investigate: "Step 2 of 5",
+  diagnose: "Step 3 of 5",
+  design: "Step 4 of 5",
+  complete: "Step 5 of 5",
 };
 
 const routeSteps: Array<{ id: QuestStage; label: string }> = [
@@ -179,7 +179,7 @@ function getStepLabel(
   evidenceTotal: number,
 ) {
   if (questStage === "investigate") {
-    return `2. Evidence ${evidenceCount}/${evidenceTotal}`;
+    return `Step 2 of 5 | Evidence ${evidenceCount}/${evidenceTotal}`;
   }
   if (questStage === "briefing") {
     return stageLabels.briefing;

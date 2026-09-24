@@ -261,7 +261,7 @@ export default function GameCanvas() {
           ? {
               id: Date.now(),
               message:
-                "Step 3: all evidence is saved. Use Talk or Inspect anywhere to choose the cause.",
+                "Step 3: all evidence is saved. Return to the case person to choose the cause.",
             }
           : previous.toast,
     }));
@@ -782,13 +782,13 @@ function getNextObjective(
   if (questStage === "investigate") {
     return nextEvidenceTitle
       ? `Step 2: review ${nextEvidenceTitle}. Evidence ${evidenceCount + 1} of ${evidenceTotal}.`
-      : `All evidence reviewed: ${evidenceCount}/${evidenceTotal}. Use Talk or Inspect anywhere to choose the cause.`;
+      : `All evidence reviewed: ${evidenceCount}/${evidenceTotal}. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
   }
   if (questStage === "diagnose") {
-    return "Step 3: use Talk or Inspect anywhere, then choose the cause that explains all the evidence.";
+    return `Step 3: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the cause that explains all the evidence.`;
   }
   if (questStage === "design") {
-    return "Step 4: use Talk or Inspect anywhere, then choose the fix that changes behavior and creates a useful metric.";
+    return `Step 4: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the fix that changes behavior and creates a useful metric.`;
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return "Step 5: review the case summary. It shows the before, decision, fix, and impact.";
@@ -829,15 +829,15 @@ function getCoachPrompt(
             "each evidence item helps you separate the real work problem from the tempting quick fix.",
         }
       : {
-          action: "Choose the cause",
+          action: `Return to ${caseOwner}`,
           reason:
-            "a good diagnosis explains all three evidence items at once, not just the loudest complaint.",
+            "bring your evidence back to the person who asked for help before you recommend a cause.",
         };
   }
 
   if (questStage === "diagnose") {
     return {
-      action: "Choose the cause",
+      action: `Stand near ${caseOwner}`,
       reason:
         "this is where you prove judgment: training is only right when the evidence shows a knowledge or skill gap.",
     };
@@ -845,7 +845,7 @@ function getCoachPrompt(
 
   if (questStage === "design") {
     return {
-      action: "Choose the fix",
+      action: "Pick the practical fix",
       reason:
         "the best fix changes daily work and gives leaders a business signal they can inspect.",
     };
@@ -1211,7 +1211,7 @@ function DecisionPanel({
         </div>
 
         <div className={!canChooseIntervention ? "is-disabled" : ""}>
-          <h3>2. Choose the fix</h3>
+          <h3>2. Pick the practical fix</h3>
           <p className="eq-decision-prompt">
             {canChooseIntervention
               ? "Which fix changes the work, gives managers something to reinforce, and creates a metric leaders can inspect?"

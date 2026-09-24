@@ -5,6 +5,7 @@ import {
 } from "@/game/levels";
 import type { CaseId, QuestStage } from "@/game/types";
 import { CheckCircle2, Circle, X } from "lucide-react";
+import { useState } from "react";
 
 interface QuestLogProps {
   currentCaseId: CaseId;
@@ -53,6 +54,30 @@ export function QuestLog({
   );
   const finishGuidance = getFinishGuidance(currentCaseId, questStage);
   const simpleExplanation = getSimpleExplanation(currentCaseId);
+  const guideCards = [
+    {
+      title: "Do this now",
+      body: activeGuidance,
+    },
+    {
+      title: "Why this is useful",
+      body: simpleExplanation,
+    },
+    {
+      title: "The whole path",
+      body: "Listen to the request, review the evidence, name the cause, choose the fix, then review the business result.",
+    },
+    {
+      title: "The skill you are practicing",
+      body: "Slow down, check the facts, avoid the easy answer, and explain a fix in business language.",
+    },
+    {
+      title: "How you finish",
+      body: finishGuidance,
+    },
+  ];
+  const [activeGuideIndex, setActiveGuideIndex] = useState(0);
+  const activeGuide = guideCards[activeGuideIndex];
 
   return (
     <section
@@ -70,39 +95,39 @@ export function QuestLog({
         </button>
       </div>
 
-      <div className="eq-mini-section">
-        <h3>Do this now</h3>
-        <p>{activeGuidance}</p>
-      </div>
-
-      <div className="eq-mini-section eq-learning-purpose">
-        <h3>Why this is useful</h3>
-        <p>{simpleExplanation}</p>
-      </div>
-
-      <div className="eq-mini-section">
-        <h3>The whole path</h3>
-        <ol className="eq-simple-path">
-          <li>Listen to the workplace problem.</li>
-          <li>Review three evidence items.</li>
-          <li>Choose the real cause.</li>
-          <li>Choose the practical fix.</li>
-          <li>Review the business result.</li>
-        </ol>
-      </div>
-
-      <div className="eq-mini-section eq-learning-purpose">
-        <h3>The skill you are practicing</h3>
-        <p>
-          You are practicing how to slow down, check the facts, avoid the easy
-          answer, and explain a fix in business language.
-        </p>
-      </div>
-
-      <div className="eq-mini-section eq-finish-card">
-        <h3>How you finish</h3>
-        <p>{finishGuidance}</p>
-      </div>
+      <section className="eq-guide-carousel" aria-label="Case help steps">
+        <div>
+          <p className="eq-kicker">
+            Help {activeGuideIndex + 1} of {guideCards.length}
+          </p>
+          <h3>{activeGuide.title}</h3>
+          <p>{activeGuide.body}</p>
+        </div>
+        <div className="eq-guide-carousel-actions">
+          <button
+            className="eq-ghost-button"
+            disabled={activeGuideIndex === 0}
+            type="button"
+            onClick={() =>
+              setActiveGuideIndex((index) => Math.max(0, index - 1))
+            }
+          >
+            Back
+          </button>
+          <button
+            className="eq-primary-button"
+            disabled={activeGuideIndex === guideCards.length - 1}
+            type="button"
+            onClick={() =>
+              setActiveGuideIndex((index) =>
+                Math.min(guideCards.length - 1, index + 1),
+              )
+            }
+          >
+            Next
+          </button>
+        </div>
+      </section>
 
       <div className="eq-step-list">
         {steps.map((step, index) => {
@@ -211,10 +236,10 @@ function getActiveGuidance(
     return `Review the evidence in order. After each item, choose what it tells you about the real work problem. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Use Talk or Inspect to open the choice screen. Pick the cause that explains all three evidence items.";
+    return "Return to the case person and use Talk or Inspect. Pick the cause that explains all three evidence items.";
   }
   if (questStage === "design") {
-    return "Use Talk or Inspect to reopen the choice screen. Choose the fix that matches the cause.";
+    return "Return to the case person and use Talk or Inspect. Pick the fix that matches the cause.";
   }
   return "Review the case summary. It explains the problem, evidence, decision, fix, and business result.";
 }

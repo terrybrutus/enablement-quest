@@ -132,12 +132,23 @@ export function useGameLoop({
       return;
     }
 
-    if (state.questStage === "diagnose" || state.questStage === "design") {
+    if (
+      (state.questStage === "diagnose" || state.questStage === "design") &&
+      getNearbyCaseOwner(state)
+    ) {
       setGameState((previous) => ({
         ...previous,
         overlay: "decision",
         toast: null,
       }));
+      return;
+    }
+
+    if (state.questStage === "diagnose" || state.questStage === "design") {
+      const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
+      setToast(
+        `Bring your findings back to ${stakeholder}. Stand near them to choose the cause and fix.`,
+      );
       return;
     }
 
@@ -159,7 +170,7 @@ export function useGameLoop({
       return;
     }
 
-    const portal = getNearbyPortal(state);
+    const portal = getPortalAtPosition(state, state.player.position);
     if (portal) {
       if (
         portal.targetSceneId === "sales" &&
@@ -467,27 +478,6 @@ function moveWithinScene(
     };
   }
 
-  const characterBlocked = characters.some((character) => {
-    const characterState = state.characterStates[character.id];
-    return (
-      character.sceneId === scene.id &&
-      distanceInPixels(
-        bounded,
-        characterState?.position ?? character.position,
-      ) < 38
-    );
-  });
-  if (characterBlocked) {
-    return {
-      ...state,
-      player: {
-        ...state.player,
-        direction,
-        isMoving: false,
-      },
-    };
-  }
-
   const portal = getPortalAtPosition(state, bounded);
   if (portal) {
     if (
@@ -552,23 +542,23 @@ function getNearbyCharacter(state: GameState) {
   });
 }
 
-function getNearbyPortal(state: GameState) {
-  const scene = getCurrentScene(state);
-  return scene.portals.find((portal) => {
-    if (pointInRect(state.player.position, portal.rect)) {
-      return true;
-    }
-    const portalCenter = {
-      x: portal.rect.x + portal.rect.width / 2,
-      y: portal.rect.y + portal.rect.height / 2,
-    };
-    return distanceInPixels(state.player.position, portalCenter) < 72;
-  });
-}
-
 function getPortalAtPosition(state: GameState, position: Position) {
   const scene = getCurrentScene(state);
   return scene.portals.find((portal) => pointInRect(position, portal.rect));
+}
+
+function getNearbyCaseOwner(state: GameState) {
+  const ownerId = state.currentCaseId === "sales" ? "leo" : "maya";
+  const owner = characters.find((character) => character.id === ownerId);
+  if (!owner || owner.sceneId !== state.player.sceneId) {
+    return null;
+  }
+  const ownerState = state.characterStates[owner.id];
+  const ownerPosition = ownerState?.position ?? owner.position;
+  return distanceInPixels(state.player.position, ownerPosition) <
+    INTERACT_DISTANCE
+    ? owner
+    : null;
 }
 
 function getCaseTransition(

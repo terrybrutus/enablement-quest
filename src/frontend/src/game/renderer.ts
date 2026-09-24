@@ -254,12 +254,6 @@ function drawExteriorLandmarks(
     9.45 * TILE_SIZE - camera.y,
   );
   drawCampusPlanting(ctx, camera);
-  drawCampusPlaque(
-    ctx,
-    "Choose a case",
-    15 * TILE_SIZE - camera.x,
-    7.2 * TILE_SIZE - camera.y,
-  );
 }
 
 function drawCampusPlanting(
@@ -588,6 +582,7 @@ function drawPortals(
     const height = portal.rect.height * TILE_SIZE;
 
     if (scene.theme === "exterior") {
+      drawPortalHotspot(ctx, px, py, width, height, portal.label);
       continue;
     }
 
@@ -606,6 +601,51 @@ function drawPortals(
     ctx.fillStyle = "rgba(34, 211, 238, 0.1)";
     ctx.fillRect(px + 12, py + height - TILE_SIZE + 10, width - 24, 24);
   }
+}
+
+function drawPortalHotspot(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  label: string,
+) {
+  const pulse = Math.sin(Date.now() / 360) * 2;
+  ctx.save();
+  ctx.strokeStyle = "rgba(34, 211, 238, 0.72)";
+  ctx.fillStyle = "rgba(34, 211, 238, 0.14)";
+  ctx.lineWidth = 2;
+  roundRect(ctx, x - 4, y - 4, width + 8, height + 8, 8);
+  ctx.fill();
+  ctx.setLineDash([6, 5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "rgba(2, 6, 23, 0.82)";
+  roundRect(ctx, x + width / 2 - 42, y - 34 - pulse, 84, 24, 8);
+  ctx.fill();
+  ctx.fillStyle = "#cffafe";
+  ctx.font = "900 10px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(
+    `Enter ${shortPortalLabel(label)}`,
+    x + width / 2,
+    y - 18 - pulse,
+  );
+  ctx.restore();
+}
+
+function shortPortalLabel(label: string) {
+  if (label.includes("Operations")) {
+    return "Operations";
+  }
+  if (label.includes("Sales")) {
+    return "Sales";
+  }
+  if (label.includes("Lab")) {
+    return "Lab";
+  }
+  return "door";
 }
 
 function drawProps(

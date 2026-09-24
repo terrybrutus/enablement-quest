@@ -215,21 +215,21 @@ export const scenes: Scene[] = [
       {
         id: "hub-to-lab",
         label: "Learning Systems Lab",
-        rect: { x: 13.85, y: 15.15, width: 2.3, height: 1 },
+        rect: { x: 14.45, y: 14.72, width: 1.1, height: 0.72 },
         targetSceneId: "lab",
         targetPosition: { x: 9, y: 9.6 },
       },
       {
         id: "hub-to-operations",
         label: "Operations Suite",
-        rect: { x: 20.4, y: 7.65, width: 3.4, height: 1.55 },
+        rect: { x: 21.55, y: 7.02, width: 1.05, height: 0.72 },
         targetSceneId: "operations",
         targetPosition: { x: 9, y: 10.25 },
       },
       {
         id: "hub-to-sales",
         label: "Sales Strategy Studio",
-        rect: { x: 6, y: 7.65, width: 3.4, height: 1.55 },
+        rect: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 },
         targetSceneId: "sales",
         targetPosition: { x: 9, y: 10.25 },
       },
@@ -259,7 +259,7 @@ export const scenes: Scene[] = [
       {
         id: "operations-to-hub",
         label: "Organization Floor",
-        rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
+        rect: { x: 8.4, y: 11.5, width: 1.2, height: 0.65 },
         targetSceneId: "hub",
         targetPosition: { x: 22.1, y: 9.25 },
       },
@@ -376,7 +376,7 @@ export const scenes: Scene[] = [
       {
         id: "sales-to-hub",
         label: "Organization Floor",
-        rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
+        rect: { x: 8.4, y: 11.5, width: 1.2, height: 0.65 },
         targetSceneId: "hub",
         targetPosition: { x: 7.6, y: 9.25 },
       },
