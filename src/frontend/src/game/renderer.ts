@@ -82,7 +82,7 @@ export function renderGame(
 
   drawSceneBase(ctx, viewport, scene, camera, assets);
   drawProps(ctx, scene, camera, assets);
-  drawPortals(ctx, scene, camera, assets);
+  drawPortals(ctx, scene, camera);
   drawEvidence(ctx, scene, gameState, camera, assets);
   drawCharacters(ctx, scene, gameState, camera, assets);
   drawPlayer(ctx, gameState, camera, assets);
@@ -422,7 +422,7 @@ function drawInteriorLandmarks(
     scene.id === "operations"
       ? {
           accent: "#f59e0b",
-          fill: "rgba(120, 53, 15, 0.16)",
+          fill: "rgba(120, 53, 15, 0.07)",
           title: "Onboarding Diagnostic Room",
           zones: [
             {
@@ -441,7 +441,7 @@ function drawInteriorLandmarks(
         }
       : {
           accent: "#22d3ee",
-          fill: "rgba(8, 145, 178, 0.15)",
+          fill: "rgba(8, 145, 178, 0.07)",
           title: "Sales Enablement Studio",
           zones: [
             {
@@ -503,11 +503,10 @@ function drawLearningZone(
   const height = rect.height * TILE_SIZE;
   ctx.save();
   ctx.fillStyle = fill;
-  ctx.strokeStyle = `${accent}88`;
+  ctx.strokeStyle = `${accent}38`;
   ctx.lineWidth = 2;
   roundRect(ctx, x, y, width, height, 12);
   ctx.fill();
-  ctx.setLineDash([8, 6]);
   ctx.stroke();
   ctx.restore();
 }
@@ -521,16 +520,12 @@ function drawExitGuide(
   const x = scene.width * TILE_SIZE * 0.5 - camera.x;
   const y = (scene.height - 1.65) * TILE_SIZE - camera.y;
   ctx.save();
-  ctx.strokeStyle = accent;
-  ctx.fillStyle = `${accent}20`;
+  ctx.strokeStyle = `${accent}55`;
+  ctx.fillStyle = `${accent}14`;
   ctx.lineWidth = 2;
-  roundRect(ctx, x - 62, y - 18, 124, 34, 8);
+  roundRect(ctx, x - 42, y - 8, 84, 18, 8);
   ctx.fill();
   ctx.stroke();
-  ctx.font = "800 11px DM Sans, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#e0f2fe";
-  ctx.fillText("Exit to campus", x, y + 5);
   ctx.restore();
 }
 
@@ -573,7 +568,6 @@ function drawPortals(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
   camera: { x: number; y: number },
-  assets: LoadedAssets,
 ) {
   for (const portal of scene.portals) {
     const px = portal.rect.x * TILE_SIZE - camera.x;
@@ -586,21 +580,38 @@ function drawPortals(
       continue;
     }
 
-    drawSheetSprite(
-      ctx,
-      assets,
-      scene.floorSprite ?? tileSprites.labFloor,
-      px,
-      py + height - TILE_SIZE,
-      width,
-      TILE_SIZE,
-    );
-    ctx.strokeStyle = "rgba(34, 211, 238, 0.56)";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(px + 10, py + height - TILE_SIZE + 8, width - 20, 28);
-    ctx.fillStyle = "rgba(34, 211, 238, 0.1)";
-    ctx.fillRect(px + 12, py + height - TILE_SIZE + 10, width - 24, 24);
+    drawInteriorPortalHotspot(ctx, px, py, width, height, portal.label);
   }
+}
+
+function drawInteriorPortalHotspot(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  label: string,
+) {
+  const pulse = Math.sin(Date.now() / 360) * 1.4;
+  const centerX = x + width / 2;
+  ctx.save();
+  ctx.strokeStyle = "rgba(34, 211, 238, 0.72)";
+  ctx.fillStyle = "rgba(34, 211, 238, 0.16)";
+  ctx.lineWidth = 2;
+  roundRect(ctx, x - 5, y - 5, width + 10, height + 10, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(2, 6, 23, 0.88)";
+  roundRect(ctx, centerX - 48, y - 34 - pulse, 96, 25, 8);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(34, 211, 238, 0.56)";
+  ctx.stroke();
+  ctx.fillStyle = "#cffafe";
+  ctx.font = "900 10px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(`Exit to ${shortPortalLabel(label)}`, centerX, y - 18 - pulse);
+  ctx.restore();
 }
 
 function drawPortalHotspot(
@@ -644,6 +655,9 @@ function shortPortalLabel(label: string) {
   }
   if (label.includes("Lab")) {
     return "Lab";
+  }
+  if (label.includes("Organization")) {
+    return "campus";
   }
   return "door";
 }
