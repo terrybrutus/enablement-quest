@@ -1812,6 +1812,10 @@
   line-height: 1.42;
 }
 
+.eq-mobile-title-start {
+  display: none;
+}
+
 .eq-title-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2430,7 +2434,7 @@
   }
 
   .eq-title-card h1 {
-    font-size: clamp(1.7rem, 10vw, 2.25rem);
+    font-size: clamp(1.55rem, 8.5vw, 2rem);
     line-height: 1.08;
     letter-spacing: -0.04em;
   }
@@ -2462,6 +2466,24 @@
   .eq-plain-start span {
     font-size: 0.8rem;
     line-height: 1.35;
+  }
+
+  .eq-mobile-title-start {
+    display: grid;
+    gap: 7px;
+    justify-items: center;
+    margin: 0 0 12px;
+  }
+
+  .eq-mobile-title-start .eq-start-button {
+    min-height: 46px;
+  }
+
+  .eq-mobile-title-start span {
+    color: #a7f3d0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.25;
   }
 
   .eq-finish-line {

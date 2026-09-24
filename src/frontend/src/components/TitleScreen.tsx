@@ -78,6 +78,19 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           </span>
         </section>
 
+        <div className="eq-mobile-title-start">
+          <button
+            className="eq-primary-button eq-start-button"
+            type="button"
+            onClick={onStart}
+            data-ocid="title.mobile_start_button"
+          >
+            Begin Case 01
+            <ArrowRight className="h-5 w-5" />
+          </button>
+          <span>Start now; review the portfolio details after the run.</span>
+        </div>
+
         <section className="eq-finish-line" aria-label="How to finish">
           <div>
             <p>The finish line</p>
