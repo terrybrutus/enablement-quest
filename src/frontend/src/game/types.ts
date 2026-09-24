@@ -149,6 +149,7 @@ export interface DiagnosisOption {
   label: string;
   explanation: string;
   correct: boolean;
+  consequence: string;
   evidenceHint: string;
   learningTakeaway: string;
 }
@@ -159,6 +160,7 @@ export interface InterventionOption {
   label: string;
   explanation: string;
   correct: boolean;
+  consequence: string;
   tradeoff: string;
   learningTakeaway: string;
 }

@@ -680,6 +680,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     explanation:
       "This is plausible, but it treats the symptoms as a knowledge gap and ignores handoffs, manager reinforcement, and access delays.",
     correct: false,
+    consequence:
+      "You would ship more content, but new hires would still receive mixed instructions and wait on access.",
     evidenceHint:
       "The clues show conflicting instructions and access delays, not missing orientation content.",
     learningTakeaway:
@@ -692,6 +694,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     explanation:
       "Correct. The clues show inconsistent instructions, delayed access, and a gap after orientation.",
     correct: true,
+    consequence:
+      "The solution space opens beyond training: clarify ownership, reinforce manager behavior, and track ramp signals.",
     evidenceHint:
       "Interview notes, process handoffs, and week-two tickets all point to workflow plus reinforcement.",
     learningTakeaway:
@@ -704,6 +708,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     explanation:
       "Tool access is part of the problem, but the clues do not support software failure as the root cause.",
     correct: false,
+    consequence:
+      "You would improve one symptom, but managers could still give inconsistent expectations after access is fixed.",
     evidenceHint:
       "Access delay matters, but nothing says the tool itself fails after access is granted.",
     learningTakeaway:
@@ -717,6 +723,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     explanation:
       "The call review says reps explain features clearly. More product content misses the buyer-conversation gap.",
     correct: false,
+    consequence:
+      "Reps might sound more polished, but discovery depth and demo-to-next-step conversion would likely stay weak.",
     evidenceHint:
       "Feature explanation is not the weak signal; discovery depth and next-step conversion are.",
     learningTakeaway:
@@ -730,6 +738,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     explanation:
       "Correct. The clues connect shallow discovery, missing pain notes, and low rubric use.",
     correct: true,
+    consequence:
+      "The solution can target the revenue behavior itself: rep practice, manager coaching, and pipeline inspection.",
     evidenceHint:
       "The call review, CRM audit, and coaching note triangulate the same behavior gap.",
     learningTakeaway:
@@ -742,6 +752,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
     explanation:
       "Message clarity may help, but the clues point to discovery behavior and manager coaching, not just deck content.",
     correct: false,
+    consequence:
+      "A better deck might support reps, but it would not create the coaching habit or inspection signal leaders need.",
     evidenceHint:
       "The pipeline signal points to behavior before and after the demo, not a standalone content refresh.",
     learningTakeaway:
@@ -757,6 +769,8 @@ export const interventionOptions: InterventionOption[] = [
     explanation:
       "A longer module adds content, but it does not fix ownership, timing, or manager follow-through.",
     correct: false,
+    consequence:
+      "Course completion could improve while ramp time and week-two support tickets remain stubborn.",
     tradeoff:
       "Fast to ship, but it leaves managers and access handoffs untouched.",
     learningTakeaway:
@@ -769,6 +783,8 @@ export const interventionOptions: InterventionOption[] = [
     explanation:
       "Correct. This supports the workflow, reinforces expectations, and creates visible measures leaders can inspect.",
     correct: true,
+    consequence:
+      "Managers get a repeatable operating habit, new hires get clearer support, and leaders can inspect ramp health.",
     tradeoff:
       "Requires manager adoption, but it addresses workflow, reinforcement, and measurement together.",
     learningTakeaway:
@@ -781,6 +797,8 @@ export const interventionOptions: InterventionOption[] = [
     explanation:
       "Communication helps awareness, but one message will not sustain a changed onboarding behavior.",
     correct: false,
+    consequence:
+      "People may know the official process for a week, but the old handoff habits can return quickly.",
     tradeoff:
       "Low effort, low behavior change. It does not create a new operating habit.",
     learningTakeaway:
@@ -793,6 +811,8 @@ export const interventionOptions: InterventionOption[] = [
     explanation:
       "Certification may improve consistency, but the clues point to discovery and manager reinforcement before the demo.",
     correct: false,
+    consequence:
+      "Reps may pass a presentation test while still failing to uncover buyer pain before the demo.",
     tradeoff:
       "It measures presentation skill more than buyer diagnosis or pipeline behavior.",
     learningTakeaway:
@@ -806,6 +826,8 @@ export const interventionOptions: InterventionOption[] = [
     explanation:
       "Correct. This changes pre-demo behavior, gives managers a coaching tool, and tracks conversion.",
     correct: true,
+    consequence:
+      "Reps practice the behavior that affects pipeline, managers coach from a shared rubric, and leaders see conversion signals.",
     tradeoff:
       "It takes coordination with sales leaders, but it connects enablement work to revenue behavior.",
     learningTakeaway:
@@ -818,6 +840,8 @@ export const interventionOptions: InterventionOption[] = [
     explanation:
       "Tips can reinforce a habit, but alone they do not give reps practice, manager coaching, or measurement.",
     correct: false,
+    consequence:
+      "The team receives helpful reminders, but there is no reliable practice loop or manager accountability.",
     tradeoff: "Useful as a support tactic, weak as the core intervention.",
     learningTakeaway:
       "Tips can support behavior change, but they do not create practice, coaching, or accountability by themselves.",

@@ -749,6 +749,12 @@
   margin-top: 8px;
 }
 
+.eq-choice-consequence {
+  color: #fde68a;
+  display: block;
+  margin-top: 6px;
+}
+
 .eq-choice.is-selected {
   border-color: rgba(34, 211, 238, 0.7);
   background: rgba(8, 145, 178, 0.22);
@@ -1559,6 +1565,7 @@
 
   .eq-decision {
     font-size: 0.78rem;
+    max-height: min(70dvh, calc(100dvh - 120px));
   }
 
   .eq-decision .eq-panel-header {
@@ -1613,8 +1620,16 @@
   }
 
   .eq-decision .eq-choice {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
     margin-top: 7px;
     padding: 9px 10px;
+  }
+
+  .eq-decision .eq-choice small {
+    font-size: 0.78rem;
+    line-height: 1.35;
   }
 
   .eq-dialogue {

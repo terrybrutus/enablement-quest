@@ -949,6 +949,10 @@ function DecisionPanel({
                   {option.explanation}
                   <br />
                   Clue check: {option.evidenceHint}
+                  <br />
+                  <span className="eq-choice-consequence">
+                    Workplace consequence: {option.consequence}
+                  </span>
                 </small>
               )}
             </button>
@@ -976,6 +980,10 @@ function DecisionPanel({
                   {option.explanation}
                   <br />
                   Tradeoff: {option.tradeoff}
+                  <br />
+                  <span className="eq-choice-consequence">
+                    Workplace consequence: {option.consequence}
+                  </span>
                 </small>
               )}
             </button>
@@ -1108,8 +1116,8 @@ function DecisionCoach({
       >
         <strong>Re-check the clues</strong>
         <span>
-          {selectedDiagnosis.explanation} Look again at the clue check:{" "}
-          {selectedDiagnosis.evidenceHint}
+          This answer misses part of the system. Before choosing a fix, make
+          sure the root cause explains every clue, not just the loudest request.
         </span>
         <small>Lesson: {selectedDiagnosis.learningTakeaway}</small>
       </aside>
@@ -1124,9 +1132,8 @@ function DecisionCoach({
       >
         <strong>Good diagnosis</strong>
         <span>
-          {selectedDiagnosis.explanation} Now choose the intervention that
-          changes the workflow, reinforces behavior, and gives leaders a useful
-          metric.
+          Now choose the intervention that changes the work, reinforces the
+          behavior, and gives leaders a useful metric.
         </span>
         <small>Lesson: {selectedDiagnosis.learningTakeaway}</small>
       </aside>
@@ -1142,8 +1149,9 @@ function DecisionCoach({
         {selectedIntervention.correct ? "Strong solution" : "Not enough yet"}
       </strong>
       <span>
-        {selectedIntervention.explanation} Tradeoff:{" "}
-        {selectedIntervention.tradeoff}
+        {selectedIntervention.correct
+          ? "This solution fits the evidence and connects enablement work to a business signal."
+          : "This solution leaves at least one important clue unresolved."}
       </span>
       <small>Lesson: {selectedIntervention.learningTakeaway}</small>
     </aside>
