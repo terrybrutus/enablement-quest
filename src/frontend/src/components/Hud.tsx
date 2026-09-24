@@ -29,12 +29,20 @@ interface HudProps {
 }
 
 const stageLabels: Record<QuestStage, string> = {
-  briefing: "Step 1: hear the request",
-  investigate: "Step 2: inspect clues",
-  diagnose: "Step 3: name the cause",
-  design: "Step 4: choose the fix",
-  complete: "Step 5: review results",
+  briefing: "1. Listen",
+  investigate: "2. Inspect clues",
+  diagnose: "3. Pick cause",
+  design: "4. Pick fix",
+  complete: "5. Review result",
 };
+
+const routeSteps: Array<{ id: QuestStage; label: string }> = [
+  { id: "briefing", label: "Listen" },
+  { id: "investigate", label: "Clues" },
+  { id: "diagnose", label: "Cause" },
+  { id: "design", label: "Fix" },
+  { id: "complete", label: "Result" },
+];
 
 export function Hud({
   sceneName,
@@ -85,6 +93,7 @@ export function Hud({
                   <strong>Do this next: {coachAction}</strong>
                   <span>Why it matters: {coachReason}</span>
                 </div>
+                <RouteProgress questStage={questStage} />
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   <span className="eq-pill">
                     <Crosshair className="h-3.5 w-3.5" />
@@ -144,13 +153,33 @@ export function Hud({
   );
 }
 
+function RouteProgress({ questStage }: { questStage: QuestStage }) {
+  const activeIndex = routeSteps.findIndex((step) => step.id === questStage);
+
+  return (
+    <ol className="eq-route-progress" aria-label="Case route">
+      {routeSteps.map((step, index) => (
+        <li
+          className={`${index < activeIndex ? "is-done" : ""} ${
+            index === activeIndex ? "is-active" : ""
+          }`}
+          key={step.id}
+        >
+          <span>{index + 1}</span>
+          {step.label}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 function getStepLabel(
   questStage: QuestStage,
   evidenceCount: number,
   evidenceTotal: number,
 ) {
   if (questStage === "investigate") {
-    return `Step 2: clue ${evidenceCount}/${evidenceTotal}`;
+    return `2. Clue ${evidenceCount}/${evidenceTotal}`;
   }
   if (questStage === "briefing") {
     return stageLabels.briefing;

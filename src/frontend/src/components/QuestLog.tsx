@@ -71,32 +71,31 @@ export function QuestLog({
       </div>
 
       <div className="eq-mini-section">
-        <h3>What to do next</h3>
+        <h3>Do this now</h3>
         <p>{activeGuidance}</p>
       </div>
 
       <div className="eq-mini-section eq-learning-purpose">
-        <h3>What this means in plain English</h3>
+        <h3>Why this is useful</h3>
         <p>{simpleExplanation}</p>
       </div>
 
       <div className="eq-mini-section">
-        <h3>The simple path</h3>
+        <h3>The whole path</h3>
         <ol className="eq-simple-path">
-          <li>Listen to the person asking for help.</li>
-          <li>Inspect three clues in order.</li>
-          <li>Decide what is really causing the problem.</li>
-          <li>Choose the fix that changes daily work.</li>
-          <li>Review the result you could explain to a recruiter.</li>
+          <li>Listen to the workplace problem.</li>
+          <li>Inspect three clues.</li>
+          <li>Choose the real cause.</li>
+          <li>Choose the practical fix.</li>
+          <li>Review the business result.</li>
         </ol>
       </div>
 
       <div className="eq-mini-section eq-learning-purpose">
-        <h3>What you are practicing</h3>
+        <h3>The skill you are practicing</h3>
         <p>
-          You are learning to pause before building training, gather evidence,
-          diagnose the real work problem, choose the right enablement support,
-          and connect the choice to a business result.
+          You are practicing how to slow down, check the facts, avoid the easy
+          answer, and explain a fix in business language.
         </p>
       </div>
 
@@ -158,13 +157,13 @@ function getSteps(caseId: CaseId) {
       id: "briefing",
       title: "1. Hear the request",
       description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then ask whether that request solves the real problem.`,
-      outcome: `${stakeholder} finishes the briefing and the app tells you to inspect the first clue.`,
+      outcome: `${stakeholder} finishes the briefing and the app points you to the first clue.`,
     },
     {
       id: "investigate",
       title: "2. Inspect the clues",
       description:
-        "Inspect each clue in order. Each one asks you to choose the best interpretation, not just the fastest answer.",
+        "Inspect each clue in order. Each one asks what the clue proves about the work problem.",
       outcome:
         "All three clues are checked off and the choice screen opens for the real cause.",
     },
@@ -172,14 +171,14 @@ function getSteps(caseId: CaseId) {
       id: "diagnose",
       title: "3. Name the real cause",
       description:
-        "Choose the explanation that connects all three clues. The right answer is not automatically more training.",
+        "Choose the explanation that connects all three clues. The right answer may not be more training.",
       outcome: "The fix choices unlock because your cause explains the clues.",
     },
     {
       id: "design",
       title: "4. Choose the fix",
       description:
-        "Pick the fix that changes the daily work and creates a metric leaders can inspect.",
+        "Pick the fix that changes daily work and gives leaders a number they can watch.",
       outcome:
         "You earn a case summary that explains the work in plain English.",
     },
@@ -187,7 +186,7 @@ function getSteps(caseId: CaseId) {
       id: "complete",
       title: "5. Review the impact",
       description:
-        "Review the case summary. It shows the problem, clues, decision, fix, and business impact.",
+        "Review the case summary. It shows the problem, clues, decision, fix, and business result.",
       outcome:
         caseId === "onboarding"
           ? "Case 02 is available."
@@ -211,19 +210,19 @@ function getActiveGuidance(
     return `Inspect the clues in order. After each one, choose what it tells you about the real work problem. Clues reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Press Talk / Inspect anywhere to open the choices screen. Pick the cause that explains all three clues.";
+    return "Press Talk / Inspect to open the choice screen. Pick the cause that explains all three clues.";
   }
   if (questStage === "design") {
-    return "Press Talk / Inspect anywhere to reopen the choices screen. Choose the fix that matches the cause.";
+    return "Press Talk / Inspect to reopen the choice screen. Choose the fix that matches the cause.";
   }
-  return "Review the case summary. It explains the problem, clues, decision, fix, and business impact.";
+  return "Review the case summary. It explains the problem, clues, decision, fix, and business result.";
 }
 
 function getSimpleExplanation(caseId: CaseId) {
   if (caseId === "sales") {
-    return "This case is about sales enablement. You are checking whether the team needs more training, better coaching, clearer discovery habits, or a better way to inspect pipeline progress.";
+    return "This case is about sales enablement. You are checking whether the team needs more training, better coaching, clearer sales habits, or a better way to review sales progress.";
   }
-  return "This case is about performance consulting. You are checking whether a training request is really a training problem, or whether the work process around people is broken.";
+  return "This case is about solving a work problem. You are checking whether a training request is really a training problem, or whether the process around people is broken.";
 }
 
 function getFinishGuidance(caseId: CaseId, questStage: QuestStage) {

@@ -168,6 +168,65 @@
   line-height: 1.35;
 }
 
+.eq-route-progress {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.eq-route-progress li {
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+  color: #94a3b8;
+  display: inline-flex;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 800;
+  gap: 5px;
+  justify-content: center;
+  letter-spacing: 0.04em;
+  min-height: 28px;
+  padding: 4px 6px;
+  text-transform: uppercase;
+}
+
+.eq-route-progress li span {
+  align-items: center;
+  background: rgba(148, 163, 184, 0.14);
+  border-radius: 999px;
+  color: #cbd5e1;
+  display: inline-flex;
+  font-size: 0.58rem;
+  height: 17px;
+  justify-content: center;
+  width: 17px;
+}
+
+.eq-route-progress li.is-done {
+  border-color: rgba(52, 211, 153, 0.28);
+  color: #bbf7d0;
+}
+
+.eq-route-progress li.is-done span {
+  background: rgba(16, 185, 129, 0.22);
+  color: #d1fae5;
+}
+
+.eq-route-progress li.is-active {
+  border-color: rgba(34, 211, 238, 0.55);
+  background: rgba(8, 145, 178, 0.16);
+  color: #e0f2fe;
+}
+
+.eq-route-progress li.is-active span {
+  background: rgba(34, 211, 238, 0.22);
+  color: #cffafe;
+}
+
 .eq-hud-card h1 {
   margin: 2px 0 0;
   font-family: var(--font-display), system-ui, sans-serif;
@@ -2013,6 +2072,23 @@
 
   .eq-hud-coach span {
     font-size: 0.72rem;
+  }
+
+  .eq-route-progress {
+    gap: 4px;
+    margin-top: 7px;
+  }
+
+  .eq-route-progress li {
+    font-size: 0;
+    min-height: 24px;
+    padding: 3px;
+  }
+
+  .eq-route-progress li span {
+    font-size: 0.56rem;
+    height: 16px;
+    width: 16px;
   }
 
   .eq-hud-card .mt-3 {
