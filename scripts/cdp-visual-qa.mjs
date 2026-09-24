@@ -151,6 +151,7 @@ async function captureState(send, events, viewportName, stateName) {
         const titleOverlay = document.querySelector('.eq-title-screen');
         const dialogue = document.querySelector('.eq-dialogue');
         const panel = document.querySelector('.eq-panel');
+        const fullText = document.body.innerText.toLowerCase();
         const title = document.body.innerText.slice(0, 1200);
         const visibleButtons = [...document.querySelectorAll('button')]
           .filter((button) => {
@@ -172,6 +173,7 @@ async function captureState(send, events, viewportName, stateName) {
           titleOverlay: titleRect ? titleRect.toJSON() : null,
           qaState: window.__EQ_QA_STATE ?? null,
           hasDialogue: Boolean(dialogue),
+          hasFinalProof: fullText.includes('resume bullet') && fullText.includes('portfolio blurb'),
           hasPanel: Boolean(panel),
           visibleButtons,
           text: title,
@@ -359,6 +361,23 @@ async function assertQaState(send, predicate, message) {
     throw new Error(`${message}. Current QA state: ${JSON.stringify(state)}`);
   }
   return state;
+}
+
+async function assertPageText(send, text, message) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const result = await send("Runtime.evaluate", {
+      returnByValue: true,
+      expression: `document.body.innerText.toLowerCase().includes(${JSON.stringify(text.toLowerCase())})`,
+    });
+    if (result.result.value) {
+      return;
+    }
+    await send("Runtime.evaluate", {
+      awaitPromise: true,
+      expression: "new Promise((resolve) => setTimeout(resolve, 120))",
+    });
+  }
+  throw new Error(message);
 }
 
 async function moveUntil(send, viewport, key, code, predicate, options = {}) {
@@ -635,6 +654,11 @@ async function completeSalesCase(send, viewport) {
       state.completedCaseIds?.includes("onboarding") &&
       state.completedCaseIds?.includes("sales"),
     "Correct sales intervention did not complete the full case",
+  );
+  await assertPageText(
+    send,
+    "Resume bullet",
+    "Final reviewer proof did not render after completing both cases",
   );
 }
 

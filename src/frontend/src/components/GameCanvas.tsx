@@ -1417,6 +1417,8 @@ function CanvasPanel({
     () => buildPortfolioSummary(artifact),
     [artifact],
   );
+  const showCompletionProof =
+    showFinalDebrief || artifact.id === "sales-enablement-impact-canvas";
 
   const copyPortfolioSummary = useCallback(async () => {
     try {
@@ -1544,7 +1546,7 @@ function CanvasPanel({
         </aside>
       )}
 
-      {showFinalDebrief && <FinalReviewerDebrief />}
+      {showCompletionProof && <FinalReviewerDebrief />}
     </section>
   );
 }
@@ -1650,6 +1652,28 @@ function FinalReviewerDebrief() {
           </span>
         </article>
       </div>
+      <section
+        className="eq-final-proof"
+        aria-label="Resume and portfolio proof"
+      >
+        <article>
+          <p className="eq-kicker">Resume bullet</p>
+          <span>
+            Designed and developed an interactive enablement case simulator that
+            teaches learners to diagnose workplace performance problems, choose
+            targeted interventions, and connect learning decisions to measurable
+            business outcomes.
+          </span>
+        </article>
+        <article>
+          <p className="eq-kicker">Portfolio blurb</p>
+          <span>
+            This project turns enablement strategy into a playable case study:
+            reviewers can see the full thinking process from stakeholder request
+            to evidence, root cause, intervention, and impact.
+          </span>
+        </article>
+      </section>
     </aside>
   );
 }

@@ -1289,6 +1289,27 @@
   line-height: 1.45;
 }
 
+.eq-final-proof {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.eq-final-proof article {
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 15px;
+  background: rgba(6, 78, 59, 0.18);
+  padding: 12px;
+}
+
+.eq-final-proof span {
+  color: #d1fae5;
+  display: block;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 .eq-title-screen {
   position: absolute;
   inset: 0;
@@ -2030,6 +2051,7 @@
   .eq-learner-debrief > div,
   .eq-reflection-panel > div,
   .eq-final-debrief-grid,
+  .eq-final-proof,
   .eq-next-case,
   .eq-title-grid {
     grid-template-columns: 1fr;
