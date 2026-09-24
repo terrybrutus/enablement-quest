@@ -1685,6 +1685,28 @@ function FinalReviewerDebrief() {
           </span>
         </article>
       </section>
+      <section
+        className="eq-final-use"
+        aria-label="How to use this portfolio project"
+      >
+        <article>
+          <p className="eq-kicker">LinkedIn post starter</p>
+          <span>
+            I built Enablement Quest to show how I approach workplace
+            performance problems: investigate the request, inspect evidence,
+            diagnose the root cause, choose the right enablement intervention,
+            and connect the decision to business impact.
+          </span>
+        </article>
+        <article>
+          <p className="eq-kicker">Interview answer</p>
+          <span>
+            This project demonstrates that I do more than build training. I use
+            performance consulting, sales enablement thinking, accessibility,
+            and measurement to decide what support the business actually needs.
+          </span>
+        </article>
+      </section>
     </aside>
   );
 }

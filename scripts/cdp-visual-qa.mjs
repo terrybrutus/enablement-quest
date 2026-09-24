@@ -174,6 +174,7 @@ async function captureState(send, events, viewportName, stateName) {
           qaState: window.__EQ_QA_STATE ?? null,
           hasDialogue: Boolean(dialogue),
           hasFinalProof: fullText.includes('resume bullet') && fullText.includes('portfolio blurb'),
+          hasLinkedInStarter: fullText.includes('linkedin post starter'),
           hasPanel: Boolean(panel),
           visibleButtons,
           text: title,
@@ -673,6 +674,11 @@ async function completeSalesCase(send, viewport) {
     send,
     "Resume bullet",
     "Final reviewer proof did not render after completing both cases",
+  );
+  await assertPageText(
+    send,
+    "LinkedIn post starter",
+    "Final reviewer debrief did not render recruiter-facing post language",
   );
 }
 
