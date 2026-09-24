@@ -47,7 +47,7 @@ export function DialoguePanel({
         <span className="eq-keyboard-hint">
           Press <kbd>E</kbd>, <kbd>Space</kbd>, or <kbd>Enter</kbd> to continue
         </span>
-        <span className="eq-touch-hint">Tap Continue or Talk / Inspect</span>
+        <span className="eq-touch-hint">Tap Continue or Talk or Inspect</span>
         <div>
           <button className="eq-ghost-button" type="button" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -71,7 +71,8 @@ export function DialoguePanel({
 const conversationPurpose: Record<QuestStage, string> = {
   briefing:
     "Separate the leader's request from the real performance problem before you build anything.",
-  investigate: "Connect what this person says to the clues you are collecting.",
+  investigate:
+    "Connect what this person says to the evidence you are collecting.",
   diagnose:
     "Check whether your root-cause answer explains what would still be broken after more training.",
   design:

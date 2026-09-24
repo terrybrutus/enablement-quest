@@ -24,8 +24,8 @@ export function ArtifactsPanel({
   );
   const emptyGuidance =
     currentCaseId === "sales"
-      ? "No clues saved yet. Enter Sales Strategy Studio and inspect the first marked clue."
-      : "No clues saved yet. Enter Operations Suite and inspect the first marked clue.";
+      ? "No evidence saved yet. Enter Sales Strategy Studio and review the first marked evidence item."
+      : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
 
   return (
     <section
@@ -35,7 +35,7 @@ export function ArtifactsPanel({
       <div className="eq-panel-header">
         <div>
           <p className="eq-kicker">Notes</p>
-          <h2>Clues and summaries</h2>
+          <h2>Evidence and summaries</h2>
           <p>
             This is where the case stops being a game map and becomes your
             recommendation trail.
@@ -55,9 +55,9 @@ export function ArtifactsPanel({
       ) : (
         <>
           <aside className="eq-notes-purpose" aria-label="How to use notes">
-            <strong>How to use these clues</strong>
+            <strong>How to use this evidence</strong>
             <span>
-              Look for the pattern across all saved clues. One clue can be a
+              Look for the pattern across all saved evidence. One item can be a
               symptom; the pattern is what supports your final recommendation.
             </span>
           </aside>

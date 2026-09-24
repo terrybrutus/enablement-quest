@@ -655,7 +655,7 @@ export const evidenceItems: Evidence[] = [
     signalFeedback:
       "Good. Reps can explain features, but they are not connecting the demo to buyer pain.",
     trapFeedback:
-      "Product knowledge may sound like the easy fix, but the clue says feature explanation is already clear.",
+      "Product knowledge may sound like the easy fix, but the evidence says feature explanation is already clear.",
     ignoreFeedback:
       "This is not background; it identifies the specific sales behavior blocking conversion.",
     metric: "Discovery depth: 34%",
@@ -679,7 +679,7 @@ export const evidenceItems: Evidence[] = [
     trapFeedback:
       "More activity does not solve a quality problem if discovery behavior stays shallow.",
     ignoreFeedback:
-      "This is a business outcome clue. It connects behavior to pipeline impact.",
+      "This is a business outcome signal. It connects behavior to pipeline impact.",
     metric: "Demo-to-next-step: 41%",
     sprite: officeSprite(384, 384),
   },
@@ -701,7 +701,7 @@ export const evidenceItems: Evidence[] = [
     trapFeedback:
       "A reminder may create awareness, but it does not create manager coaching or accountability.",
     ignoreFeedback:
-      "This clue explains why a one-time enablement event would fade.",
+      "This evidence explains why a one-time enablement event would fade.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384),
   },
@@ -714,12 +714,12 @@ export const diagnosisOptions: DiagnosisOption[] = [
     label:
       "Improve orientation with clearer role examples and a stronger knowledge check.",
     explanation:
-      "This is tempting because the leader asked for training and the course can probably be improved. It still treats the problem as a content gap while the clues point to handoffs, access, and manager follow-up.",
+      "This is tempting because the leader asked for training and the course can probably be improved. It still treats the problem as a content gap while the evidence points to handoffs, access, and manager follow-up.",
     correct: false,
     consequence:
       "You would ship something visible, but new hires could still receive mixed instructions, wait on access, and need support after orientation ends.",
     evidenceHint:
-      "The clues show conflicting instructions, delayed access, and week-two support tickets. None of those are solved by a knowledge check alone.",
+      "The evidence shows conflicting instructions, delayed access, and week-two support tickets. None of those are solved by a knowledge check alone.",
     learningTakeaway:
       "Do not label a problem as training until the evidence shows people lack knowledge or skill.",
   },
@@ -743,7 +743,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     label:
       "Escalate tool access as the main issue because new hires are blocked too long.",
     explanation:
-      "This is a smart partial read because access delay is real. It fails as the main diagnosis because the clues also show mixed expectations and weak follow-up after access is granted.",
+      "This is a smart partial read because access delay is real. It fails as the main diagnosis because the evidence also shows mixed expectations and weak follow-up after access is granted.",
     correct: false,
     consequence:
       "You would improve one bottleneck, but managers could still give inconsistent expectations and new hires could still need help in weeks two and three.",
@@ -773,7 +773,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     label:
       "Coach discovery habits and give managers a shared inspection rubric.",
     explanation:
-      "Correct. This explains all three clues: shallow discovery, missing business pain in CRM notes, and inconsistent manager coaching.",
+      "Correct. This explains all three evidence items: shallow discovery, missing business pain in CRM notes, and inconsistent manager coaching.",
     correct: true,
     consequence:
       "The solution can target the revenue behavior itself: rep practice, manager coaching, and pipeline inspection.",

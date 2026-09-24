@@ -61,7 +61,7 @@ export function QuestLog({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Case Guide</p>
+          <p className="eq-kicker">Case Help</p>
           <h2>{caseTitles[currentCaseId]}</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
@@ -84,7 +84,7 @@ export function QuestLog({
         <h3>The whole path</h3>
         <ol className="eq-simple-path">
           <li>Listen to the workplace problem.</li>
-          <li>Inspect three clues.</li>
+          <li>Review three evidence items.</li>
           <li>Choose the real cause.</li>
           <li>Choose the practical fix.</li>
           <li>Review the business result.</li>
@@ -131,7 +131,7 @@ export function QuestLog({
       </div>
 
       <div className="eq-mini-section">
-        <h3>Clues reviewed</h3>
+        <h3>Evidence reviewed</h3>
         {caseEvidence.map((item) => (
           <p key={item.id}>
             {collectedEvidenceIds.includes(item.id) ? "[x]" : "[ ]"}{" "}
@@ -157,22 +157,23 @@ function getSteps(caseId: CaseId) {
       id: "briefing",
       title: "1. Hear the request",
       description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then ask whether that request solves the real problem.`,
-      outcome: `${stakeholder} finishes the briefing and the app points you to the first clue.`,
+      outcome: `${stakeholder} finishes the briefing and the app points you to the first evidence item.`,
     },
     {
       id: "investigate",
-      title: "2. Inspect the clues",
+      title: "2. Review the evidence",
       description:
-        "Inspect each clue in order. Each one asks what the clue proves about the work problem.",
+        "Review each evidence item in order. Each one asks what the evidence proves about the work problem.",
       outcome:
-        "All three clues are checked off and the choice screen opens for the real cause.",
+        "All three evidence items are checked off and the choice screen opens for the real cause.",
     },
     {
       id: "diagnose",
       title: "3. Name the real cause",
       description:
-        "Choose the explanation that connects all three clues. The right answer may not be more training.",
-      outcome: "The fix choices unlock because your cause explains the clues.",
+        "Choose the explanation that connects all three evidence items. The right answer may not be more training.",
+      outcome:
+        "The fix choices unlock because your cause explains the evidence.",
     },
     {
       id: "design",
@@ -186,7 +187,7 @@ function getSteps(caseId: CaseId) {
       id: "complete",
       title: "5. Review the impact",
       description:
-        "Review the case summary. It shows the problem, clues, decision, fix, and business result.",
+        "Review the case summary. It shows the problem, evidence, decision, fix, and business result.",
       outcome:
         caseId === "onboarding"
           ? "Case 02 is available."
@@ -207,15 +208,15 @@ function getActiveGuidance(
     return `Talk with ${stakeholder} in ${room}. Your job is to understand the request before deciding what to build.`;
   }
   if (questStage === "investigate") {
-    return `Inspect the clues in order. After each one, choose what it tells you about the real work problem. Clues reviewed: ${evidenceCount}/${evidenceTotal}.`;
+    return `Review the evidence in order. After each item, choose what it tells you about the real work problem. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Press Talk / Inspect to open the choice screen. Pick the cause that explains all three clues.";
+    return "Use Talk or Inspect to open the choice screen. Pick the cause that explains all three evidence items.";
   }
   if (questStage === "design") {
-    return "Press Talk / Inspect to reopen the choice screen. Choose the fix that matches the cause.";
+    return "Use Talk or Inspect to reopen the choice screen. Choose the fix that matches the cause.";
   }
-  return "Review the case summary. It explains the problem, clues, decision, fix, and business result.";
+  return "Review the case summary. It explains the problem, evidence, decision, fix, and business result.";
 }
 
 function getSimpleExplanation(caseId: CaseId) {

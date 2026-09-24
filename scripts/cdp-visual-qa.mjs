@@ -550,7 +550,7 @@ async function collectEvidence(
     "Case Notes shortcut replaced an active evidence panel",
   );
   await clickButtonIncluding(send, signalText);
-  await clickButtonIncluding(send, "Save clue and continue");
+  await clickButtonIncluding(send, "Save evidence and continue");
   await assertQaState(
     send,
     (state) => {

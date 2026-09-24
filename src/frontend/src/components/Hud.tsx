@@ -29,19 +29,19 @@ interface HudProps {
 }
 
 const stageLabels: Record<QuestStage, string> = {
-  briefing: "1. Listen",
-  investigate: "2. Inspect clues",
-  diagnose: "3. Pick cause",
-  design: "4. Pick fix",
-  complete: "5. Review result",
+  briefing: "1. Hear the request",
+  investigate: "2. Review evidence",
+  diagnose: "3. Name the cause",
+  design: "4. Choose the fix",
+  complete: "5. Review impact",
 };
 
 const routeSteps: Array<{ id: QuestStage; label: string }> = [
-  { id: "briefing", label: "Listen" },
-  { id: "investigate", label: "Clues" },
+  { id: "briefing", label: "Request" },
+  { id: "investigate", label: "Evidence" },
   { id: "diagnose", label: "Cause" },
   { id: "design", label: "Fix" },
-  { id: "complete", label: "Result" },
+  { id: "complete", label: "Impact" },
 ];
 
 export function Hud({
@@ -100,7 +100,7 @@ export function Hud({
                     {stepLabel}
                   </span>
                   <span className="eq-pill">
-                    Clues {evidenceCount}/{evidenceTotal}
+                    Evidence {evidenceCount}/{evidenceTotal}
                   </span>
                   {hasArtifact && (
                     <span className="eq-pill is-success">Summary earned</span>
@@ -113,7 +113,7 @@ export function Hud({
               <span>{stepLabel}</span>
               <strong title={nextObjective}>{coachAction}</strong>
               <small>
-                Clues {evidenceCount}/{evidenceTotal}
+                Evidence {evidenceCount}/{evidenceTotal}
               </small>
             </div>
           )}
@@ -179,7 +179,7 @@ function getStepLabel(
   evidenceTotal: number,
 ) {
   if (questStage === "investigate") {
-    return `2. Clue ${evidenceCount}/${evidenceTotal}`;
+    return `2. Evidence ${evidenceCount}/${evidenceTotal}`;
   }
   if (questStage === "briefing") {
     return stageLabels.briefing;
@@ -193,7 +193,7 @@ function getStepLabel(
   if (questStage === "complete") {
     return stageLabels.complete;
   }
-  return `Clues ${evidenceCount}/${evidenceTotal}`;
+  return `Evidence ${evidenceCount}/${evidenceTotal}`;
 }
 
 function MobileControls({
@@ -268,7 +268,7 @@ function MobileControls({
 
       <button className="eq-touch-interact" type="button" onClick={onInteract}>
         <Hand className="h-5 w-5" />
-        Talk / Inspect
+        Talk or Inspect
       </button>
     </div>
   );

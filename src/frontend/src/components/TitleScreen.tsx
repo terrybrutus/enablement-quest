@@ -52,7 +52,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <strong>Broken onboarding request</strong>
               <span>
                 Decide whether leadership really needs training, or whether the
-                clues point to workflow, access, and manager reinforcement.
+                evidence points to workflow, access, and manager reinforcement.
               </span>
             </div>
           </article>
@@ -72,9 +72,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <section className="eq-plain-start" aria-label="Plain language start">
           <p>No gaming knowledge needed.</p>
           <span>
-            Start with Maya, inspect three clues, choose the real problem, then
-            pick the fix that improves the business result. After that summary,
-            you can start the sales enablement case.
+            Start with Maya, review three evidence items, choose the real
+            problem, then pick the fix that improves the business result. After
+            that summary, you can start the sales enablement case.
           </span>
         </section>
 
@@ -122,7 +122,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <article>
             <p>Business lens</p>
             <span>
-              The player must question a request, inspect clues, and choose a
+              The player must question a request, inspect evidence, and choose a
               fix tied to measurable outcomes.
             </span>
           </article>
@@ -145,7 +145,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>Talk with the case owner and inspect three clues.</span>
+            <span>
+              Talk with the case owner and review three evidence items.
+            </span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
@@ -168,7 +170,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
                 <li>
                   Performance consulting: Terry diagnoses before designing.
                 </li>
-                <li>Learning architecture: clues become a practical fix.</li>
+                <li>
+                  Learning architecture: evidence becomes a practical fix.
+                </li>
                 <li>
                   Business impact: every decision points to a measurable result.
                 </li>
@@ -183,9 +187,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <span>
                 I built this as a playable portfolio case study, not a generic
                 course demo. The goal is to make my enablement judgment visible:
-                question the training request, inspect clues, diagnose the real
-                problem, choose the right intervention, and explain the business
-                impact.
+                question the training request, inspect evidence, diagnose the
+                real problem, choose the right intervention, and explain the
+                business impact.
               </span>
             </section>
 
@@ -251,12 +255,12 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-control-strip">
           <span className="eq-desktop-control">Move: WASD / arrows</span>
           <span className="eq-desktop-control">
-            Talk / Inspect: E / Space / Enter
+            Talk or inspect: E / Space / Enter
           </span>
           <span className="eq-desktop-control">Help: Q</span>
           <span className="eq-desktop-control">Notes: B</span>
           <span className="eq-mobile-control">Move: joystick</span>
-          <span className="eq-mobile-control">Talk / Inspect: button</span>
+          <span className="eq-mobile-control">Talk or inspect: button</span>
         </div>
       </div>
     </section>
