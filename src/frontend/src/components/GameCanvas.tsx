@@ -790,7 +790,7 @@ function EvidencePanel({
   onContinue: () => void;
 }) {
   const [selectedSignal, setSelectedSignal] = useState<
-    "signal" | "trap" | null
+    "ignore" | "signal" | "trap" | null
   >(null);
   const evidenceIndex = caseEvidence.findIndex(
     (item) => item.id === evidence.id,
@@ -813,8 +813,20 @@ function EvidencePanel({
         feedback:
           "Not quite. That jumps to a surface explanation before the full evidence pattern is clear.",
       },
+      {
+        kind: "ignore" as const,
+        label: "Treat this as background context and move on.",
+        feedback:
+          "Not quite. This evidence changes the diagnosis, so it should not be treated as a side detail.",
+      },
     ];
-    return evidence.id.length % 2 === 0 ? options.reverse() : options;
+    if (evidence.id.length % 3 === 0) {
+      return [options[1], options[2], options[0]];
+    }
+    if (evidence.id.length % 2 === 0) {
+      return [options[2], options[0], options[1]];
+    }
+    return options;
   }, [evidence.id, evidence.signal, evidence.trap]);
 
   useEffect(() => {
@@ -828,6 +840,11 @@ function EvidencePanel({
       if (key === "2") {
         event.preventDefault();
         setSelectedSignal(checkOptions[1].kind);
+        return;
+      }
+      if (key === "3") {
+        event.preventDefault();
+        setSelectedSignal(checkOptions[2].kind);
         return;
       }
       if ((key === " " || key === "enter") && hasReadCorrectly) {
@@ -898,7 +915,7 @@ function EvidencePanel({
       <div className="eq-evidence-check">
         <div>
           <p className="eq-kicker">Check Your Read</p>
-          <h3>Which signal should guide the diagnosis?</h3>
+          <h3>What is the best read of this evidence?</h3>
         </div>
         {checkOptions.map((option, index) => (
           <button

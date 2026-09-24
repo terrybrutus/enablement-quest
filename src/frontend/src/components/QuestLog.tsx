@@ -157,7 +157,7 @@ function getSteps(caseId: CaseId) {
       id: "investigate",
       title: "2. Review the evidence",
       description:
-        "Inspect each evidence item in order. Each one asks you to separate the useful signal from a tempting wrong assumption.",
+        "Inspect each evidence item in order. Each one asks you to choose the best interpretation, not just the fastest answer.",
     },
     {
       id: "diagnose",
@@ -192,7 +192,7 @@ function getActiveGuidance(
     return `Talk with ${stakeholder} in ${room}. The learning goal is simple: test the leader's request before designing anything.`;
   }
   if (questStage === "investigate") {
-    return `Review the evidence in order. After each item, choose the useful signal. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
+    return `Review the evidence in order. After each item, choose the interpretation that best explains the work problem. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
     return "Press Talk / Inspect anywhere to open the choices screen. Pick the root cause that explains all three evidence items.";
