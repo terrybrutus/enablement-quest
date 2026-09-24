@@ -271,15 +271,29 @@ export function useGameLoop({
         interact();
       }
       if (key === "q") {
+        event.preventDefault();
         setGameState((previous) => ({
           ...previous,
-          overlay: previous.overlay === "quest" ? "none" : "quest",
+          ...(canToggleUtilityPanel(previous.overlay)
+            ? {
+                activeEvidenceId: null,
+                dialogue: null,
+                overlay: previous.overlay === "quest" ? "none" : "quest",
+              }
+            : {}),
         }));
       }
       if (key === "b" || key === "i") {
+        event.preventDefault();
         setGameState((previous) => ({
           ...previous,
-          overlay: previous.overlay === "backpack" ? "none" : "backpack",
+          ...(canToggleUtilityPanel(previous.overlay)
+            ? {
+                activeEvidenceId: null,
+                dialogue: null,
+                overlay: previous.overlay === "backpack" ? "none" : "backpack",
+              }
+            : {}),
         }));
       }
       if (key === "escape") {
@@ -319,6 +333,15 @@ export function useGameLoop({
   }, [interact, setGameState, tick]);
 
   return { inputRef, interact };
+}
+
+function canToggleUtilityPanel(overlay: GameState["overlay"]) {
+  return (
+    overlay === "none" ||
+    overlay === "quest" ||
+    overlay === "backpack" ||
+    overlay === "settings"
+  );
 }
 
 export function completeIntervention(

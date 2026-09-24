@@ -204,8 +204,10 @@ async function holdKey(send, key, code, milliseconds) {
     ArrowLeft: 37,
     ArrowRight: 39,
     ArrowUp: 38,
+    b: 66,
     Enter: 13,
     KeyE: 69,
+    q: 81,
     Space: 32,
   };
   await send("Input.dispatchKeyEvent", {
@@ -520,6 +522,18 @@ async function collectEvidence(
   const evidenceState = stateName
     ? await captureState(send, events, viewport.name, stateName)
     : null;
+  await holdKey(send, "q", "KeyQ", 40);
+  await assertQaState(
+    send,
+    (state) => state?.overlay === "evidence",
+    "Case Guide shortcut replaced an active evidence panel",
+  );
+  await holdKey(send, "b", "KeyB", 40);
+  await assertQaState(
+    send,
+    (state) => state?.overlay === "evidence",
+    "Case Notes shortcut replaced an active evidence panel",
+  );
   await clickButtonIncluding(send, signalText);
   await clickButtonIncluding(send, "Save evidence and continue");
   await assertQaState(
