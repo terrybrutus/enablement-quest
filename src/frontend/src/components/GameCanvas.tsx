@@ -1236,6 +1236,22 @@ function CanvasPanel({
   const businessProblem = getArtifactSection(artifact, "Business Problem");
   const rootCause = getArtifactSection(artifact, "Root Cause");
   const impact = getArtifactSection(artifact, "Expected Impact");
+  const [copyStatus, setCopyStatus] = useState<"copied" | "idle" | "failed">(
+    "idle",
+  );
+  const portfolioSummary = useMemo(
+    () => buildPortfolioSummary(artifact),
+    [artifact],
+  );
+
+  const copyPortfolioSummary = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(portfolioSummary);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+  }, [portfolioSummary]);
 
   return (
     <section
@@ -1303,9 +1319,57 @@ function CanvasPanel({
         </aside>
       )}
 
+      <aside
+        className="eq-share-summary"
+        aria-label="Shareable portfolio summary"
+      >
+        <div>
+          <p className="eq-kicker">Shareable summary</p>
+          <h3>Copy this as the portfolio takeaway</h3>
+          <p>
+            This turns the playthrough into plain language a recruiter can
+            understand without playing the full case.
+          </p>
+        </div>
+        <textarea readOnly value={portfolioSummary} />
+        <div className="eq-share-actions">
+          <button
+            className="eq-primary-button"
+            type="button"
+            onClick={copyPortfolioSummary}
+          >
+            Copy portfolio summary
+          </button>
+          {copyStatus === "copied" && <span>Copied.</span>}
+          {copyStatus === "failed" && (
+            <span>Copy was blocked. Select the text above instead.</span>
+          )}
+        </div>
+      </aside>
+
       {showFinalDebrief && <FinalReviewerDebrief />}
     </section>
   );
+}
+
+function buildPortfolioSummary(
+  artifact: NonNullable<GameState["earnedArtifact"]>,
+) {
+  const sections = Object.fromEntries(
+    artifact.sections.map((section) => [section.label, section.value]),
+  );
+  return [
+    `${artifact.title}: ${artifact.subtitle}`,
+    "",
+    `Business problem: ${sections["Business Problem"] ?? "Not captured."}`,
+    `Root cause: ${sections["Root Cause"] ?? "Not captured."}`,
+    `Enablement solution: ${sections.Intervention ?? "Not captured."}`,
+    `Expected impact: ${sections["Expected Impact"] ?? "Not captured."}`,
+    "",
+    artifact.portfolioTakeaway
+      ? `Portfolio takeaway: ${artifact.portfolioTakeaway}`
+      : "Portfolio takeaway: This case demonstrates performance diagnosis, solution design, and business-impact thinking.",
+  ].join("\n");
 }
 
 function getArtifactSection(
