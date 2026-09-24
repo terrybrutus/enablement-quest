@@ -29,11 +29,11 @@ interface HudProps {
 }
 
 const stageLabels: Record<QuestStage, string> = {
-  briefing: "Step 1 of 5",
-  investigate: "Step 2 of 5",
-  diagnose: "Step 3 of 5",
-  design: "Step 4 of 5",
-  complete: "Step 5 of 5",
+  briefing: "Step 1: hear the request",
+  investigate: "Step 2: inspect clues",
+  diagnose: "Step 3: name the cause",
+  design: "Step 4: choose the fix",
+  complete: "Step 5: review results",
 };
 
 export function Hud({
@@ -91,7 +91,7 @@ export function Hud({
                     {stepLabel}
                   </span>
                   <span className="eq-pill">
-                    Evidence {evidenceCount}/{evidenceTotal}
+                    Clues {evidenceCount}/{evidenceTotal}
                   </span>
                   {hasArtifact && (
                     <span className="eq-pill is-success">Summary earned</span>
@@ -104,7 +104,7 @@ export function Hud({
               <span>{stepLabel}</span>
               <strong title={nextObjective}>{coachAction}</strong>
               <small>
-                Evidence {evidenceCount}/{evidenceTotal}
+                Clues {evidenceCount}/{evidenceTotal}
               </small>
             </div>
           )}
@@ -116,7 +116,7 @@ export function Hud({
         >
           <button className="eq-hud-button" type="button" onClick={onOpenQuest}>
             <ClipboardList className="h-4 w-4" />
-            <span>Next Step</span>
+            <span>Help</span>
             <kbd>Q</kbd>
           </button>
           <button
@@ -125,7 +125,7 @@ export function Hud({
             onClick={onOpenCaseFile}
           >
             <FolderOpen className="h-4 w-4" />
-            <span>Case Notes</span>
+            <span>Notes</span>
             <kbd>B</kbd>
           </button>
           <button
@@ -150,7 +150,7 @@ function getStepLabel(
   evidenceTotal: number,
 ) {
   if (questStage === "investigate") {
-    return `Step 2 of 5: evidence ${evidenceCount}/${evidenceTotal}`;
+    return `Step 2: clue ${evidenceCount}/${evidenceTotal}`;
   }
   if (questStage === "briefing") {
     return stageLabels.briefing;
@@ -164,7 +164,7 @@ function getStepLabel(
   if (questStage === "complete") {
     return stageLabels.complete;
   }
-  return `Evidence ${evidenceCount}/${evidenceTotal}`;
+  return `Clues ${evidenceCount}/${evidenceTotal}`;
 }
 
 function MobileControls({

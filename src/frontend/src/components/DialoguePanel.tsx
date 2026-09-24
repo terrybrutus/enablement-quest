@@ -71,12 +71,11 @@ export function DialoguePanel({
 const conversationPurpose: Record<QuestStage, string> = {
   briefing:
     "Separate the leader's request from the real performance problem before you build anything.",
-  investigate:
-    "Connect what this person says to the evidence pattern you are collecting.",
+  investigate: "Connect what this person says to the clues you are collecting.",
   diagnose:
     "Check whether your root-cause answer explains what would still be broken after more training.",
   design:
     "Listen for the support, reinforcement, and metric the solution needs.",
   complete:
-    "Turn the case into a plain-language portfolio story: problem, decision, solution, and impact.",
+    "Turn the case into a plain-language portfolio story: problem, decision, fix, and impact.",
 };

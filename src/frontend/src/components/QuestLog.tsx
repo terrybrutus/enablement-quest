@@ -52,6 +52,7 @@ export function QuestLog({
     (option) => option.caseId === currentCaseId && option.id === interventionId,
   );
   const finishGuidance = getFinishGuidance(currentCaseId, questStage);
+  const simpleExplanation = getSimpleExplanation(currentCaseId);
 
   return (
     <section
@@ -74,14 +75,19 @@ export function QuestLog({
         <p>{activeGuidance}</p>
       </div>
 
+      <div className="eq-mini-section eq-learning-purpose">
+        <h3>What this means in plain English</h3>
+        <p>{simpleExplanation}</p>
+      </div>
+
       <div className="eq-mini-section">
         <h3>The simple path</h3>
         <ol className="eq-simple-path">
-          <li>Hear what the leader asked for.</li>
-          <li>Review the evidence before building anything.</li>
+          <li>Listen to the person asking for help.</li>
+          <li>Inspect three clues in order.</li>
           <li>Decide what is really causing the problem.</li>
-          <li>Choose the solution that changes the work.</li>
-          <li>Review the business impact.</li>
+          <li>Choose the fix that changes daily work.</li>
+          <li>Review the result you could explain to a recruiter.</li>
         </ol>
       </div>
 
@@ -123,7 +129,7 @@ export function QuestLog({
       </div>
 
       <div className="eq-mini-section">
-        <h3>Evidence reviewed</h3>
+        <h3>Clues reviewed</h3>
         {caseEvidence.map((item) => (
           <p key={item.id}>
             {collectedEvidenceIds.includes(item.id) ? "[x]" : "[ ]"}{" "}
@@ -154,25 +160,25 @@ function getSteps(caseId: CaseId) {
       id: "investigate",
       title: "2. Review the evidence",
       description:
-        "Inspect each evidence item in order. Each one asks you to choose the best interpretation, not just the fastest answer.",
+        "Inspect each clue in order. Each one asks you to choose the best interpretation, not just the fastest answer.",
     },
     {
       id: "diagnose",
-      title: "3. Diagnose the root cause",
+      title: "3. Name the real cause",
       description:
-        "Choose the explanation that connects all evidence. The right answer is not automatically more training.",
+        "Choose the explanation that connects all three clues. The right answer is not automatically more training.",
     },
     {
       id: "design",
-      title: "4. Choose the solution",
+      title: "4. Choose the fix",
       description:
-        "Pick the intervention that changes the daily work and creates a metric leaders can inspect.",
+        "Pick the fix that changes the daily work and creates a metric leaders can inspect.",
     },
     {
       id: "complete",
       title: "5. Review the impact",
       description:
-        "Review the case summary. It shows the problem, evidence, decision, solution, and business impact.",
+        "Review the case summary. It shows the problem, clues, decision, fix, and business impact.",
     },
   ] as const;
 }
@@ -186,18 +192,25 @@ function getActiveGuidance(
   const room = caseRooms[caseId];
   const stakeholder = caseId === "sales" ? "Leo" : "Maya";
   if (questStage === "briefing") {
-    return `Talk with ${stakeholder} in ${room}. The learning goal is simple: test the leader's request before designing anything.`;
+    return `Talk with ${stakeholder} in ${room}. Your job is to understand the request before deciding what to build.`;
   }
   if (questStage === "investigate") {
-    return `Review the evidence in order. After each item, choose the interpretation that best explains the work problem. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
+    return `Inspect the clues in order. After each one, choose what it tells you about the real work problem. Clues reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Press Talk / Inspect anywhere to open the choices screen. Pick the root cause that explains all three evidence items.";
+    return "Press Talk / Inspect anywhere to open the choices screen. Pick the cause that explains all three clues.";
   }
   if (questStage === "design") {
-    return "Press Talk / Inspect anywhere to reopen the choices screen. Choose the solution that fits the root cause.";
+    return "Press Talk / Inspect anywhere to reopen the choices screen. Choose the fix that matches the cause.";
   }
-  return "Review the case summary. It explains the problem, evidence, decision, solution, and business impact.";
+  return "Review the case summary. It explains the problem, clues, decision, fix, and business impact.";
+}
+
+function getSimpleExplanation(caseId: CaseId) {
+  if (caseId === "sales") {
+    return "This case is about sales enablement. You are checking whether the team needs more training, better coaching, clearer discovery habits, or a better way to inspect pipeline progress.";
+  }
+  return "This case is about performance consulting. You are checking whether a training request is really a training problem, or whether the work process around people is broken.";
 }
 
 function getFinishGuidance(caseId: CaseId, questStage: QuestStage) {

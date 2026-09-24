@@ -52,7 +52,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <strong>Broken onboarding request</strong>
               <span>
                 Decide whether leadership really needs training, or whether the
-                evidence points to workflow, access, and manager reinforcement.
+                clues point to workflow, access, and manager reinforcement.
               </span>
             </div>
           </article>
@@ -72,9 +72,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <section className="eq-plain-start" aria-label="Plain language start">
           <p>No gaming knowledge needed.</p>
           <span>
-            Start with Maya, review three pieces of evidence, choose the real
-            problem, then pick the solution that improves the business result.
-            After that summary, you can start the sales enablement case.
+            Start with Maya, inspect three clues, choose the real problem, then
+            pick the fix that improves the business result. After that summary,
+            you can start the sales enablement case.
           </span>
         </section>
 
@@ -90,24 +90,22 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <div>
             <p>For non-gamers</p>
             <span>
-              Use the Next Step button if you feel lost. The experience tells
-              you exactly what to do next; movement is only how you explore the
+              Use the Help button if you feel lost. The experience tells you
+              exactly what to do next; movement is only how you explore the
               case.
             </span>
           </div>
         </section>
 
         <p className="eq-title-copy eq-title-copy-secondary">
-          This is a playable case study about judgment: diagnose before you
-          design.
+          This is a playable case study about judgment: understand the problem
+          before you build the fix.
         </p>
 
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>
-              Talk with the case owner and review three evidence items.
-            </span>
+            <span>Talk with the case owner and inspect three clues.</span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
@@ -115,9 +113,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           </article>
           <article>
             <LineChart className="h-5 w-5" />
-            <span>
-              Choose a solution and review the business-impact summary.
-            </span>
+            <span>Choose a fix and review the business-impact summary.</span>
           </article>
         </div>
 
@@ -219,8 +215,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <span className="eq-desktop-control">
             Talk / Inspect: E / Space / Enter
           </span>
-          <span className="eq-desktop-control">Next Step: Q</span>
-          <span className="eq-desktop-control">Case Notes: B</span>
+          <span className="eq-desktop-control">Help: Q</span>
+          <span className="eq-desktop-control">Notes: B</span>
           <span className="eq-mobile-control">Move: joystick</span>
           <span className="eq-mobile-control">Talk / Inspect: button</span>
         </div>

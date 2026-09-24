@@ -68,7 +68,7 @@ export function useGameLoop({
     if (state.questStage === "briefing") {
       const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
-        `Talk to ${stakeholder} first. They explain the case before you inspect evidence.`,
+        `Talk to ${stakeholder} first. They explain the case before you inspect clues.`,
       );
       return true;
     }
@@ -81,7 +81,7 @@ export function useGameLoop({
     );
     if (expectedEvidence && nearby.id !== expectedEvidence.id) {
       setToast(
-        `Start with ${expectedEvidence.title}. The case works best when you review evidence in order.`,
+        `Start with ${expectedEvidence.title}. The case works best when you inspect clues in order.`,
       );
       return true;
     }
@@ -193,7 +193,7 @@ export function useGameLoop({
     }
 
     setToast(
-      "There is nothing useful to inspect here yet. Look for people, marked evidence, or doorways.",
+      "There is nothing useful to inspect here yet. Look for people, marked clues, or doorways.",
     );
   }, [
     collectNearbyEvidence,

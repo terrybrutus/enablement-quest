@@ -28,8 +28,8 @@ export function ArtifactsPanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Case Notes</p>
-          <h2>Evidence and summaries</h2>
+          <p className="eq-kicker">Notes</p>
+          <h2>Clues and summaries</h2>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -41,8 +41,8 @@ export function ArtifactsPanel({
         <div className="eq-empty">
           <FolderOpen className="h-8 w-8" />
           <p>
-            No evidence reviewed yet. Enter Operations Suite and inspect the
-            first marked evidence item.
+            No clues saved yet. Enter Operations Suite and inspect the first
+            marked clue.
           </p>
         </div>
       ) : (
