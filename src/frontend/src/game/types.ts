@@ -219,6 +219,7 @@ export interface GameState {
   diagnosisId: string | null;
   interventionId: string | null;
   activeEvidenceId: string | null;
+  activeCanvasCaseId: CaseId | null;
   earnedArtifact: EarnedArtifact | null;
   overlay: OverlayKind;
   dialogue: DialogueState | null;

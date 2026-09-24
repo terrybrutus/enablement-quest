@@ -330,6 +330,7 @@ export function completeIntervention(
     completedCaseIds: previous.completedCaseIds.includes(previous.currentCaseId)
       ? previous.completedCaseIds
       : [...previous.completedCaseIds, previous.currentCaseId],
+    activeCanvasCaseId: null,
     earnedArtifact: earnedArtifactsByCase[previous.currentCaseId],
     overlay: "canvas",
     toast: {
@@ -562,6 +563,7 @@ function getCaseTransition(
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
+      activeCanvasCaseId: null,
       earnedArtifact: null,
       overlay: "none" as const,
       dialogue: null,

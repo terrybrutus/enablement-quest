@@ -76,6 +76,7 @@ function createInitialGameState(): GameState {
     diagnosisId: qaScene?.diagnosisId ?? null,
     interventionId: qaScene?.interventionId ?? null,
     activeEvidenceId: null,
+    activeCanvasCaseId: null,
     earnedArtifact: null,
     overlay: qaScene?.overlay ?? (qaScene ? "none" : "briefing"),
     dialogue: null,
@@ -282,6 +283,7 @@ export default function GameCanvas() {
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
+      activeCanvasCaseId: null,
       earnedArtifact: null,
       dialogue: null,
       overlay: "none",
@@ -391,6 +393,44 @@ export default function GameCanvas() {
     [currentInterventionOptions],
   );
 
+  const openCanvas = useCallback((caseId?: CaseId) => {
+    setGameState((previous) => ({
+      ...previous,
+      activeCanvasCaseId: caseId ?? null,
+      overlay: "canvas",
+      dialogue: null,
+      activeEvidenceId: null,
+    }));
+  }, []);
+
+  const startSalesCase = useCallback(() => {
+    setGameState((previous) => ({
+      ...previous,
+      currentCaseId: "sales",
+      questStage: "briefing",
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      activeCanvasCaseId: null,
+      earnedArtifact: null,
+      dialogue: null,
+      overlay: "none",
+      toast: {
+        id: Date.now(),
+        message:
+          "Case 02 started: talk with Leo and diagnose the sales enablement problem.",
+      },
+      player: {
+        ...previous.player,
+        hasStarted: true,
+        sceneId: "sales",
+        position: { x: 9, y: 10.25 },
+        direction: "up",
+        isMoving: false,
+      },
+    }));
+  }, []);
+
   return (
     <div
       ref={containerRef}
@@ -467,9 +507,10 @@ export default function GameCanvas() {
       {gameState.overlay === "backpack" && (
         <ArtifactsPanel
           collectedEvidenceIds={gameState.collectedEvidenceIds}
+          completedCaseIds={gameState.completedCaseIds}
           earnedArtifact={gameState.earnedArtifact}
           onClose={closeOverlay}
-          onOpenCanvas={() => setOverlay("canvas")}
+          onOpenCanvas={openCanvas}
         />
       )}
 
@@ -507,9 +548,16 @@ export default function GameCanvas() {
       {gameState.overlay === "canvas" && (
         <CanvasPanel
           artifact={
-            gameState.earnedArtifact ??
-            earnedArtifactsByCase[gameState.currentCaseId] ??
-            earnedCanvas
+            gameState.activeCanvasCaseId
+              ? earnedArtifactsByCase[gameState.activeCanvasCaseId]
+              : (gameState.earnedArtifact ??
+                earnedArtifactsByCase[gameState.currentCaseId] ??
+                earnedCanvas)
+          }
+          canStartSalesCase={
+            gameState.currentCaseId === "onboarding" &&
+            gameState.completedCaseIds.includes("onboarding") &&
+            !gameState.completedCaseIds.includes("sales")
           }
           showFinalDebrief={
             gameState.currentCaseId === "sales" &&
@@ -517,6 +565,7 @@ export default function GameCanvas() {
             gameState.completedCaseIds.includes("sales")
           }
           onClose={closeOverlay}
+          onStartSalesCase={startSalesCase}
         />
       )}
 
@@ -1245,12 +1294,16 @@ const caseSynthesis: Record<
 
 function CanvasPanel({
   artifact,
+  canStartSalesCase,
   showFinalDebrief,
   onClose,
+  onStartSalesCase,
 }: {
   artifact: NonNullable<GameState["earnedArtifact"]>;
+  canStartSalesCase: boolean;
   showFinalDebrief: boolean;
   onClose: () => void;
+  onStartSalesCase: () => void;
 }) {
   const businessProblem = getArtifactSection(artifact, "Business Problem");
   const rootCause = getArtifactSection(artifact, "Root Cause");
@@ -1365,6 +1418,27 @@ function CanvasPanel({
           )}
         </div>
       </aside>
+
+      {canStartSalesCase && (
+        <aside className="eq-next-case" aria-label="Next case">
+          <div>
+            <p className="eq-kicker">Next case</p>
+            <h3>Ready for the sales enablement version?</h3>
+            <p>
+              Case 01 proves performance-consulting judgment. Case 02 applies
+              the same pattern to revenue behavior: discovery quality, manager
+              coaching, and pipeline impact.
+            </p>
+          </div>
+          <button
+            className="eq-primary-button"
+            type="button"
+            onClick={onStartSalesCase}
+          >
+            Start Case 02: Sales Enablement
+          </button>
+        </aside>
+      )}
 
       {showFinalDebrief && <FinalReviewerDebrief />}
     </section>

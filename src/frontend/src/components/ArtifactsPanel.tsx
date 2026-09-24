@@ -1,16 +1,18 @@
-import { evidenceItems } from "@/game/levels";
-import type { EarnedArtifact } from "@/game/types";
+import { earnedArtifactsByCase, evidenceItems } from "@/game/levels";
+import type { CaseId, EarnedArtifact } from "@/game/types";
 import { FileText, FolderOpen, X } from "lucide-react";
 
 interface ArtifactsPanelProps {
   collectedEvidenceIds: string[];
+  completedCaseIds: CaseId[];
   earnedArtifact: EarnedArtifact | null;
   onClose: () => void;
-  onOpenCanvas: () => void;
+  onOpenCanvas: (caseId?: CaseId) => void;
 }
 
 export function ArtifactsPanel({
   collectedEvidenceIds,
+  completedCaseIds,
   earnedArtifact,
   onClose,
   onOpenCanvas,
@@ -59,14 +61,34 @@ export function ArtifactsPanel({
         </div>
       )}
 
-      {earnedArtifact && (
-        <button
-          className="eq-primary-button w-full justify-center"
-          type="button"
-          onClick={onOpenCanvas}
-        >
-          Open case summary
-        </button>
+      {(earnedArtifact || completedCaseIds.length > 0) && (
+        <div className="eq-summary-actions">
+          {earnedArtifact && (
+            <button
+              className="eq-primary-button w-full justify-center"
+              type="button"
+              onClick={() => onOpenCanvas()}
+            >
+              Open current case summary
+            </button>
+          )}
+
+          {completedCaseIds.length > 0 && (
+            <div className="eq-mini-section">
+              <h3>Completed case summaries</h3>
+              {completedCaseIds.map((caseId) => (
+                <button
+                  className="eq-ghost-button w-full justify-center"
+                  key={caseId}
+                  type="button"
+                  onClick={() => onOpenCanvas(caseId)}
+                >
+                  {earnedArtifactsByCase[caseId].title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </section>
   );
