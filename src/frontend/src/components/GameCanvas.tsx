@@ -1050,6 +1050,12 @@ function DecisionPanel({
         </span>
       </aside>
 
+      <CaseMap
+        selectedDiagnosis={selectedDiagnosis}
+        selectedIntervention={selectedIntervention}
+        synthesis={synthesis}
+      />
+
       <div className="eq-option-grid">
         <div>
           <h3>1. Diagnose the root cause</h3>
@@ -1134,6 +1140,53 @@ function DecisionPanel({
       </div>
 
       <DecisionChecklist canChooseIntervention={canChooseIntervention} />
+    </section>
+  );
+}
+
+function CaseMap({
+  selectedDiagnosis,
+  selectedIntervention,
+  synthesis,
+}: {
+  selectedDiagnosis: DiagnosisOption | undefined;
+  selectedIntervention: InterventionOption | undefined;
+  synthesis: (typeof caseSynthesis)[CaseId];
+}) {
+  return (
+    <section className="eq-case-map" aria-label="Case map">
+      <div>
+        <p className="eq-kicker">Plain-Language Case Map</p>
+        <h3>How this case turns into a real recommendation</h3>
+      </div>
+      <ol>
+        <li>
+          <strong>1. Request</strong>
+          <span>{synthesis.prompt}</span>
+        </li>
+        <li>
+          <strong>2. Evidence pattern</strong>
+          <span>{synthesis.pattern}</span>
+        </li>
+        <li>
+          <strong>3. Diagnosis</strong>
+          <span>
+            {selectedDiagnosis?.label ??
+              "Choose the cause that explains every evidence item."}
+          </span>
+        </li>
+        <li>
+          <strong>4. Solution</strong>
+          <span>
+            {selectedIntervention?.label ??
+              "Choose the support that changes the work and can be measured."}
+          </span>
+        </li>
+        <li>
+          <strong>5. Impact</strong>
+          <span>{synthesis.metric}</span>
+        </li>
+      </ol>
     </section>
   );
 }

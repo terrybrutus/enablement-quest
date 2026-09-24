@@ -583,6 +583,58 @@
   line-height: 1.45;
 }
 
+.eq-case-map {
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 47, 73, 0.28),
+    rgba(15, 23, 42, 0.62)
+  );
+  margin: 14px 0;
+  padding: 14px;
+}
+
+.eq-case-map h3 {
+  color: #e0f2fe;
+  font-size: 1rem;
+  margin: 2px 0 12px;
+}
+
+.eq-case-map ol {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eq-case-map li {
+  border: 1px solid rgba(125, 211, 252, 0.16);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.28);
+  padding: 10px;
+}
+
+.eq-case-map strong,
+.eq-case-map span {
+  display: block;
+}
+
+.eq-case-map strong {
+  color: #a7f3d0;
+  font-size: 0.72rem;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.eq-case-map span {
+  color: #dbeafe;
+  font-size: 0.78rem;
+  line-height: 1.38;
+}
+
 .eq-decision-prompt {
   color: #aebdd0;
   font-size: 0.82rem;
@@ -1915,6 +1967,7 @@
 
   .eq-dialogue-actions > div,
   .eq-option-grid,
+  .eq-case-map ol,
   .eq-case-synthesis,
   .eq-signal-strip,
   .eq-decision-checklist ol,
