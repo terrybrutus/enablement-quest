@@ -1076,7 +1076,7 @@ function DecisionPanel({
       <div className="eq-panel-header">
         <div>
           <p className="eq-kicker">Diagnostic Decision</p>
-          <h2>Is this really a training problem?</h2>
+          <h2>{synthesis.question}</h2>
           <p>{synthesis.prompt}</p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
@@ -1204,8 +1204,8 @@ function CaseMap({
       </div>
       <ol>
         <li>
-          <strong>1. Request</strong>
-          <span>{synthesis.prompt}</span>
+          <strong>1. Decision question</strong>
+          <span>{synthesis.question}</span>
         </li>
         <li>
           <strong>2. Evidence pattern</strong>
@@ -1382,10 +1382,12 @@ const caseSynthesis: Record<
     metric: string;
     pattern: string;
     prompt: string;
+    question: string;
     trap: string;
   }
 > = {
   onboarding: {
+    question: "Is this really a training problem?",
     prompt:
       "Leadership asked for more training. Your job is to decide whether the evidence supports that request or points somewhere else.",
     pattern:
@@ -1395,6 +1397,7 @@ const caseSynthesis: Record<
       "The business wants faster time-to-productivity and fewer support tickets after orientation.",
   },
   sales: {
+    question: "What sales behavior is blocking revenue impact?",
     prompt:
       "The team wants better demo results. Your job is to decide whether the evidence points to content, skill practice, coaching, or measurement.",
     pattern:
