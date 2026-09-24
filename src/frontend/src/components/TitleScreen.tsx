@@ -37,9 +37,31 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <h1>The Learning Systems Lab</h1>
         <p className="eq-title-mode">Two-case portfolio path</p>
         <p className="eq-title-copy">
-          Play two short workplace cases that make Terry&apos;s enablement
-          judgment visible: first performance consulting, then sales enablement.
+          A plain-language RPG case study where you diagnose workplace problems,
+          choose enablement fixes, and see the business impact.
         </p>
+
+        <section
+          className="eq-title-promise"
+          aria-label="What this experience produces"
+        >
+          <article>
+            <p>What you do</p>
+            <strong>Investigate two realistic workplace problems.</strong>
+            <span>
+              Talk to the case owner, review evidence, name the real cause, and
+              choose the support that should change the work.
+            </span>
+          </article>
+          <article>
+            <p>What you leave with</p>
+            <strong>A portfolio-ready proof of judgment.</strong>
+            <span>
+              The final debrief gives plain-language resume, LinkedIn,
+              interview, and portfolio language tied to business impact.
+            </span>
+          </article>
+        </section>
 
         <section
           className="eq-case-path-preview"
@@ -70,11 +92,10 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         </section>
 
         <section className="eq-plain-start" aria-label="Plain language start">
-          <p>No gaming knowledge needed.</p>
+          <p>Simple path</p>
           <span>
-            Start with Maya, review three evidence items, choose the real
-            problem, then pick the fix that improves the business result. After
-            that summary, you can start the sales enablement case.
+            No gaming knowledge needed. Start with Maya, follow the guide, and
+            answer one practical question: is this really a training problem?
           </span>
         </section>
 
@@ -109,11 +130,6 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             </span>
           </div>
         </section>
-
-        <p className="eq-title-copy eq-title-copy-secondary">
-          This is a playable case study about judgment: understand the problem
-          before you build the fix.
-        </p>
 
         <section
           className="eq-reviewer-proof-strip"
