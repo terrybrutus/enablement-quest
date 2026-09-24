@@ -824,19 +824,19 @@ function EvidencePanel({
         kind: "signal" as const,
         label: evidence.signal,
         feedback:
-          "Good. This is the signal that should shape the root-cause call.",
+          "Good. This is the signal that should shape the real-cause call.",
       },
       {
         kind: "trap" as const,
         label: evidence.trap,
         feedback:
-          "Not quite. That jumps to a surface explanation before the full evidence pattern is clear.",
+          "Not quite. That jumps to a surface explanation before the full clue pattern is clear.",
       },
       {
         kind: "ignore" as const,
         label: "Treat this as background context and move on.",
         feedback:
-          "Not quite. This evidence changes the diagnosis, so it should not be treated as a side detail.",
+          "Not quite. This clue changes the diagnosis, so it should not be treated as a side detail.",
       },
     ];
     if (evidence.id.length % 3 === 0) {
@@ -893,7 +893,7 @@ function EvidencePanel({
       </div>
 
       <aside className="eq-evidence-purpose" aria-label="Evidence purpose">
-        <strong>Why this matters</strong>
+        <strong>Why this clue matters</strong>
         <span>
           Do not memorize this. Ask what it proves about the work system, then
           decide whether the leader's request still fits what you found.
@@ -944,7 +944,7 @@ function EvidencePanel({
       <div className="eq-evidence-check">
         <div>
           <p className="eq-kicker">Check Your Read</p>
-          <h3>What is the best read of this evidence?</h3>
+          <h3>What is the best read of this clue?</h3>
           <p>
             The goal is not to guess. Choose the interpretation you would use
             later when explaining the cause to a leader.
@@ -1072,7 +1072,7 @@ function DecisionPanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Diagnostic Decision</p>
+          <p className="eq-kicker">Decision Point</p>
           <h2>{synthesis.question}</h2>
           <p>{synthesis.prompt}</p>
         </div>
@@ -1209,7 +1209,7 @@ function CaseMap({
           <span>{synthesis.pattern}</span>
         </li>
         <li>
-          <strong>3. Diagnosis</strong>
+          <strong>3. Cause</strong>
           <span>
             {selectedDiagnosis?.label ??
               "Choose the cause that explains every clue."}
@@ -1385,7 +1385,7 @@ const caseSynthesis: Record<
   onboarding: {
     question: "Is this really a training problem?",
     prompt:
-      "Leadership asked for more training. Your job is to decide whether the evidence supports that request or points somewhere else.",
+      "Leadership asked for more training. Your job is to decide whether the clues support that request or point somewhere else.",
     pattern:
       "Your answer must explain conflicting instructions, delayed access, and a support-ticket spike after orientation.",
     trap: "A polished course would look responsive, but it may leave ownership and follow-up untouched.",
@@ -1395,7 +1395,7 @@ const caseSynthesis: Record<
   sales: {
     question: "What sales behavior is blocking revenue impact?",
     prompt:
-      "The team wants better demo results. Your job is to decide whether the evidence points to content, skill practice, coaching, or measurement.",
+      "The team wants better demo results. Your job is to decide whether the clues point to content, skill practice, coaching, or measurement.",
     pattern:
       "Your answer must explain shallow discovery, missing pain notes, and inconsistent manager coaching.",
     trap: "A stricter demo certification may improve presentation polish without improving buyer diagnosis.",

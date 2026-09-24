@@ -56,7 +56,9 @@ function connect(webSocketUrl) {
       const { resolve: resolvePending, reject } = pending.get(message.id);
       pending.delete(message.id);
       if (message.error) {
-        reject(new Error(`${message.error.message}: ${message.error.data ?? ""}`));
+        reject(
+          new Error(`${message.error.message}: ${message.error.data ?? ""}`),
+        );
         return;
       }
       resolvePending(message.result ?? {});
@@ -151,6 +153,7 @@ async function captureState(send, events, viewportName, stateName) {
         const titleOverlay = document.querySelector('.eq-title-screen');
         const dialogue = document.querySelector('.eq-dialogue');
         const panel = document.querySelector('.eq-panel');
+        const doneWhenCues = document.querySelectorAll('.eq-step-outcome');
         const fullText = document.body.innerText.toLowerCase();
         const title = document.body.innerText.slice(0, 1200);
         const visibleButtons = [...document.querySelectorAll('button')]
@@ -175,6 +178,7 @@ async function captureState(send, events, viewportName, stateName) {
           hasDialogue: Boolean(dialogue),
           hasFinalProof: fullText.includes('resume bullet') && fullText.includes('portfolio blurb'),
           hasLinkedInStarter: fullText.includes('linkedin post starter'),
+          hasDoneWhenCue: doneWhenCues.length > 0,
           hasPanel: Boolean(panel),
           visibleButtons,
           text: title,
@@ -455,7 +459,10 @@ async function moveToCoordinate(send, viewport, target, options = {}) {
   };
 
   await moveAxis("x");
-  if (stopOnSceneChange && (await getQaState(send))?.sceneId !== startingSceneId) {
+  if (
+    stopOnSceneChange &&
+    (await getQaState(send))?.sceneId !== startingSceneId
+  ) {
     return;
   }
   await moveAxis("y");
@@ -473,7 +480,12 @@ async function moveThrough(send, viewport, waypoints) {
   }
 }
 
-async function moveNearCharacter(send, viewport, characterId, offset = { x: 0, y: 1.25 }) {
+async function moveNearCharacter(
+  send,
+  viewport,
+  characterId,
+  offset = { x: 0, y: 1.25 },
+) {
   const state = await getQaState(send);
   const character = state?.characterStates?.[characterId];
   if (!character?.position) {
@@ -705,6 +717,10 @@ async function runViewport(client, viewport) {
     viewport.name,
     "gameplay",
   );
+  await holdKey(send, "q", "KeyQ", 40);
+  await waitForOverlay(send, "quest", "Help panel did not open");
+  const guideState = await captureState(send, events, viewport.name, "guide");
+  await clickButtonIncluding(send, "Close");
   await assertQaState(
     send,
     (state) =>
@@ -786,12 +802,7 @@ async function runViewport(client, viewport) {
     "sales-complete-flow",
   );
   await navigateTo(send, `${appUrl}?qaScene=sales`);
-  const salesState = await captureState(
-    send,
-    events,
-    viewport.name,
-    "sales",
-  );
+  const salesState = await captureState(send, events, viewport.name, "sales");
   await assertQaState(
     send,
     (state) =>
@@ -834,6 +845,7 @@ async function runViewport(client, viewport) {
     states: [
       titleState,
       gameplayState,
+      guideState,
       hubState,
       operationsState,
       onboardingDialogueState,
@@ -870,6 +882,9 @@ for (const viewport of viewports) {
 client.socket.close();
 
 const reportPath = join(outputDir, "report.json");
-await writeFile(reportPath, `${JSON.stringify({ appUrl, results }, null, 2)}\n`);
+await writeFile(
+  reportPath,
+  `${JSON.stringify({ appUrl, results }, null, 2)}\n`,
+);
 
 console.log(JSON.stringify({ reportPath, results }, null, 2));

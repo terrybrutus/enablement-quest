@@ -122,6 +122,9 @@ export function QuestLog({
               <div>
                 <h3>{step.title}</h3>
                 <p>{step.description}</p>
+                <small className="eq-step-outcome">
+                  Done when: {step.outcome}
+                </small>
               </div>
             </article>
           );
@@ -155,30 +158,40 @@ function getSteps(caseId: CaseId) {
       id: "briefing",
       title: "1. Hear the request",
       description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then ask whether that request solves the real problem.`,
+      outcome: `${stakeholder} finishes the briefing and the app tells you to inspect the first clue.`,
     },
     {
       id: "investigate",
-      title: "2. Review the evidence",
+      title: "2. Inspect the clues",
       description:
         "Inspect each clue in order. Each one asks you to choose the best interpretation, not just the fastest answer.",
+      outcome:
+        "All three clues are checked off and the choice screen opens for the real cause.",
     },
     {
       id: "diagnose",
       title: "3. Name the real cause",
       description:
         "Choose the explanation that connects all three clues. The right answer is not automatically more training.",
+      outcome: "The fix choices unlock because your cause explains the clues.",
     },
     {
       id: "design",
       title: "4. Choose the fix",
       description:
         "Pick the fix that changes the daily work and creates a metric leaders can inspect.",
+      outcome:
+        "You earn a case summary that explains the work in plain English.",
     },
     {
       id: "complete",
       title: "5. Review the impact",
       description:
         "Review the case summary. It shows the problem, clues, decision, fix, and business impact.",
+      outcome:
+        caseId === "onboarding"
+          ? "Case 02 is available."
+          : "The final reviewer debrief is available.",
     },
   ] as const;
 }
