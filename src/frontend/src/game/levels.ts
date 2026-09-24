@@ -586,6 +586,12 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Conflicting instructions point to workflow and manager reinforcement, not just a missing lesson.",
     trap: "Treat the leader's training request as proof that a longer course is the answer.",
+    signalFeedback:
+      "Good. Conflicting instructions mean the learner is not receiving one consistent operating path.",
+    trapFeedback:
+      "That would produce more content, but it would not stop different people from giving different directions.",
+    ignoreFeedback:
+      "This is not background; it tells you the issue continues after formal onboarding.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288),
   },
@@ -602,6 +608,12 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Multiple handoffs create delay. Training cannot fix ownership unless the workflow changes too.",
     trap: "Convert every missing handoff step into another onboarding lesson.",
+    signalFeedback:
+      "Good. The handoffs show a workflow ownership problem, not only a knowledge problem.",
+    trapFeedback:
+      "More lessons about every handoff would add complexity without clarifying who owns the work.",
+    ignoreFeedback:
+      "This cannot be ignored because delayed access blocks performance even when people understand the job.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384),
   },
@@ -618,6 +630,12 @@ export const evidenceItems: Evidence[] = [
     signal:
       "The spike happens after formal training, so the support system is failing when work actually begins.",
     trap: "Judge the course by completion rate instead of support tickets and time-to-productivity.",
+    signalFeedback:
+      "Good. The spike after orientation proves support is failing when real work begins.",
+    trapFeedback:
+      "Completion rates can look healthy while work performance still breaks after the course.",
+    ignoreFeedback:
+      "This metric is a business signal. It tells you where the enablement support must show up.",
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384),
   },
@@ -634,6 +652,12 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Reps can present the product; the weak behavior is connecting the demo to buyer pain.",
     trap: "Treat a feature-heavy demo as proof that product knowledge is the main gap.",
+    signalFeedback:
+      "Good. Reps can explain features, but they are not connecting the demo to buyer pain.",
+    trapFeedback:
+      "Product knowledge may sound like the easy fix, but the clue says feature explanation is already clear.",
+    ignoreFeedback:
+      "This is not background; it identifies the specific sales behavior blocking conversion.",
     metric: "Discovery depth: 34%",
     sprite: officeSprite(336, 288),
   },
@@ -650,6 +674,12 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Pipeline quality is dropping after the demo, so the enablement answer needs revenue-behavior measurement.",
     trap: "Assume more demo activity will fix conversion without changing discovery behavior.",
+    signalFeedback:
+      "Good. Conversion drops when business pain is missing, so the fix needs a pipeline inspection habit.",
+    trapFeedback:
+      "More activity does not solve a quality problem if discovery behavior stays shallow.",
+    ignoreFeedback:
+      "This is a business outcome clue. It connects behavior to pipeline impact.",
     metric: "Demo-to-next-step: 41%",
     sprite: officeSprite(384, 384),
   },
@@ -666,6 +696,12 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Managers need a shared rubric so coaching happens consistently after the enablement event.",
     trap: "Send a one-time reminder and hope managers reinforce the behavior later.",
+    signalFeedback:
+      "Good. Without a shared rubric, managers cannot reinforce the new behavior consistently.",
+    trapFeedback:
+      "A reminder may create awareness, but it does not create manager coaching or accountability.",
+    ignoreFeedback:
+      "This clue explains why a one-time enablement event would fade.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384),
   },

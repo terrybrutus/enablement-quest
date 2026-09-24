@@ -823,20 +823,17 @@ function EvidencePanel({
       {
         kind: "signal" as const,
         label: evidence.signal,
-        feedback:
-          "Good. This is the signal that should shape the real-cause call.",
+        feedback: evidence.signalFeedback,
       },
       {
         kind: "trap" as const,
         label: evidence.trap,
-        feedback:
-          "Not quite. That jumps to a surface explanation before the full clue pattern is clear.",
+        feedback: evidence.trapFeedback,
       },
       {
         kind: "ignore" as const,
         label: "Treat this as background context and move on.",
-        feedback:
-          "Not quite. This clue changes the diagnosis, so it should not be treated as a side detail.",
+        feedback: evidence.ignoreFeedback,
       },
     ];
     if (evidence.id.length % 3 === 0) {
@@ -846,7 +843,14 @@ function EvidencePanel({
       return [options[2], options[0], options[1]];
     }
     return options;
-  }, [evidence.id, evidence.signal, evidence.trap]);
+  }, [
+    evidence.id,
+    evidence.ignoreFeedback,
+    evidence.signal,
+    evidence.signalFeedback,
+    evidence.trap,
+    evidence.trapFeedback,
+  ]);
 
   useEffect(() => {
     const handleEvidenceKey = (event: KeyboardEvent) => {

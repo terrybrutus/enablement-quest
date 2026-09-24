@@ -112,6 +112,9 @@ export interface Evidence {
   insight: string;
   signal: string;
   trap: string;
+  signalFeedback: string;
+  trapFeedback: string;
+  ignoreFeedback: string;
   metric?: string;
   sprite: SheetSprite;
 }
