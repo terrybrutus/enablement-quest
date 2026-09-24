@@ -1373,6 +1373,8 @@ function CanvasPanel({
         </article>
       </div>
 
+      <ReflectionPanel artifact={artifact} />
+
       <div className="eq-canvas-grid">
         {artifact.sections.map((section) => (
           <article className="eq-canvas-card" key={section.label}>
@@ -1459,6 +1461,40 @@ function CanvasPanel({
 
       {showFinalDebrief && <FinalReviewerDebrief />}
     </section>
+  );
+}
+
+function ReflectionPanel({
+  artifact,
+}: {
+  artifact: NonNullable<GameState["earnedArtifact"]>;
+}) {
+  const businessProblem = getArtifactSection(artifact, "Business Problem");
+  const rootCause = getArtifactSection(artifact, "Root Cause");
+  const intervention = getArtifactSection(artifact, "Intervention");
+  const impact = getArtifactSection(artifact, "Expected Impact");
+
+  return (
+    <aside className="eq-reflection-panel" aria-label="Reflection prompts">
+      <p className="eq-kicker">Reflection prompts</p>
+      <h3>Use this to explain the work</h3>
+      <div>
+        <article>
+          <strong>What request did you question?</strong>
+          <span>{businessProblem}</span>
+        </article>
+        <article>
+          <strong>What changed your recommendation?</strong>
+          <span>{rootCause}</span>
+        </article>
+        <article>
+          <strong>What would you build and measure?</strong>
+          <span>
+            {intervention} Impact target: {impact}
+          </span>
+        </article>
+      </div>
+    </aside>
   );
 }
 

@@ -981,6 +981,54 @@
   line-height: 1.42;
 }
 
+.eq-reflection-panel {
+  border: 1px solid rgba(167, 139, 250, 0.24);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(49, 46, 129, 0.26),
+    rgba(15, 23, 42, 0.62)
+  );
+  margin-top: 14px;
+  padding: 14px 16px;
+}
+
+.eq-reflection-panel h3 {
+  color: #f8fafc;
+  font-size: 1rem;
+  margin: 0 0 10px;
+}
+
+.eq-reflection-panel > div {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eq-reflection-panel article {
+  border: 1px solid rgba(167, 139, 250, 0.16);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.26);
+  padding: 11px;
+}
+
+.eq-reflection-panel strong,
+.eq-reflection-panel span {
+  display: block;
+}
+
+.eq-reflection-panel strong {
+  color: #ddd6fe;
+  font-size: 0.82rem;
+  margin-bottom: 5px;
+}
+
+.eq-reflection-panel span {
+  color: #dbeafe;
+  font-size: 0.8rem;
+  line-height: 1.42;
+}
+
 .eq-portfolio-takeaway {
   border: 1px solid rgba(52, 211, 153, 0.24);
   border-radius: 18px;
@@ -1873,6 +1921,7 @@
   .eq-case-outcome,
   .eq-canvas-grid,
   .eq-learner-debrief > div,
+  .eq-reflection-panel > div,
   .eq-final-debrief-grid,
   .eq-next-case,
   .eq-title-grid {
