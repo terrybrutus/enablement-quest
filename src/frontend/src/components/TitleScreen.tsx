@@ -1,4 +1,11 @@
-import { ArrowRight, BrainCircuit, LineChart, SearchCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BrainCircuit,
+  BriefcaseBusiness,
+  LineChart,
+  SearchCheck,
+  Target,
+} from "lucide-react";
 import { useState } from "react";
 
 interface TitleScreenProps {
@@ -28,19 +35,46 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <p className="eq-byline">Created by Terry Brutus</p>
         </div>
         <h1>The Learning Systems Lab</h1>
-        <p className="eq-title-mode">
-          Guided Case: The Broken Onboarding Request
-        </p>
+        <p className="eq-title-mode">Two-case portfolio path</p>
         <p className="eq-title-copy">
-          A leader asks for more training. In this short workplace case, you
-          decide whether training is actually the fix.
+          Play two short workplace cases that make Terry&apos;s enablement
+          judgment visible: first performance consulting, then sales enablement.
         </p>
+
+        <section
+          className="eq-case-path-preview"
+          aria-label="Two-case learning path"
+        >
+          <article>
+            <BriefcaseBusiness className="h-5 w-5" />
+            <div>
+              <p>Case 01</p>
+              <strong>Broken onboarding request</strong>
+              <span>
+                Decide whether leadership really needs training, or whether the
+                evidence points to workflow, access, and manager reinforcement.
+              </span>
+            </div>
+          </article>
+          <article>
+            <Target className="h-5 w-5" />
+            <div>
+              <p>Case 02</p>
+              <strong>Sales discovery gap</strong>
+              <span>
+                Apply the same diagnosis loop to demo conversion, manager
+                coaching, discovery quality, and pipeline signals.
+              </span>
+            </div>
+          </article>
+        </section>
 
         <section className="eq-plain-start" aria-label="Plain language start">
           <p>No gaming knowledge needed.</p>
           <span>
-            Talk with Maya, review three pieces of evidence, choose the real
+            Start with Maya, review three pieces of evidence, choose the real
             problem, then pick the solution that improves the business result.
+            After that summary, you can start the sales enablement case.
           </span>
         </section>
 
@@ -48,16 +82,17 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <div>
             <p>The finish line</p>
             <span>
-              You are done when the case produces a plain-language summary:
-              business problem, root cause, enablement solution, and expected
-              impact.
+              You are done when both cases produce plain-language summaries and
+              a final reviewer debrief: problem, root cause, solution, and
+              measurable impact.
             </span>
           </div>
           <div>
             <p>For non-gamers</p>
             <span>
               Use the Next Step button if you feel lost. The experience tells
-              you what to do next; movement is only how you explore the case.
+              you exactly what to do next; movement is only how you explore the
+              case.
             </span>
           </div>
         </section>
@@ -125,11 +160,11 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               aria-label="How to review this portfolio project"
             >
               <div>
-                <p>5-minute review path</p>
+                <p>Portfolio review path</p>
                 <span>
-                  Talk with Maya, review three evidence items, choose the root
-                  cause, choose the intervention, and review the business-impact
-                  summary.
+                  Complete Case 01 for performance consulting, then Case 02 for
+                  sales enablement. The final debrief gives the resume and
+                  portfolio language.
                 </span>
               </div>
               <div>
