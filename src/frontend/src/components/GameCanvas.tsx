@@ -510,6 +510,7 @@ export default function GameCanvas() {
         <ArtifactsPanel
           collectedEvidenceIds={gameState.collectedEvidenceIds}
           completedCaseIds={gameState.completedCaseIds}
+          currentCaseId={gameState.currentCaseId}
           earnedArtifact={gameState.earnedArtifact}
           onClose={closeOverlay}
           onOpenCanvas={openCanvas}
@@ -1665,7 +1666,7 @@ function buildPortfolioSummary(
     "",
     `Business problem: ${sections["Business Problem"] ?? "Not captured."}`,
     `Root cause: ${sections["Root Cause"] ?? "Not captured."}`,
-    `Enablement solution: ${sections.Intervention ?? "Not captured."}`,
+    `Practical fix: ${sections.Intervention ?? "Not captured."}`,
     `Expected impact: ${sections["Expected Impact"] ?? "Not captured."}`,
     "",
     artifact.portfolioTakeaway
@@ -1694,8 +1695,8 @@ function FinalReviewerDebrief() {
           <strong>Performance consulting</strong>
           <span>
             You do not accept a training request at face value. You interview,
-            inspect evidence, diagnose the root cause, then choose the
-            intervention.
+            inspect evidence, diagnose the root cause, then choose the practical
+            fix.
           </span>
         </article>
         <article>
@@ -1739,7 +1740,7 @@ function FinalReviewerDebrief() {
           <span>
             This project turns enablement strategy into a playable case study:
             reviewers can see the full thinking process from stakeholder request
-            to evidence, root cause, intervention, and impact.
+            to clues, root cause, fix, and impact.
           </span>
         </article>
       </section>
@@ -1752,8 +1753,8 @@ function FinalReviewerDebrief() {
           <span>
             I built Enablement Quest to show how I approach workplace
             performance problems: investigate the request, inspect evidence,
-            diagnose the root cause, choose the right enablement intervention,
-            and connect the decision to business impact.
+            diagnose the root cause, choose the right support, and connect the
+            decision to business impact.
           </span>
         </article>
         <article>

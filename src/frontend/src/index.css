@@ -619,6 +619,27 @@
   color: #fde68a;
 }
 
+.eq-notes-purpose {
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  border-radius: 16px;
+  background: rgba(8, 47, 73, 0.16);
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.eq-notes-purpose strong {
+  color: #e0f2fe;
+  font-size: 0.88rem;
+}
+
+.eq-notes-purpose span {
+  color: #b6c6d9;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
 .eq-summary-actions {
   display: grid;
   gap: 12px;
