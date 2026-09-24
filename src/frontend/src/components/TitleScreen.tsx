@@ -35,7 +35,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <p className="eq-byline">A workplace diagnosis simulation</p>
         </div>
         <h1>The Learning Systems Lab</h1>
-        <p className="eq-title-mode">Two-case learning path</p>
+        <p className="eq-title-mode">Sales enablement case quest</p>
         <p className="eq-title-copy">
           A plain-language RPG case study where you diagnose workplace problems,
           choose enablement fixes, and see the business impact.
@@ -47,15 +47,15 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         >
           <article>
             <p>What you do</p>
-            <strong>Investigate two realistic workplace problems.</strong>
+            <strong>Investigate one realistic revenue problem.</strong>
             <span>
-              Talk to the case owner, review evidence, name the real cause, and
-              choose the support that should change the work.
+              Talk to stakeholders, review evidence, name the real cause, and
+              choose the support that should change sales behavior.
             </span>
           </article>
           <article>
             <p>What you leave with</p>
-            <strong>A repeatable diagnosis habit.</strong>
+            <strong>A repeatable consulting habit.</strong>
             <span>
               The final debrief helps learners explain the problem, evidence,
               cause, recommendation, and measurable impact.
@@ -68,24 +68,24 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           aria-label="Two-case learning path"
         >
           <article>
-            <BriefcaseBusiness className="h-5 w-5" />
+            <Target className="h-5 w-5" />
             <div>
-              <p>Case 01</p>
-              <strong>Broken onboarding request</strong>
+              <p>Main case</p>
+              <strong>The vanishing win rate</strong>
               <span>
-                Decide whether leadership really needs training, or whether the
-                evidence points to workflow, access, and manager reinforcement.
+                Diagnose why Atlas Pro deals reach proposal but close below
+                target. The answer depends on evidence, not assumptions.
               </span>
             </div>
           </article>
           <article>
-            <Target className="h-5 w-5" />
+            <BriefcaseBusiness className="h-5 w-5" />
             <div>
-              <p>Case 02</p>
-              <strong>Sales discovery gap</strong>
+              <p>Practice loop</p>
+              <strong>Investigate, diagnose, design, measure</strong>
               <span>
-                Apply the same diagnosis loop to demo conversion, manager
-                coaching, discovery quality, and pipeline signals.
+                Separate product knowledge, discovery skill, coaching, process,
+                and measurement before recommending a fix.
               </span>
             </div>
           </article>
@@ -94,8 +94,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <section className="eq-plain-start" aria-label="Plain language start">
           <p>Simple path</p>
           <span>
-            No gaming knowledge needed. Start with Maya, follow the guide, and
-            answer one practical question: is this really a training problem?
+            No gaming knowledge needed. Start in the lab, talk with Leo, follow
+            the evidence, and answer one practical question: is this really a
+            training problem?
           </span>
         </section>
 
@@ -106,7 +107,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             onClick={onStart}
             data-ocid="title.mobile_start_button"
           >
-            Begin Case 01
+            Begin the Case
             <ArrowRight className="h-5 w-5" />
           </button>
           <span>Start now; use the debrief after the run.</span>
@@ -116,9 +117,9 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <div>
             <p>The finish line</p>
             <span>
-              You are done when both cases produce plain-language summaries and
-              a final reviewer debrief: problem, root cause, solution, and
-              measurable impact.
+              You are done when the case produces a plain-language summary and a
+              final debrief: problem, root cause, solution, and measurable
+              impact.
             </span>
           </div>
           <div>
@@ -145,8 +146,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <article>
             <p>Enablement lens</p>
             <span>
-              Case 01 shows performance consulting. Case 02 shows sales
-              enablement: behavior, coaching, and pipeline signals.
+              The case shows sales enablement judgment: behavior, coaching,
+              process, evidence, and pipeline signals.
             </span>
           </article>
           <article>
@@ -161,9 +162,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
         <div className="eq-title-grid">
           <article>
             <SearchCheck className="h-5 w-5" />
-            <span>
-              Talk with the case owner and review three evidence items.
-            </span>
+            <span>Talk with the case owner and review the evidence trail.</span>
           </article>
           <article>
             <BrainCircuit className="h-5 w-5" />
@@ -213,9 +212,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <div>
                 <p>Facilitation path</p>
                 <span>
-                  Complete Case 01 for performance consulting, then Case 02 for
-                  sales enablement. The final debrief gives team discussion
-                  prompts and plain-language takeaways.
+                  Complete the Atlas Pro case. The final debrief gives team
+                  discussion prompts and plain-language takeaways.
                 </span>
               </div>
               <div>
@@ -228,8 +226,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
               <div>
                 <p>Sales enablement lens</p>
                 <span>
-                  After the first case, Case 02 moves into Sales Strategy Studio
-                  to connect discovery behavior, coaching, and pipeline signals.
+                  The case connects discovery behavior, coaching, CRM notes, and
+                  pipeline signals.
                 </span>
               </div>
               <div>
@@ -250,7 +248,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
             onClick={onStart}
             data-ocid="title.start_button"
           >
-            Begin Case 01
+            Begin the Case
             <ArrowRight className="h-5 w-5" />
           </button>
           <button

@@ -122,7 +122,7 @@ export const scenes: Scene[] = [
       {
         id: "mission-desk",
         description:
-          "This is your case desk. The current case asks whether slow onboarding is really a training problem.",
+          "This is your case desk. Elena's Atlas Pro request is waiting: investigate before recommending more training.",
         position: { x: 3.2, y: 4.6 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(336, 1392, 144, 96),
@@ -132,7 +132,7 @@ export const scenes: Scene[] = [
       {
         id: "analytics-wall",
         description:
-          "The dashboard is waiting for evidence. Good enablement work starts with facts, not course requests.",
+          "The dashboard is waiting for the Atlas Pro evidence pattern. Good enablement work starts with facts, not course requests.",
         position: { x: 6.9, y: 1.35 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(48, 1488, 144, 96),
@@ -149,7 +149,7 @@ export const scenes: Scene[] = [
       {
         id: "lab-console",
         description:
-          "The AI workbench can help draft and summarize, but the diagnosis still has to be human-reviewed.",
+          "The AI workbench can summarize evidence, but the diagnosis still has to be human-reviewed.",
         position: { x: 10.7, y: 4.1 },
         size: { width: 2.2, height: 2 },
         sprite: officeSprite(384, 1296, 96, 96),
@@ -158,7 +158,7 @@ export const scenes: Scene[] = [
       {
         id: "lab-server-stack",
         description:
-          "The server rack stores case evidence. Evidence matters more than assumptions.",
+          "The server rack stores case evidence. Claims are useful; evidence decides what to build.",
         position: { x: 4.1, y: 8.5 },
         size: { width: 1.5, height: 1.7 },
         sprite: officeSprite(0, 1152, 96, 96),
@@ -354,7 +354,7 @@ export const scenes: Scene[] = [
   {
     id: "sales",
     name: "Sales Strategy Studio",
-    subtitle: "Case: demo quality is not turning into pipeline",
+    subtitle: "Case: Atlas Pro win rate is below target",
     width: 18,
     height: 13,
     theme: "interior",
@@ -474,7 +474,7 @@ export const characters: GameCharacter[] = [
   {
     id: "maya",
     name: "Maya",
-    role: "Operations Manager",
+    role: "Sales Operations Manager",
     sceneId: "operations",
     position: { x: 9, y: 4.65 },
     patrol: [
@@ -486,32 +486,32 @@ export const characters: GameCharacter[] = [
     sprite: { image: "ameliaIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
-        "I need help. Leadership asked for more onboarding training because new hires are taking too long to ramp.",
-        "That might be part of it, but slow ramp can also come from unclear workflow, late tool access, or managers reinforcing different expectations.",
-        "Your job is to investigate before designing. Review the evidence, then decide whether training is actually the right fix.",
+        "I can show you the Atlas Pro numbers, but the numbers alone will not tell you what to build.",
+        "The win rate is below target. The messy part is figuring out whether the cause is knowledge, selling behavior, manager coaching, process, price, or some combination.",
+        "Bring Leo's sales evidence here, then use the operations data to test the story.",
       ],
       investigate: [
-        "Good. Read the interview note, process map, and performance metric in order.",
-        "After each one, ask: what evidence helps explain the real work problem, and what tempting assumption should I avoid?",
+        "The dashboard proves the business problem. The CRM notes show where the sales motion gets fuzzy.",
+        "Do not let one metric do all the thinking. Use it with the call and coaching evidence.",
       ],
       diagnose: [
-        "Now make the call. If you built training tomorrow, what would still be broken?",
-        "Use the full evidence pattern. The useful answer should explain all three evidence items, not just the loudest complaint.",
+        "If your diagnosis cannot explain the deck, calls, CRM notes, and coaching archive, it is probably partial.",
+        "Leaders need a cause they can act on, not just a number they can worry about.",
       ],
       design: [
-        "Good diagnosis. Now choose the solution that fits the cause.",
-        "A strong enablement solution changes the daily work, supports managers, and gives leaders a metric to watch.",
+        "A strong fix should show up in the data later.",
+        "If the intervention changes discovery and coaching, we should be able to inspect better notes, better next steps, and eventually better win-rate movement.",
       ],
       complete: [
-        "That is the difference between building a course and solving a performance problem.",
-        "You earned the case summary. It shows the request, evidence, root cause, solution, and expected business impact.",
+        "That is the difference between reporting a metric and using evidence to change the work.",
+        "You earned a case summary that leaders can actually discuss.",
       ],
     },
   },
   {
     id: "sam",
     name: "Sam",
-    role: "New Hire",
+    role: "Senior Account Executive",
     sceneId: "hub",
     position: { x: 9.6, y: 11.15 },
     patrol: [
@@ -523,20 +523,25 @@ export const characters: GameCharacter[] = [
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
-        "I joined three weeks ago. Everyone is helpful, but I keep asking the same basic questions.",
+        "Atlas Pro is harder to sell than Atlas Core. The demo looks good, but the buyer conversation changes fast.",
+        "Managers keep saying we need more training. Maybe. But I think we need to understand which part of the sales motion is actually breaking.",
       ],
       investigate: [
-        "The issue is not motivation. I just cannot tell which checklist is current.",
+        "Customers ask smart questions. The harder part is finding the business reason they should care before we show the advanced features.",
       ],
-      diagnose: ["If the path were clearer, I would need fewer check-ins."],
-      design: ["A manager checklist and one source of truth would help a lot."],
-      complete: ["The new case summary makes the next step obvious."],
+      diagnose: [
+        "If you only look at training attendance, you will miss what happens in live deals.",
+      ],
+      design: [
+        "Give us practice, better discovery prompts, and coaching that managers can actually use after calls.",
+      ],
+      complete: ["That recommendation sounds like the real sales floor."],
     },
   },
   {
     id: "leo",
     name: "Leo",
-    role: "Sales Enablement Lead",
+    role: "Director of Sales Strategy",
     sceneId: "sales",
     position: { x: 6.05, y: 5.45 },
     patrol: [
@@ -548,21 +553,21 @@ export const characters: GameCharacter[] = [
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
-        "Sales leadership says reps need better demo training.",
-        "Maybe. But demos are happening. The problem is that too few demos become real next steps.",
-        "Review the evidence before deciding whether this is a training gap, coaching gap, message gap, or process gap.",
+        "Elena, our CRO, wants an initial recommendation on Atlas Pro by Friday.",
+        "The first request was simple: schedule more product training. That might be too shallow.",
+        "Start with the sales artifacts, then check the data with Maya. You need a recommendation leaders can defend.",
       ],
       investigate: [
-        "Look for the pattern, not the loudest complaint.",
-        "If reps can explain features but cannot connect value to buyer pain, the intervention should not be a generic product course.",
+        "Look for the pattern across the deck, discovery guide, calls, CRM data, and manager coaching.",
+        "If one clue sounds obvious, do not stop there. A real diagnosis has to explain all the evidence.",
       ],
       diagnose: [
-        "You have enough evidence. What is actually blocking demo-to-opportunity conversion?",
-        "A sales enablement answer should connect behavior, manager reinforcement, and measurable pipeline impact.",
+        "Now make the call. Is this a knowledge problem, a skill problem, a process problem, a coaching problem, or a mix?",
+        "A strong answer separates what Enablement should own from what Sales leadership and Operations need to reinforce.",
       ],
       design: [
-        "Good. Now pick an intervention that changes sales behavior at the point of work.",
-        "The best option should help reps prepare, help managers coach, and give leaders a metric to inspect.",
+        "Good. Now choose the intervention system, not just the most familiar asset.",
+        "The right fix should change rep behavior, manager coaching, and the metrics leaders inspect.",
       ],
       complete: [
         "That is the sales enablement story: not more content, better revenue behavior.",
@@ -640,66 +645,132 @@ export const evidenceItems: Evidence[] = [
     sprite: officeSprite(432, 384),
   },
   {
-    id: "demo-call-review",
+    id: "sales-deck-review",
     caseId: "sales",
-    title: "Demo Call Review",
+    title: "Sales Deck Review",
     sceneId: "sales",
-    position: { x: 6.05, y: 6.35 },
+    position: { x: 3.55, y: 5.75 },
     summary:
-      "Reps describe product features clearly, but only 34% ask a second-layer discovery question before the demo.",
+      "The Atlas Pro deck explains analytics, automation, and executive reports, but most slides start with features instead of buyer pain.",
     insight:
-      "The behavior gap is discovery depth and value framing, not basic product knowledge.",
+      "The deck supports product explanation, but it does not help reps lead with the business reason a director or executive would fund the upgrade.",
     signal:
-      "Reps can present the product; the weak behavior is connecting the demo to buyer pain.",
-    trap: "Treat a feature-heavy demo as proof that product knowledge is the main gap.",
+      "The sales material is feature-heavy, so reps need support connecting Atlas Pro to buyer priorities.",
+    trap: "Assume the deck itself is the whole problem and redesign slides before checking behavior or data.",
     signalFeedback:
-      "Good. Reps can explain features, but they are not connecting the demo to buyer pain.",
+      "Good. This evidence points to value framing, not simply missing product facts.",
     trapFeedback:
-      "Product knowledge may sound like the easy fix, but the evidence says feature explanation is already clear.",
+      "A better deck may help, but this one artifact cannot explain the full win-rate problem by itself.",
     ignoreFeedback:
-      "This is not background; it identifies the specific sales behavior blocking conversion.",
-    metric: "Discovery depth: 34%",
+      "This matters because the materials shape how reps frame the conversation.",
+    metric: "Value framing: weak",
     sprite: officeSprite(336, 288),
   },
   {
-    id: "crm-stage-audit",
+    id: "discovery-guide",
     caseId: "sales",
-    title: "CRM Stage Audit",
+    title: "Discovery Guide",
     sceneId: "sales",
-    position: { x: 6.25, y: 9.8 },
+    position: { x: 1.9, y: 6.8 },
     summary:
-      "Demo completion is high, but next-step conversion drops when business pain is missing from the opportunity notes.",
+      "The discovery guide asks about current tools, reporting needs, and technical fit, but it rarely asks about business impact or decision criteria.",
     insight:
-      "The sales process needs a stronger qualification habit and clearer manager inspection points.",
+      "Reps have questions to ask, but the questions do not reliably uncover the financial or executive reason to buy Atlas Pro.",
     signal:
-      "Pipeline quality is dropping after the demo, so the enablement answer needs revenue-behavior measurement.",
-    trap: "Assume more demo activity will fix conversion without changing discovery behavior.",
+      "Discovery support exists, but it does not push reps far enough into business pain and decision quality.",
+    trap: "Treat the existence of a guide as proof that discovery is already covered.",
     signalFeedback:
-      "Good. Conversion drops when business pain is missing, so the fix needs a pipeline inspection habit.",
+      "Good. A resource can exist and still fail to support the behavior the deal requires.",
     trapFeedback:
-      "More activity does not solve a quality problem if discovery behavior stays shallow.",
+      "Existing material is evidence, not proof that the behavior is happening well.",
     ignoreFeedback:
-      "This is a business outcome signal. It connects behavior to pipeline impact.",
-    metric: "Demo-to-next-step: 41%",
+      "This clue helps explain why demos happen before the buying problem is clear.",
+    metric: "Business-impact prompts: limited",
     sprite: officeSprite(384, 384),
+  },
+  {
+    id: "demo-call-review",
+    caseId: "sales",
+    title: "Call Review",
+    sceneId: "sales",
+    position: { x: 7.7, y: 8.95 },
+    summary:
+      "Reps answer product questions clearly, but only 34% ask a second-layer discovery question before moving into the demo.",
+    insight:
+      "The behavior gap is not basic product recall. The gap is diagnosing the buyer's problem deeply enough before presenting Atlas Pro.",
+    signal:
+      "Reps can explain features; the weak behavior is connecting the demo to buyer pain.",
+    trap: "Treat a polished product demo as proof that reps are selling Atlas Pro effectively.",
+    signalFeedback:
+      "Good. The call data shows a skill and behavior gap before the demo, not a simple product-knowledge gap.",
+    trapFeedback:
+      "A smooth demo can still miss the reason a buyer would fund a larger purchase.",
+    ignoreFeedback:
+      "This is not background; it shows the behavior that may be blocking conversion.",
+    metric: "Second-layer discovery: 34%",
+    sprite: officeSprite(432, 384),
+  },
+  {
+    id: "win-rate-dashboard",
+    caseId: "sales",
+    title: "Operations Dashboard",
+    sceneId: "operations",
+    position: { x: 13.55, y: 6.2 },
+    summary:
+      "Atlas Pro expected a 30% win rate. In the last four weeks, 74 opportunities reached proposal, 13 closed won, 42 closed lost, and 19 remain open.",
+    insight:
+      "The business problem is real, but the aggregate win rate only proves underperformance. It does not explain the cause.",
+    signal:
+      "The performance signal is below target, but you need supporting evidence before prescribing training.",
+    trap: "Use the low win rate alone to justify a refresher training for everyone.",
+    signalFeedback:
+      "Good. The dashboard proves the problem exists, but it does not diagnose why it exists.",
+    trapFeedback:
+      "A metric can trigger investigation; it should not automatically dictate the intervention.",
+    ignoreFeedback:
+      "This is the business signal that makes the case worth solving.",
+    metric: "Closed-won: 23.6%",
+    sprite: officeSprite(384, 384),
+  },
+  {
+    id: "crm-loss-review",
+    caseId: "sales",
+    title: "CRM Loss Review",
+    sceneId: "operations",
+    position: { x: 8.85, y: 8.95 },
+    summary:
+      "Loss reasons are inconsistent: price, no decision, and competitor appear often, but notes with clear business pain convert better.",
+    insight:
+      "The data suggests qualification and manager inspection are uneven. Cleaner CRM habits can expose whether reps are creating real buying urgency.",
+    signal:
+      "Pipeline quality drops when business pain is missing from opportunity notes.",
+    trap: "Treat price as the only reason deals are lost and hand the problem to Finance.",
+    signalFeedback:
+      "Good. Price may matter, but the pattern also points to weak qualification and inspection.",
+    trapFeedback:
+      "Price is a tempting explanation, but it does not explain why pain-linked opportunities convert better.",
+    ignoreFeedback:
+      "This is a key system signal because it connects behavior to deal outcomes.",
+    metric: "Proposal loss reasons: mixed",
+    sprite: officeSprite(336, 288),
   },
   {
     id: "manager-coaching-note",
     caseId: "sales",
-    title: "Manager Coaching Note",
+    title: "Manager Coaching Archive",
     sceneId: "sales",
     position: { x: 13.45, y: 7.15 },
     summary:
-      "Managers coach demos inconsistently because there is no shared rubric for value messaging.",
+      "Managers received a briefing, but coaching notes focus on forecast movement more than discovery quality, value messaging, or executive alignment.",
     insight:
-      "Reinforcement is weak. A one-time workshop would fade without a coaching system.",
+      "Reinforcement is weak. Even strong training would fade if managers do not inspect and coach the target behavior.",
     signal:
-      "Managers need a shared rubric so coaching happens consistently after the enablement event.",
-    trap: "Send a one-time reminder and hope managers reinforce the behavior later.",
+      "Managers need a shared rubric so coaching happens consistently after enablement.",
+    trap: "Run a one-time workshop and hope managers reinforce the behavior later.",
     signalFeedback:
       "Good. Without a shared rubric, managers cannot reinforce the new behavior consistently.",
     trapFeedback:
-      "A reminder may create awareness, but it does not create manager coaching or accountability.",
+      "A workshop may build awareness, but it does not create manager coaching or accountability.",
     ignoreFeedback:
       "This evidence explains why a one-time enablement event would fade.",
     metric: "Coaching rubric use: 18%",
@@ -756,9 +827,9 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "sales-product-training",
     caseId: "sales",
     label:
-      "Tighten demo certification so reps present the product more consistently.",
+      "Atlas Pro is underperforming because reps need more product knowledge.",
     explanation:
-      "This sounds reasonable because the problem appears during demos. But the call review says reps already explain features clearly; the gap is discovery depth and value connection.",
+      "This is tempting because leaders asked for training and Atlas Pro is more complex. But the call review shows reps can explain features; the bigger gap is business discovery and value connection.",
     correct: false,
     consequence:
       "Reps might sound more polished, but shallow discovery and weak next-step conversion would likely remain.",
@@ -771,21 +842,22 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "sales-discovery-coaching",
     caseId: "sales",
     label:
-      "Coach discovery habits and give managers a shared inspection rubric.",
+      "Atlas Pro is losing because discovery, value framing, and manager reinforcement are not working together.",
     explanation:
-      "Correct. This explains all three evidence items: shallow discovery, missing business pain in CRM notes, and inconsistent manager coaching.",
+      "Correct. This explains the full evidence pattern: feature-heavy materials, shallow discovery, weak pain notes, uneven CRM inspection, and inconsistent manager coaching.",
     correct: true,
     consequence:
       "The solution can target the revenue behavior itself: rep practice, manager coaching, and pipeline inspection.",
     evidenceHint:
-      "The call review, CRM audit, and coaching note triangulate the same behavior gap.",
+      "The deck, guide, calls, dashboard, CRM notes, and coaching archive triangulate the same behavior gap.",
     learningTakeaway:
       "When multiple evidence items point to the same sales behavior, design for practice, coaching, and inspection.",
   },
   {
     id: "sales-more-activity",
     caseId: "sales",
-    label: "Refresh the demo deck so reps tell a sharper value story.",
+    label:
+      "Atlas Pro is losing because the demo deck needs a sharper value story.",
     explanation:
       "This is plausible because messaging can improve demos. It still misses the evidence that reps are not uncovering buyer pain before the story begins.",
     correct: false,
@@ -795,6 +867,21 @@ export const diagnosisOptions: DiagnosisOption[] = [
       "The pipeline signal points to behavior before and after the demo, not only the deck used during it.",
     learningTakeaway:
       "Content may support the solution, but it rarely replaces behavior change and manager reinforcement.",
+  },
+  {
+    id: "sales-price-pressure",
+    caseId: "sales",
+    label:
+      "Atlas Pro is losing mainly because the product is priced too high for the market.",
+    explanation:
+      "Price appears in the CRM, so this is a plausible business concern. It is still too narrow because pain-linked opportunities convert better and managers are not coaching the behavior consistently.",
+    correct: false,
+    consequence:
+      "You would hand off the problem too early and miss the sales behaviors Enablement can influence.",
+    evidenceHint:
+      "The CRM data includes price, but the call review, discovery guide, and coaching archive point to controllable sales behavior.",
+    learningTakeaway:
+      "Enablement should name cross-functional factors without ignoring the behavior it can improve.",
   },
 ];
 
@@ -847,7 +934,7 @@ export const interventionOptions: InterventionOption[] = [
     id: "sales-demo-certification",
     caseId: "sales",
     label:
-      "Require reps to pass a stricter demo certification before advancing deals.",
+      "Require every rep to retake Atlas Pro product training and pass demo certification.",
     explanation:
       "Certification feels rigorous, but it mostly tests presentation. The evidence points to discovery and manager reinforcement before and after the demo.",
     correct: false,
@@ -862,9 +949,9 @@ export const interventionOptions: InterventionOption[] = [
     id: "sales-coaching-system",
     caseId: "sales",
     label:
-      "Build a discovery guide, coaching rubric, and pipeline inspection dashboard.",
+      "Build a discovery practice loop, value guide, coaching rubric, and pipeline inspection dashboard.",
     explanation:
-      "Correct. This changes pre-demo behavior, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
+      "Correct. This changes pre-demo discovery, improves value framing, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
     correct: true,
     consequence:
       "Reps practice the behavior that affects pipeline, managers coach from a shared rubric, and leaders see conversion signals.",
@@ -886,6 +973,21 @@ export const interventionOptions: InterventionOption[] = [
     tradeoff: "Useful as a support tactic, weak as the core intervention.",
     learningTakeaway:
       "Tips can support behavior change, but they do not create practice, coaching, or accountability by themselves.",
+  },
+  {
+    id: "sales-deck-only",
+    caseId: "sales",
+    label:
+      "Redesign the Atlas Pro deck and ask reps to use the new version immediately.",
+    explanation:
+      "The deck should improve, but a deck-only fix does not create discovery practice, manager coaching, CRM inspection, or measurement.",
+    correct: false,
+    consequence:
+      "Reps may have cleaner slides while the underlying qualification and coaching habits stay weak.",
+    tradeoff:
+      "Useful supporting artifact, but too narrow as the main intervention.",
+    learningTakeaway:
+      "A good artifact helps the system; it does not replace the system.",
   },
 ];
 
@@ -948,25 +1050,25 @@ export const earnedCanvas: EarnedArtifact = {
 
 export const salesCanvas: EarnedArtifact = {
   id: "sales-enablement-impact-canvas",
-  title: "Sales Enablement Impact Case Summary",
-  subtitle: "Case: Demo quality is not converting into next steps",
+  title: "Atlas Pro Enablement Case Summary",
+  subtitle: "Case: The Vanishing Win Rate",
   learnerDebrief: {
     headline: "What you practiced",
     points: [
       {
         label: "Diagnose",
         value:
-          "You separated product knowledge from the sales behavior blocking next steps.",
+          "You separated the training request from the actual performance pattern behind the win-rate gap.",
       },
       {
         label: "Design",
         value:
-          "You chose a coaching system that supports reps before, during, and after demos.",
+          "You chose a system of practice, value framing, coaching, and inspection instead of a single content fix.",
       },
       {
         label: "Measure",
         value:
-          "You tied enablement work to conversion, rubric use, and discovery quality.",
+          "You tied enablement work to discovery quality, proposal conversion, manager coaching, and win-rate movement.",
       },
     ],
   },
@@ -974,17 +1076,17 @@ export const salesCanvas: EarnedArtifact = {
     {
       label: "Business Problem",
       value:
-        "Demos are happening, but too few convert into qualified next steps.",
+        "Atlas Pro opportunities are reaching proposal, but completed deals are closing at about 23.6% instead of the expected 30%.",
     },
     {
       label: "Root Cause",
       value:
-        "Reps explain features, but discovery is shallow and managers lack a consistent coaching rubric.",
+        "Reps can explain the product, but discovery is too shallow, value framing is feature-heavy, CRM inspection is uneven, and managers lack a shared coaching rubric.",
     },
     {
       label: "Intervention",
       value:
-        "Discovery guide, manager coaching rubric, call-review practice, and pipeline inspection dashboard.",
+        "Discovery practice loop, value-framing guide, manager coaching rubric, call-review practice, and pipeline inspection dashboard.",
     },
     {
       label: "Accessibility / Inclusion",
@@ -994,12 +1096,12 @@ export const salesCanvas: EarnedArtifact = {
     {
       label: "Responsible AI Support",
       value:
-        "Use AI to summarize call patterns and draft coaching prompts, with manager review before use.",
+        "Use AI to summarize call patterns, cluster CRM notes, and draft coaching prompts, with sales leader review before use.",
     },
     {
       label: "Expected Impact",
       value:
-        "Demo-to-next-step conversion improves from 41% to 56%; rubric use increases; discovery quality becomes visible.",
+        "Proposal-stage win rate moves toward the 30% target; discovery quality improves; coaching rubric use increases; value-linked opportunities become visible.",
     },
   ],
 };

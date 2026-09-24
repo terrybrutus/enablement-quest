@@ -18,7 +18,7 @@ interface QuestLogProps {
 
 const caseTitles: Record<CaseId, string> = {
   onboarding: "The Broken Onboarding Request",
-  sales: "The Stalled Demo Pipeline",
+  sales: "The Case of the Vanishing Win Rate",
 };
 
 const caseRooms: Record<CaseId, string> = {
@@ -177,6 +177,7 @@ export function QuestLog({
 function getSteps(caseId: CaseId) {
   const room = caseRooms[caseId];
   const stakeholder = caseId === "sales" ? "Leo" : "Maya";
+  const evidenceTotal = caseId === "sales" ? "six" : "three";
   return [
     {
       id: "briefing",
@@ -188,15 +189,14 @@ function getSteps(caseId: CaseId) {
       id: "investigate",
       title: "2. Review the evidence",
       description:
-        "Review each evidence item in order. Each one asks what the evidence proves about the work problem.",
-      outcome:
-        "All three evidence items are checked off and the choice screen opens for the real cause.",
+        "Review each evidence item in order. Each one asks what the clue proves and what tempting shortcut to avoid.",
+      outcome: `All ${evidenceTotal} evidence items are checked off and the choice screen opens for the real cause.`,
     },
     {
       id: "diagnose",
       title: "3. Name the real cause",
       description:
-        "Choose the explanation that connects all three evidence items. The right answer may not be more training.",
+        "Choose the explanation that connects the whole evidence pattern. The right answer may not be more training.",
       outcome:
         "The fix choices unlock because your cause explains the evidence.",
     },
@@ -204,7 +204,7 @@ function getSteps(caseId: CaseId) {
       id: "design",
       title: "4. Choose the fix",
       description:
-        "Pick the fix that changes daily work and gives leaders a number they can watch.",
+        "Pick the fix that changes daily work, manager reinforcement, and the numbers leaders inspect.",
       outcome:
         "You earn a case summary that explains the work in plain English.",
     },
@@ -236,7 +236,7 @@ function getActiveGuidance(
     return `Review the evidence in order. After each item, choose what it tells you about the real work problem. Evidence reviewed: ${evidenceCount}/${evidenceTotal}.`;
   }
   if (questStage === "diagnose") {
-    return "Return to the case person and use Talk or Inspect. Pick the cause that explains all three evidence items.";
+    return `Return to the case person and use Talk or Inspect. Pick the cause that explains the full evidence pattern: ${evidenceCount}/${evidenceTotal} reviewed.`;
   }
   if (questStage === "design") {
     return "Return to the case person and use Talk or Inspect. Pick the fix that matches the cause.";
@@ -259,7 +259,7 @@ function getFinishGuidance(caseId: CaseId, questStage: QuestStage) {
     return "Finish Case 01 by earning a plain-language case summary. That summary unlocks Case 02, the sales enablement version of the same diagnostic pattern.";
   }
   if (questStage === "complete") {
-    return "After Case 02, review the final debrief. It connects performance consulting, sales enablement, learning architecture, and business impact in plain language.";
+    return "Review the final debrief. It connects performance consulting, sales enablement, learning architecture, and business impact in plain language.";
   }
-  return "Finish Case 02 by earning the sales enablement summary. That second summary completes the learning path and unlocks the facilitator debrief.";
+  return "Finish the Atlas Pro case by earning the sales enablement summary. That summary completes the learning path and unlocks the facilitator debrief.";
 }

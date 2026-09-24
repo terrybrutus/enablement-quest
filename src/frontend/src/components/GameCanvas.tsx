@@ -58,7 +58,7 @@ function createInitialGameState(): GameState {
       sceneId: qaScene?.sceneId ?? "lab",
       hasStarted: Boolean(qaScene),
     },
-    currentCaseId: qaScene?.caseId ?? "onboarding",
+    currentCaseId: qaScene?.caseId ?? "sales",
     completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
     characterStates: Object.fromEntries(
       characters.map((character) => [
@@ -273,7 +273,7 @@ export default function GameCanvas() {
           ? {
               id: Date.now(),
               message:
-                "Step 3: all evidence is saved. Return to the case person to choose the cause.",
+                "All evidence is saved. Return to Leo to defend the cause and choose the fix.",
             }
           : previous.toast,
     }));
@@ -285,12 +285,12 @@ export default function GameCanvas() {
       player: {
         ...previous.player,
         hasStarted: true,
-        sceneId: "operations",
-        position: { x: 9, y: 6.45 },
+        sceneId: "lab",
+        position: { x: 9, y: 9.6 },
         direction: "up",
         isMoving: false,
       },
-      currentCaseId: "onboarding",
+      currentCaseId: "sales",
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,
@@ -600,44 +600,46 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
   return (
     <section
       className="eq-overlay eq-panel eq-start-briefing"
-      aria-label="Case 01 start briefing"
+      aria-label="Atlas Pro case briefing"
     >
-      <p className="eq-kicker">Case 01 Start Here</p>
-      <h2>The Broken Onboarding Request</h2>
+      <p className="eq-kicker">Case Start</p>
+      <h2>The Case of the Vanishing Win Rate</h2>
       <p className="eq-start-briefing-lede">
-        Leadership asked for more onboarding training. Your job is to pause,
-        inspect the evidence, and decide whether training is really the right
-        fix.
+        Atlas Pro is below its expected win rate. Leadership suspects more
+        product training is needed, but your job is to investigate before
+        choosing a solution.
       </p>
 
       <aside className="eq-start-briefing-mission" aria-label="Mission goal">
         <strong>Your mission</strong>
         <span>
           Help the organization solve the work problem, not just respond to the
-          training request.
+          training request. Follow the evidence, name the cause, choose the
+          enablement response, and explain the business impact.
         </span>
       </aside>
 
       <div className="eq-start-briefing-grid">
         <article>
-          <strong>1. Start with Maya</strong>
+          <strong>1. Start with Leo</strong>
           <span>
-            Walk to Maya and use Talk or Inspect. She explains the business
-            request and points you to the first evidence item.
+            Leave the lab, enter the Sales Strategy Studio, and talk with Leo.
+            He explains what leaders are asking for.
           </span>
         </article>
         <article>
-          <strong>2. Follow the evidence</strong>
+          <strong>2. Investigate across rooms</strong>
           <span>
-            Review three evidence items in order. Each one asks what the clue
-            proves and what assumption you should avoid.
+            Collect the deck, discovery guide, call review, operations data, CRM
+            review, and coaching archive. Each clue tests a different
+            explanation.
           </span>
         </article>
         <article>
           <strong>3. Make the recommendation</strong>
           <span>
-            Choose the real cause, choose the fix, then review the case summary
-            you could explain to a client or team lead.
+            Return to Leo. Choose the cause that explains the whole pattern,
+            then pick the fix that changes behavior and can be measured.
           </span>
         </article>
         <article>
@@ -656,7 +658,7 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       <button className="eq-primary-button" type="button" onClick={onClose}>
-        Start with Maya
+        Begin the investigation
       </button>
     </section>
   );
@@ -783,8 +785,8 @@ function getNextObjective(
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Step 1: talk with Leo. Listen for the sales problem, then look for the real cause."
-        : "Optional advanced case: enter Sales Strategy Studio and talk with Leo.";
+        ? "Step 1: talk with Leo. Hear Elena's request, then investigate before building anything."
+        : "Step 1: enter Sales Strategy Studio and talk with Leo about Atlas Pro.";
     }
     return sceneId === "operations"
       ? "Step 1: talk with Maya. Listen to the training request, then question whether training is enough."
@@ -799,12 +801,12 @@ function getNextObjective(
     return `Step 3: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the cause that explains all the evidence.`;
   }
   if (questStage === "design") {
-    return `Step 4: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the fix that changes behavior and creates a useful metric.`;
+    return `Step 4: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the fix that changes behavior, reinforcement, and measurement.`;
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return "Step 5: review the case summary. It shows the before, decision, fix, and impact.";
   }
-  return "Case complete: review both summaries and the business impact story.";
+  return "Case complete: review the Atlas Pro recommendation and the business impact story.";
 }
 
 function getCoachPrompt(
@@ -816,7 +818,7 @@ function getCoachPrompt(
   completedCaseIds: GameState["completedCaseIds"],
 ) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
-  const room = caseId === "sales" ? "Sales Studio" : "Operations";
+  const room = caseId === "sales" ? "Sales Strategy Studio" : "Operations";
 
   if (questStage === "briefing") {
     return sceneId === (caseId === "sales" ? "sales" : "operations")
@@ -837,7 +839,7 @@ function getCoachPrompt(
       ? {
           action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
           reason:
-            "each evidence item helps you separate the real work problem from the tempting quick fix.",
+            "each evidence item tests a possible cause: content, skill, process, coaching, data, or leadership reinforcement.",
         }
       : {
           action: `Return to ${caseOwner}`,
@@ -850,7 +852,7 @@ function getCoachPrompt(
     return {
       action: `Stand near ${caseOwner}`,
       reason:
-        "this is where you prove judgment: training is only right when the evidence shows a knowledge or skill gap.",
+        "this is where you prove judgment: the cause must explain the whole evidence pattern, not just one clue.",
     };
   }
 
@@ -858,7 +860,7 @@ function getCoachPrompt(
     return {
       action: "Pick the practical fix",
       reason:
-        "the best fix changes daily work and gives leaders a business signal they can inspect.",
+        "the best fix changes daily work, manager reinforcement, and the business signal leaders inspect.",
     };
   }
 
@@ -871,9 +873,9 @@ function getCoachPrompt(
   }
 
   return {
-    action: "Review both case summaries",
+    action: "Review the case summary",
     reason:
-      "together, the cases show both performance consulting and sales enablement judgment.",
+      "the summary turns the playthrough into a plain-language recommendation: problem, cause, fix, and impact.",
   };
 }
 
@@ -976,14 +978,6 @@ function EvidencePanel({
         </div>
       </div>
 
-      <aside className="eq-evidence-purpose" aria-label="Evidence purpose">
-        <strong>Why this evidence matters</strong>
-        <span>
-          Do not memorize this. Ask what it proves about the work system, then
-          decide whether the leader's request still fits what you found.
-        </span>
-      </aside>
-
       <aside className="eq-running-case" aria-label="Running case pattern">
         <div>
           <p className="eq-kicker">Pattern So Far</p>
@@ -1004,34 +998,26 @@ function EvidencePanel({
           </ol>
         ) : (
           <p>
-            This is your first evidence item. Read it, choose the useful signal,
-            then the case will start showing the pattern you are building.
+            First clue. Read it, then choose the interpretation you would defend
+            in a stakeholder meeting.
           </p>
         )}
       </aside>
 
-      <div className="eq-canvas-grid">
-        <article className="eq-canvas-card">
-          <h3>What you found</h3>
-          <p>{evidence.summary}</p>
-        </article>
-        <article className="eq-canvas-card">
-          <h3>What it means</h3>
-          <p>{evidence.insight}</p>
-        </article>
-        <article className="eq-canvas-card">
-          <h3>Tempting shortcut</h3>
-          <p>{evidence.trap}</p>
-        </article>
-      </div>
+      <article className="eq-evidence-main-read">
+        <h3>What you found</h3>
+        <p>{evidence.summary}</p>
+        <strong>What it may mean</strong>
+        <span>{evidence.insight}</span>
+      </article>
 
       <div className="eq-evidence-check">
         <div>
           <p className="eq-kicker">Check Your Read</p>
           <h3>What is the best read of this evidence?</h3>
           <p>
-            The goal is not to guess. Choose the interpretation you would use
-            later when explaining the cause to a leader.
+            Pick the interpretation you would use later when explaining the
+            cause to a leader.
           </p>
         </div>
         {checkOptions.map((option, index) => (
@@ -1333,14 +1319,14 @@ const caseSynthesis: Record<
       "The business wants faster time-to-productivity and fewer support tickets after orientation.",
   },
   sales: {
-    question: "What sales behavior is blocking revenue impact?",
+    question: "Why is Atlas Pro losing after proposal?",
     prompt:
-      "The team wants better demo results. Your job is to decide whether the evidence points to content, skill practice, coaching, or measurement.",
+      "The CRO asked whether Sales needs more training. Your job is to decide what the evidence actually supports.",
     pattern:
-      "Your answer must explain shallow discovery, missing pain notes, and inconsistent manager coaching.",
-    trap: "A stricter demo certification may improve presentation polish without improving buyer diagnosis.",
+      "Your answer must explain the feature-heavy deck, shallow discovery, win-rate gap, messy CRM reasons, and inconsistent manager coaching.",
+    trap: "A refresher course may look responsive while leaving discovery, coaching, and inspection unchanged.",
     metric:
-      "The business wants better demo-to-next-step conversion and visible coaching rubric use.",
+      "The business wants Atlas Pro win rate moving toward 30%, stronger discovery quality, and visible manager coaching.",
   },
 };
 

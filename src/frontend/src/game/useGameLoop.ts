@@ -174,6 +174,7 @@ export function useGameLoop({
     if (portal) {
       if (
         portal.targetSceneId === "sales" &&
+        state.currentCaseId !== "sales" &&
         !state.completedCaseIds.includes("onboarding")
       ) {
         setGameState((previous) => ({
@@ -417,6 +418,7 @@ function moveWithinScene(
   if (edgePortal) {
     if (
       edgePortal.targetSceneId === "sales" &&
+      state.currentCaseId !== "sales" &&
       !state.completedCaseIds.includes("onboarding")
     ) {
       return {
@@ -482,6 +484,7 @@ function moveWithinScene(
   if (portal) {
     if (
       portal.targetSceneId === "sales" &&
+      state.currentCaseId !== "sales" &&
       !state.completedCaseIds.includes("onboarding")
     ) {
       return {
