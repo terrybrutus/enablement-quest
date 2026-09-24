@@ -22,6 +22,16 @@ export function ArtifactsPanel({
   const collected = evidenceItems.filter((item) =>
     collectedEvidenceIds.includes(item.id),
   );
+  const currentCaseEvidence = collected.filter(
+    (item) => item.caseId === currentCaseId,
+  );
+  const priorCaseEvidence = collected.filter(
+    (item) => item.caseId !== currentCaseId,
+  );
+  const currentCaseLabel =
+    currentCaseId === "sales"
+      ? "Current case: sales enablement"
+      : "Current case: onboarding performance";
   const emptyGuidance =
     currentCaseId === "sales"
       ? "No evidence saved yet. Enter Sales Strategy Studio and review the first marked evidence item."
@@ -47,34 +57,45 @@ export function ArtifactsPanel({
         </button>
       </div>
 
-      {collected.length === 0 ? (
-        <div className="eq-empty">
-          <FolderOpen className="h-8 w-8" />
-          <p>{emptyGuidance}</p>
-        </div>
-      ) : (
-        <>
-          <aside className="eq-notes-purpose" aria-label="How to use notes">
-            <strong>How to use this evidence</strong>
-            <span>
-              Look for the pattern across all saved evidence. One item can be a
-              symptom; the pattern is what supports your final recommendation.
-            </span>
-          </aside>
+      <div className="eq-mini-section">
+        <h3>{currentCaseLabel}</h3>
+        {currentCaseEvidence.length === 0 ? (
+          <div className="eq-empty">
+            <FolderOpen className="h-8 w-8" />
+            <p>{emptyGuidance}</p>
+          </div>
+        ) : (
+          <>
+            <aside className="eq-notes-purpose" aria-label="How to use notes">
+              <strong>How to use this evidence</strong>
+              <span>
+                Focus on the evidence for the case you are solving right now.
+                One item can be a symptom; the pattern is what supports your
+                final recommendation.
+              </span>
+            </aside>
+            <div className="eq-artifact-list">
+              {currentCaseEvidence.map((item) => (
+                <EvidenceNoteCard item={item} key={item.id} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {priorCaseEvidence.length > 0 && (
+        <div className="eq-mini-section">
+          <h3>Evidence from completed cases</h3>
+          <p>
+            Keep this separate from the case you are solving now. It is useful
+            for comparison, but it should not drive the current diagnosis.
+          </p>
           <div className="eq-artifact-list">
-            {collected.map((item) => (
-              <article className="eq-artifact-card" key={item.id}>
-                <FileText className="h-5 w-5" />
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.summary}</p>
-                  <p className="eq-artifact-insight">{item.insight}</p>
-                  <small>{item.metric}</small>
-                </div>
-              </article>
+            {priorCaseEvidence.map((item) => (
+              <EvidenceNoteCard item={item} key={item.id} />
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {(earnedArtifact || completedCaseIds.length > 0) && (
@@ -107,5 +128,23 @@ export function ArtifactsPanel({
         </div>
       )}
     </section>
+  );
+}
+
+function EvidenceNoteCard({
+  item,
+}: {
+  item: (typeof evidenceItems)[number];
+}) {
+  return (
+    <article className="eq-artifact-card">
+      <FileText className="h-5 w-5" />
+      <div>
+        <h3>{item.title}</h3>
+        <p>{item.summary}</p>
+        <p className="eq-artifact-insight">{item.insight}</p>
+        <small>{item.metric}</small>
+      </div>
+    </article>
   );
 }

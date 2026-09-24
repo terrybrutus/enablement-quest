@@ -643,20 +643,16 @@ async function completeOnboardingCase(send, events, viewport) {
 }
 
 async function enterSalesAfterOnboarding(send, viewport) {
-  await clickButtonIncluding(send, "Close");
-  await assertQaState(
-    send,
-    (state) => state?.overlay === "none" && state?.questStage === "complete",
-    "Closing the onboarding canvas did not return to play",
-  );
-  await navigateTo(send, `${appUrl}?qaScene=sales`);
+  await clickButtonIncluding(send, "Start Case 02");
   await assertQaState(
     send,
     (state) =>
+      state?.overlay === "none" &&
       state?.sceneId === "sales" &&
       state?.currentCaseId === "sales" &&
-      state?.questStage === "briefing",
-    "Direct Sales case QA did not start the sales case",
+      state?.questStage === "briefing" &&
+      state.collectedEvidenceIds?.includes("interview-note"),
+    "Starting Case 02 from the onboarding summary did not preserve the case trail",
   );
 }
 
@@ -802,6 +798,14 @@ async function runViewport(client, viewport) {
     viewport.name,
     "sales-from-journey",
   );
+  await holdKey(send, "b", "KeyB", 80);
+  const salesNotesState = await captureState(
+    send,
+    events,
+    viewport.name,
+    "sales-notes-after-onboarding",
+  );
+  await clickButtonIncluding(send, "Close");
   await completeSalesCase(send, viewport);
   const salesCompleteState = await captureState(
     send,
@@ -863,6 +867,7 @@ async function runViewport(client, viewport) {
       finalEvidenceState,
       onboardingCompleteState,
       enteredSalesFromJourneyState,
+      salesNotesState,
       salesCompleteState,
       salesState,
       salesDecisionState,
