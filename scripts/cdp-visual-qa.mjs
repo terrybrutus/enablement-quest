@@ -186,6 +186,9 @@ async function captureState(send, events, viewportName, stateName) {
           hasSummaryPayoff:
             fullText.includes('you turned a request into a business recommendation') &&
             fullText.includes('business result'),
+          hasFinalProofHero:
+            fullText.includes('terry can diagnose before designing') &&
+            fullText.includes('question the request'),
           hasDoneWhenCue: doneWhenCues.length > 0,
           hasReviewerProofStrip: Boolean(reviewerProofStrip),
           hasPanel: Boolean(panel),

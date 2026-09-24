@@ -1693,6 +1693,35 @@
   margin: 0 0 12px;
 }
 
+.eq-final-proof-hero {
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 78, 59, 0.24),
+    rgba(113, 63, 18, 0.14)
+  );
+  margin: 0 0 12px;
+  padding: 13px 14px;
+}
+
+.eq-final-proof-hero strong,
+.eq-final-proof-hero span {
+  display: block;
+}
+
+.eq-final-proof-hero strong {
+  color: #a7f3d0;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.eq-final-proof-hero span {
+  color: #f8fafc;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .eq-final-debrief-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1842,6 +1842,15 @@ function FinalReviewerDebrief() {
     <aside className="eq-final-debrief" aria-label="Final reviewer debrief">
       <p className="eq-kicker">Final reviewer debrief</p>
       <h3>What this complete run proves</h3>
+      <section className="eq-final-proof-hero" aria-label="Portfolio proof">
+        <strong>Terry can diagnose before designing.</strong>
+        <span>
+          The completed run shows the full enablement move: question the
+          request, inspect evidence, identify the root cause, choose a practical
+          intervention, and connect the recommendation to measurable business
+          impact.
+        </span>
+      </section>
       <div className="eq-final-debrief-grid">
         <article>
           <strong>Performance consulting</strong>
