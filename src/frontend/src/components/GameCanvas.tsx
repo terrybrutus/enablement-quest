@@ -1597,6 +1597,8 @@ function CanvasPanel({
         </button>
       </div>
 
+      <SummaryPayoff artifact={artifact} />
+
       <SummaryBridge artifact={artifact} />
 
       <div className="eq-case-outcome" aria-label="Case outcome summary">
@@ -1702,6 +1704,48 @@ function CanvasPanel({
 
       {showCompletionProof && <FinalReviewerDebrief />}
     </section>
+  );
+}
+
+function SummaryPayoff({
+  artifact,
+}: {
+  artifact: NonNullable<GameState["earnedArtifact"]>;
+}) {
+  const businessProblem = getArtifactSection(artifact, "Business Problem");
+  const rootCause = getArtifactSection(artifact, "Root Cause");
+  const intervention = getArtifactSection(artifact, "Intervention");
+  const impact = getArtifactSection(artifact, "Expected Impact");
+
+  return (
+    <aside className="eq-summary-payoff" aria-label="Case payoff">
+      <div>
+        <p className="eq-kicker">So what?</p>
+        <h3>You turned a request into a business recommendation.</h3>
+        <span>
+          You questioned the first answer, used evidence to name the real cause,
+          chose a practical fix, and tied the work to a measurable outcome.
+        </span>
+      </div>
+      <ol>
+        <li>
+          <strong>Request</strong>
+          <span>{businessProblem}</span>
+        </li>
+        <li>
+          <strong>Cause</strong>
+          <span>{rootCause}</span>
+        </li>
+        <li>
+          <strong>Recommendation</strong>
+          <span>{intervention}</span>
+        </li>
+        <li>
+          <strong>Business result</strong>
+          <span>{impact}</span>
+        </li>
+      </ol>
+    </aside>
   );
 }
 

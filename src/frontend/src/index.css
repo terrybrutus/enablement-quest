@@ -1354,6 +1354,67 @@
   line-height: 1.42;
 }
 
+.eq-summary-payoff {
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 78, 59, 0.26),
+    rgba(8, 47, 73, 0.22)
+  );
+  margin: 0 0 14px;
+  padding: 14px 16px;
+}
+
+.eq-summary-payoff h3 {
+  color: #f8fafc;
+  font-size: 1.05rem;
+  margin: 2px 0 6px;
+}
+
+.eq-summary-payoff > div > span {
+  color: #dbeafe;
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.eq-summary-payoff ol {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.eq-summary-payoff li {
+  border: 1px solid rgba(52, 211, 153, 0.16);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.26);
+  padding: 10px;
+}
+
+.eq-summary-payoff strong,
+.eq-summary-payoff span {
+  display: block;
+}
+
+.eq-summary-payoff strong {
+  color: #a7f3d0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.eq-summary-payoff li span {
+  color: #e2e8f0;
+  font-size: 0.76rem;
+  line-height: 1.36;
+}
+
 .eq-summary-bridge {
   border: 1px solid rgba(125, 211, 252, 0.22);
   border-radius: 18px;
@@ -2664,6 +2725,7 @@
   .eq-case-synthesis,
   .eq-signal-strip,
   .eq-decision-checklist ol,
+  .eq-summary-payoff ol,
   .eq-summary-bridge ol,
   .eq-case-outcome,
   .eq-canvas-grid,
