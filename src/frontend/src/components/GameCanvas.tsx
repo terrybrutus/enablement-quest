@@ -68,6 +68,7 @@ function createInitialGameState(): GameState {
           direction: "down",
           patrolIndex: 0,
           isMoving: false,
+          pauseUntil: getCharacterPauseUntil(character.id, 0),
         },
       ]),
     ),
@@ -82,6 +83,17 @@ function createInitialGameState(): GameState {
     dialogue: qaScene?.dialogue ?? null,
     toast: null,
   };
+}
+
+function getCharacterPauseUntil(characterId: string, step: number) {
+  return Date.now() + 700 + getCharacterPauseDuration(characterId, step);
+}
+
+function getCharacterPauseDuration(characterId: string, step: number) {
+  const seed = characterId
+    .split("")
+    .reduce((total, character) => total + character.charCodeAt(0), 0);
+  return 900 + ((seed + step * 397) % 1400);
 }
 
 export default function GameCanvas() {
@@ -542,7 +554,6 @@ export default function GameCanvas() {
           diagnosisId={gameState.diagnosisId}
           interventionId={gameState.interventionId}
           currentCaseId={gameState.currentCaseId}
-          caseEvidence={currentEvidenceItems}
           onChooseDiagnosis={chooseDiagnosis}
           onChooseIntervention={chooseIntervention}
           onClose={closeOverlay}
@@ -1118,7 +1129,6 @@ function DecisionPanel({
   diagnosisId,
   interventionId,
   currentCaseId,
-  caseEvidence,
   onChooseDiagnosis,
   onChooseIntervention,
   onClose,
@@ -1128,7 +1138,6 @@ function DecisionPanel({
   diagnosisId: string | null;
   interventionId: string | null;
   currentCaseId: CaseId;
-  caseEvidence: Evidence[];
   onChooseDiagnosis: (id: string) => void;
   onChooseIntervention: (id: string) => void;
   onClose: () => void;
@@ -1141,6 +1150,18 @@ function DecisionPanel({
   );
   const canChooseIntervention = selectedDiagnosis?.correct ?? false;
   const synthesis = caseSynthesis[currentCaseId];
+  const [decisionStep, setDecisionStep] = useState<"cause" | "fix">(
+    canChooseIntervention ? "fix" : "cause",
+  );
+
+  useEffect(() => {
+    if (canChooseIntervention) {
+      setDecisionStep("fix");
+    }
+  }, [canChooseIntervention]);
+
+  const isFixStep = decisionStep === "fix";
+  const visibleOptions = isFixStep ? interventionOptions : diagnosisOptions;
 
   return (
     <section
@@ -1150,88 +1171,64 @@ function DecisionPanel({
       <div className="eq-panel-header">
         <div>
           <p className="eq-kicker">Make the Recommendation</p>
-          <h2>{synthesis.question}</h2>
-          <p>{synthesis.prompt}</p>
+          <h2>{isFixStep ? "Pick the practical fix" : synthesis.question}</h2>
+          <p>
+            {isFixStep
+              ? "Now choose the support that changes the work and can be measured."
+              : "Choose the cause that best explains the evidence."}
+          </p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           Close
         </button>
       </div>
 
-      <aside className="eq-decision-brief" aria-label="Plain language brief">
-        <strong>Your task</strong>
-        <span>
-          Choose the cause you can defend with evidence. Then choose the fix
-          that would actually change the work.
+      <div className="eq-decision-stepper" aria-label="Recommendation step">
+        <span className={decisionStep === "cause" ? "is-active" : ""}>
+          1. Cause
         </span>
-        <em>
-          Trap to avoid: the easiest thing to build is not always the thing that
-          solves the work problem.
-        </em>
+        <span className={decisionStep === "fix" ? "is-active" : ""}>
+          2. Fix
+        </span>
+      </div>
+
+      <aside className="eq-decision-brief" aria-label="Decision hint">
+        <strong>{isFixStep ? "Fix test" : "Cause test"}</strong>
+        <span>{isFixStep ? synthesis.metric : synthesis.pattern}</span>
       </aside>
 
-      <EvidenceRecap caseEvidence={caseEvidence} />
-
-      <div className="eq-option-grid">
-        <div>
-          <h3>Click one: name the real cause</h3>
-          <p className="eq-decision-prompt">
-            Pick the answer that explains all three evidence items, not just one
-            symptom.
-          </p>
-          {diagnosisOptions.map((option) => (
+      <div className="eq-decision-options">
+        {visibleOptions.map((option) => {
+          const selected = isFixStep
+            ? interventionId === option.id
+            : diagnosisId === option.id;
+          const disabled = isFixStep && !canChooseIntervention;
+          return (
             <button
-              className={`eq-choice ${diagnosisId === option.id ? "is-selected" : ""}`}
+              className={`eq-choice ${selected ? "is-selected" : ""}`}
+              disabled={disabled}
               key={option.id}
               type="button"
-              onClick={() => onChooseDiagnosis(option.id)}
+              onClick={() =>
+                isFixStep
+                  ? onChooseIntervention(option.id)
+                  : onChooseDiagnosis(option.id)
+              }
             >
               <span>{option.label}</span>
-              {diagnosisId === option.id && (
+              {selected && (
                 <small>
                   {option.explanation}
-                  <br />
-                  Evidence check: {option.evidenceHint}
-                  <br />
                   <span className="eq-choice-consequence">
-                    Workplace consequence: {option.consequence}
+                    {isFixStep
+                      ? `Tradeoff: ${(option as InterventionOption).tradeoff}`
+                      : `Evidence check: ${(option as DiagnosisOption).evidenceHint}`}
                   </span>
                 </small>
               )}
             </button>
-          ))}
-        </div>
-
-        <div className={!canChooseIntervention ? "is-disabled" : ""}>
-          <h3>Then click one: pick the practical fix</h3>
-          <p className="eq-decision-prompt">
-            {canChooseIntervention
-              ? "Which fix changes the work, gives managers something to reinforce, and creates a metric leaders can inspect?"
-              : "The fix is locked until your diagnosis explains the evidence. This is the performance-consulting pause."}
-          </p>
-          {interventionOptions.map((option) => (
-            <button
-              className={`eq-choice ${interventionId === option.id ? "is-selected" : ""}`}
-              disabled={!canChooseIntervention}
-              key={option.id}
-              type="button"
-              onClick={() => onChooseIntervention(option.id)}
-            >
-              <span>{option.label}</span>
-              {interventionId === option.id && (
-                <small>
-                  {option.explanation}
-                  <br />
-                  Tradeoff: {option.tradeoff}
-                  <br />
-                  <span className="eq-choice-consequence">
-                    Workplace consequence: {option.consequence}
-                  </span>
-                </small>
-              )}
-            </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
       <DecisionCoach
@@ -1239,31 +1236,6 @@ function DecisionPanel({
         selectedIntervention={selectedIntervention}
         canChooseIntervention={canChooseIntervention}
       />
-    </section>
-  );
-}
-
-function EvidenceRecap({ caseEvidence }: { caseEvidence: Evidence[] }) {
-  return (
-    <section className="eq-evidence-recap" aria-label="Evidence recap">
-      <div>
-        <p className="eq-kicker">Quick evidence check</p>
-        <h3>Base your click on these facts</h3>
-        <span>
-          The best answer should explain the full pattern, not just one clue.
-        </span>
-      </div>
-      <ol>
-        {caseEvidence.map((item, index) => (
-          <li key={item.id}>
-            <strong>
-              {index + 1}. {item.title}
-            </strong>
-            <span>{item.signal}</span>
-            {item.metric && <small>{item.metric}</small>}
-          </li>
-        ))}
-      </ol>
     </section>
   );
 }
@@ -1387,9 +1359,34 @@ function CanvasPanel({
 }) {
   const businessProblem = getArtifactSection(artifact, "Business Problem");
   const rootCause = getArtifactSection(artifact, "Root Cause");
+  const intervention = getArtifactSection(artifact, "Intervention");
   const impact = getArtifactSection(artifact, "Expected Impact");
   const showCompletionProof =
     showFinalDebrief || artifact.id === "sales-enablement-impact-canvas";
+  const summaryCards = [
+    {
+      label: "1 of 4",
+      title: "Request",
+      value: businessProblem,
+    },
+    {
+      label: "2 of 4",
+      title: "Cause",
+      value: rootCause,
+    },
+    {
+      label: "3 of 4",
+      title: "Fix",
+      value: intervention,
+    },
+    {
+      label: "4 of 4",
+      title: "Impact",
+      value: impact,
+    },
+  ];
+  const [summaryIndex, setSummaryIndex] = useState(0);
+  const activeSummary = summaryCards[summaryIndex];
 
   return (
     <section
@@ -1407,50 +1404,35 @@ function CanvasPanel({
         </button>
       </div>
 
-      <SummaryPayoff artifact={artifact} />
+      <section className="eq-summary-step" aria-label="Case summary step">
+        <p className="eq-kicker">{activeSummary.label}</p>
+        <h3>{activeSummary.title}</h3>
+        <p>{activeSummary.value}</p>
+        <div className="eq-summary-step-actions">
+          <button
+            className="eq-ghost-button"
+            disabled={summaryIndex === 0}
+            type="button"
+            onClick={() => setSummaryIndex((index) => Math.max(0, index - 1))}
+          >
+            Back
+          </button>
+          <button
+            className="eq-primary-button"
+            disabled={summaryIndex === summaryCards.length - 1}
+            type="button"
+            onClick={() =>
+              setSummaryIndex((index) =>
+                Math.min(summaryCards.length - 1, index + 1),
+              )
+            }
+          >
+            Next
+          </button>
+        </div>
+      </section>
 
       <SummaryBridge artifact={artifact} />
-
-      <div className="eq-case-outcome" aria-label="Case outcome summary">
-        <article>
-          <span>Before</span>
-          <strong>{businessProblem}</strong>
-        </article>
-        <article>
-          <span>Decision</span>
-          <strong>{rootCause}</strong>
-        </article>
-        <article>
-          <span>Impact</span>
-          <strong>{impact}</strong>
-        </article>
-      </div>
-
-      <ReflectionPanel artifact={artifact} />
-
-      <div className="eq-canvas-grid">
-        {artifact.sections.map((section) => (
-          <article className="eq-canvas-card" key={section.label}>
-            <h3>{section.label}</h3>
-            <p>{section.value}</p>
-          </article>
-        ))}
-      </div>
-
-      {artifact.learnerDebrief && (
-        <aside className="eq-learner-debrief" aria-label="Learner debrief">
-          <p className="eq-kicker">Learner debrief</p>
-          <h3>{artifact.learnerDebrief.headline}</h3>
-          <div>
-            {artifact.learnerDebrief.points.map((point) => (
-              <article key={point.label}>
-                <strong>{point.label}</strong>
-                <span>{point.value}</span>
-              </article>
-            ))}
-          </div>
-        </aside>
-      )}
 
       {canStartSalesCase && (
         <aside className="eq-next-case" aria-label="Next case">
@@ -1478,48 +1460,6 @@ function CanvasPanel({
   );
 }
 
-function SummaryPayoff({
-  artifact,
-}: {
-  artifact: NonNullable<GameState["earnedArtifact"]>;
-}) {
-  const businessProblem = getArtifactSection(artifact, "Business Problem");
-  const rootCause = getArtifactSection(artifact, "Root Cause");
-  const intervention = getArtifactSection(artifact, "Intervention");
-  const impact = getArtifactSection(artifact, "Expected Impact");
-
-  return (
-    <aside className="eq-summary-payoff" aria-label="Case payoff">
-      <div>
-        <p className="eq-kicker">So what?</p>
-        <h3>You turned a request into a business recommendation.</h3>
-        <span>
-          You questioned the first answer, used evidence to name the real cause,
-          chose a practical fix, and tied the work to a measurable outcome.
-        </span>
-      </div>
-      <ol>
-        <li>
-          <strong>Request</strong>
-          <span>{businessProblem}</span>
-        </li>
-        <li>
-          <strong>Cause</strong>
-          <span>{rootCause}</span>
-        </li>
-        <li>
-          <strong>Recommendation</strong>
-          <span>{intervention}</span>
-        </li>
-        <li>
-          <strong>Business result</strong>
-          <span>{impact}</span>
-        </li>
-      </ol>
-    </aside>
-  );
-}
-
 function SummaryBridge({
   artifact,
 }: {
@@ -1530,7 +1470,7 @@ function SummaryBridge({
     <aside className="eq-summary-bridge" aria-label="What you practiced">
       <div>
         <p className="eq-kicker">What you practiced</p>
-        <h3>The decision loop you completed</h3>
+        <h3>Decision loop completed</h3>
       </div>
       <ol>
         {(debrief?.points ?? []).map((point) => (
@@ -1540,40 +1480,6 @@ function SummaryBridge({
           </li>
         ))}
       </ol>
-    </aside>
-  );
-}
-
-function ReflectionPanel({
-  artifact,
-}: {
-  artifact: NonNullable<GameState["earnedArtifact"]>;
-}) {
-  const businessProblem = getArtifactSection(artifact, "Business Problem");
-  const rootCause = getArtifactSection(artifact, "Root Cause");
-  const intervention = getArtifactSection(artifact, "Intervention");
-  const impact = getArtifactSection(artifact, "Expected Impact");
-
-  return (
-    <aside className="eq-reflection-panel" aria-label="Reflection prompts">
-      <p className="eq-kicker">Reflection prompts</p>
-      <h3>Use this to explain the work</h3>
-      <div>
-        <article>
-          <strong>What request did you question?</strong>
-          <span>{businessProblem}</span>
-        </article>
-        <article>
-          <strong>What changed your recommendation?</strong>
-          <span>{rootCause}</span>
-        </article>
-        <article>
-          <strong>What would you build and measure?</strong>
-          <span>
-            {intervention} Impact target: {impact}
-          </span>
-        </article>
-      </div>
     </aside>
   );
 }
@@ -1592,81 +1498,28 @@ function FinalReviewerDebrief() {
   return (
     <aside className="eq-final-debrief" aria-label="Facilitator debrief">
       <p className="eq-kicker">Facilitator debrief</p>
-      <h3>What this learning journey practiced</h3>
-      <section className="eq-final-proof-hero" aria-label="Learning proof">
-        <strong>Diagnose before designing.</strong>
-        <span>
-          The completed run shows the enablement move: question the request,
-          inspect evidence, identify the root cause, choose a practical
-          intervention, and connect the recommendation to measurable outcomes.
-        </span>
-      </section>
+      <h3>Diagnose before designing.</h3>
       <div className="eq-final-debrief-grid">
         <article>
-          <strong>Performance consulting</strong>
+          <strong>What changed?</strong>
           <span>
-            You do not accept a training request at face value. You interview,
-            inspect evidence, diagnose the root cause, then choose the practical
-            fix.
+            The learner questioned the request before choosing a solution.
           </span>
         </article>
         <article>
-          <strong>Sales enablement range</strong>
+          <strong>What made it work?</strong>
           <span>
-            The second case connects discovery behavior, manager coaching, and
-            pipeline metrics instead of defaulting to more content.
+            Evidence pointed to behavior, workflow, coaching, and measurement.
           </span>
         </article>
         <article>
-          <strong>Learning architecture</strong>
+          <strong>Try this next</strong>
           <span>
-            Each case follows a repeatable loop: investigate, diagnose, design,
-            implement, and measure business impact.
-          </span>
-        </article>
-        <article>
-          <strong>Client-ready takeaway</strong>
-          <span>
-            The experience can be used to teach enablement teams how to slow
-            down, test assumptions, and recommend support that fits the real
-            business problem.
+            Pick one real request and ask: what evidence would prove the actual
+            cause?
           </span>
         </article>
       </div>
-      <section className="eq-final-proof" aria-label="Team debrief prompts">
-        <article>
-          <p className="eq-kicker">Team discussion</p>
-          <span>
-            Where did the team want to jump straight to a fix, and what evidence
-            changed the recommendation?
-          </span>
-        </article>
-        <article>
-          <p className="eq-kicker">Application</p>
-          <span>
-            What real request at work should be diagnosed before anyone builds
-            training, content, or a communication plan?
-          </span>
-        </article>
-      </section>
-      <section className="eq-final-use" aria-label="Facilitator wrap-up">
-        <article>
-          <p className="eq-kicker">Plain-language lesson</p>
-          <span>
-            Good enablement is not just building the requested asset. It is
-            understanding what is blocking performance and choosing the support
-            that changes the work.
-          </span>
-        </article>
-        <article>
-          <p className="eq-kicker">Next action</p>
-          <span>
-            Pick one real workplace problem and ask: what evidence would prove
-            whether this is training, workflow, coaching, tools, communication,
-            or measurement?
-          </span>
-        </article>
-      </section>
     </aside>
   );
 }

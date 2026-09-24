@@ -209,6 +209,7 @@ export interface CharacterState {
   direction: Direction;
   patrolIndex: number;
   isMoving: boolean;
+  pauseUntil?: number;
 }
 
 export interface GameState {

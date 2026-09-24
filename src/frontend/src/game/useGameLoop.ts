@@ -603,6 +603,7 @@ function moveCharacters(state: GameState, delta: number) {
         direction: "down",
         patrolIndex: 0,
         isMoving: false,
+        pauseUntil: getCharacterPauseUntil(character.id, 0),
       } satisfies CharacterState);
 
     if (
@@ -610,6 +611,23 @@ function moveCharacters(state: GameState, delta: number) {
       patrol.length < 2 ||
       character.sceneId !== state.player.sceneId
     ) {
+      nextStates[character.id] = { ...current, isMoving: false };
+      continue;
+    }
+
+    if (
+      distanceInPixels(state.player.position, current.position) <
+      INTERACT_DISTANCE + 22
+    ) {
+      nextStates[character.id] = {
+        ...current,
+        isMoving: false,
+        pauseUntil: Math.max(current.pauseUntil ?? 0, Date.now() + 900),
+      };
+      continue;
+    }
+
+    if ((current.pauseUntil ?? 0) > Date.now()) {
       nextStates[character.id] = { ...current, isMoving: false };
       continue;
     }
@@ -625,6 +643,7 @@ function moveCharacters(state: GameState, delta: number) {
         ...current,
         patrolIndex: targetIndex,
         isMoving: false,
+        pauseUntil: getCharacterPauseUntil(character.id, targetIndex),
       };
       continue;
     }
@@ -640,9 +659,21 @@ function moveCharacters(state: GameState, delta: number) {
       position: nextPosition,
       direction: getDirection(current.position, nextPosition),
       isMoving: true,
+      pauseUntil: undefined,
     };
   }
   return nextStates;
+}
+
+function getCharacterPauseUntil(characterId: string, step: number) {
+  return Date.now() + getCharacterPauseDuration(characterId, step);
+}
+
+function getCharacterPauseDuration(characterId: string, step: number) {
+  const seed = characterId
+    .split("")
+    .reduce((total, character) => total + character.charCodeAt(0), 0);
+  return 900 + ((seed + step * 397) % 1400);
 }
 
 function faceActiveCharacterTowardPlayer(state: GameState) {
