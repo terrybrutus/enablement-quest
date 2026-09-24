@@ -814,8 +814,8 @@ function EvidencePanel({
   const evidenceIndex = caseEvidence.findIndex(
     (item) => item.id === evidence.id,
   );
-  const runningEvidence = caseEvidence.filter((item) =>
-    collectedEvidenceIds.includes(item.id),
+  const priorEvidence = caseEvidence.filter(
+    (item) => item.id !== evidence.id && collectedEvidenceIds.includes(item.id),
   );
   const hasReadCorrectly = selectedSignal === "signal";
   const checkOptions = useMemo(() => {
@@ -904,16 +904,27 @@ function EvidencePanel({
       <aside className="eq-running-case" aria-label="Running case pattern">
         <div>
           <p className="eq-kicker">Running Case Pattern</p>
-          <h3>What the evidence is starting to prove</h3>
+          <h3>
+            {priorEvidence.length > 0
+              ? "What you have already saved"
+              : "Start building the pattern"}
+          </h3>
         </div>
-        <ol>
-          {runningEvidence.map((item) => (
-            <li key={item.id}>
-              <strong>{item.title}</strong>
-              <span>{item.signal}</span>
-            </li>
-          ))}
-        </ol>
+        {priorEvidence.length > 0 ? (
+          <ol>
+            {priorEvidence.map((item) => (
+              <li key={item.id}>
+                <strong>{item.title}</strong>
+                <span>{item.signal}</span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p>
+            This is your first evidence item. Read it, choose the useful signal,
+            then the case will start showing the pattern you are building.
+          </p>
+        )}
       </aside>
 
       <div className="eq-canvas-grid">
@@ -926,8 +937,8 @@ function EvidencePanel({
           <p>{evidence.insight}</p>
         </article>
         <article className="eq-canvas-card">
-          <h3>Signal to notice</h3>
-          <p>{evidence.signal}</p>
+          <h3>Tempting shortcut</h3>
+          <p>{evidence.trap}</p>
         </article>
       </div>
 
