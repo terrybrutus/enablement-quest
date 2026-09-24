@@ -486,10 +486,21 @@ async function advanceDialogueToEnd(send) {
   );
 }
 
-async function collectEvidence(send, viewport, waypoints, signalText, count) {
+async function collectEvidence(
+  send,
+  events,
+  viewport,
+  waypoints,
+  signalText,
+  count,
+  stateName,
+) {
   await moveThrough(send, viewport, waypoints);
   await pressInteract(send);
   await waitForOverlay(send, "evidence", "Evidence panel did not open");
+  const evidenceState = stateName
+    ? await captureState(send, events, viewport.name, stateName)
+    : null;
   await clickButtonIncluding(send, signalText);
   await clickButtonIncluding(send, "Continue investigation");
   await assertQaState(
@@ -503,9 +514,10 @@ async function collectEvidence(send, viewport, waypoints, signalText, count) {
     },
     `Evidence count did not update to ${count}`,
   );
+  return evidenceState;
 }
 
-async function completeOnboardingCase(send, viewport) {
+async function completeOnboardingCase(send, events, viewport) {
   await moveThrough(send, viewport, [
     { x: 6.7, y: 10.25 },
     { x: 6.7, y: 6.9 },
@@ -520,8 +532,9 @@ async function completeOnboardingCase(send, viewport) {
     "Talking to Maya did not advance to investigate",
   );
 
-  await collectEvidence(
+  const firstEvidenceState = await collectEvidence(
     send,
+    events,
     viewport,
     [
       { x: 9.35, y: 7.05 },
@@ -529,9 +542,11 @@ async function completeOnboardingCase(send, viewport) {
     ],
     "Conflicting instructions point",
     1,
+    "evidence-onboarding-first-clue",
   );
   await collectEvidence(
     send,
+    events,
     viewport,
     [
       { x: 6.4, y: 7.05 },
@@ -540,8 +555,9 @@ async function completeOnboardingCase(send, viewport) {
     "Multiple handoffs create delay",
     2,
   );
-  await collectEvidence(
+  const finalEvidenceState = await collectEvidence(
     send,
+    events,
     viewport,
     [
       { x: 6.4, y: 7.3 },
@@ -551,6 +567,7 @@ async function completeOnboardingCase(send, viewport) {
     ],
     "spike happens after formal training",
     3,
+    "evidence-onboarding-final-clue",
   );
 
   await waitForOverlay(send, "decision", "Decision panel did not open");
@@ -574,6 +591,7 @@ async function completeOnboardingCase(send, viewport) {
       state.completedCaseIds?.includes("onboarding"),
     "Correct intervention did not complete onboarding case",
   );
+  return { finalEvidenceState, firstEvidenceState };
 }
 
 async function enterSalesAfterOnboarding(send, viewport) {
@@ -694,7 +712,8 @@ async function runViewport(client, viewport) {
     (state) => state?.sceneId === "operations",
     "Actual-flow QA did not load Operations Suite",
   );
-  await completeOnboardingCase(send, viewport);
+  const { finalEvidenceState, firstEvidenceState } =
+    await completeOnboardingCase(send, events, viewport);
   const onboardingCompleteState = await captureState(
     send,
     events,
@@ -768,6 +787,8 @@ async function runViewport(client, viewport) {
       operationsState,
       onboardingDecisionState,
       onboardingWrongDecisionState,
+      firstEvidenceState,
+      finalEvidenceState,
       onboardingCompleteState,
       enteredSalesFromJourneyState,
       salesCompleteState,

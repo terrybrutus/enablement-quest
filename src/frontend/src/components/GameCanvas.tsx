@@ -224,6 +224,12 @@ export default function GameCanvas() {
     gameState.player.sceneId,
     gameState.completedCaseIds,
   );
+  const hasBlockingOverlay = [
+    "canvas",
+    "decision",
+    "dialogue",
+    "evidence",
+  ].includes(gameState.overlay);
 
   const closeOverlay = useCallback(() => {
     setGameState((previous) => ({
@@ -397,7 +403,7 @@ export default function GameCanvas() {
         data-ocid="game.canvas_target"
       />
 
-      {gameState.player.hasStarted && (
+      {gameState.player.hasStarted && !hasBlockingOverlay && (
         <Hud
           sceneName={currentScene.name}
           sceneSubtitle={currentScene.subtitle}
@@ -478,6 +484,8 @@ export default function GameCanvas() {
       {gameState.overlay === "evidence" && activeEvidence && (
         <EvidencePanel
           key={activeEvidence.id}
+          caseEvidence={currentEvidenceItems}
+          collectedEvidenceIds={gameState.collectedEvidenceIds}
           evidence={activeEvidence}
           onContinue={closeEvidenceReview}
         />
@@ -722,15 +730,25 @@ function getCoachPrompt(
 }
 
 function EvidencePanel({
+  caseEvidence,
+  collectedEvidenceIds,
   evidence,
   onContinue,
 }: {
-  evidence: (typeof evidenceItems)[number];
+  caseEvidence: Evidence[];
+  collectedEvidenceIds: string[];
+  evidence: Evidence;
   onContinue: () => void;
 }) {
   const [selectedSignal, setSelectedSignal] = useState<
     "signal" | "trap" | null
   >(null);
+  const evidenceIndex = caseEvidence.findIndex(
+    (item) => item.id === evidence.id,
+  );
+  const runningEvidence = caseEvidence.filter((item) =>
+    collectedEvidenceIds.includes(item.id),
+  );
   const hasReadCorrectly = selectedSignal === "signal";
   const checkOptions = useMemo(() => {
     const options = [
@@ -782,9 +800,27 @@ function EvidencePanel({
         <div>
           <p className="eq-kicker">Clue Reviewed</p>
           <h2>{evidence.title}</h2>
-          {evidence.metric && <p>{evidence.metric}</p>}
+          <p>
+            Clue {evidenceIndex + 1} of {caseEvidence.length}
+            {evidence.metric ? ` | ${evidence.metric}` : ""}
+          </p>
         </div>
       </div>
+
+      <aside className="eq-running-case" aria-label="Running case pattern">
+        <div>
+          <p className="eq-kicker">Running Case Pattern</p>
+          <h3>What the clues are starting to prove</h3>
+        </div>
+        <ol>
+          {runningEvidence.map((item) => (
+            <li key={item.id}>
+              <strong>{item.title}</strong>
+              <span>{item.signal}</span>
+            </li>
+          ))}
+        </ol>
+      </aside>
 
       <div className="eq-canvas-grid">
         <article className="eq-canvas-card">
