@@ -56,8 +56,8 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <div>
             <p>For non-gamers</p>
             <span>
-              Follow the Guide button if you feel lost. The experience tells you
-              what to do next; movement is only how you explore the case.
+              Use the Next Step button if you feel lost. The experience tells
+              you what to do next; movement is only how you explore the case.
             </span>
           </div>
         </section>
@@ -184,7 +184,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <span className="eq-desktop-control">
             Talk / Inspect: E / Space / Enter
           </span>
-          <span className="eq-desktop-control">Guide: Q</span>
+          <span className="eq-desktop-control">Next Step: Q</span>
           <span className="eq-desktop-control">Case Notes: B</span>
           <span className="eq-mobile-control">Move: joystick</span>
           <span className="eq-mobile-control">Talk / Inspect: button</span>

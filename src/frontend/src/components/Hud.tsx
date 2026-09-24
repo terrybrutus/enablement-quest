@@ -116,7 +116,7 @@ export function Hud({
         >
           <button className="eq-hud-button" type="button" onClick={onOpenQuest}>
             <ClipboardList className="h-4 w-4" />
-            <span>Guide</span>
+            <span>Next Step</span>
             <kbd>Q</kbd>
           </button>
           <button
