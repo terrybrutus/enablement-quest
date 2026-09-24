@@ -675,7 +675,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "more-elearning",
     caseId: "onboarding",
-    label: "New hires need a clearer orientation course with tool screenshots.",
+    label:
+      "Make orientation clearer with screenshots, examples, and a knowledge check.",
     explanation:
       "This is plausible, but it treats the symptoms as a knowledge gap and ignores handoffs, manager reinforcement, and access delays.",
     correct: false,
@@ -687,8 +688,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "workflow-reinforcement",
     caseId: "onboarding",
-    label:
-      "The workflow is unclear and managers lack consistent follow-up checkpoints.",
+    label: "Standardize the handoffs and give managers follow-up checkpoints.",
     explanation:
       "Correct. The clues show inconsistent instructions, delayed access, and a gap after orientation.",
     correct: true,
@@ -700,7 +700,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "software-broken",
     caseId: "onboarding",
-    label: "The access system is the main blocker.",
+    label: "Focus on tool access because new hires are blocked too long.",
     explanation:
       "Tool access is part of the problem, but the clues do not support software failure as the root cause.",
     correct: false,
@@ -712,7 +712,8 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "sales-product-training",
     caseId: "sales",
-    label: "Reps need a stricter product-demo certification.",
+    label:
+      "Tighten product-demo certification so reps present more consistently.",
     explanation:
       "The call review says reps explain features clearly. More product content misses the buyer-conversation gap.",
     correct: false,
@@ -725,7 +726,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "sales-discovery-coaching",
     caseId: "sales",
     label:
-      "The root cause is weak discovery habits with inconsistent manager coaching.",
+      "Coach discovery habits and give managers a shared inspection rubric.",
     explanation:
       "Correct. The clues connect shallow discovery, missing pain notes, and low rubric use.",
     correct: true,
@@ -737,7 +738,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
   {
     id: "sales-more-activity",
     caseId: "sales",
-    label: "Marketing should rewrite the demo deck before enablement acts.",
+    label: "Refresh the demo deck so reps can tell a clearer product story.",
     explanation:
       "Message clarity may help, but the clues point to discovery behavior and manager coaching, not just deck content.",
     correct: false,
@@ -752,7 +753,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "training-module",
     caseId: "onboarding",
-    label: "Build a cleaner onboarding course and add a knowledge check.",
+    label: "Publish a cleaner onboarding course with role-specific examples.",
     explanation:
       "A longer module adds content, but it does not fix ownership, timing, or manager follow-through.",
     correct: false,
@@ -764,7 +765,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "diagnostic-canvas",
     caseId: "onboarding",
-    label: "Create a manager checklist, job aid, and diagnostic dashboard.",
+    label: "Create a handoff checklist, manager job aid, and ramp dashboard.",
     explanation:
       "Correct. This supports the workflow, reinforces expectations, and creates visible measures leaders can inspect.",
     correct: true,
@@ -776,7 +777,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "announcement",
     caseId: "onboarding",
-    label: "Ask leaders to announce the correct process once.",
+    label: "Send a leadership message that clarifies the official process.",
     explanation:
       "Communication helps awareness, but one message will not sustain a changed onboarding behavior.",
     correct: false,
@@ -788,7 +789,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "sales-demo-certification",
     caseId: "sales",
-    label: "Require a stricter demo certification for every rep.",
+    label: "Require reps to pass a stricter demo certification.",
     explanation:
       "Certification may improve consistency, but the clues point to discovery and manager reinforcement before the demo.",
     correct: false,
@@ -801,7 +802,7 @@ export const interventionOptions: InterventionOption[] = [
     id: "sales-coaching-system",
     caseId: "sales",
     label:
-      "Create a discovery guide, manager coaching rubric, and pipeline inspection dashboard.",
+      "Build a discovery guide, coaching rubric, and pipeline inspection dashboard.",
     explanation:
       "Correct. This changes pre-demo behavior, gives managers a coaching tool, and tracks conversion.",
     correct: true,
@@ -813,7 +814,7 @@ export const interventionOptions: InterventionOption[] = [
   {
     id: "sales-slack-reminder",
     caseId: "sales",
-    label: "Send weekly discovery tips and sample questions.",
+    label: "Send weekly discovery tips and sample questions to the team.",
     explanation:
       "Tips can reinforce a habit, but alone they do not give reps practice, manager coaching, or measurement.",
     correct: false,

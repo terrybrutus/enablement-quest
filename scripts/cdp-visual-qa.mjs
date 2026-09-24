@@ -559,13 +559,13 @@ async function completeOnboardingCase(send, viewport) {
     (state) => state?.questStage === "diagnose",
     "All evidence did not advance the quest to diagnose",
   );
-  await clickButtonIncluding(send, "workflow is unclear");
+  await clickButtonIncluding(send, "Standardize the handoffs");
   await assertQaState(
     send,
     (state) => state?.questStage === "design",
     "Correct diagnosis did not advance to design",
   );
-  await clickButtonIncluding(send, "manager checklist");
+  await clickButtonIncluding(send, "handoff checklist");
   await waitForOverlay(send, "canvas", "Canvas panel did not open");
   await assertQaState(
     send,
@@ -602,13 +602,13 @@ async function completeSalesCase(send, viewport) {
     (state) => state?.questStage === "diagnose",
     "All sales evidence did not advance the quest to diagnose",
   );
-  await clickButtonIncluding(send, "weak discovery habits");
+  await clickButtonIncluding(send, "Coach discovery habits");
   await assertQaState(
     send,
     (state) => state?.questStage === "design",
     "Correct sales diagnosis did not advance to design",
   );
-  await clickButtonIncluding(send, "discovery guide");
+  await clickButtonIncluding(send, "Build a discovery guide");
   await waitForOverlay(send, "canvas", "Sales canvas panel did not open");
   await assertQaState(
     send,

@@ -1557,6 +1557,66 @@
     overflow-wrap: anywhere;
   }
 
+  .eq-decision {
+    font-size: 0.78rem;
+  }
+
+  .eq-decision .eq-panel-header {
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .eq-decision .eq-panel-header h2 {
+    font-size: 1.12rem;
+    line-height: 1.15;
+  }
+
+  .eq-decision .eq-panel-header p {
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+
+  .eq-decision .eq-ghost-button {
+    padding: 7px 9px;
+  }
+
+  .eq-decision .eq-case-synthesis {
+    gap: 8px;
+    margin: 8px 0 10px;
+  }
+
+  .eq-decision .eq-case-synthesis article {
+    padding: 9px 10px;
+  }
+
+  .eq-decision .eq-case-synthesis span {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+  }
+
+  .eq-decision .eq-case-synthesis p {
+    font-size: 0.76rem;
+    line-height: 1.32;
+    margin-top: 5px;
+  }
+
+  .eq-decision .eq-option-grid {
+    gap: 10px;
+  }
+
+  .eq-decision .eq-option-grid h3 {
+    font-size: 0.88rem;
+  }
+
+  .eq-decision .eq-decision-prompt {
+    font-size: 0.76rem;
+  }
+
+  .eq-decision .eq-choice {
+    margin-top: 7px;
+    padding: 9px 10px;
+  }
+
   .eq-dialogue {
     bottom: calc(env(safe-area-inset-bottom) + 84px);
     max-height: 38dvh;

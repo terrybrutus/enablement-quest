@@ -490,7 +490,6 @@ export default function GameCanvas() {
           diagnosisId={gameState.diagnosisId}
           interventionId={gameState.interventionId}
           currentCaseId={gameState.currentCaseId}
-          evidenceItems={currentEvidenceItems}
           onChooseDiagnosis={chooseDiagnosis}
           onChooseIntervention={chooseIntervention}
           onClose={closeOverlay}
@@ -892,7 +891,6 @@ function DecisionPanel({
   diagnosisId,
   interventionId,
   currentCaseId,
-  evidenceItems,
   onChooseDiagnosis,
   onChooseIntervention,
   onClose,
@@ -902,7 +900,6 @@ function DecisionPanel({
   diagnosisId: string | null;
   interventionId: string | null;
   currentCaseId: CaseId;
-  evidenceItems: Evidence[];
   onChooseDiagnosis: (id: string) => void;
   onChooseIntervention: (id: string) => void;
   onClose: () => void;
@@ -932,43 +929,12 @@ function DecisionPanel({
         </button>
       </div>
 
-      <div className="eq-case-synthesis" aria-label="Clue synthesis">
-        <article>
-          <span>Clue Pattern</span>
-          <p>{synthesis.pattern}</p>
-        </article>
-        <article>
-          <span>Trap To Avoid</span>
-          <p>{synthesis.trap}</p>
-        </article>
-        <article>
-          <span>Business Signal</span>
-          <p>{synthesis.metric}</p>
-        </article>
-      </div>
-
-      <div className="eq-signal-strip">
-        {evidenceItems.map((item) => (
-          <article key={item.id}>
-            <strong>{item.title}</strong>
-            <small>{item.metric}</small>
-          </article>
-        ))}
-      </div>
-
-      <DecisionChecklist canChooseIntervention={canChooseIntervention} />
-
-      <DecisionCoach
-        selectedDiagnosis={selectedDiagnosis}
-        selectedIntervention={selectedIntervention}
-        canChooseIntervention={canChooseIntervention}
-      />
-
       <div className="eq-option-grid">
         <div>
           <h3>1. Diagnose the root cause</h3>
           <p className="eq-decision-prompt">
-            Which explanation best connects all three clues?
+            Which answer would still make sense if a leader challenged you to
+            defend it with all three clues?
           </p>
           {diagnosisOptions.map((option) => (
             <button
@@ -993,8 +959,8 @@ function DecisionPanel({
           <h3>2. Select the intervention</h3>
           <p className="eq-decision-prompt">
             {canChooseIntervention
-              ? "Which solution changes the daily work and gives leaders a metric they can inspect?"
-              : "Choose the correct root cause first. The solution is locked until the diagnosis fits the clues."}
+              ? "Which solution changes the work, gives managers something to reinforce, and creates a metric leaders can inspect?"
+              : "The solution is locked until your diagnosis explains the evidence. This is the performance-consulting pause."}
           </p>
           {interventionOptions.map((option) => (
             <button
@@ -1016,6 +982,29 @@ function DecisionPanel({
           ))}
         </div>
       </div>
+
+      <DecisionCoach
+        selectedDiagnosis={selectedDiagnosis}
+        selectedIntervention={selectedIntervention}
+        canChooseIntervention={canChooseIntervention}
+      />
+
+      <div className="eq-case-synthesis" aria-label="Clue synthesis">
+        <article>
+          <span>What Must Be Explained</span>
+          <p>{synthesis.pattern}</p>
+        </article>
+        <article>
+          <span>Tempting Wrong Turn</span>
+          <p>{synthesis.trap}</p>
+        </article>
+        <article>
+          <span>Business Signal</span>
+          <p>{synthesis.metric}</p>
+        </article>
+      </div>
+
+      <DecisionChecklist canChooseIntervention={canChooseIntervention} />
     </section>
   );
 }
@@ -1036,25 +1025,55 @@ function DecisionChecklist({
         </h3>
       </div>
       <ol>
-        <li>
-          <strong>Explains every clue</strong>
-          <span>
-            The answer should connect all three clues, not just the loudest
-            complaint.
-          </span>
-        </li>
-        <li>
-          <strong>Changes the work</strong>
-          <span>
-            The best fix changes daily behavior, handoffs, coaching, or tools.
-          </span>
-        </li>
-        <li>
-          <strong>Can be measured</strong>
-          <span>
-            Leaders should be able to inspect a business signal after the fix.
-          </span>
-        </li>
+        {canChooseIntervention ? (
+          <>
+            <li>
+              <strong>Changes the work</strong>
+              <span>
+                The best fix changes daily behavior, handoffs, coaching, or
+                tools.
+              </span>
+            </li>
+            <li>
+              <strong>Creates reinforcement</strong>
+              <span>
+                Someone should be able to coach, inspect, or support the new
+                behavior after launch.
+              </span>
+            </li>
+            <li>
+              <strong>Can be measured</strong>
+              <span>
+                Leaders should be able to inspect a business signal after the
+                fix.
+              </span>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <strong>Explains every clue</strong>
+              <span>
+                The diagnosis should connect all three clues, not just the
+                loudest complaint.
+              </span>
+            </li>
+            <li>
+              <strong>Separates request from cause</strong>
+              <span>
+                A leader may ask for training even when the evidence points to
+                workflow, coaching, tools, or communication.
+              </span>
+            </li>
+            <li>
+              <strong>Points to a measurable fix</strong>
+              <span>
+                The cause should lead to a solution that can improve a business
+                signal.
+              </span>
+            </li>
+          </>
+        )}
       </ol>
     </section>
   );
@@ -1074,8 +1093,8 @@ function DecisionCoach({
       <aside className="eq-decision-coach" aria-label="Decision coaching">
         <strong>How to decide</strong>
         <span>
-          Do not pick the option that sounds most familiar. Pick the one that
-          explains every clue at the same time.
+          Imagine you are in a stakeholder meeting. Pick the answer you could
+          defend with evidence, not the one that sounds easiest to build.
         </span>
       </aside>
     );
@@ -1142,21 +1161,21 @@ const caseSynthesis: Record<
 > = {
   onboarding: {
     prompt:
-      "Use the clue pattern, not the original leadership request, to decide what the organization should actually build.",
+      "Leadership asked for more training. Your job is to decide whether the evidence supports that request or points somewhere else.",
     pattern:
-      "The issue shows up across instructions, handoffs, access timing, and week-two support needs.",
-    trap: "A longer onboarding course would feel responsive, but it would not fix ownership or reinforcement.",
+      "Your answer must explain conflicting instructions, delayed access, and a support-ticket spike after orientation.",
+    trap: "A polished course would look responsive, but it may leave ownership and follow-up untouched.",
     metric:
-      "The useful outcome is faster time-to-productivity plus fewer support tickets after orientation.",
+      "The business wants faster time-to-productivity and fewer support tickets after orientation.",
   },
   sales: {
     prompt:
-      "Use the clue pattern to decide whether reps need more content or a better revenue-behavior system.",
+      "The team wants better demo results. Your job is to decide whether the evidence points to content, skill practice, coaching, or measurement.",
     pattern:
-      "Reps can explain features, but discovery depth, opportunity notes, and manager coaching are inconsistent.",
-    trap: "A stricter demo certification measures presentation skill more than buyer diagnosis.",
+      "Your answer must explain shallow discovery, missing pain notes, and inconsistent manager coaching.",
+    trap: "A stricter demo certification may improve presentation polish without improving buyer diagnosis.",
     metric:
-      "The useful outcome is improved demo-to-next-step conversion and visible coaching rubric use.",
+      "The business wants better demo-to-next-step conversion and visible coaching rubric use.",
   },
 };
 
