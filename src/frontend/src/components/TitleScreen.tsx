@@ -44,6 +44,24 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           </span>
         </section>
 
+        <section className="eq-finish-line" aria-label="How to finish">
+          <div>
+            <p>The finish line</p>
+            <span>
+              You are done when the case produces a plain-language summary:
+              business problem, root cause, enablement solution, and expected
+              impact.
+            </span>
+          </div>
+          <div>
+            <p>For non-gamers</p>
+            <span>
+              Follow the Guide button if you feel lost. The experience tells you
+              what to do next; movement is only how you explore the case.
+            </span>
+          </div>
+        </section>
+
         <p className="eq-title-copy eq-title-copy-secondary">
           This is a playable case study about judgment: diagnose before you
           design.

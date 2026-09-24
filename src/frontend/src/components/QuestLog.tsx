@@ -93,6 +93,15 @@ export function QuestLog({
         </p>
       </div>
 
+      <div className="eq-mini-section eq-finish-card">
+        <h3>How you finish</h3>
+        <p>
+          Complete this case by earning a case summary. That summary is the
+          portfolio artifact: it explains the problem, evidence, decision,
+          solution, and measurable impact in plain language.
+        </p>
+      </div>
+
       <div className="eq-step-list">
         {steps.map((step, index) => {
           const done = index < currentIndex || questStage === "complete";

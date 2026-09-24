@@ -52,9 +52,7 @@ export function Hud({
   onOpenSettings,
   onInteract,
 }: HudProps) {
-  const [isGuideExpanded, setIsGuideExpanded] = useState(
-    () => typeof window !== "undefined" && window.innerWidth > 780,
-  );
+  const [isGuideExpanded, setIsGuideExpanded] = useState(false);
   const stepLabel = getStepLabel(questStage, evidenceCount, evidenceTotal);
 
   return (

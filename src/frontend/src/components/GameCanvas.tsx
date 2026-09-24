@@ -966,6 +966,15 @@ function DecisionPanel({
         </button>
       </div>
 
+      <aside className="eq-decision-brief" aria-label="Plain language brief">
+        <strong>Your role in this moment</strong>
+        <span>
+          Read this like a real stakeholder meeting. You are not guessing a game
+          answer; you are deciding what you would recommend to leaders and how
+          you would defend it with evidence.
+        </span>
+      </aside>
+
       <div className="eq-option-grid">
         <div>
           <h3>1. Diagnose the root cause</h3>
