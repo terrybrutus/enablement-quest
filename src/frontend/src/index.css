@@ -686,9 +686,34 @@
   margin: 0;
 }
 
+.eq-start-briefing-mission {
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 78, 59, 0.22),
+    rgba(8, 47, 73, 0.2)
+  );
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+}
+
+.eq-start-briefing-mission strong {
+  color: #a7f3d0;
+  font-size: 0.88rem;
+}
+
+.eq-start-briefing-mission span {
+  color: #e0f2fe;
+  font-size: 0.9rem;
+  line-height: 1.42;
+}
+
 .eq-start-briefing-grid {
   display: grid;
   gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .eq-start-briefing-grid article {
@@ -2495,6 +2520,10 @@
 
   .eq-start-briefing h2 {
     font-size: 1.35rem;
+  }
+
+  .eq-start-briefing-grid {
+    grid-template-columns: 1fr;
   }
 
   .eq-start-briefing-lede {

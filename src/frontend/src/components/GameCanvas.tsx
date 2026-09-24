@@ -594,30 +594,46 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
       <p className="eq-kicker">Case 01 Start Here</p>
       <h2>The Broken Onboarding Request</h2>
       <p className="eq-start-briefing-lede">
-        A leader asked for more training because new hires are ramping too
-        slowly. Your job is to find out whether training is really the answer.
+        Leadership asked for more onboarding training. Your job is to pause,
+        inspect the evidence, and decide whether training is really the right
+        fix.
       </p>
+
+      <aside className="eq-start-briefing-mission" aria-label="Mission goal">
+        <strong>Your mission</strong>
+        <span>
+          Help the organization solve the work problem, not just respond to the
+          training request.
+        </span>
+      </aside>
 
       <div className="eq-start-briefing-grid">
         <article>
-          <strong>First thing to do</strong>
+          <strong>1. Start with Maya</strong>
           <span>
-            Walk to Maya and use Talk or Inspect. She owns the request and will
-            point you to the first evidence item.
+            Walk to Maya and use Talk or Inspect. She explains the business
+            request and points you to the first evidence item.
           </span>
         </article>
         <article>
-          <strong>How to win this case</strong>
+          <strong>2. Follow the evidence</strong>
           <span>
-            Listen, review three evidence items, choose the real cause, choose
-            the fix, then review the business result.
+            Review three evidence items in order. Each one asks what the clue
+            proves and what assumption you should avoid.
           </span>
         </article>
         <article>
-          <strong>What this proves</strong>
+          <strong>3. Make the recommendation</strong>
           <span>
-            You can slow down, diagnose the work problem, and explain a
-            practical enablement solution in plain language.
+            Choose the real cause, choose the fix, then review the case summary
+            you could explain to a recruiter or leader.
+          </span>
+        </article>
+        <article>
+          <strong>If you feel lost</strong>
+          <span>
+            Open Help. It always says what to do now, why it matters, and what
+            counts as done.
           </span>
         </article>
       </div>
