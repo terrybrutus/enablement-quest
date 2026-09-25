@@ -34,7 +34,7 @@ export function ArtifactsPanel({
       : "Current case: onboarding performance";
   const emptyGuidance =
     currentCaseId === "sales"
-      ? "No evidence saved yet. Enter Sales Enablement Studio and review the first marked clue."
+      ? "No evidence saved yet. Enter Sales Enablement Studio and review the first marked evidence item."
       : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
 
   return (
@@ -45,7 +45,7 @@ export function ArtifactsPanel({
       <div className="eq-panel-header">
         <div>
           <p className="eq-kicker">Evidence</p>
-          <h2>Saved clues</h2>
+          <h2>Saved evidence</h2>
           <p>Use this only when you want to review what you already found.</p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>

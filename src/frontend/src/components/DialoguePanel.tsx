@@ -82,8 +82,8 @@ export function DialoguePanel({
 const conversationPurpose: Record<QuestStage, string> = {
   briefing:
     "Leo is explaining the request. Your next job is to check whether the evidence supports it.",
-  investigate: "Compare what people say with the clues you collect.",
-  diagnose: "Choose the cause that best explains the clues.",
+  investigate: "Compare what people say with the evidence you collect.",
+  diagnose: "Choose the cause that best explains the evidence.",
   design: "Choose the support that would improve the work.",
   complete: "Summarize the problem, cause, fix, and expected result.",
 };

@@ -673,7 +673,7 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
           <strong>2. Investigate across rooms</strong>
           <span>
             Collect the deck, discovery guide, call review, operations data, CRM
-            review, and coaching archive. Each clue tests a different
+            review, and coaching archive. Each evidence item tests a different
             explanation.
           </span>
         </article>
@@ -909,9 +909,9 @@ function getCoachPrompt(
   if (questStage === "investigate") {
     return evidenceCount < evidenceTotal
       ? {
-          action: `Review clue ${evidenceCount + 1} of ${evidenceTotal}`,
+          action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
           reason:
-            "Each clue gives you part of the story. Save the pattern, not just one detail.",
+            "Each evidence item gives you part of the story. Save the pattern, not just one detail.",
         }
       : {
           action: `Return to ${caseOwner}`,
@@ -982,6 +982,8 @@ function EvidencePanel({
   const [selectedSignal, setSelectedSignal] = useState<
     "ignore" | "signal" | "trap" | null
   >(null);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [isRevealed, setIsRevealed] = useState(false);
   const evidenceIndex = caseEvidence.findIndex(
     (item) => item.id === evidence.id,
   );
@@ -989,6 +991,8 @@ function EvidencePanel({
     (item) => item.id !== evidence.id && collectedEvidenceIds.includes(item.id),
   );
   const hasReadCorrectly = selectedSignal === "signal";
+  const canReveal = attemptCount >= 2 && !hasReadCorrectly && !isRevealed;
+  const canContinue = hasReadCorrectly;
   const checkOptions = useMemo(() => {
     const options = [
       {
@@ -1023,26 +1027,43 @@ function EvidencePanel({
     evidence.trap,
     evidence.trapFeedback,
   ]);
+  const handleSelectSignal = useCallback(
+    (kind: "ignore" | "signal" | "trap") => {
+      setSelectedSignal(kind);
+      setIsRevealed(false);
+      setAttemptCount((current) => (kind === "signal" ? current : current + 1));
+    },
+    [],
+  );
+  const revealStrongestRead = useCallback(() => {
+    setSelectedSignal("signal");
+    setIsRevealed(true);
+  }, []);
 
   useEffect(() => {
     const handleEvidenceKey = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
       if (key === "1") {
         event.preventDefault();
-        setSelectedSignal(checkOptions[0].kind);
+        handleSelectSignal(checkOptions[0].kind);
         return;
       }
       if (key === "2") {
         event.preventDefault();
-        setSelectedSignal(checkOptions[1].kind);
+        handleSelectSignal(checkOptions[1].kind);
         return;
       }
       if (key === "3") {
         event.preventDefault();
-        setSelectedSignal(checkOptions[2].kind);
+        handleSelectSignal(checkOptions[2].kind);
         return;
       }
-      if ((key === " " || key === "enter") && hasReadCorrectly) {
+      if (key === "r" && canReveal) {
+        event.preventDefault();
+        revealStrongestRead();
+        return;
+      }
+      if ((key === " " || key === "enter") && canContinue) {
         event.preventDefault();
         onContinue();
       }
@@ -1050,7 +1071,14 @@ function EvidencePanel({
 
     window.addEventListener("keydown", handleEvidenceKey);
     return () => window.removeEventListener("keydown", handleEvidenceKey);
-  }, [checkOptions, hasReadCorrectly, onContinue]);
+  }, [
+    canContinue,
+    canReveal,
+    checkOptions,
+    handleSelectSignal,
+    onContinue,
+    revealStrongestRead,
+  ]);
 
   return (
     <section
@@ -1088,7 +1116,7 @@ function EvidencePanel({
           </ol>
         ) : (
           <p>
-            After you save a clue, it will appear here so you can see the
+            After you save evidence, it will appear here so you can see the
             pattern building.
           </p>
         )}
@@ -1105,14 +1133,17 @@ function EvidencePanel({
         <div>
           <p className="eq-kicker">Check Your Read</p>
           <h3>What is the best read of this evidence?</h3>
-          <p>Choose the interpretation that best fits this clue.</p>
+          <p>
+            Choose the interpretation that best fits this evidence. If your
+            first read is off, use the feedback and try again.
+          </p>
         </div>
         {checkOptions.map((option, index) => (
           <button
             className={`eq-choice ${selectedSignal === option.kind ? "is-selected" : ""}`}
             key={option.kind}
             type="button"
-            onClick={() => setSelectedSignal(option.kind)}
+            onClick={() => handleSelectSignal(option.kind)}
           >
             <kbd>{index + 1}</kbd>
             <span>{option.label}</span>
@@ -1121,24 +1152,57 @@ function EvidencePanel({
         ))}
       </div>
 
-      {hasReadCorrectly && (
-        <aside className="eq-evidence-takeaway" aria-label="Evidence takeaway">
-          <strong>Saved for the final recommendation</strong>
+      {selectedSignal && !hasReadCorrectly && (
+        <aside
+          className="eq-evidence-takeaway is-warning"
+          aria-label="Evidence coaching"
+        >
+          <strong>
+            {canReveal ? "Need the strongest read?" : "Try again"}
+          </strong>
           <span>
-            This evidence now supports your diagnosis: {evidence.signal}
+            {canReveal
+              ? "You have tested two interpretations. You can reveal the strongest read, then save the teaching point."
+              : "This answer explains part of the evidence, but not the strongest pattern. Compare it with the other options before moving on."}
+          </span>
+          {canReveal && (
+            <button
+              className="eq-ghost-button"
+              type="button"
+              onClick={revealStrongestRead}
+            >
+              Reveal strongest read
+            </button>
+          )}
+        </aside>
+      )}
+
+      {hasReadCorrectly && (
+        <aside
+          className={`eq-evidence-takeaway ${isRevealed ? "is-revealed" : ""}`}
+          aria-label="Evidence takeaway"
+        >
+          <strong>
+            {isRevealed
+              ? "Strongest read revealed"
+              : "Saved for the final recommendation"}
+          </strong>
+          <span>
+            {"This evidence now supports your diagnosis: "}
+            {evidence.signal}
           </span>
         </aside>
       )}
 
       <button
         className="eq-primary-button mt-4"
-        disabled={!hasReadCorrectly}
+        disabled={!canContinue}
         type="button"
         onClick={onContinue}
       >
-        {hasReadCorrectly
+        {canContinue
           ? "Save evidence and continue"
-          : "Choose the useful signal to continue"}
+          : "Choose the best evidence read to continue"}
       </button>
     </section>
   );

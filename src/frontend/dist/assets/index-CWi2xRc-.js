@@ -12536,7 +12536,7 @@ const characters = [
       ],
       investigate: [
         "Look for the pattern across the deck, discovery guide, calls, CRM data, and manager coaching.",
-        "If one clue sounds obvious, do not stop there. A real diagnosis has to explain all the evidence."
+        "If one evidence item sounds obvious, do not stop there. A real diagnosis has to explain all the evidence."
       ],
       diagnose: [
         "Now make the call. Is this a knowledge problem, a skill problem, a process problem, a coaching problem, or a mix?",
@@ -12640,7 +12640,7 @@ const evidenceItems = [
     signalFeedback: "Good. A resource can exist and still fail to support the behavior the deal requires.",
     trapFeedback: "Existing material is evidence, not proof that the behavior is happening well.",
     partialFeedback: "That may improve the guide, but the evidence does not yet prove reps will use it well.",
-    ignoreFeedback: "This clue helps explain why demos happen before the buying problem is clear.",
+    ignoreFeedback: "This evidence helps explain why demos happen before the buying problem is clear.",
     metric: "Business-impact prompts: limited",
     sprite: officeSprite(384, 384)
   },
@@ -14550,7 +14550,7 @@ function ArtifactsPanel({
     (item) => item.caseId !== currentCaseId
   );
   const currentCaseLabel = currentCaseId === "sales" ? "Current case: sales enablement" : "Current case: onboarding performance";
-  const emptyGuidance = currentCaseId === "sales" ? "No evidence saved yet. Enter Sales Enablement Studio and review the first marked clue." : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
+  const emptyGuidance = currentCaseId === "sales" ? "No evidence saved yet. Enter Sales Enablement Studio and review the first marked evidence item." : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "section",
     {
@@ -14560,7 +14560,7 @@ function ArtifactsPanel({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-panel-header", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Evidence" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Saved clues" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Saved evidence" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Use this only when you want to review what you already found." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "eq-ghost-button", type: "button", onClick: onClose, children: [
@@ -14703,8 +14703,8 @@ function DialoguePanel({
 }
 const conversationPurpose = {
   briefing: "Leo is explaining the request. Your next job is to check whether the evidence supports it.",
-  investigate: "Compare what people say with the clues you collect.",
-  diagnose: "Choose the cause that best explains the clues.",
+  investigate: "Compare what people say with the evidence you collect.",
+  diagnose: "Choose the cause that best explains the evidence.",
   design: "Choose the support that would improve the work.",
   complete: "Summarize the problem, cause, fix, and expected result."
 };
@@ -14793,7 +14793,7 @@ function Hud({
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-directive-status", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: sceneSubtitle }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-          "Saved clues ",
+          "Saved evidence ",
           evidenceCount,
           "/",
           evidenceTotal
@@ -14841,7 +14841,7 @@ function Hud({
 }
 function getStepLabel(questStage, evidenceCount, evidenceTotal) {
   if (questStage === "investigate") {
-    return `Step 2 of 5 | Saved clues ${evidenceCount}/${evidenceTotal}`;
+    return `Step 2 of 5 | Saved evidence ${evidenceCount}/${evidenceTotal}`;
   }
   return stageLabels[questStage] ?? `Evidence ${evidenceCount}/${evidenceTotal}`;
 }
@@ -15107,7 +15107,7 @@ function getSteps(caseId) {
     {
       id: "investigate",
       title: "2. Review the evidence",
-      description: "Review each evidence item in order. Each one asks what the clue proves and what tempting shortcut to avoid.",
+      description: "Review each evidence item in order. Each one asks what the evidence proves and what tempting shortcut to avoid.",
       outcome: `All ${evidenceTotal} evidence items are checked off and the choice screen opens for the real cause.`
     },
     {
@@ -15812,7 +15812,7 @@ function CaseBriefingPanel({ onClose }) {
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "2. Investigate across rooms" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Collect the deck, discovery guide, call review, operations data, CRM review, and coaching archive. Each clue tests a different explanation." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Collect the deck, discovery guide, call review, operations data, CRM review, and coaching archive. Each evidence item tests a different explanation." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "3. Make the recommendation" }),
@@ -15972,8 +15972,8 @@ function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneI
   }
   if (questStage === "investigate") {
     return evidenceCount < evidenceTotal ? {
-      action: `Review clue ${evidenceCount + 1} of ${evidenceTotal}`,
-      reason: "Each clue gives you part of the story. Save the pattern, not just one detail."
+      action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
+      reason: "Each evidence item gives you part of the story. Save the pattern, not just one detail."
     } : {
       action: `Return to ${caseOwner}`,
       reason: "Bring your evidence back to the person who asked for help before you recommend a cause."
@@ -16024,6 +16024,8 @@ function EvidencePanel({
   onContinue
 }) {
   const [selectedSignal, setSelectedSignal] = reactExports.useState(null);
+  const [attemptCount, setAttemptCount] = reactExports.useState(0);
+  const [isRevealed, setIsRevealed] = reactExports.useState(false);
   const evidenceIndex = caseEvidence.findIndex(
     (item) => item.id === evidence.id
   );
@@ -16031,6 +16033,8 @@ function EvidencePanel({
     (item) => item.id !== evidence.id && collectedEvidenceIds.includes(item.id)
   );
   const hasReadCorrectly = selectedSignal === "signal";
+  const canReveal = attemptCount >= 2 && !hasReadCorrectly && !isRevealed;
+  const canContinue = hasReadCorrectly;
   const checkOptions = reactExports.useMemo(() => {
     const options = [
       {
@@ -16065,32 +16069,56 @@ function EvidencePanel({
     evidence.trap,
     evidence.trapFeedback
   ]);
+  const handleSelectSignal = reactExports.useCallback(
+    (kind) => {
+      setSelectedSignal(kind);
+      setIsRevealed(false);
+      setAttemptCount((current) => kind === "signal" ? current : current + 1);
+    },
+    []
+  );
+  const revealStrongestRead = reactExports.useCallback(() => {
+    setSelectedSignal("signal");
+    setIsRevealed(true);
+  }, []);
   reactExports.useEffect(() => {
     const handleEvidenceKey = (event) => {
       const key = event.key.toLowerCase();
       if (key === "1") {
         event.preventDefault();
-        setSelectedSignal(checkOptions[0].kind);
+        handleSelectSignal(checkOptions[0].kind);
         return;
       }
       if (key === "2") {
         event.preventDefault();
-        setSelectedSignal(checkOptions[1].kind);
+        handleSelectSignal(checkOptions[1].kind);
         return;
       }
       if (key === "3") {
         event.preventDefault();
-        setSelectedSignal(checkOptions[2].kind);
+        handleSelectSignal(checkOptions[2].kind);
         return;
       }
-      if ((key === " " || key === "enter") && hasReadCorrectly) {
+      if (key === "r" && canReveal) {
+        event.preventDefault();
+        revealStrongestRead();
+        return;
+      }
+      if ((key === " " || key === "enter") && canContinue) {
         event.preventDefault();
         onContinue();
       }
     };
     window.addEventListener("keydown", handleEvidenceKey);
     return () => window.removeEventListener("keydown", handleEvidenceKey);
-  }, [checkOptions, hasReadCorrectly, onContinue]);
+  }, [
+    canContinue,
+    canReveal,
+    checkOptions,
+    handleSelectSignal,
+    onContinue,
+    revealStrongestRead
+  ]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "section",
     {
@@ -16116,7 +16144,7 @@ function EvidencePanel({
           priorEvidence.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { children: priorEvidence.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: item.title }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.signal })
-          ] }, item.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "After you save a clue, it will appear here so you can see the pattern building." })
+          ] }, item.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "After you save evidence, it will appear here so you can see the pattern building." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "eq-evidence-main-read", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "What you found" }),
@@ -16128,14 +16156,14 @@ function EvidencePanel({
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Check Your Read" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "What is the best read of this evidence?" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Choose the interpretation that best fits this clue." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Choose the interpretation that best fits this evidence. If your first read is off, use the feedback and try again." })
           ] }),
           checkOptions.map((option, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               className: `eq-choice ${selectedSignal === option.kind ? "is-selected" : ""}`,
               type: "button",
-              onClick: () => setSelectedSignal(option.kind),
+              onClick: () => handleSelectSignal(option.kind),
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: index2 + 1 }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: option.label }),
@@ -16145,21 +16173,48 @@ function EvidencePanel({
             option.kind
           ))
         ] }),
-        hasReadCorrectly && /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-evidence-takeaway", "aria-label": "Evidence takeaway", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Saved for the final recommendation" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-            "This evidence now supports your diagnosis: ",
-            evidence.signal
-          ] })
-        ] }),
+        selectedSignal && !hasReadCorrectly && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "aside",
+          {
+            className: "eq-evidence-takeaway is-warning",
+            "aria-label": "Evidence coaching",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: canReveal ? "Need the strongest read?" : "Try again" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: canReveal ? "You have tested two interpretations. You can reveal the strongest read, then save the teaching point." : "This answer explains part of the evidence, but not the strongest pattern. Compare it with the other options before moving on." }),
+              canReveal && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "eq-ghost-button",
+                  type: "button",
+                  onClick: revealStrongestRead,
+                  children: "Reveal strongest read"
+                }
+              )
+            ]
+          }
+        ),
+        hasReadCorrectly && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "aside",
+          {
+            className: `eq-evidence-takeaway ${isRevealed ? "is-revealed" : ""}`,
+            "aria-label": "Evidence takeaway",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: isRevealed ? "Strongest read revealed" : "Saved for the final recommendation" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                "This evidence now supports your diagnosis: ",
+                evidence.signal
+              ] })
+            ]
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
           {
             className: "eq-primary-button mt-4",
-            disabled: !hasReadCorrectly,
+            disabled: !canContinue,
             type: "button",
             onClick: onContinue,
-            children: hasReadCorrectly ? "Save evidence and continue" : "Choose the useful signal to continue"
+            children: canContinue ? "Save evidence and continue" : "Choose the best evidence read to continue"
           }
         )
       ]

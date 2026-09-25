@@ -103,7 +103,7 @@ export function Hud({
         <div className="eq-directive-status">
           <span>{sceneSubtitle}</span>
           <strong>
-            Saved clues {evidenceCount}/{evidenceTotal}
+            Saved evidence {evidenceCount}/{evidenceTotal}
           </strong>
           {hasArtifact && <strong>Summary earned</strong>}
         </div>
@@ -155,7 +155,7 @@ function getStepLabel(
   evidenceTotal: number,
 ) {
   if (questStage === "investigate") {
-    return `Step 2 of 5 | Saved clues ${evidenceCount}/${evidenceTotal}`;
+    return `Step 2 of 5 | Saved evidence ${evidenceCount}/${evidenceTotal}`;
   }
   return (
     stageLabels[questStage] ?? `Evidence ${evidenceCount}/${evidenceTotal}`

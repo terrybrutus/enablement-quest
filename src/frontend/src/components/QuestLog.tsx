@@ -189,7 +189,7 @@ function getSteps(caseId: CaseId) {
       id: "investigate",
       title: "2. Review the evidence",
       description:
-        "Review each evidence item in order. Each one asks what the clue proves and what tempting shortcut to avoid.",
+        "Review each evidence item in order. Each one asks what the evidence proves and what tempting shortcut to avoid.",
       outcome: `All ${evidenceTotal} evidence items are checked off and the choice screen opens for the real cause.`,
     },
     {

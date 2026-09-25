@@ -559,7 +559,7 @@ export const characters: GameCharacter[] = [
       ],
       investigate: [
         "Look for the pattern across the deck, discovery guide, calls, CRM data, and manager coaching.",
-        "If one clue sounds obvious, do not stop there. A real diagnosis has to explain all the evidence.",
+        "If one evidence item sounds obvious, do not stop there. A real diagnosis has to explain all the evidence.",
       ],
       diagnose: [
         "Now make the call. Is this a knowledge problem, a skill problem, a process problem, a coaching problem, or a mix?",
@@ -703,7 +703,7 @@ export const evidenceItems: Evidence[] = [
     partialFeedback:
       "That may improve the guide, but the evidence does not yet prove reps will use it well.",
     ignoreFeedback:
-      "This clue helps explain why demos happen before the buying problem is clear.",
+      "This evidence helps explain why demos happen before the buying problem is clear.",
     metric: "Business-impact prompts: limited",
     sprite: officeSprite(384, 384),
   },
