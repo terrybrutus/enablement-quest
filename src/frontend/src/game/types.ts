@@ -117,6 +117,8 @@ export interface Evidence {
   trapFeedback: string;
   partialFeedback: string;
   ignoreFeedback: string;
+  supportKind: string;
+  supportFeedback: string;
   metric?: string;
   sprite: SheetSprite;
 }

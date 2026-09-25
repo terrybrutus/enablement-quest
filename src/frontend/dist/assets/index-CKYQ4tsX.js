@@ -12569,6 +12569,8 @@ const evidenceItems = [
     trapFeedback: "That would produce more content, but it would not stop different people from giving different directions.",
     partialFeedback: "That may help a little, but it does not solve the inconsistent follow-up from managers.",
     ignoreFeedback: "This is not background; it tells you the issue continues after formal onboarding.",
+    supportKind: "Workflow / manager reinforcement",
+    supportFeedback: "This evidence shows the work system is giving people inconsistent directions after training.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288)
   },
@@ -12587,6 +12589,8 @@ const evidenceItems = [
     trapFeedback: "More lessons about every handoff would add complexity without clarifying who owns the work.",
     partialFeedback: "A process map helps, but it still needs clear ownership for the handoffs.",
     ignoreFeedback: "This cannot be ignored because delayed access blocks performance even when people understand the job.",
+    supportKind: "Workflow / process",
+    supportFeedback: "This evidence shows the handoff process blocks performance even if people understand the training.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384)
   },
@@ -12605,6 +12609,8 @@ const evidenceItems = [
     trapFeedback: "Completion rates can look healthy while work performance still breaks after the course.",
     partialFeedback: "A check may reveal confusion, but the metric points to support during real work.",
     ignoreFeedback: "This metric is a business signal. It tells you where the enablement support must show up.",
+    supportKind: "Business metric",
+    supportFeedback: "This evidence proves the problem shows up in work outcomes after orientation.",
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384)
   },
@@ -12623,6 +12629,8 @@ const evidenceItems = [
     trapFeedback: "A better deck may help, but one artifact cannot explain the full win-rate problem by itself.",
     partialFeedback: "That is a useful support move, but the case still needs evidence about rep behavior and coaching.",
     ignoreFeedback: "This matters because the materials shape how reps frame the conversation.",
+    supportKind: "Content / message quality",
+    supportFeedback: "This evidence shows the sales material pushes features before buyer business value.",
     metric: "Feature-heavy deck",
     sprite: officeSprite(336, 288)
   },
@@ -12641,6 +12649,8 @@ const evidenceItems = [
     trapFeedback: "Existing material is evidence, not proof that the behavior is happening well.",
     partialFeedback: "That may improve the guide, but the evidence does not yet prove reps will use it well.",
     ignoreFeedback: "This evidence helps explain why demos happen before the buying problem is clear.",
+    supportKind: "Sales behavior support",
+    supportFeedback: "This evidence shows the guide does not support the discovery behavior needed before a demo.",
     metric: "Business-impact prompts: limited",
     sprite: officeSprite(384, 384)
   },
@@ -12659,6 +12669,8 @@ const evidenceItems = [
     trapFeedback: "A smooth demo can still miss the reason a buyer would fund a larger purchase.",
     partialFeedback: "More examples may polish the demo, but the evidence points to discovery depth first.",
     ignoreFeedback: "This is not background; it shows the behavior that may be blocking conversion.",
+    supportKind: "Observed sales behavior",
+    supportFeedback: "This evidence shows what reps actually do in calls, not what the training says they should do.",
     metric: "Second-layer discovery: 34%",
     sprite: officeSprite(432, 384)
   },
@@ -12677,6 +12689,8 @@ const evidenceItems = [
     trapFeedback: "A metric can trigger investigation; it should not automatically dictate the intervention.",
     partialFeedback: "That is a useful analysis step, but win rate still needs behavior and CRM evidence.",
     ignoreFeedback: "This is the business signal that makes the case worth solving.",
+    supportKind: "Business metric",
+    supportFeedback: "This evidence proves there is a measurable business problem, but not the cause by itself.",
     metric: "Closed-won: 23.6%",
     sprite: officeSprite(384, 384)
   },
@@ -12695,6 +12709,8 @@ const evidenceItems = [
     trapFeedback: "Price is a tempting explanation, but it does not explain why pain-linked opportunities convert better.",
     partialFeedback: "Cleaner CRM entries help, but the evidence also points to discovery and manager inspection.",
     ignoreFeedback: "This is a key system signal because it connects behavior to deal outcomes.",
+    supportKind: "Pipeline data quality",
+    supportFeedback: "This evidence shows the deal records are too inconsistent to explain losses without better inspection.",
     metric: "Proposal loss reasons: mixed",
     sprite: officeSprite(336, 288)
   },
@@ -12713,6 +12729,8 @@ const evidenceItems = [
     trapFeedback: "A workshop may build awareness, but it does not create manager coaching or accountability.",
     partialFeedback: "A checklist helps, but the case still needs a shared rubric and inspection rhythm.",
     ignoreFeedback: "This evidence explains why a one-time enablement event would fade.",
+    supportKind: "Manager reinforcement",
+    supportFeedback: "This evidence shows managers are not consistently coaching the behavior after enablement.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384)
   }
@@ -15942,7 +15960,11 @@ function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, comple
   }
   if (questStage === "investigate") {
     if (nextEvidenceTitle) {
-      const nextLocation = getEvidenceLocation(caseId, nextEvidenceTitle);
+      const nextLocation = getEvidenceLocation(
+        caseId,
+        nextEvidenceTitle,
+        sceneId
+      );
       return `Review ${nextEvidenceTitle}. ${nextLocation}`;
     }
     return `All evidence is collected. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
@@ -15973,7 +15995,7 @@ function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneI
   if (questStage === "investigate") {
     return evidenceCount < evidenceTotal ? {
       action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
-      reason: "Each evidence item gives you part of the story. Save the pattern, not just one detail."
+      reason: "Use each evidence item to decide what is proven and what still needs support."
     } : {
       action: `Return to ${caseOwner}`,
       reason: "Bring your evidence back to the person who asked for help before you recommend a cause."
@@ -16002,12 +16024,15 @@ function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneI
     reason: "You finished the case. Review the summary or start over."
   };
 }
-function getEvidenceLocation(caseId, evidenceTitle) {
+function getEvidenceLocation(caseId, evidenceTitle, currentSceneId) {
   const evidence = evidenceItems.find(
     (item) => item.caseId === caseId && item.title === evidenceTitle
   );
   if (!evidence) {
     return "";
+  }
+  if (evidence.sceneId === currentSceneId) {
+    return "Look for the marked evidence in this room.";
   }
   if (evidence.sceneId === "operations") {
     return "Go to the Operations Suite to find it.";
@@ -16026,6 +16051,11 @@ function EvidencePanel({
   const [selectedSignal, setSelectedSignal] = reactExports.useState(null);
   const [attemptCount, setAttemptCount] = reactExports.useState(0);
   const [isRevealed, setIsRevealed] = reactExports.useState(false);
+  const [selectedSupportKind, setSelectedSupportKind] = reactExports.useState(
+    null
+  );
+  const [supportAttemptCount, setSupportAttemptCount] = reactExports.useState(0);
+  const [isSupportRevealed, setIsSupportRevealed] = reactExports.useState(false);
   const evidenceIndex = caseEvidence.findIndex(
     (item) => item.id === evidence.id
   );
@@ -16033,8 +16063,10 @@ function EvidencePanel({
     (item) => item.id !== evidence.id && collectedEvidenceIds.includes(item.id)
   );
   const hasReadCorrectly = selectedSignal === "signal";
+  const hasSupportCorrectly = selectedSupportKind === evidence.supportKind;
   const canReveal = attemptCount >= 2 && !hasReadCorrectly && !isRevealed;
-  const canContinue = hasReadCorrectly;
+  const canRevealSupport = supportAttemptCount >= 2 && !hasSupportCorrectly && !isSupportRevealed;
+  const canContinue = hasReadCorrectly && hasSupportCorrectly;
   const checkOptions = reactExports.useMemo(() => {
     const options = [
       {
@@ -16081,6 +16113,20 @@ function EvidencePanel({
     setSelectedSignal("signal");
     setIsRevealed(true);
   }, []);
+  const handleSelectSupportKind = reactExports.useCallback(
+    (kind) => {
+      setSelectedSupportKind(kind);
+      setIsSupportRevealed(false);
+      setSupportAttemptCount(
+        (current) => kind === evidence.supportKind ? current : current + 1
+      );
+    },
+    [evidence.supportKind]
+  );
+  const revealSupportKind = reactExports.useCallback(() => {
+    setSelectedSupportKind(evidence.supportKind);
+    setIsSupportRevealed(true);
+  }, [evidence.supportKind]);
   reactExports.useEffect(() => {
     const handleEvidenceKey = (event) => {
       const key = event.key.toLowerCase();
@@ -16199,11 +16245,60 @@ function EvidencePanel({
             className: `eq-evidence-takeaway ${isRevealed ? "is-revealed" : ""}`,
             "aria-label": "Evidence takeaway",
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: isRevealed ? "Strongest read revealed" : "Saved for the final recommendation" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                "This evidence now supports your diagnosis: ",
-                evidence.signal
-              ] })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: isRevealed ? "Strongest read revealed" : "Best read selected" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: `This evidence now supports your diagnosis: ${evidence.signal}` })
+            ]
+          }
+        ),
+        hasReadCorrectly && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-evidence-check", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Defend Your Read" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "What kind of evidence supports that conclusion?" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Pick the reason this evidence matters. This is what makes the recommendation defensible later." })
+          ] }),
+          getSupportKindOptions(evidence.supportKind).map((kind, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: `eq-choice ${selectedSupportKind === kind ? "is-selected" : ""}`,
+              type: "button",
+              onClick: () => handleSelectSupportKind(kind),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: index2 + 1 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: kind }),
+                selectedSupportKind === kind && /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: kind === evidence.supportKind ? evidence.supportFeedback : "This may be relevant somewhere else, but it is not what this evidence mainly proves." })
+              ]
+            },
+            kind
+          ))
+        ] }),
+        hasReadCorrectly && selectedSupportKind && !hasSupportCorrectly && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "aside",
+          {
+            className: "eq-evidence-takeaway is-warning",
+            "aria-label": "Evidence support coaching",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: canRevealSupport ? "Need the support category?" : "Defend it again" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: canRevealSupport ? "You have tested two support categories. Reveal the category, then save the evidence." : "The read is right, but the support category is off. Ask what this evidence mainly proves." }),
+              canRevealSupport && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "button",
+                {
+                  className: "eq-ghost-button",
+                  type: "button",
+                  onClick: revealSupportKind,
+                  children: "Reveal support category"
+                }
+              )
+            ]
+          }
+        ),
+        hasReadCorrectly && hasSupportCorrectly && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "aside",
+          {
+            className: `eq-evidence-takeaway ${isSupportRevealed ? "is-revealed" : ""}`,
+            "aria-label": "Evidence defended",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: isSupportRevealed ? "Support category revealed" : "Evidence defended" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: evidence.supportFeedback })
             ]
           }
         ),
@@ -16214,11 +16309,29 @@ function EvidencePanel({
             disabled: !canContinue,
             type: "button",
             onClick: onContinue,
-            children: canContinue ? "Save evidence and continue" : "Choose the best evidence read to continue"
+            children: canContinue ? "Save evidence and continue" : hasReadCorrectly ? "Defend the evidence read to continue" : "Choose the best evidence read to continue"
           }
         )
       ]
     }
+  );
+}
+const SUPPORT_KIND_OPTIONS = [
+  "Business metric",
+  "Observed sales behavior",
+  "Sales behavior support",
+  "Content / message quality",
+  "Manager reinforcement",
+  "Pipeline data quality",
+  "Workflow / process",
+  "Workflow / manager reinforcement"
+];
+function getSupportKindOptions(correctKind) {
+  const distractors = SUPPORT_KIND_OPTIONS.filter(
+    (kind) => kind !== correctKind
+  ).sort((first, second) => first.localeCompare(second)).slice(0, 2);
+  return [correctKind, ...distractors].sort(
+    (first, second) => first.localeCompare(second)
   );
 }
 function SettingsPanel({

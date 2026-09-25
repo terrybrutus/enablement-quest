@@ -601,6 +601,9 @@ export const evidenceItems: Evidence[] = [
       "That may help a little, but it does not solve the inconsistent follow-up from managers.",
     ignoreFeedback:
       "This is not background; it tells you the issue continues after formal onboarding.",
+    supportKind: "Workflow / manager reinforcement",
+    supportFeedback:
+      "This evidence shows the work system is giving people inconsistent directions after training.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288),
   },
@@ -627,6 +630,9 @@ export const evidenceItems: Evidence[] = [
       "A process map helps, but it still needs clear ownership for the handoffs.",
     ignoreFeedback:
       "This cannot be ignored because delayed access blocks performance even when people understand the job.",
+    supportKind: "Workflow / process",
+    supportFeedback:
+      "This evidence shows the handoff process blocks performance even if people understand the training.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384),
   },
@@ -652,6 +658,9 @@ export const evidenceItems: Evidence[] = [
       "A check may reveal confusion, but the metric points to support during real work.",
     ignoreFeedback:
       "This metric is a business signal. It tells you where the enablement support must show up.",
+    supportKind: "Business metric",
+    supportFeedback:
+      "This evidence proves the problem shows up in work outcomes after orientation.",
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384),
   },
@@ -678,6 +687,9 @@ export const evidenceItems: Evidence[] = [
       "That is a useful support move, but the case still needs evidence about rep behavior and coaching.",
     ignoreFeedback:
       "This matters because the materials shape how reps frame the conversation.",
+    supportKind: "Content / message quality",
+    supportFeedback:
+      "This evidence shows the sales material pushes features before buyer business value.",
     metric: "Feature-heavy deck",
     sprite: officeSprite(336, 288),
   },
@@ -704,6 +716,9 @@ export const evidenceItems: Evidence[] = [
       "That may improve the guide, but the evidence does not yet prove reps will use it well.",
     ignoreFeedback:
       "This evidence helps explain why demos happen before the buying problem is clear.",
+    supportKind: "Sales behavior support",
+    supportFeedback:
+      "This evidence shows the guide does not support the discovery behavior needed before a demo.",
     metric: "Business-impact prompts: limited",
     sprite: officeSprite(384, 384),
   },
@@ -730,6 +745,9 @@ export const evidenceItems: Evidence[] = [
       "More examples may polish the demo, but the evidence points to discovery depth first.",
     ignoreFeedback:
       "This is not background; it shows the behavior that may be blocking conversion.",
+    supportKind: "Observed sales behavior",
+    supportFeedback:
+      "This evidence shows what reps actually do in calls, not what the training says they should do.",
     metric: "Second-layer discovery: 34%",
     sprite: officeSprite(432, 384),
   },
@@ -756,6 +774,9 @@ export const evidenceItems: Evidence[] = [
       "That is a useful analysis step, but win rate still needs behavior and CRM evidence.",
     ignoreFeedback:
       "This is the business signal that makes the case worth solving.",
+    supportKind: "Business metric",
+    supportFeedback:
+      "This evidence proves there is a measurable business problem, but not the cause by itself.",
     metric: "Closed-won: 23.6%",
     sprite: officeSprite(384, 384),
   },
@@ -781,6 +802,9 @@ export const evidenceItems: Evidence[] = [
       "Cleaner CRM entries help, but the evidence also points to discovery and manager inspection.",
     ignoreFeedback:
       "This is a key system signal because it connects behavior to deal outcomes.",
+    supportKind: "Pipeline data quality",
+    supportFeedback:
+      "This evidence shows the deal records are too inconsistent to explain losses without better inspection.",
     metric: "Proposal loss reasons: mixed",
     sprite: officeSprite(336, 288),
   },
@@ -807,6 +831,9 @@ export const evidenceItems: Evidence[] = [
       "A checklist helps, but the case still needs a shared rubric and inspection rhythm.",
     ignoreFeedback:
       "This evidence explains why a one-time enablement event would fade.",
+    supportKind: "Manager reinforcement",
+    supportFeedback:
+      "This evidence shows managers are not consistently coaching the behavior after enablement.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384),
   },

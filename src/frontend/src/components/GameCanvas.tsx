@@ -864,7 +864,11 @@ function getNextObjective(
   }
   if (questStage === "investigate") {
     if (nextEvidenceTitle) {
-      const nextLocation = getEvidenceLocation(caseId, nextEvidenceTitle);
+      const nextLocation = getEvidenceLocation(
+        caseId,
+        nextEvidenceTitle,
+        sceneId,
+      );
       return `Review ${nextEvidenceTitle}. ${nextLocation}`;
     }
     return `All evidence is collected. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
@@ -911,7 +915,7 @@ function getCoachPrompt(
       ? {
           action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
           reason:
-            "Each evidence item gives you part of the story. Save the pattern, not just one detail.",
+            "Use each evidence item to decide what is proven and what still needs support.",
         }
       : {
           action: `Return to ${caseOwner}`,
@@ -952,12 +956,16 @@ function getCoachPrompt(
 function getEvidenceLocation(
   caseId: GameState["currentCaseId"],
   evidenceTitle: string,
+  currentSceneId: GameState["player"]["sceneId"],
 ) {
   const evidence = evidenceItems.find(
     (item) => item.caseId === caseId && item.title === evidenceTitle,
   );
   if (!evidence) {
     return "";
+  }
+  if (evidence.sceneId === currentSceneId) {
+    return "Look for the marked evidence in this room.";
   }
   if (evidence.sceneId === "operations") {
     return "Go to the Operations Suite to find it.";
@@ -984,6 +992,11 @@ function EvidencePanel({
   >(null);
   const [attemptCount, setAttemptCount] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [selectedSupportKind, setSelectedSupportKind] = useState<string | null>(
+    null,
+  );
+  const [supportAttemptCount, setSupportAttemptCount] = useState(0);
+  const [isSupportRevealed, setIsSupportRevealed] = useState(false);
   const evidenceIndex = caseEvidence.findIndex(
     (item) => item.id === evidence.id,
   );
@@ -991,8 +1004,11 @@ function EvidencePanel({
     (item) => item.id !== evidence.id && collectedEvidenceIds.includes(item.id),
   );
   const hasReadCorrectly = selectedSignal === "signal";
+  const hasSupportCorrectly = selectedSupportKind === evidence.supportKind;
   const canReveal = attemptCount >= 2 && !hasReadCorrectly && !isRevealed;
-  const canContinue = hasReadCorrectly;
+  const canRevealSupport =
+    supportAttemptCount >= 2 && !hasSupportCorrectly && !isSupportRevealed;
+  const canContinue = hasReadCorrectly && hasSupportCorrectly;
   const checkOptions = useMemo(() => {
     const options = [
       {
@@ -1039,6 +1055,20 @@ function EvidencePanel({
     setSelectedSignal("signal");
     setIsRevealed(true);
   }, []);
+  const handleSelectSupportKind = useCallback(
+    (kind: string) => {
+      setSelectedSupportKind(kind);
+      setIsSupportRevealed(false);
+      setSupportAttemptCount((current) =>
+        kind === evidence.supportKind ? current : current + 1,
+      );
+    },
+    [evidence.supportKind],
+  );
+  const revealSupportKind = useCallback(() => {
+    setSelectedSupportKind(evidence.supportKind);
+    setIsSupportRevealed(true);
+  }, [evidence.supportKind]);
 
   useEffect(() => {
     const handleEvidenceKey = (event: KeyboardEvent) => {
@@ -1183,14 +1213,83 @@ function EvidencePanel({
           aria-label="Evidence takeaway"
         >
           <strong>
-            {isRevealed
-              ? "Strongest read revealed"
-              : "Saved for the final recommendation"}
+            {isRevealed ? "Strongest read revealed" : "Best read selected"}
+          </strong>
+          <span>{`This evidence now supports your diagnosis: ${evidence.signal}`}</span>
+        </aside>
+      )}
+
+      {hasReadCorrectly && (
+        <div className="eq-evidence-check">
+          <div>
+            <p className="eq-kicker">Defend Your Read</p>
+            <h3>What kind of evidence supports that conclusion?</h3>
+            <p>
+              Pick the reason this evidence matters. This is what makes the
+              recommendation defensible later.
+            </p>
+          </div>
+          {getSupportKindOptions(evidence.supportKind).map((kind, index) => (
+            <button
+              className={`eq-choice ${selectedSupportKind === kind ? "is-selected" : ""}`}
+              key={kind}
+              type="button"
+              onClick={() => handleSelectSupportKind(kind)}
+            >
+              <kbd>{index + 1}</kbd>
+              <span>{kind}</span>
+              {selectedSupportKind === kind && (
+                <small>
+                  {kind === evidence.supportKind
+                    ? evidence.supportFeedback
+                    : "This may be relevant somewhere else, but it is not what this evidence mainly proves."}
+                </small>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {hasReadCorrectly && selectedSupportKind && !hasSupportCorrectly && (
+        <aside
+          className="eq-evidence-takeaway is-warning"
+          aria-label="Evidence support coaching"
+        >
+          <strong>
+            {canRevealSupport
+              ? "Need the support category?"
+              : "Defend it again"}
           </strong>
           <span>
-            {"This evidence now supports your diagnosis: "}
-            {evidence.signal}
+            {canRevealSupport
+              ? "You have tested two support categories. Reveal the category, then save the evidence."
+              : "The read is right, but the support category is off. Ask what this evidence mainly proves."}
           </span>
+          {canRevealSupport && (
+            <button
+              className="eq-ghost-button"
+              type="button"
+              onClick={revealSupportKind}
+            >
+              Reveal support category
+            </button>
+          )}
+        </aside>
+      )}
+
+      {hasReadCorrectly && hasSupportCorrectly && (
+        <aside
+          className={`eq-evidence-takeaway ${
+            isSupportRevealed ? "is-revealed" : ""
+          }`}
+          aria-label="Evidence defended"
+        >
+          <strong>
+            {isSupportRevealed
+              ? "Support category revealed"
+              : "Evidence defended"}
+          </strong>
+          <span>{evidence.supportFeedback}</span>
         </aside>
       )}
 
@@ -1202,9 +1301,33 @@ function EvidencePanel({
       >
         {canContinue
           ? "Save evidence and continue"
-          : "Choose the best evidence read to continue"}
+          : hasReadCorrectly
+            ? "Defend the evidence read to continue"
+            : "Choose the best evidence read to continue"}
       </button>
     </section>
+  );
+}
+
+const SUPPORT_KIND_OPTIONS = [
+  "Business metric",
+  "Observed sales behavior",
+  "Sales behavior support",
+  "Content / message quality",
+  "Manager reinforcement",
+  "Pipeline data quality",
+  "Workflow / process",
+  "Workflow / manager reinforcement",
+];
+
+function getSupportKindOptions(correctKind: string) {
+  const distractors = SUPPORT_KIND_OPTIONS.filter(
+    (kind) => kind !== correctKind,
+  )
+    .sort((first, second) => first.localeCompare(second))
+    .slice(0, 2);
+  return [correctKind, ...distractors].sort((first, second) =>
+    first.localeCompare(second),
   );
 }
 
