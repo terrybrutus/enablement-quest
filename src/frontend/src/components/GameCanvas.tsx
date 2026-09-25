@@ -114,7 +114,7 @@ export default function GameCanvas() {
       direction: gameState.player.direction,
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
-      briefedCaseIds: gameState.briefedCaseIds,
+      briefedCaseIds: gameState.briefedCaseIds ?? [],
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
@@ -329,9 +329,9 @@ export default function GameCanvas() {
             : previous.questStage;
         const briefedCaseIds =
           previous.questStage === "briefing" &&
-          !previous.briefedCaseIds.includes(previous.currentCaseId)
-            ? [...previous.briefedCaseIds, previous.currentCaseId]
-            : previous.briefedCaseIds;
+          !(previous.briefedCaseIds ?? []).includes(previous.currentCaseId)
+            ? [...(previous.briefedCaseIds ?? []), previous.currentCaseId]
+            : (previous.briefedCaseIds ?? []);
         return {
           ...previous,
           questStage: nextStage,
@@ -445,7 +445,9 @@ export default function GameCanvas() {
       ...previous,
       currentCaseId: "sales",
       questStage: "briefing",
-      briefedCaseIds: previous.briefedCaseIds.filter((id) => id !== "sales"),
+      briefedCaseIds: (previous.briefedCaseIds ?? []).filter(
+        (id) => id !== "sales",
+      ),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,

@@ -13495,7 +13495,7 @@ function drawProps(ctx, scene, camera, assets) {
   }
 }
 function drawEvidence(ctx, scene, gameState, camera, assets) {
-  if (!gameState.briefedCaseIds.includes(gameState.currentCaseId)) {
+  if (!isCaseBriefed$1(gameState)) {
     return;
   }
   const visibleEvidence = evidenceItems.filter(
@@ -13574,7 +13574,7 @@ function drawCharacters(ctx, scene, gameState, camera, assets) {
       ctx.beginPath();
       ctx.ellipse(x + 24, y + 91, 22, 8, 0, 0, Math.PI * 2);
       ctx.stroke();
-      if (!gameState.briefedCaseIds.includes(gameState.currentCaseId)) {
+      if (!isCaseBriefed$1(gameState)) {
         drawQuestMarker(ctx, x + 24, y - 35, "!");
       }
     }
@@ -13622,10 +13622,13 @@ function getDirectionSpriteOffset(direction) {
   return offsets[direction];
 }
 function getCurrentCaseOwnerId(gameState) {
-  if (gameState.briefedCaseIds.includes(gameState.currentCaseId)) {
+  if (isCaseBriefed$1(gameState)) {
     return null;
   }
   return gameState.currentCaseId === "sales" ? "leo" : "maya";
+}
+function isCaseBriefed$1(gameState) {
+  return (gameState.briefedCaseIds ?? []).includes(gameState.currentCaseId);
 }
 function drawQuestMarker(ctx, x, y, label) {
   const pulse = Math.sin(Date.now() / 240) * 2;
@@ -13728,7 +13731,7 @@ function useGameLoop({
     if (!nearby) {
       return false;
     }
-    if (!state.briefedCaseIds.includes(state.currentCaseId)) {
+    if (!isCaseBriefed(state)) {
       const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
         `Talk to ${stakeholder} first. They explain the case before you review evidence.`
@@ -13774,7 +13777,7 @@ function useGameLoop({
     }
     setGameState((previous) => {
       const isCaseOwner = character.id === (previous.currentCaseId === "sales" ? "leo" : "maya");
-      const needsBriefing = isCaseOwner && !previous.briefedCaseIds.includes(previous.currentCaseId);
+      const needsBriefing = isCaseOwner && !isCaseBriefed(previous);
       return {
         ...previous,
         questStage: needsBriefing ? "briefing" : previous.questStage,
@@ -13809,7 +13812,7 @@ function useGameLoop({
       );
       return;
     }
-    if (!state.briefedCaseIds.includes(state.currentCaseId) && openNearbyCharacter()) {
+    if (!isCaseBriefed(state) && openNearbyCharacter()) {
       return;
     }
     if (collectNearbyEvidence()) {
@@ -14152,7 +14155,9 @@ function getCaseTransition(state, targetSceneId) {
     return {
       currentCaseId: "sales",
       questStage: "briefing",
-      briefedCaseIds: state.briefedCaseIds.filter((id) => id !== "sales"),
+      briefedCaseIds: (state.briefedCaseIds ?? []).filter(
+        (id) => id !== "sales"
+      ),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
@@ -14273,6 +14278,9 @@ function getCurrentScene(state) {
     return scenes[0];
   }
   return scene;
+}
+function isCaseBriefed(state) {
+  return (state.briefedCaseIds ?? []).includes(state.currentCaseId);
 }
 function pointInRect(point, rect) {
   return point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height;
@@ -15358,7 +15366,7 @@ function GameCanvas() {
       direction: gameState.player.direction,
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
-      briefedCaseIds: gameState.briefedCaseIds,
+      briefedCaseIds: gameState.briefedCaseIds ?? [],
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
@@ -15548,7 +15556,7 @@ function GameCanvas() {
       const nextIndex = previous.dialogue.lineIndex + 1;
       if (nextIndex >= lines.length) {
         const nextStage = previous.questStage === "briefing" ? "investigate" : previous.questStage;
-        const briefedCaseIds = previous.questStage === "briefing" && !previous.briefedCaseIds.includes(previous.currentCaseId) ? [...previous.briefedCaseIds, previous.currentCaseId] : previous.briefedCaseIds;
+        const briefedCaseIds = previous.questStage === "briefing" && !(previous.briefedCaseIds ?? []).includes(previous.currentCaseId) ? [...previous.briefedCaseIds ?? [], previous.currentCaseId] : previous.briefedCaseIds ?? [];
         return {
           ...previous,
           questStage: nextStage,
@@ -15647,7 +15655,9 @@ function GameCanvas() {
       ...previous,
       currentCaseId: "sales",
       questStage: "briefing",
-      briefedCaseIds: previous.briefedCaseIds.filter((id) => id !== "sales"),
+      briefedCaseIds: (previous.briefedCaseIds ?? []).filter(
+        (id) => id !== "sales"
+      ),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,

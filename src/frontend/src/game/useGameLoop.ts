@@ -65,7 +65,7 @@ export function useGameLoop({
       return false;
     }
 
-    if (!state.briefedCaseIds.includes(state.currentCaseId)) {
+    if (!isCaseBriefed(state)) {
       const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
         `Talk to ${stakeholder} first. They explain the case before you review evidence.`,
@@ -116,9 +116,7 @@ export function useGameLoop({
     setGameState((previous) => {
       const isCaseOwner =
         character.id === (previous.currentCaseId === "sales" ? "leo" : "maya");
-      const needsBriefing =
-        isCaseOwner &&
-        !previous.briefedCaseIds.includes(previous.currentCaseId);
+      const needsBriefing = isCaseOwner && !isCaseBriefed(previous);
       return {
         ...previous,
         questStage: needsBriefing ? "briefing" : previous.questStage,
@@ -160,10 +158,7 @@ export function useGameLoop({
       return;
     }
 
-    if (
-      !state.briefedCaseIds.includes(state.currentCaseId) &&
-      openNearbyCharacter()
-    ) {
+    if (!isCaseBriefed(state) && openNearbyCharacter()) {
       return;
     }
 
@@ -595,7 +590,9 @@ function getCaseTransition(
     return {
       currentCaseId: "sales" as const,
       questStage: "briefing" as const,
-      briefedCaseIds: state.briefedCaseIds.filter((id) => id !== "sales"),
+      briefedCaseIds: (state.briefedCaseIds ?? []).filter(
+        (id) => id !== "sales",
+      ),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
@@ -741,6 +738,10 @@ function getCurrentScene(state: GameState) {
     return scenes[0];
   }
   return scene;
+}
+
+function isCaseBriefed(state: GameState) {
+  return (state.briefedCaseIds ?? []).includes(state.currentCaseId);
 }
 
 function pointInRect(point: Position, rect: Rect) {

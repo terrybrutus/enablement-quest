@@ -712,7 +712,7 @@ function drawEvidence(
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
-  if (!gameState.briefedCaseIds.includes(gameState.currentCaseId)) {
+  if (!isCaseBriefed(gameState)) {
     return;
   }
 
@@ -815,7 +815,7 @@ function drawCharacters(
       ctx.beginPath();
       ctx.ellipse(x + 24, y + 91, 22, 8, 0, 0, Math.PI * 2);
       ctx.stroke();
-      if (!gameState.briefedCaseIds.includes(gameState.currentCaseId)) {
+      if (!isCaseBriefed(gameState)) {
         drawQuestMarker(ctx, x + 24, y - 35, "!");
       }
     }
@@ -876,10 +876,14 @@ function getDirectionSpriteOffset(direction: Direction) {
 }
 
 function getCurrentCaseOwnerId(gameState: GameState) {
-  if (gameState.briefedCaseIds.includes(gameState.currentCaseId)) {
+  if (isCaseBriefed(gameState)) {
     return null;
   }
   return gameState.currentCaseId === "sales" ? "leo" : "maya";
+}
+
+function isCaseBriefed(gameState: GameState) {
+  return (gameState.briefedCaseIds ?? []).includes(gameState.currentCaseId);
 }
 
 function drawQuestMarker(
