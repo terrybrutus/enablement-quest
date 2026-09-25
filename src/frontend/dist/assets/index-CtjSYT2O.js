@@ -13495,6 +13495,9 @@ function drawProps(ctx, scene, camera, assets) {
   }
 }
 function drawEvidence(ctx, scene, gameState, camera, assets) {
+  if (gameState.questStage === "briefing") {
+    return;
+  }
   const visibleEvidence = evidenceItems.filter(
     (item) => item.sceneId === scene.id && item.caseId === gameState.currentCaseId && !gameState.collectedEvidenceIds.includes(item.id)
   );

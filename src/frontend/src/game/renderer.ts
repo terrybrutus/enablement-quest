@@ -712,6 +712,10 @@ function drawEvidence(
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
+  if (gameState.questStage === "briefing") {
+    return;
+  }
+
   const visibleEvidence = evidenceItems.filter(
     (item) =>
       item.sceneId === scene.id &&
