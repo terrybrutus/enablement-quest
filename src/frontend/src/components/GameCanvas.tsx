@@ -854,7 +854,9 @@ function getNextObjective(
     if (caseId === "sales") {
       return sceneId === "sales"
         ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales."
-        : "Enter the Sales Enablement Studio and talk with Leo.";
+        : sceneId === "lab"
+          ? "Optional: inspect the glowing lab objects, then exit to the campus and find Leo."
+          : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
     }
     return sceneId === "operations"
       ? "Step 1: talk with Maya. Listen to the training request, then question whether training is enough."
@@ -898,9 +900,9 @@ function getCoachPrompt(
             "Start by hearing what leaders asked for and what problem they see.",
         }
       : {
-          action: `Enter ${room}`,
-          reason:
-            "The case begins with the person asking for help, not with a template or course idea.",
+          action:
+            sceneId === "lab" ? "Explore or exit the lab" : `Go to ${room}`,
+          reason: "Start with the request, then verify it with evidence.",
         };
   }
 

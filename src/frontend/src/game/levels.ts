@@ -108,7 +108,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
         targetSceneId: "hub",
-        targetPosition: { x: 15, y: 13.65 },
+        targetPosition: { x: 15, y: 15.95 },
       },
     ],
     blocks: [
