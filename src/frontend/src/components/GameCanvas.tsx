@@ -37,7 +37,7 @@ declare global {
       direction: GameState["player"]["direction"];
       collectedEvidenceIds: string[];
       completedCaseIds: CaseId[];
-      briefedCaseIds: CaseId[];
+      caseBriefingCompletedIds: CaseId[];
       currentCaseId: CaseId;
       diagnosisId: string | null;
       interventionId: string | null;
@@ -61,7 +61,7 @@ function createInitialGameState(): GameState {
     },
     currentCaseId: qaScene?.caseId ?? "sales",
     completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
-    briefedCaseIds: [],
+    caseBriefingCompletedIds: qaScene?.caseBriefingCompletedIds ?? [],
     characterStates: Object.fromEntries(
       characters.map((character) => [
         character.id,
@@ -114,7 +114,7 @@ export default function GameCanvas() {
       direction: gameState.player.direction,
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
-      briefedCaseIds: gameState.briefedCaseIds ?? [],
+      caseBriefingCompletedIds: gameState.caseBriefingCompletedIds,
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
@@ -124,6 +124,24 @@ export default function GameCanvas() {
       overlay: gameState.overlay,
     };
   }, [gameState]);
+
+  useEffect(() => {
+    if (
+      gameState.questStage !== "briefing" &&
+      !gameState.caseBriefingCompletedIds.includes(gameState.currentCaseId)
+    ) {
+      setGameState((previous) => ({
+        ...previous,
+        questStage: "briefing",
+        activeEvidenceId: null,
+        overlay: previous.overlay === "evidence" ? "none" : previous.overlay,
+      }));
+    }
+  }, [
+    gameState.caseBriefingCompletedIds,
+    gameState.currentCaseId,
+    gameState.questStage,
+  ]);
 
   const { inputRef, interact } = useGameLoop({
     gameStateRef,
@@ -292,9 +310,9 @@ export default function GameCanvas() {
         isMoving: false,
       },
       currentCaseId: "sales",
+      caseBriefingCompletedIds: [],
       questStage: "briefing",
       collectedEvidenceIds: [],
-      briefedCaseIds: [],
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
@@ -323,19 +341,22 @@ export default function GameCanvas() {
       }
       const nextIndex = previous.dialogue.lineIndex + 1;
       if (nextIndex >= lines.length) {
+        const briefingWasCompleted =
+          previous.questStage === "briefing" &&
+          character.id === getCaseOwnerId(previous.currentCaseId);
         const nextStage =
           previous.questStage === "briefing"
             ? "investigate"
             : previous.questStage;
-        const briefedCaseIds =
-          previous.questStage === "briefing" &&
-          !(previous.briefedCaseIds ?? []).includes(previous.currentCaseId)
-            ? [...(previous.briefedCaseIds ?? []), previous.currentCaseId]
-            : (previous.briefedCaseIds ?? []);
         return {
           ...previous,
           questStage: nextStage,
-          briefedCaseIds,
+          caseBriefingCompletedIds: briefingWasCompleted
+            ? addUniqueCaseId(
+                previous.caseBriefingCompletedIds,
+                previous.currentCaseId,
+              )
+            : previous.caseBriefingCompletedIds,
           overlay: "none",
           dialogue: null,
           toast: previous.questStage === "briefing" ? null : previous.toast,
@@ -444,10 +465,10 @@ export default function GameCanvas() {
     setGameState((previous) => ({
       ...previous,
       currentCaseId: "sales",
-      questStage: "briefing",
-      briefedCaseIds: (previous.briefedCaseIds ?? []).filter(
-        (id) => id !== "sales",
+      caseBriefingCompletedIds: previous.caseBriefingCompletedIds.filter(
+        (caseId) => caseId !== "sales",
       ),
+      questStage: "briefing",
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
@@ -484,7 +505,7 @@ export default function GameCanvas() {
       },
       currentCaseId: "sales",
       completedCaseIds: [],
-      briefedCaseIds: [],
+      caseBriefingCompletedIds: [],
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,
@@ -730,6 +751,7 @@ function getQaScene(): {
   overlay?: GameState["overlay"];
   position: Position;
   questStage?: GameState["questStage"];
+  caseBriefingCompletedIds?: CaseId[];
   sceneId: SceneId;
 } | null {
   if (typeof window === "undefined") {
@@ -790,6 +812,7 @@ function getQaEvidenceState(
   }
   return {
     activeEvidenceId: qaEvidence,
+    caseBriefingCompletedIds: [caseId],
     collectedEvidenceIds: caseEvidence
       .slice(0, evidenceIndex)
       .map((item) => item.id),
@@ -850,11 +873,20 @@ function getQaStageState(
         : null;
   return {
     collectedEvidenceIds,
+    caseBriefingCompletedIds: [caseId],
     diagnosisId,
     interventionId,
     overlay: "decision" as const,
     questStage: qaStage as GameState["questStage"],
   };
+}
+
+function getCaseOwnerId(caseId: CaseId) {
+  return caseId === "sales" ? "leo" : "maya";
+}
+
+function addUniqueCaseId(caseIds: CaseId[], caseId: CaseId) {
+  return caseIds.includes(caseId) ? caseIds : [...caseIds, caseId];
 }
 
 function getNextObjective(

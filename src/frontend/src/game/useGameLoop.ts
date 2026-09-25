@@ -65,7 +65,7 @@ export function useGameLoop({
       return false;
     }
 
-    if (!isCaseBriefed(state)) {
+    if (!isCurrentCaseBriefed(state)) {
       const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
         `Talk to ${stakeholder} first. They explain the case before you review evidence.`,
@@ -116,7 +116,7 @@ export function useGameLoop({
     setGameState((previous) => {
       const isCaseOwner =
         character.id === (previous.currentCaseId === "sales" ? "leo" : "maya");
-      const needsBriefing = isCaseOwner && !isCaseBriefed(previous);
+      const needsBriefing = isCaseOwner && !isCurrentCaseBriefed(previous);
       return {
         ...previous,
         questStage: needsBriefing ? "briefing" : previous.questStage,
@@ -158,7 +158,7 @@ export function useGameLoop({
       return;
     }
 
-    if (!isCaseBriefed(state) && openNearbyCharacter()) {
+    if (!isCurrentCaseBriefed(state) && openNearbyCharacter()) {
       return;
     }
 
@@ -590,14 +590,14 @@ function getCaseTransition(
     return {
       currentCaseId: "sales" as const,
       questStage: "briefing" as const,
-      briefedCaseIds: (state.briefedCaseIds ?? []).filter(
-        (id) => id !== "sales",
-      ),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
       activeCanvasCaseId: null,
       earnedArtifact: null,
+      caseBriefingCompletedIds: state.caseBriefingCompletedIds.filter(
+        (caseId) => caseId !== "sales",
+      ),
       overlay: "none" as const,
       dialogue: null,
       toast: {
@@ -608,6 +608,10 @@ function getCaseTransition(
     };
   }
   return {};
+}
+
+function isCurrentCaseBriefed(state: GameState) {
+  return state.caseBriefingCompletedIds.includes(state.currentCaseId);
 }
 
 function moveCharacters(state: GameState, delta: number) {
@@ -738,10 +742,6 @@ function getCurrentScene(state: GameState) {
     return scenes[0];
   }
   return scene;
-}
-
-function isCaseBriefed(state: GameState) {
-  return (state.briefedCaseIds ?? []).includes(state.currentCaseId);
 }
 
 function pointInRect(point: Position, rect: Rect) {
