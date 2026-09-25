@@ -108,7 +108,7 @@ export const scenes: Scene[] = [
         label: "Organization Floor",
         rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
         targetSceneId: "hub",
-        targetPosition: { x: 15, y: 16.35 },
+        targetPosition: { x: 15, y: 13.65 },
       },
     ],
     blocks: [
@@ -217,7 +217,7 @@ export const scenes: Scene[] = [
         label: "Learning Systems Lab",
         rect: { x: 14.45, y: 14.72, width: 1.1, height: 0.72 },
         targetSceneId: "lab",
-        targetPosition: { x: 9, y: 9.6 },
+        targetPosition: { x: 9, y: 7.6 },
       },
       {
         id: "hub-to-operations",
@@ -228,7 +228,7 @@ export const scenes: Scene[] = [
       },
       {
         id: "hub-to-sales",
-        label: "Sales Strategy Studio",
+        label: "Sales Enablement Studio",
         rect: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 },
         targetSceneId: "sales",
         targetPosition: { x: 9, y: 10.25 },
@@ -353,7 +353,7 @@ export const scenes: Scene[] = [
   },
   {
     id: "sales",
-    name: "Sales Strategy Studio",
+    name: "Sales Enablement Studio",
     subtitle: "Case: Atlas Pro win rate is below target",
     width: 18,
     height: 13,
@@ -591,10 +591,14 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Conflicting instructions point to workflow and manager reinforcement, not just a missing lesson.",
     trap: "Treat the leader's training request as proof that a longer course is the answer.",
+    partial:
+      "Add a short refresher lesson that tells new hires which checklist to use.",
     signalFeedback:
       "Good. Conflicting instructions mean the learner is not receiving one consistent operating path.",
     trapFeedback:
       "That would produce more content, but it would not stop different people from giving different directions.",
+    partialFeedback:
+      "That may help a little, but it does not solve the inconsistent follow-up from managers.",
     ignoreFeedback:
       "This is not background; it tells you the issue continues after formal onboarding.",
     metric: "Survey confidence: 58%",
@@ -613,10 +617,14 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Multiple handoffs create delay. Training cannot fix ownership unless the workflow changes too.",
     trap: "Convert every missing handoff step into another onboarding lesson.",
+    partial:
+      "Create a visual process map so new hires can see each access step.",
     signalFeedback:
       "Good. The handoffs show a workflow ownership problem, not only a knowledge problem.",
     trapFeedback:
       "More lessons about every handoff would add complexity without clarifying who owns the work.",
+    partialFeedback:
+      "A process map helps, but it still needs clear ownership for the handoffs.",
     ignoreFeedback:
       "This cannot be ignored because delayed access blocks performance even when people understand the job.",
     metric: "Average access delay: 8 days",
@@ -635,10 +643,13 @@ export const evidenceItems: Evidence[] = [
     signal:
       "The spike happens after formal training, so the support system is failing when work actually begins.",
     trap: "Judge the course by completion rate instead of support tickets and time-to-productivity.",
+    partial: "Add a week-two knowledge check to see what new hires remember.",
     signalFeedback:
       "Good. The spike after orientation proves support is failing when real work begins.",
     trapFeedback:
       "Completion rates can look healthy while work performance still breaks after the course.",
+    partialFeedback:
+      "A check may reveal confusion, but the metric points to support during real work.",
     ignoreFeedback:
       "This metric is a business signal. It tells you where the enablement support must show up.",
     metric: "Tickets per cohort: +31%",
@@ -656,14 +667,18 @@ export const evidenceItems: Evidence[] = [
       "The deck supports product explanation, but it does not help reps lead with the business reason a director or executive would fund the upgrade.",
     signal:
       "The sales material is feature-heavy, so reps need support connecting Atlas Pro to buyer priorities.",
-    trap: "Assume the deck itself is the whole problem and redesign slides before checking behavior or data.",
+    trap: "Treat the deck as the main fix because it is the artifact reps use during demos.",
+    partial:
+      "Rewrite the opening slides so the deck starts with business outcomes.",
     signalFeedback:
-      "Good. This evidence points to value framing, not simply missing product facts.",
+      "Good. This evidence points to weak business-value messaging, not simply missing product facts.",
     trapFeedback:
-      "A better deck may help, but this one artifact cannot explain the full win-rate problem by itself.",
+      "A better deck may help, but one artifact cannot explain the full win-rate problem by itself.",
+    partialFeedback:
+      "That is a useful support move, but the case still needs evidence about rep behavior and coaching.",
     ignoreFeedback:
       "This matters because the materials shape how reps frame the conversation.",
-    metric: "Value framing: weak",
+    metric: "Feature-heavy deck",
     sprite: officeSprite(336, 288),
   },
   {
@@ -671,7 +686,7 @@ export const evidenceItems: Evidence[] = [
     caseId: "sales",
     title: "Discovery Guide",
     sceneId: "sales",
-    position: { x: 1.9, y: 6.8 },
+    position: { x: 2.35, y: 9.35 },
     summary:
       "The discovery guide asks about current tools, reporting needs, and technical fit, but it rarely asks about business impact or decision criteria.",
     insight:
@@ -679,10 +694,14 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Discovery support exists, but it does not push reps far enough into business pain and decision quality.",
     trap: "Treat the existence of a guide as proof that discovery is already covered.",
+    partial:
+      "Add two business-impact questions to the existing discovery guide.",
     signalFeedback:
       "Good. A resource can exist and still fail to support the behavior the deal requires.",
     trapFeedback:
       "Existing material is evidence, not proof that the behavior is happening well.",
+    partialFeedback:
+      "That may improve the guide, but the evidence does not yet prove reps will use it well.",
     ignoreFeedback:
       "This clue helps explain why demos happen before the buying problem is clear.",
     metric: "Business-impact prompts: limited",
@@ -701,10 +720,14 @@ export const evidenceItems: Evidence[] = [
     signal:
       "Reps can explain features; the weak behavior is connecting the demo to buyer pain.",
     trap: "Treat a polished product demo as proof that reps are selling Atlas Pro effectively.",
+    partial:
+      "Give reps more examples of strong feature explanations for Atlas Pro.",
     signalFeedback:
       "Good. The call data shows a skill and behavior gap before the demo, not a simple product-knowledge gap.",
     trapFeedback:
       "A smooth demo can still miss the reason a buyer would fund a larger purchase.",
+    partialFeedback:
+      "More examples may polish the demo, but the evidence points to discovery depth first.",
     ignoreFeedback:
       "This is not background; it shows the behavior that may be blocking conversion.",
     metric: "Second-layer discovery: 34%",
@@ -722,11 +745,15 @@ export const evidenceItems: Evidence[] = [
       "The business problem is real, but the aggregate win rate only proves underperformance. It does not explain the cause.",
     signal:
       "The performance signal is below target, but you need supporting evidence before prescribing training.",
-    trap: "Use the low win rate alone to justify a refresher training for everyone.",
+    trap: "Use the low win rate as the primary reason to schedule a refresher training.",
+    partial:
+      "Compare trained and untrained reps before deciding whether training coverage matters.",
     signalFeedback:
       "Good. The dashboard proves the problem exists, but it does not diagnose why it exists.",
     trapFeedback:
       "A metric can trigger investigation; it should not automatically dictate the intervention.",
+    partialFeedback:
+      "That is a useful analysis step, but win rate still needs behavior and CRM evidence.",
     ignoreFeedback:
       "This is the business signal that makes the case worth solving.",
     metric: "Closed-won: 23.6%",
@@ -744,11 +771,14 @@ export const evidenceItems: Evidence[] = [
       "The data suggests qualification and manager inspection are uneven. Cleaner CRM habits can expose whether reps are creating real buying urgency.",
     signal:
       "Pipeline quality drops when business pain is missing from opportunity notes.",
-    trap: "Treat price as the only reason deals are lost and hand the problem to Finance.",
+    trap: "Treat price pressure as the primary explanation because it appears often in loss notes.",
+    partial: "Ask managers to standardize how reps enter loss reasons in CRM.",
     signalFeedback:
       "Good. Price may matter, but the pattern also points to weak qualification and inspection.",
     trapFeedback:
       "Price is a tempting explanation, but it does not explain why pain-linked opportunities convert better.",
+    partialFeedback:
+      "Cleaner CRM entries help, but the evidence also points to discovery and manager inspection.",
     ignoreFeedback:
       "This is a key system signal because it connects behavior to deal outcomes.",
     metric: "Proposal loss reasons: mixed",
@@ -766,11 +796,15 @@ export const evidenceItems: Evidence[] = [
       "Reinforcement is weak. Even strong training would fade if managers do not inspect and coach the target behavior.",
     signal:
       "Managers need a shared rubric so coaching happens consistently after enablement.",
-    trap: "Run a one-time workshop and hope managers reinforce the behavior later.",
+    trap: "Run one manager workshop and rely on managers to apply it in future deal reviews.",
+    partial:
+      "Send managers a coaching checklist for their next pipeline meeting.",
     signalFeedback:
       "Good. Without a shared rubric, managers cannot reinforce the new behavior consistently.",
     trapFeedback:
       "A workshop may build awareness, but it does not create manager coaching or accountability.",
+    partialFeedback:
+      "A checklist helps, but the case still needs a shared rubric and inspection rhythm.",
     ignoreFeedback:
       "This evidence explains why a one-time enablement event would fade.",
     metric: "Coaching rubric use: 18%",
@@ -842,7 +876,7 @@ export const diagnosisOptions: DiagnosisOption[] = [
     id: "sales-discovery-coaching",
     caseId: "sales",
     label:
-      "Atlas Pro is losing because discovery, value framing, and manager reinforcement are not working together.",
+      "Atlas Pro is losing because discovery, business value, and manager coaching are not working together.",
     explanation:
       "Correct. This explains the full evidence pattern: feature-heavy materials, shallow discovery, weak pain notes, uneven CRM inspection, and inconsistent manager coaching.",
     correct: true,
@@ -951,7 +985,7 @@ export const interventionOptions: InterventionOption[] = [
     label:
       "Build a discovery practice loop, value guide, coaching rubric, and pipeline inspection dashboard.",
     explanation:
-      "Correct. This changes pre-demo discovery, improves value framing, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
+      "Correct. This changes pre-demo discovery, improves how reps connect Atlas Pro to business value, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
     correct: true,
     consequence:
       "Reps practice the behavior that affects pipeline, managers coach from a shared rubric, and leaders see conversion signals.",
@@ -1051,7 +1085,7 @@ export const earnedCanvas: EarnedArtifact = {
 export const salesCanvas: EarnedArtifact = {
   id: "sales-enablement-impact-canvas",
   title: "Atlas Pro Enablement Case Summary",
-  subtitle: "Case: The Vanishing Win Rate",
+  subtitle: "Case: Why sales are not closing",
   learnerDebrief: {
     headline: "What you practiced",
     points: [
@@ -1063,7 +1097,7 @@ export const salesCanvas: EarnedArtifact = {
       {
         label: "Design",
         value:
-          "You chose a system of practice, value framing, coaching, and inspection instead of a single content fix.",
+          "You chose a system of practice, business-value support, coaching, and inspection instead of a single content fix.",
       },
       {
         label: "Measure",
@@ -1081,7 +1115,7 @@ export const salesCanvas: EarnedArtifact = {
     {
       label: "Root Cause",
       value:
-        "Reps can explain the product, but discovery is too shallow, value framing is feature-heavy, CRM inspection is uneven, and managers lack a shared coaching rubric.",
+        "Reps can explain the product, but discovery is too shallow, the story is too feature-heavy, CRM inspection is uneven, and managers lack a shared coaching rubric.",
     },
     {
       label: "Intervention",
@@ -1101,7 +1135,7 @@ export const salesCanvas: EarnedArtifact = {
     {
       label: "Expected Impact",
       value:
-        "Proposal-stage win rate moves toward the 30% target; discovery quality improves; coaching rubric use increases; value-linked opportunities become visible.",
+        "Proposal-stage win rate moves toward the 30% target; discovery quality improves; coaching rubric use increases; business-value notes become visible.",
     },
   ],
 };
@@ -1111,4 +1145,4 @@ export const earnedArtifactsByCase = {
   sales: salesCanvas,
 } as const;
 
-export const initialPosition = { x: 9, y: 9.6 };
+export const initialPosition = { x: 9, y: 7.6 };

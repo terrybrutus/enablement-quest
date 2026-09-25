@@ -9,30 +9,31 @@ interface TitleScreenProps {
 const introSlides = [
   {
     kicker: "Enablement Quest",
-    title: "The Case of the Vanishing Win Rate",
-    body: "Atlas Pro is reaching proposal, but too few deals are closing. Leaders think the sales team may need more training.",
+    title: "Find Out Why Sales Are Not Closing",
+    body: "Atlas Pro is a new software product. Sales reps are getting customers interested, but too few customers are buying it.",
     detail:
-      "Your job is not to accept that answer yet. Your job is to investigate.",
+      "Leaders think the answer might be more sales training. Your job is to find out what is really happening.",
   },
   {
     kicker: "Your Role",
     title: "Act like the enablement lead",
-    body: "You will talk to people, inspect evidence, and decide what is really blocking performance.",
+    body: "You will talk to people, review work samples, and decide what is really blocking performance.",
     detail:
       "The question you keep asking is simple: is this actually a training problem?",
   },
   {
     kicker: "How It Works",
     title: "Follow one clear path",
-    body: "Start in the lab, go to Leo in Sales Strategy Studio, collect evidence in order, then return to make the recommendation.",
-    detail: "The bottom guide will always tell you exactly what to do next.",
+    body: "Start in the lab, go to Leo in the Sales Enablement Studio, collect evidence in order, then return to make the recommendation.",
+    detail:
+      "During the game, the instruction bar at the bottom of the screen will tell you the next step.",
   },
   {
     kicker: "Learning Goal",
     title: "Diagnose before designing",
-    body: "Choose the cause that explains the full evidence pattern. Then choose the fix that changes behavior and can be measured.",
+    body: "You will practice deciding whether a work problem needs training, coaching, better tools, clearer process, or a mix of support.",
     detail:
-      "You finish when you can explain the problem, cause, fix, and expected business impact in plain language.",
+      "You finish when you can explain the problem, the likely cause, the recommended fix, and how you would know it worked.",
   },
 ] as const;
 
@@ -57,7 +58,6 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
       <div className="eq-title-card eq-intro-carousel">
         <div className="eq-title-meta">
           <p className="eq-kicker">{slide.kicker}</p>
-          <p className="eq-byline">Created by Terry Brutus</p>
         </div>
 
         <div className="eq-intro-slide">
@@ -124,6 +124,7 @@ export function TitleScreen({ onStart }: TitleScreenProps) {
           <span className="eq-mobile-control">Move: joystick</span>
           <span className="eq-mobile-control">Talk or inspect: button</span>
         </div>
+        <p className="eq-title-credit">Created by Terry Brutus</p>
       </div>
     </section>
   );

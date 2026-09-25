@@ -2120,7 +2120,11 @@
 
 .eq-intro-slide {
   display: grid;
-  min-height: 320px;
+  grid-template-rows: auto minmax(110px, auto) minmax(74px, auto) minmax(
+      46px,
+      auto
+    );
+  min-height: 336px;
   place-content: center;
 }
 
@@ -2177,6 +2181,16 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px 18px;
+  min-height: 22px;
+}
+
+.eq-title-credit {
+  color: #94a3b8;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  margin: 14px 0 0;
+  text-transform: uppercase;
 }
 
 .eq-title-card h1 {
@@ -2196,6 +2210,8 @@
   font-weight: 800;
   letter-spacing: 0.14em;
   margin-top: 10px;
+  min-width: 126px;
+  justify-content: center;
   padding: 7px 12px;
   text-transform: uppercase;
 }
@@ -2806,12 +2822,12 @@
   .eq-bottom-directive {
     bottom: calc(env(safe-area-inset-bottom) + 122px);
     grid-template-columns: 1fr;
-    gap: 9px;
+    gap: 7px;
     left: 10px;
     right: 10px;
     transform: none;
     width: auto;
-    padding: 11px 12px;
+    padding: 9px 11px;
   }
 
   .eq-bottom-directive h1 {
@@ -2829,8 +2845,12 @@
 
   .eq-directive-status {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     min-width: 0;
+  }
+
+  .eq-directive-status span {
+    display: none;
   }
 
   .eq-directive-status span,

@@ -34,7 +34,7 @@ export function ArtifactsPanel({
       : "Current case: onboarding performance";
   const emptyGuidance =
     currentCaseId === "sales"
-      ? "No evidence saved yet. Enter Sales Strategy Studio and review the first marked evidence item."
+      ? "No evidence saved yet. Enter Sales Enablement Studio and review the first marked clue."
       : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
 
   return (
@@ -84,7 +84,7 @@ export function ArtifactsPanel({
         </div>
       )}
 
-      {(earnedArtifact || completedCaseIds.length > 0) && (
+      {(earnedArtifact || completedCaseIds.length > 1) && (
         <div className="eq-summary-actions">
           {earnedArtifact && (
             <button
@@ -96,7 +96,7 @@ export function ArtifactsPanel({
             </button>
           )}
 
-          {completedCaseIds.length > 0 && (
+          {completedCaseIds.length > 1 && (
             <div className="eq-mini-section">
               <h3>Completed case summaries</h3>
               {completedCaseIds.map((caseId) => (

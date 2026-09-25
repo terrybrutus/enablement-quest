@@ -205,7 +205,7 @@ function drawExteriorLandmarks(
   const buildings = [
     {
       rect: { x: 3, y: 2.7, width: 7.1, height: 4.85 },
-      label: "Sales Strategy Studio",
+      label: "Sales Enablement Studio",
       accent: "#22d3ee",
       fill: "#164e63",
       door: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 },

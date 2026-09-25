@@ -182,7 +182,7 @@ export function useGameLoop({
           toast: {
             id: Date.now(),
             message:
-              "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary.",
+              "Finish the onboarding case first. The Sales Enablement Studio unlocks after you earn the first case summary.",
           },
         }));
         return;
@@ -431,7 +431,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary.",
+            "Finish the onboarding case first. The Sales Enablement Studio unlocks after you earn the first case summary.",
         },
       };
     }
@@ -469,7 +469,15 @@ function moveWithinScene(
         height: prop.size.height,
       }),
   );
-  if (blocked || propBlocked) {
+  const characterBlocked = characters.some((character) => {
+    if (character.sceneId !== state.player.sceneId) {
+      return false;
+    }
+    const characterState = state.characterStates[character.id];
+    const position = characterState?.position ?? character.position;
+    return distanceInPixels(bounded, position) < 24;
+  });
+  if (blocked || propBlocked || characterBlocked) {
     return {
       ...state,
       player: {
@@ -497,7 +505,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary.",
+            "Finish the onboarding case first. The Sales Enablement Studio unlocks after you earn the first case summary.",
         },
       };
     }

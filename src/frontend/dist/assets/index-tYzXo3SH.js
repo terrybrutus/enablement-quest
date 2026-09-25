@@ -12098,7 +12098,7 @@ const scenes = [
         label: "Organization Floor",
         rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
         targetSceneId: "hub",
-        targetPosition: { x: 15, y: 16.35 }
+        targetPosition: { x: 15, y: 13.65 }
       }
     ],
     blocks: [
@@ -12203,7 +12203,7 @@ const scenes = [
         label: "Learning Systems Lab",
         rect: { x: 14.45, y: 14.72, width: 1.1, height: 0.72 },
         targetSceneId: "lab",
-        targetPosition: { x: 9, y: 9.6 }
+        targetPosition: { x: 9, y: 7.6 }
       },
       {
         id: "hub-to-operations",
@@ -12214,7 +12214,7 @@ const scenes = [
       },
       {
         id: "hub-to-sales",
-        label: "Sales Strategy Studio",
+        label: "Sales Enablement Studio",
         rect: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 },
         targetSceneId: "sales",
         targetPosition: { x: 9, y: 10.25 }
@@ -12335,7 +12335,7 @@ const scenes = [
   },
   {
     id: "sales",
-    name: "Sales Strategy Studio",
+    name: "Sales Enablement Studio",
     subtitle: "Case: Atlas Pro win rate is below target",
     width: 18,
     height: 13,
@@ -12564,8 +12564,10 @@ const evidenceItems = [
     insight: "The issue is not simply forgetting content. People are getting different expectations after the formal onboarding session.",
     signal: "Conflicting instructions point to workflow and manager reinforcement, not just a missing lesson.",
     trap: "Treat the leader's training request as proof that a longer course is the answer.",
+    partial: "Add a short refresher lesson that tells new hires which checklist to use.",
     signalFeedback: "Good. Conflicting instructions mean the learner is not receiving one consistent operating path.",
     trapFeedback: "That would produce more content, but it would not stop different people from giving different directions.",
+    partialFeedback: "That may help a little, but it does not solve the inconsistent follow-up from managers.",
     ignoreFeedback: "This is not background; it tells you the issue continues after formal onboarding.",
     metric: "Survey confidence: 58%",
     sprite: officeSprite(336, 288)
@@ -12580,8 +12582,10 @@ const evidenceItems = [
     insight: "A learner cannot perform the job confidently if the workflow delays access and ownership is unclear.",
     signal: "Multiple handoffs create delay. Training cannot fix ownership unless the workflow changes too.",
     trap: "Convert every missing handoff step into another onboarding lesson.",
+    partial: "Create a visual process map so new hires can see each access step.",
     signalFeedback: "Good. The handoffs show a workflow ownership problem, not only a knowledge problem.",
     trapFeedback: "More lessons about every handoff would add complexity without clarifying who owns the work.",
+    partialFeedback: "A process map helps, but it still needs clear ownership for the handoffs.",
     ignoreFeedback: "This cannot be ignored because delayed access blocks performance even when people understand the job.",
     metric: "Average access delay: 8 days",
     sprite: officeSprite(384, 384)
@@ -12596,8 +12600,10 @@ const evidenceItems = [
     insight: "The support system is weakest when new hires start doing real work, after the course is already complete.",
     signal: "The spike happens after formal training, so the support system is failing when work actually begins.",
     trap: "Judge the course by completion rate instead of support tickets and time-to-productivity.",
+    partial: "Add a week-two knowledge check to see what new hires remember.",
     signalFeedback: "Good. The spike after orientation proves support is failing when real work begins.",
     trapFeedback: "Completion rates can look healthy while work performance still breaks after the course.",
+    partialFeedback: "A check may reveal confusion, but the metric points to support during real work.",
     ignoreFeedback: "This metric is a business signal. It tells you where the enablement support must show up.",
     metric: "Tickets per cohort: +31%",
     sprite: officeSprite(432, 384)
@@ -12611,11 +12617,13 @@ const evidenceItems = [
     summary: "The Atlas Pro deck explains analytics, automation, and executive reports, but most slides start with features instead of buyer pain.",
     insight: "The deck supports product explanation, but it does not help reps lead with the business reason a director or executive would fund the upgrade.",
     signal: "The sales material is feature-heavy, so reps need support connecting Atlas Pro to buyer priorities.",
-    trap: "Assume the deck itself is the whole problem and redesign slides before checking behavior or data.",
-    signalFeedback: "Good. This evidence points to value framing, not simply missing product facts.",
-    trapFeedback: "A better deck may help, but this one artifact cannot explain the full win-rate problem by itself.",
+    trap: "Treat the deck as the main fix because it is the artifact reps use during demos.",
+    partial: "Rewrite the opening slides so the deck starts with business outcomes.",
+    signalFeedback: "Good. This evidence points to weak business-value messaging, not simply missing product facts.",
+    trapFeedback: "A better deck may help, but one artifact cannot explain the full win-rate problem by itself.",
+    partialFeedback: "That is a useful support move, but the case still needs evidence about rep behavior and coaching.",
     ignoreFeedback: "This matters because the materials shape how reps frame the conversation.",
-    metric: "Value framing: weak",
+    metric: "Feature-heavy deck",
     sprite: officeSprite(336, 288)
   },
   {
@@ -12623,13 +12631,15 @@ const evidenceItems = [
     caseId: "sales",
     title: "Discovery Guide",
     sceneId: "sales",
-    position: { x: 1.9, y: 6.8 },
+    position: { x: 2.35, y: 9.35 },
     summary: "The discovery guide asks about current tools, reporting needs, and technical fit, but it rarely asks about business impact or decision criteria.",
     insight: "Reps have questions to ask, but the questions do not reliably uncover the financial or executive reason to buy Atlas Pro.",
     signal: "Discovery support exists, but it does not push reps far enough into business pain and decision quality.",
     trap: "Treat the existence of a guide as proof that discovery is already covered.",
+    partial: "Add two business-impact questions to the existing discovery guide.",
     signalFeedback: "Good. A resource can exist and still fail to support the behavior the deal requires.",
     trapFeedback: "Existing material is evidence, not proof that the behavior is happening well.",
+    partialFeedback: "That may improve the guide, but the evidence does not yet prove reps will use it well.",
     ignoreFeedback: "This clue helps explain why demos happen before the buying problem is clear.",
     metric: "Business-impact prompts: limited",
     sprite: officeSprite(384, 384)
@@ -12644,8 +12654,10 @@ const evidenceItems = [
     insight: "The behavior gap is not basic product recall. The gap is diagnosing the buyer's problem deeply enough before presenting Atlas Pro.",
     signal: "Reps can explain features; the weak behavior is connecting the demo to buyer pain.",
     trap: "Treat a polished product demo as proof that reps are selling Atlas Pro effectively.",
+    partial: "Give reps more examples of strong feature explanations for Atlas Pro.",
     signalFeedback: "Good. The call data shows a skill and behavior gap before the demo, not a simple product-knowledge gap.",
     trapFeedback: "A smooth demo can still miss the reason a buyer would fund a larger purchase.",
+    partialFeedback: "More examples may polish the demo, but the evidence points to discovery depth first.",
     ignoreFeedback: "This is not background; it shows the behavior that may be blocking conversion.",
     metric: "Second-layer discovery: 34%",
     sprite: officeSprite(432, 384)
@@ -12659,9 +12671,11 @@ const evidenceItems = [
     summary: "Atlas Pro expected a 30% win rate. In the last four weeks, 74 opportunities reached proposal, 13 closed won, 42 closed lost, and 19 remain open.",
     insight: "The business problem is real, but the aggregate win rate only proves underperformance. It does not explain the cause.",
     signal: "The performance signal is below target, but you need supporting evidence before prescribing training.",
-    trap: "Use the low win rate alone to justify a refresher training for everyone.",
+    trap: "Use the low win rate as the primary reason to schedule a refresher training.",
+    partial: "Compare trained and untrained reps before deciding whether training coverage matters.",
     signalFeedback: "Good. The dashboard proves the problem exists, but it does not diagnose why it exists.",
     trapFeedback: "A metric can trigger investigation; it should not automatically dictate the intervention.",
+    partialFeedback: "That is a useful analysis step, but win rate still needs behavior and CRM evidence.",
     ignoreFeedback: "This is the business signal that makes the case worth solving.",
     metric: "Closed-won: 23.6%",
     sprite: officeSprite(384, 384)
@@ -12675,9 +12689,11 @@ const evidenceItems = [
     summary: "Loss reasons are inconsistent: price, no decision, and competitor appear often, but notes with clear business pain convert better.",
     insight: "The data suggests qualification and manager inspection are uneven. Cleaner CRM habits can expose whether reps are creating real buying urgency.",
     signal: "Pipeline quality drops when business pain is missing from opportunity notes.",
-    trap: "Treat price as the only reason deals are lost and hand the problem to Finance.",
+    trap: "Treat price pressure as the primary explanation because it appears often in loss notes.",
+    partial: "Ask managers to standardize how reps enter loss reasons in CRM.",
     signalFeedback: "Good. Price may matter, but the pattern also points to weak qualification and inspection.",
     trapFeedback: "Price is a tempting explanation, but it does not explain why pain-linked opportunities convert better.",
+    partialFeedback: "Cleaner CRM entries help, but the evidence also points to discovery and manager inspection.",
     ignoreFeedback: "This is a key system signal because it connects behavior to deal outcomes.",
     metric: "Proposal loss reasons: mixed",
     sprite: officeSprite(336, 288)
@@ -12691,9 +12707,11 @@ const evidenceItems = [
     summary: "Managers received a briefing, but coaching notes focus on forecast movement more than discovery quality, value messaging, or executive alignment.",
     insight: "Reinforcement is weak. Even strong training would fade if managers do not inspect and coach the target behavior.",
     signal: "Managers need a shared rubric so coaching happens consistently after enablement.",
-    trap: "Run a one-time workshop and hope managers reinforce the behavior later.",
+    trap: "Run one manager workshop and rely on managers to apply it in future deal reviews.",
+    partial: "Send managers a coaching checklist for their next pipeline meeting.",
     signalFeedback: "Good. Without a shared rubric, managers cannot reinforce the new behavior consistently.",
     trapFeedback: "A workshop may build awareness, but it does not create manager coaching or accountability.",
+    partialFeedback: "A checklist helps, but the case still needs a shared rubric and inspection rhythm.",
     ignoreFeedback: "This evidence explains why a one-time enablement event would fade.",
     metric: "Coaching rubric use: 18%",
     sprite: officeSprite(432, 384)
@@ -12743,7 +12761,7 @@ const diagnosisOptions = [
   {
     id: "sales-discovery-coaching",
     caseId: "sales",
-    label: "Atlas Pro is losing because discovery, value framing, and manager reinforcement are not working together.",
+    label: "Atlas Pro is losing because discovery, business value, and manager coaching are not working together.",
     explanation: "Correct. This explains the full evidence pattern: feature-heavy materials, shallow discovery, weak pain notes, uneven CRM inspection, and inconsistent manager coaching.",
     correct: true,
     consequence: "The solution can target the revenue behavior itself: rep practice, manager coaching, and pipeline inspection.",
@@ -12816,7 +12834,7 @@ const interventionOptions = [
     id: "sales-coaching-system",
     caseId: "sales",
     label: "Build a discovery practice loop, value guide, coaching rubric, and pipeline inspection dashboard.",
-    explanation: "Correct. This changes pre-demo discovery, improves value framing, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
+    explanation: "Correct. This changes pre-demo discovery, improves how reps connect Atlas Pro to business value, gives managers a coaching tool, and tracks conversion after the behavior should appear.",
     correct: true,
     consequence: "Reps practice the behavior that affects pipeline, managers coach from a shared rubric, and leaders see conversion signals.",
     tradeoff: "It takes coordination with sales leaders, but it connects enablement work to revenue behavior.",
@@ -12894,7 +12912,7 @@ const earnedCanvas = {
 const salesCanvas = {
   id: "sales-enablement-impact-canvas",
   title: "Atlas Pro Enablement Case Summary",
-  subtitle: "Case: The Vanishing Win Rate",
+  subtitle: "Case: Why sales are not closing",
   learnerDebrief: {
     headline: "What you practiced",
     points: [
@@ -12904,7 +12922,7 @@ const salesCanvas = {
       },
       {
         label: "Design",
-        value: "You chose a system of practice, value framing, coaching, and inspection instead of a single content fix."
+        value: "You chose a system of practice, business-value support, coaching, and inspection instead of a single content fix."
       },
       {
         label: "Measure",
@@ -12919,7 +12937,7 @@ const salesCanvas = {
     },
     {
       label: "Root Cause",
-      value: "Reps can explain the product, but discovery is too shallow, value framing is feature-heavy, CRM inspection is uneven, and managers lack a shared coaching rubric."
+      value: "Reps can explain the product, but discovery is too shallow, the story is too feature-heavy, CRM inspection is uneven, and managers lack a shared coaching rubric."
     },
     {
       label: "Intervention",
@@ -12935,7 +12953,7 @@ const salesCanvas = {
     },
     {
       label: "Expected Impact",
-      value: "Proposal-stage win rate moves toward the 30% target; discovery quality improves; coaching rubric use increases; value-linked opportunities become visible."
+      value: "Proposal-stage win rate moves toward the 30% target; discovery quality improves; coaching rubric use increases; business-value notes become visible."
     }
   ]
 };
@@ -12943,7 +12961,7 @@ const earnedArtifactsByCase = {
   onboarding: earnedCanvas,
   sales: salesCanvas
 };
-const initialPosition = { x: 9, y: 9.6 };
+const initialPosition = { x: 9, y: 7.6 };
 const TILE_SIZE = 48;
 const PLAYER_WIDTH = 34;
 const PLAYER_HEIGHT = 52;
@@ -13076,7 +13094,7 @@ function drawExteriorLandmarks(ctx, scene, camera) {
   const buildings = [
     {
       rect: { x: 3, y: 2.7, width: 7.1, height: 4.85 },
-      label: "Sales Strategy Studio",
+      label: "Sales Enablement Studio",
       accent: "#22d3ee",
       fill: "#164e63",
       door: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 }
@@ -13786,7 +13804,7 @@ function useGameLoop({
           ...previous,
           toast: {
             id: Date.now(),
-            message: "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary."
+            message: "Finish the onboarding case first. The Sales Enablement Studio unlocks after you earn the first case summary."
           }
         }));
         return;
@@ -13988,7 +14006,7 @@ function moveWithinScene(state, nextPosition) {
         },
         toast: {
           id: Date.now(),
-          message: "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary."
+          message: "Finish the onboarding case first. The Sales Enablement Studio unlocks after you earn the first case summary."
         }
       };
     }
@@ -14019,7 +14037,15 @@ function moveWithinScene(state, nextPosition) {
       height: prop.size.height
     })
   );
-  if (blocked || propBlocked) {
+  const characterBlocked = characters.some((character) => {
+    if (character.sceneId !== state.player.sceneId) {
+      return false;
+    }
+    const characterState = state.characterStates[character.id];
+    const position = (characterState == null ? void 0 : characterState.position) ?? character.position;
+    return distanceInPixels(bounded, position) < 24;
+  });
+  if (blocked || propBlocked || characterBlocked) {
     return {
       ...state,
       player: {
@@ -14041,7 +14067,7 @@ function moveWithinScene(state, nextPosition) {
         },
         toast: {
           id: Date.now(),
-          message: "Finish the onboarding case first. The Sales Strategy Studio unlocks after you earn the first case summary."
+          message: "Finish the onboarding case first. The Sales Enablement Studio unlocks after you earn the first case summary."
         }
       };
     }
@@ -14345,6 +14371,17 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
+const __iconNode$c = [
+  ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
+  ["path", { d: "M19 12H5", key: "x3x0zl" }]
+];
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$c);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
 const __iconNode$b = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
@@ -14513,7 +14550,7 @@ function ArtifactsPanel({
     (item) => item.caseId !== currentCaseId
   );
   const currentCaseLabel = currentCaseId === "sales" ? "Current case: sales enablement" : "Current case: onboarding performance";
-  const emptyGuidance = currentCaseId === "sales" ? "No evidence saved yet. Enter Sales Strategy Studio and review the first marked evidence item." : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
+  const emptyGuidance = currentCaseId === "sales" ? "No evidence saved yet. Enter Sales Enablement Studio and review the first marked clue." : "No evidence saved yet. Enter Operations Suite and review the first marked evidence item.";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "section",
     {
@@ -14543,7 +14580,7 @@ function ArtifactsPanel({
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Older evidence is shown separately so it does not clutter this case." }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-artifact-list", children: priorCaseEvidence.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(EvidenceNoteCard, { item }, item.id)) })
         ] }),
-        (earnedArtifact || completedCaseIds.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-summary-actions", children: [
+        (earnedArtifact || completedCaseIds.length > 1) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-summary-actions", children: [
           earnedArtifact && /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -14553,7 +14590,7 @@ function ArtifactsPanel({
               children: "Open current case summary"
             }
           ),
-          completedCaseIds.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-mini-section", children: [
+          completedCaseIds.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-mini-section", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Completed case summaries" }),
             completedCaseIds.map((caseId) => /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
@@ -14590,6 +14627,7 @@ function DialoguePanel({
   stage,
   totalLines,
   onAdvance,
+  onBack,
   onClose
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -14611,8 +14649,8 @@ function DialoguePanel({
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: line }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-dialogue-learning", "aria-label": "Conversation purpose", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Listen for" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-dialogue-learning", "aria-label": "Conversation tip", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Why this matters" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: conversationPurpose[stage] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-dialogue-actions", children: [
@@ -14627,6 +14665,19 @@ function DialoguePanel({
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-touch-hint", children: "Tap Continue or Talk or Inspect" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                className: "eq-ghost-button",
+                disabled: lineIndex === 0,
+                type: "button",
+                onClick: onBack,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { className: "h-4 w-4" }),
+                  "Back"
+                ]
+              }
+            ),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "eq-ghost-button", type: "button", onClick: onClose, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }),
               "Close"
@@ -14651,11 +14702,11 @@ function DialoguePanel({
   );
 }
 const conversationPurpose = {
-  briefing: "Separate the leader's request from the real performance problem before you build anything.",
-  investigate: "Connect what this person says to the evidence you are collecting.",
-  diagnose: "Check whether your root-cause answer explains what would still be broken after more training.",
-  design: "Listen for the support, reinforcement, and metric the solution needs.",
-  complete: "Turn the case into a plain-language recommendation: problem, decision, fix, and impact."
+  briefing: "Leo is explaining the request. Your next job is to check whether the evidence supports it.",
+  investigate: "Compare what people say with the clues you collect.",
+  diagnose: "Choose the cause that best explains the clues.",
+  design: "Choose the support that would improve the work.",
+  complete: "Summarize the problem, cause, fix, and expected result."
 };
 const stageLabels = {
   briefing: "Step 1 of 5",
@@ -14742,7 +14793,7 @@ function Hud({
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-directive-status", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: sceneSubtitle }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-          "Evidence ",
+          "Saved clues ",
           evidenceCount,
           "/",
           evidenceTotal
@@ -14790,7 +14841,7 @@ function Hud({
 }
 function getStepLabel(questStage, evidenceCount, evidenceTotal) {
   if (questStage === "investigate") {
-    return `Step 2 of 5 | Evidence ${evidenceCount}/${evidenceTotal}`;
+    return `Step 2 of 5 | Saved clues ${evidenceCount}/${evidenceTotal}`;
   }
   return stageLabels[questStage] ?? `Evidence ${evidenceCount}/${evidenceTotal}`;
 }
@@ -14888,11 +14939,11 @@ function NotificationToast({
 }
 const caseTitles = {
   onboarding: "The Broken Onboarding Request",
-  sales: "The Case of the Vanishing Win Rate"
+  sales: "Why Sales Are Not Closing"
 };
 const caseRooms = {
   onboarding: "Operations Suite",
-  sales: "Sales Strategy Studio"
+  sales: "Sales Enablement Studio"
 };
 function QuestLog({
   currentCaseId,
@@ -15050,7 +15101,7 @@ function getSteps(caseId) {
     {
       id: "briefing",
       title: "1. Hear the request",
-      description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then ask whether that request solves the real problem.`,
+      description: `Talk with ${stakeholder} in ${room}. Find out what leaders asked for, then ask whether that request solves the real problem.`,
       outcome: `${stakeholder} finishes the briefing and the app points you to the first evidence item.`
     },
     {
@@ -15117,27 +15168,27 @@ function getFinishGuidance(caseId, questStage) {
 const introSlides = [
   {
     kicker: "Enablement Quest",
-    title: "The Case of the Vanishing Win Rate",
-    body: "Atlas Pro is reaching proposal, but too few deals are closing. Leaders think the sales team may need more training.",
-    detail: "Your job is not to accept that answer yet. Your job is to investigate."
+    title: "Find Out Why Sales Are Not Closing",
+    body: "Atlas Pro is a new software product. Sales reps are getting customers interested, but too few customers are buying it.",
+    detail: "Leaders think the answer might be more sales training. Your job is to find out what is really happening."
   },
   {
     kicker: "Your Role",
     title: "Act like the enablement lead",
-    body: "You will talk to people, inspect evidence, and decide what is really blocking performance.",
+    body: "You will talk to people, review work samples, and decide what is really blocking performance.",
     detail: "The question you keep asking is simple: is this actually a training problem?"
   },
   {
     kicker: "How It Works",
     title: "Follow one clear path",
-    body: "Start in the lab, go to Leo in Sales Strategy Studio, collect evidence in order, then return to make the recommendation.",
-    detail: "The bottom guide will always tell you exactly what to do next."
+    body: "Start in the lab, go to Leo in the Sales Enablement Studio, collect evidence in order, then return to make the recommendation.",
+    detail: "During the game, the instruction bar at the bottom of the screen will tell you the next step."
   },
   {
     kicker: "Learning Goal",
     title: "Diagnose before designing",
-    body: "Choose the cause that explains the full evidence pattern. Then choose the fix that changes behavior and can be measured.",
-    detail: "You finish when you can explain the problem, cause, fix, and expected business impact in plain language."
+    body: "You will practice deciding whether a work problem needs training, coaching, better tools, clearer process, or a mix of support.",
+    detail: "You finish when you can explain the problem, the likely cause, the recommended fix, and how you would know it worked."
   }
 ];
 function TitleScreen({ onStart }) {
@@ -15156,10 +15207,7 @@ function TitleScreen({ onStart }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-title-avatar" })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-card eq-intro-carousel", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-meta", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: slide.kicker }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-byline", children: "Created by Terry Brutus" })
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-title-meta", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: slide.kicker }) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-intro-slide", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "eq-title-mode", children: [
           "Intro ",
@@ -15218,7 +15266,8 @@ function TitleScreen({ onStart }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Talk or inspect: E / Space / Enter" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-mobile-control", children: "Move: joystick" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-mobile-control", children: "Talk or inspect: button" })
-      ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-title-credit", children: "Created by Terry Brutus" })
     ] })
   ] });
 }
@@ -15250,7 +15299,7 @@ function createInitialGameState() {
     collectedEvidenceIds: (qaScene == null ? void 0 : qaScene.collectedEvidenceIds) ?? [],
     diagnosisId: (qaScene == null ? void 0 : qaScene.diagnosisId) ?? null,
     interventionId: (qaScene == null ? void 0 : qaScene.interventionId) ?? null,
-    activeEvidenceId: null,
+    activeEvidenceId: (qaScene == null ? void 0 : qaScene.activeEvidenceId) ?? null,
     activeCanvasCaseId: null,
     earnedArtifact: null,
     overlay: (qaScene == null ? void 0 : qaScene.overlay) ?? (qaScene ? "none" : "briefing"),
@@ -15376,8 +15425,6 @@ function GameCanvas() {
   const nextObjective = getNextObjective(
     gameState.currentCaseId,
     gameState.questStage,
-    currentCollectedEvidenceCount,
-    currentEvidenceItems.length,
     ((_a = currentEvidenceItems.find(
       (item) => !gameState.collectedEvidenceIds.includes(item.id)
     )) == null ? void 0 : _a.title) ?? null,
@@ -15433,7 +15480,7 @@ function GameCanvas() {
         ...previous.player,
         hasStarted: true,
         sceneId: "lab",
-        position: { x: 9, y: 9.6 },
+        position: initialPosition,
         direction: "up",
         isMoving: false
       },
@@ -15482,6 +15529,21 @@ function GameCanvas() {
       return {
         ...previous,
         dialogue: { ...previous.dialogue, lineIndex: nextIndex }
+      };
+    });
+  }, []);
+  const backDialogue = reactExports.useCallback(() => {
+    setGameState((previous) => {
+      if (!previous.dialogue || previous.dialogue.lineIndex === 0) {
+        return previous;
+      }
+      return {
+        ...previous,
+        dialogue: {
+          ...previous.dialogue,
+          lineIndex: previous.dialogue.lineIndex - 1,
+          openedAt: Date.now() - 1e3
+        }
       };
     });
   }, []);
@@ -15651,6 +15713,7 @@ function GameCanvas() {
             stage: gameState.questStage,
             totalLines: activeCharacter.dialogue[gameState.questStage].length,
             onAdvance: advanceDialogue,
+            onBack: backDialogue,
             onClose: closeOverlay
           }
         ),
@@ -15736,7 +15799,7 @@ function CaseBriefingPanel({ onClose }) {
       "aria-label": "Atlas Pro case briefing",
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Case Start" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "The Case of the Vanishing Win Rate" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Find Out Why Sales Are Not Closing" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-start-briefing-lede", children: "Atlas Pro is below its expected win rate. Leadership suspects more product training is needed, but your job is to investigate before choosing a solution." }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-start-briefing-mission", "aria-label": "Mission goal", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Your mission" }),
@@ -15745,7 +15808,7 @@ function CaseBriefingPanel({ onClose }) {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-start-briefing-grid", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "1. Start with Leo" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Leave the lab, enter the Sales Strategy Studio, and talk with Leo. He explains what leaders are asking for." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Leave the lab, enter the Sales Enablement Studio, and talk with Leo. He explains what leaders are asking for." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "2. Investigate across rooms" }),
@@ -15779,6 +15842,7 @@ function getQaScene() {
   const qaStage = searchParams.get("qaStage");
   const qaDialogue = searchParams.get("qaDialogue");
   const qaDiagnosis = searchParams.get("qaDiagnosis");
+  const qaEvidence = searchParams.get("qaEvidence");
   const qaIntervention = searchParams.get("qaIntervention");
   if (sceneId === "operations") {
     const caseId = "onboarding";
@@ -15787,6 +15851,7 @@ function getQaScene() {
       caseId,
       position: { x: 9, y: 10.25 },
       ...getQaDialogueState("maya", qaDialogue),
+      ...getQaEvidenceState(caseId, qaEvidence),
       ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention)
     };
   }
@@ -15797,6 +15862,7 @@ function getQaScene() {
       caseId,
       position: { x: 9, y: 10.25 },
       ...getQaDialogueState("leo", qaDialogue),
+      ...getQaEvidenceState(caseId, qaEvidence),
       ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention)
     };
   }
@@ -15808,6 +15874,24 @@ function getQaScene() {
     };
   }
   return null;
+}
+function getQaEvidenceState(caseId, qaEvidence) {
+  if (!qaEvidence) {
+    return {};
+  }
+  const caseEvidence = evidenceItems.filter((item) => item.caseId === caseId);
+  const evidenceIndex = caseEvidence.findIndex(
+    (item) => item.id === qaEvidence
+  );
+  if (evidenceIndex < 0) {
+    return {};
+  }
+  return {
+    activeEvidenceId: qaEvidence,
+    collectedEvidenceIds: caseEvidence.slice(0, evidenceIndex).map((item) => item.id),
+    overlay: "evidence",
+    questStage: "investigate"
+  };
 }
 function getQaDialogueState(characterId, qaDialogue) {
   if (qaDialogue !== characterId) {
@@ -15849,21 +15933,25 @@ function getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention) {
     questStage: qaStage
   };
 }
-function getNextObjective(caseId, questStage, evidenceCount, evidenceTotal, nextEvidenceTitle, sceneId, completedCaseIds) {
+function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, completedCaseIds) {
   if (questStage === "briefing") {
     if (caseId === "sales") {
-      return sceneId === "sales" ? "Step 1: talk with Leo. Hear Elena's request, then investigate before building anything." : "Step 1: enter Sales Strategy Studio and talk with Leo about Atlas Pro.";
+      return sceneId === "sales" ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales." : "Enter the Sales Enablement Studio and talk with Leo.";
     }
     return sceneId === "operations" ? "Step 1: talk with Maya. Listen to the training request, then question whether training is enough." : "Enter Operations Suite and talk with Maya.";
   }
   if (questStage === "investigate") {
-    return nextEvidenceTitle ? `Step 2: review ${nextEvidenceTitle}. Evidence ${evidenceCount + 1} of ${evidenceTotal}.` : `All evidence reviewed: ${evidenceCount}/${evidenceTotal}. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
+    if (nextEvidenceTitle) {
+      const nextLocation = getEvidenceLocation(caseId, nextEvidenceTitle);
+      return `Review ${nextEvidenceTitle}. ${nextLocation}`;
+    }
+    return `All evidence is collected. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
   }
   if (questStage === "diagnose") {
-    return `Step 3: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the cause that explains all the evidence.`;
+    return `Stand near ${caseId === "sales" ? "Leo" : "Maya"} and choose the cause that best fits the evidence.`;
   }
   if (questStage === "design") {
-    return `Step 4: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the fix that changes behavior, reinforcement, and measurement.`;
+    return "Choose the fix you would recommend to the business.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return "Step 5: review the case summary. It shows the before, decision, fix, and impact.";
@@ -15872,47 +15960,62 @@ function getNextObjective(caseId, questStage, evidenceCount, evidenceTotal, next
 }
 function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneId, completedCaseIds) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
-  const room = caseId === "sales" ? "Sales Strategy Studio" : "Operations";
+  const room = caseId === "sales" ? "Sales Enablement Studio" : "Operations";
   if (questStage === "briefing") {
     return sceneId === (caseId === "sales" ? "sales" : "operations") ? {
       action: `Talk with ${caseOwner}`,
-      reason: "real enablement starts by understanding the business request before building a fix."
+      reason: "Start by hearing what leaders asked for and what problem they see."
     } : {
       action: `Enter ${room}`,
-      reason: "the case begins with the person asking for help, not with a template or course idea."
+      reason: "The case begins with the person asking for help, not with a template or course idea."
     };
   }
   if (questStage === "investigate") {
     return evidenceCount < evidenceTotal ? {
-      action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
-      reason: "each evidence item tests a possible cause: content, skill, process, coaching, data, or leadership reinforcement."
+      action: `Review clue ${evidenceCount + 1} of ${evidenceTotal}`,
+      reason: "Each clue gives you part of the story. Save the pattern, not just one detail."
     } : {
       action: `Return to ${caseOwner}`,
-      reason: "bring your evidence back to the person who asked for help before you recommend a cause."
+      reason: "Bring your evidence back to the person who asked for help before you recommend a cause."
     };
   }
   if (questStage === "diagnose") {
     return {
       action: `Stand near ${caseOwner}`,
-      reason: "this is where you prove judgment: the cause must explain the whole evidence pattern, not just one clue."
+      reason: "The best answer should fit the evidence you collected."
     };
   }
   if (questStage === "design") {
     return {
-      action: "Pick the practical fix",
-      reason: "the best fix changes daily work, manager reinforcement, and the business signal leaders inspect."
+      action: "Choose the fix",
+      reason: "Pick the option that would improve the work and give leaders something to measure."
     };
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return {
       action: "Review the case summary",
-      reason: "the summary turns the playthrough into a teachable client recommendation: problem, decision, fix, and impact."
+      reason: "The summary turns the playthrough into a teachable client recommendation: problem, decision, fix, and impact."
     };
   }
   return {
     action: "Review the case summary",
-    reason: "the summary turns the playthrough into a plain-language recommendation: problem, cause, fix, and impact."
+    reason: "You finished the case. Review the summary or start over."
   };
+}
+function getEvidenceLocation(caseId, evidenceTitle) {
+  const evidence = evidenceItems.find(
+    (item) => item.caseId === caseId && item.title === evidenceTitle
+  );
+  if (!evidence) {
+    return "";
+  }
+  if (evidence.sceneId === "operations") {
+    return "Go to the Operations Suite to find it.";
+  }
+  if (evidence.sceneId === "sales") {
+    return "Find it inside the Sales Enablement Studio.";
+  }
+  return "";
 }
 function EvidencePanel({
   caseEvidence,
@@ -15942,8 +16045,8 @@ function EvidencePanel({
       },
       {
         kind: "ignore",
-        label: "Treat this as background context and move on.",
-        feedback: evidence.ignoreFeedback
+        label: evidence.partial,
+        feedback: evidence.partialFeedback
       }
     ];
     if (evidence.id.length % 3 === 0) {
@@ -15955,7 +16058,8 @@ function EvidencePanel({
     return options;
   }, [
     evidence.id,
-    evidence.ignoreFeedback,
+    evidence.partial,
+    evidence.partialFeedback,
     evidence.signal,
     evidence.signalFeedback,
     evidence.trap,
@@ -16007,12 +16111,12 @@ function EvidencePanel({
         /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-running-case", "aria-label": "Running case pattern", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Pattern So Far" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: priorEvidence.length > 0 ? "What you have already saved" : "Start connecting the evidence" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: priorEvidence.length > 0 ? "What you have already saved" : "Nothing saved yet" })
           ] }),
           priorEvidence.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { children: priorEvidence.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: item.title }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: item.signal })
-          ] }, item.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "First clue. Read it, then choose the interpretation you would defend in a stakeholder meeting." })
+          ] }, item.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "After you save a clue, it will appear here so you can see the pattern building." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "eq-evidence-main-read", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "What you found" }),
@@ -16024,7 +16128,7 @@ function EvidencePanel({
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Check Your Read" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "What is the best read of this evidence?" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Pick the interpretation you would use later when explaining the cause to a leader." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Choose the interpretation that best fits this clue." })
           ] }),
           checkOptions.map((option, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
@@ -16154,7 +16258,16 @@ function DecisionPanel({
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-decision-stepper", "aria-label": "Recommendation step", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: decisionStep === "cause" ? "is-active" : "", children: "1. Cause" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: decisionStep === "fix" ? "is-active" : "", children: "2. Fix" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: decisionStep === "fix" ? "is-active" : "", children: "2. Fix" }),
+          isFixStep && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "eq-ghost-button",
+              type: "button",
+              onClick: () => setDecisionStep("cause"),
+              children: "Back to cause"
+            }
+          )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-decision-brief", "aria-label": "Decision hint", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: isFixStep ? "Fix test" : "Cause test" }),
@@ -16181,7 +16294,7 @@ function DecisionPanel({
             option.id
           );
         }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+        (selectedDiagnosis || selectedIntervention) && /* @__PURE__ */ jsxRuntimeExports.jsx(
           DecisionCoach,
           {
             selectedDiagnosis,
@@ -16263,9 +16376,9 @@ const caseSynthesis = {
     metric: "The business wants faster time-to-productivity and fewer support tickets after orientation."
   },
   sales: {
-    question: "Why is Atlas Pro losing after proposal?",
+    question: "Why are interested customers not buying Atlas Pro?",
     prompt: "The CRO asked whether Sales needs more training. Your job is to decide what the evidence actually supports.",
-    pattern: "Your answer must explain the feature-heavy deck, shallow discovery, win-rate gap, messy CRM reasons, and inconsistent manager coaching.",
+    pattern: "Your answer must explain the feature-heavy deck, shallow discovery, low win rate, unclear loss notes, and inconsistent manager coaching.",
     trap: "A refresher course may look responsive while leaving discovery, coaching, and inspection unchanged.",
     metric: "The business wants Atlas Pro win rate moving toward 30%, stronger discovery quality, and visible manager coaching."
   }
@@ -16314,9 +16427,9 @@ function CanvasPanel({
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-panel-header", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Case Summary" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Case Complete" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: artifact.title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: artifact.subtitle })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "You finished the recommendation. Use this summary to review what you decided." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "eq-ghost-button", type: "button", onClick: onClose, children: "Close" })
         ] }),

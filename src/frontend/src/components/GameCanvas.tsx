@@ -76,7 +76,7 @@ function createInitialGameState(): GameState {
     collectedEvidenceIds: qaScene?.collectedEvidenceIds ?? [],
     diagnosisId: qaScene?.diagnosisId ?? null,
     interventionId: qaScene?.interventionId ?? null,
-    activeEvidenceId: null,
+    activeEvidenceId: qaScene?.activeEvidenceId ?? null,
     activeCanvasCaseId: null,
     earnedArtifact: null,
     overlay: qaScene?.overlay ?? (qaScene ? "none" : "briefing"),
@@ -221,8 +221,6 @@ export default function GameCanvas() {
   const nextObjective = getNextObjective(
     gameState.currentCaseId,
     gameState.questStage,
-    currentCollectedEvidenceCount,
-    currentEvidenceItems.length,
     currentEvidenceItems.find(
       (item) => !gameState.collectedEvidenceIds.includes(item.id),
     )?.title ?? null,
@@ -286,7 +284,7 @@ export default function GameCanvas() {
         ...previous.player,
         hasStarted: true,
         sceneId: "lab",
-        position: { x: 9, y: 9.6 },
+        position: initialPosition,
         direction: "up",
         isMoving: false,
       },
@@ -336,6 +334,22 @@ export default function GameCanvas() {
       return {
         ...previous,
         dialogue: { ...previous.dialogue, lineIndex: nextIndex },
+      };
+    });
+  }, []);
+
+  const backDialogue = useCallback(() => {
+    setGameState((previous) => {
+      if (!previous.dialogue || previous.dialogue.lineIndex === 0) {
+        return previous;
+      }
+      return {
+        ...previous,
+        dialogue: {
+          ...previous.dialogue,
+          lineIndex: previous.dialogue.lineIndex - 1,
+          openedAt: Date.now() - 1000,
+        },
       };
     });
   }, []);
@@ -530,6 +544,7 @@ export default function GameCanvas() {
             stage={gameState.questStage}
             totalLines={activeCharacter.dialogue[gameState.questStage].length}
             onAdvance={advanceDialogue}
+            onBack={backDialogue}
             onClose={closeOverlay}
           />
         )}
@@ -630,7 +645,7 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
       aria-label="Atlas Pro case briefing"
     >
       <p className="eq-kicker">Case Start</p>
-      <h2>The Case of the Vanishing Win Rate</h2>
+      <h2>Find Out Why Sales Are Not Closing</h2>
       <p className="eq-start-briefing-lede">
         Atlas Pro is below its expected win rate. Leadership suspects more
         product training is needed, but your job is to investigate before
@@ -650,7 +665,7 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
         <article>
           <strong>1. Start with Leo</strong>
           <span>
-            Leave the lab, enter the Sales Strategy Studio, and talk with Leo.
+            Leave the lab, enter the Sales Enablement Studio, and talk with Leo.
             He explains what leaders are asking for.
           </span>
         </article>
@@ -693,6 +708,7 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
 
 function getQaScene(): {
   caseId: GameState["currentCaseId"];
+  activeEvidenceId?: string | null;
   collectedEvidenceIds?: string[];
   diagnosisId?: string | null;
   dialogue?: GameState["dialogue"];
@@ -710,6 +726,7 @@ function getQaScene(): {
   const qaStage = searchParams.get("qaStage");
   const qaDialogue = searchParams.get("qaDialogue");
   const qaDiagnosis = searchParams.get("qaDiagnosis");
+  const qaEvidence = searchParams.get("qaEvidence");
   const qaIntervention = searchParams.get("qaIntervention");
   if (sceneId === "operations") {
     const caseId = "onboarding" as const;
@@ -718,6 +735,7 @@ function getQaScene(): {
       caseId,
       position: { x: 9, y: 10.25 },
       ...getQaDialogueState("maya", qaDialogue),
+      ...getQaEvidenceState(caseId, qaEvidence),
       ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention),
     };
   }
@@ -728,6 +746,7 @@ function getQaScene(): {
       caseId,
       position: { x: 9, y: 10.25 },
       ...getQaDialogueState("leo", qaDialogue),
+      ...getQaEvidenceState(caseId, qaEvidence),
       ...getQaStageState(caseId, qaStage, qaDiagnosis, qaIntervention),
     };
   }
@@ -739,6 +758,30 @@ function getQaScene(): {
     };
   }
   return null;
+}
+
+function getQaEvidenceState(
+  caseId: GameState["currentCaseId"],
+  qaEvidence: string | null,
+) {
+  if (!qaEvidence) {
+    return {};
+  }
+  const caseEvidence = evidenceItems.filter((item) => item.caseId === caseId);
+  const evidenceIndex = caseEvidence.findIndex(
+    (item) => item.id === qaEvidence,
+  );
+  if (evidenceIndex < 0) {
+    return {};
+  }
+  return {
+    activeEvidenceId: qaEvidence,
+    collectedEvidenceIds: caseEvidence
+      .slice(0, evidenceIndex)
+      .map((item) => item.id),
+    overlay: "evidence" as const,
+    questStage: "investigate" as const,
+  };
 }
 
 function getQaDialogueState(characterId: string, qaDialogue: string | null) {
@@ -803,8 +846,6 @@ function getQaStageState(
 function getNextObjective(
   caseId: GameState["currentCaseId"],
   questStage: GameState["questStage"],
-  evidenceCount: number,
-  evidenceTotal: number,
   nextEvidenceTitle: string | null,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
@@ -812,23 +853,25 @@ function getNextObjective(
   if (questStage === "briefing") {
     if (caseId === "sales") {
       return sceneId === "sales"
-        ? "Step 1: talk with Leo. Hear Elena's request, then investigate before building anything."
-        : "Step 1: enter Sales Strategy Studio and talk with Leo about Atlas Pro.";
+        ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales."
+        : "Enter the Sales Enablement Studio and talk with Leo.";
     }
     return sceneId === "operations"
       ? "Step 1: talk with Maya. Listen to the training request, then question whether training is enough."
       : "Enter Operations Suite and talk with Maya.";
   }
   if (questStage === "investigate") {
-    return nextEvidenceTitle
-      ? `Step 2: review ${nextEvidenceTitle}. Evidence ${evidenceCount + 1} of ${evidenceTotal}.`
-      : `All evidence reviewed: ${evidenceCount}/${evidenceTotal}. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
+    if (nextEvidenceTitle) {
+      const nextLocation = getEvidenceLocation(caseId, nextEvidenceTitle);
+      return `Review ${nextEvidenceTitle}. ${nextLocation}`;
+    }
+    return `All evidence is collected. Bring your findings back to ${caseId === "sales" ? "Leo" : "Maya"} to choose the cause.`;
   }
   if (questStage === "diagnose") {
-    return `Step 3: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the cause that explains all the evidence.`;
+    return `Stand near ${caseId === "sales" ? "Leo" : "Maya"} and choose the cause that best fits the evidence.`;
   }
   if (questStage === "design") {
-    return `Step 4: stand near ${caseId === "sales" ? "Leo" : "Maya"}, then choose the fix that changes behavior, reinforcement, and measurement.`;
+    return "Choose the fix you would recommend to the business.";
   }
   if (caseId === "onboarding" && !completedCaseIds.includes("sales")) {
     return "Step 5: review the case summary. It shows the before, decision, fix, and impact.";
@@ -845,49 +888,48 @@ function getCoachPrompt(
   completedCaseIds: GameState["completedCaseIds"],
 ) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
-  const room = caseId === "sales" ? "Sales Strategy Studio" : "Operations";
+  const room = caseId === "sales" ? "Sales Enablement Studio" : "Operations";
 
   if (questStage === "briefing") {
     return sceneId === (caseId === "sales" ? "sales" : "operations")
       ? {
           action: `Talk with ${caseOwner}`,
           reason:
-            "real enablement starts by understanding the business request before building a fix.",
+            "Start by hearing what leaders asked for and what problem they see.",
         }
       : {
           action: `Enter ${room}`,
           reason:
-            "the case begins with the person asking for help, not with a template or course idea.",
+            "The case begins with the person asking for help, not with a template or course idea.",
         };
   }
 
   if (questStage === "investigate") {
     return evidenceCount < evidenceTotal
       ? {
-          action: `Review evidence ${evidenceCount + 1} of ${evidenceTotal}`,
+          action: `Review clue ${evidenceCount + 1} of ${evidenceTotal}`,
           reason:
-            "each evidence item tests a possible cause: content, skill, process, coaching, data, or leadership reinforcement.",
+            "Each clue gives you part of the story. Save the pattern, not just one detail.",
         }
       : {
           action: `Return to ${caseOwner}`,
           reason:
-            "bring your evidence back to the person who asked for help before you recommend a cause.",
+            "Bring your evidence back to the person who asked for help before you recommend a cause.",
         };
   }
 
   if (questStage === "diagnose") {
     return {
       action: `Stand near ${caseOwner}`,
-      reason:
-        "this is where you prove judgment: the cause must explain the whole evidence pattern, not just one clue.",
+      reason: "The best answer should fit the evidence you collected.",
     };
   }
 
   if (questStage === "design") {
     return {
-      action: "Pick the practical fix",
+      action: "Choose the fix",
       reason:
-        "the best fix changes daily work, manager reinforcement, and the business signal leaders inspect.",
+        "Pick the option that would improve the work and give leaders something to measure.",
     };
   }
 
@@ -895,15 +937,33 @@ function getCoachPrompt(
     return {
       action: "Review the case summary",
       reason:
-        "the summary turns the playthrough into a teachable client recommendation: problem, decision, fix, and impact.",
+        "The summary turns the playthrough into a teachable client recommendation: problem, decision, fix, and impact.",
     };
   }
 
   return {
     action: "Review the case summary",
-    reason:
-      "the summary turns the playthrough into a plain-language recommendation: problem, cause, fix, and impact.",
+    reason: "You finished the case. Review the summary or start over.",
   };
+}
+
+function getEvidenceLocation(
+  caseId: GameState["currentCaseId"],
+  evidenceTitle: string,
+) {
+  const evidence = evidenceItems.find(
+    (item) => item.caseId === caseId && item.title === evidenceTitle,
+  );
+  if (!evidence) {
+    return "";
+  }
+  if (evidence.sceneId === "operations") {
+    return "Go to the Operations Suite to find it.";
+  }
+  if (evidence.sceneId === "sales") {
+    return "Find it inside the Sales Enablement Studio.";
+  }
+  return "";
 }
 
 function EvidencePanel({
@@ -941,8 +1001,8 @@ function EvidencePanel({
       },
       {
         kind: "ignore" as const,
-        label: "Treat this as background context and move on.",
-        feedback: evidence.ignoreFeedback,
+        label: evidence.partial,
+        feedback: evidence.partialFeedback,
       },
     ];
     if (evidence.id.length % 3 === 0) {
@@ -954,7 +1014,8 @@ function EvidencePanel({
     return options;
   }, [
     evidence.id,
-    evidence.ignoreFeedback,
+    evidence.partial,
+    evidence.partialFeedback,
     evidence.signal,
     evidence.signalFeedback,
     evidence.trap,
@@ -1011,7 +1072,7 @@ function EvidencePanel({
           <h3>
             {priorEvidence.length > 0
               ? "What you have already saved"
-              : "Start connecting the evidence"}
+              : "Nothing saved yet"}
           </h3>
         </div>
         {priorEvidence.length > 0 ? (
@@ -1025,8 +1086,8 @@ function EvidencePanel({
           </ol>
         ) : (
           <p>
-            First clue. Read it, then choose the interpretation you would defend
-            in a stakeholder meeting.
+            After you save a clue, it will appear here so you can see the
+            pattern building.
           </p>
         )}
       </aside>
@@ -1042,10 +1103,7 @@ function EvidencePanel({
         <div>
           <p className="eq-kicker">Check Your Read</p>
           <h3>What is the best read of this evidence?</h3>
-          <p>
-            Pick the interpretation you would use later when explaining the
-            cause to a leader.
-          </p>
+          <p>Choose the interpretation that best fits this clue.</p>
         </div>
         {checkOptions.map((option, index) => (
           <button
@@ -1203,6 +1261,15 @@ function DecisionPanel({
         <span className={decisionStep === "fix" ? "is-active" : ""}>
           2. Fix
         </span>
+        {isFixStep && (
+          <button
+            className="eq-ghost-button"
+            type="button"
+            onClick={() => setDecisionStep("cause")}
+          >
+            Back to cause
+          </button>
+        )}
       </div>
 
       <aside className="eq-decision-brief" aria-label="Decision hint">
@@ -1244,11 +1311,13 @@ function DecisionPanel({
         })}
       </div>
 
-      <DecisionCoach
-        selectedDiagnosis={selectedDiagnosis}
-        selectedIntervention={selectedIntervention}
-        canChooseIntervention={canChooseIntervention}
-      />
+      {(selectedDiagnosis || selectedIntervention) && (
+        <DecisionCoach
+          selectedDiagnosis={selectedDiagnosis}
+          selectedIntervention={selectedIntervention}
+          canChooseIntervention={canChooseIntervention}
+        />
+      )}
     </section>
   );
 }
@@ -1346,11 +1415,11 @@ const caseSynthesis: Record<
       "The business wants faster time-to-productivity and fewer support tickets after orientation.",
   },
   sales: {
-    question: "Why is Atlas Pro losing after proposal?",
+    question: "Why are interested customers not buying Atlas Pro?",
     prompt:
       "The CRO asked whether Sales needs more training. Your job is to decide what the evidence actually supports.",
     pattern:
-      "Your answer must explain the feature-heavy deck, shallow discovery, win-rate gap, messy CRM reasons, and inconsistent manager coaching.",
+      "Your answer must explain the feature-heavy deck, shallow discovery, low win rate, unclear loss notes, and inconsistent manager coaching.",
     trap: "A refresher course may look responsive while leaving discovery, coaching, and inspection unchanged.",
     metric:
       "The business wants Atlas Pro win rate moving toward 30%, stronger discovery quality, and visible manager coaching.",
@@ -1408,9 +1477,12 @@ function CanvasPanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Case Summary</p>
+          <p className="eq-kicker">Case Complete</p>
           <h2>{artifact.title}</h2>
-          <p>{artifact.subtitle}</p>
+          <p>
+            You finished the recommendation. Use this summary to review what you
+            decided.
+          </p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           Close

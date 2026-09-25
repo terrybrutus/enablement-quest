@@ -1,5 +1,5 @@
 import type { GameCharacter, QuestStage } from "@/game/types";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, X } from "lucide-react";
 
 interface DialoguePanelProps {
   character: GameCharacter;
@@ -8,6 +8,7 @@ interface DialoguePanelProps {
   stage: QuestStage;
   totalLines: number;
   onAdvance: () => void;
+  onBack: () => void;
   onClose: () => void;
 }
 
@@ -18,6 +19,7 @@ export function DialoguePanel({
   stage,
   totalLines,
   onAdvance,
+  onBack,
   onClose,
 }: DialoguePanelProps) {
   return (
@@ -38,8 +40,8 @@ export function DialoguePanel({
 
       <p>{line}</p>
 
-      <aside className="eq-dialogue-learning" aria-label="Conversation purpose">
-        <strong>Listen for</strong>
+      <aside className="eq-dialogue-learning" aria-label="Conversation tip">
+        <strong>Why this matters</strong>
         <span>{conversationPurpose[stage]}</span>
       </aside>
 
@@ -49,6 +51,15 @@ export function DialoguePanel({
         </span>
         <span className="eq-touch-hint">Tap Continue or Talk or Inspect</span>
         <div>
+          <button
+            className="eq-ghost-button"
+            disabled={lineIndex === 0}
+            type="button"
+            onClick={onBack}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
           <button className="eq-ghost-button" type="button" onClick={onClose}>
             <X className="h-4 w-4" />
             Close
@@ -70,13 +81,9 @@ export function DialoguePanel({
 
 const conversationPurpose: Record<QuestStage, string> = {
   briefing:
-    "Separate the leader's request from the real performance problem before you build anything.",
-  investigate:
-    "Connect what this person says to the evidence you are collecting.",
-  diagnose:
-    "Check whether your root-cause answer explains what would still be broken after more training.",
-  design:
-    "Listen for the support, reinforcement, and metric the solution needs.",
-  complete:
-    "Turn the case into a plain-language recommendation: problem, decision, fix, and impact.",
+    "Leo is explaining the request. Your next job is to check whether the evidence supports it.",
+  investigate: "Compare what people say with the clues you collect.",
+  diagnose: "Choose the cause that best explains the clues.",
+  design: "Choose the support that would improve the work.",
+  complete: "Summarize the problem, cause, fix, and expected result.",
 };

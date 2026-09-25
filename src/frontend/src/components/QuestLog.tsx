@@ -18,12 +18,12 @@ interface QuestLogProps {
 
 const caseTitles: Record<CaseId, string> = {
   onboarding: "The Broken Onboarding Request",
-  sales: "The Case of the Vanishing Win Rate",
+  sales: "Why Sales Are Not Closing",
 };
 
 const caseRooms: Record<CaseId, string> = {
   onboarding: "Operations Suite",
-  sales: "Sales Strategy Studio",
+  sales: "Sales Enablement Studio",
 };
 
 export function QuestLog({
@@ -182,7 +182,7 @@ function getSteps(caseId: CaseId) {
     {
       id: "briefing",
       title: "1. Hear the request",
-      description: `Talk with ${stakeholder} in ${room}. Listen for what leaders asked for, then ask whether that request solves the real problem.`,
+      description: `Talk with ${stakeholder} in ${room}. Find out what leaders asked for, then ask whether that request solves the real problem.`,
       outcome: `${stakeholder} finishes the briefing and the app points you to the first evidence item.`,
     },
     {
