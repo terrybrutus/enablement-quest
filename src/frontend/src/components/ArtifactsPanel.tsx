@@ -44,12 +44,9 @@ export function ArtifactsPanel({
     >
       <div className="eq-panel-header">
         <div>
-          <p className="eq-kicker">Notes</p>
-          <h2>Evidence and summaries</h2>
-          <p>
-            This is where the case stops being a game map and becomes your
-            recommendation trail.
-          </p>
+          <p className="eq-kicker">Evidence</p>
+          <h2>Saved clues</h2>
+          <p>Use this only when you want to review what you already found.</p>
         </div>
         <button className="eq-ghost-button" type="button" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -65,21 +62,11 @@ export function ArtifactsPanel({
             <p>{emptyGuidance}</p>
           </div>
         ) : (
-          <>
-            <aside className="eq-notes-purpose" aria-label="How to use notes">
-              <strong>How to use this evidence</strong>
-              <span>
-                Focus on the evidence for the case you are solving right now.
-                One item can be a symptom; the pattern is what supports your
-                final recommendation.
-              </span>
-            </aside>
-            <div className="eq-artifact-list">
-              {currentCaseEvidence.map((item) => (
-                <EvidenceNoteCard item={item} key={item.id} />
-              ))}
-            </div>
-          </>
+          <div className="eq-artifact-list">
+            {currentCaseEvidence.map((item) => (
+              <EvidenceNoteCard item={item} key={item.id} />
+            ))}
+          </div>
         )}
       </div>
 
@@ -87,8 +74,7 @@ export function ArtifactsPanel({
         <div className="eq-mini-section">
           <h3>Evidence from completed cases</h3>
           <p>
-            Keep this separate from the case you are solving now. It is useful
-            for comparison, but it should not drive the current diagnosis.
+            Older evidence is shown separately so it does not clutter this case.
           </p>
           <div className="eq-artifact-list">
             {priorCaseEvidence.map((item) => (
@@ -142,7 +128,6 @@ function EvidenceNoteCard({
       <div>
         <h3>{item.title}</h3>
         <p>{item.summary}</p>
-        <p className="eq-artifact-insight">{item.insight}</p>
         <small>{item.metric}</small>
       </div>
     </article>

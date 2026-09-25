@@ -14345,89 +14345,53 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$h = [
+const __iconNode$b = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$h);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$b);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$g = [
-  [
-    "path",
-    {
-      d: "M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z",
-      key: "l5xja"
-    }
-  ],
-  ["path", { d: "M9 13a4.5 4.5 0 0 0 3-4", key: "10igwf" }],
-  ["path", { d: "M6.003 5.125A3 3 0 0 0 6.401 6.5", key: "105sqy" }],
-  ["path", { d: "M3.477 10.896a4 4 0 0 1 .585-.396", key: "ql3yin" }],
-  ["path", { d: "M6 18a4 4 0 0 1-1.967-.516", key: "2e4loj" }],
-  ["path", { d: "M12 13h4", key: "1ku699" }],
-  ["path", { d: "M12 18h6a2 2 0 0 1 2 2v1", key: "105ag5" }],
-  ["path", { d: "M12 8h8", key: "1lhi5i" }],
-  ["path", { d: "M16 8V5a2 2 0 0 1 2-2", key: "u6izg6" }],
-  ["circle", { cx: "16", cy: "13", r: ".5", key: "ry7gng" }],
-  ["circle", { cx: "18", cy: "3", r: ".5", key: "1aiba7" }],
-  ["circle", { cx: "20", cy: "21", r: ".5", key: "yhc1fs" }],
-  ["circle", { cx: "20", cy: "8", r: ".5", key: "1e43v0" }]
-];
-const BrainCircuit = createLucideIcon("brain-circuit", __iconNode$g);
+const __iconNode$a = [["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]];
+const ChevronLeft = createLucideIcon("chevron-left", __iconNode$a);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$f = [
-  ["path", { d: "M12 12h.01", key: "1mp3jc" }],
-  ["path", { d: "M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2", key: "1ksdt3" }],
-  ["path", { d: "M22 13a18.15 18.15 0 0 1-20 0", key: "12hx5q" }],
-  ["rect", { width: "20", height: "14", x: "2", y: "6", rx: "2", key: "i6l2r4" }]
-];
-const BriefcaseBusiness = createLucideIcon("briefcase-business", __iconNode$f);
+const __iconNode$9 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+const ChevronRight = createLucideIcon("chevron-right", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$e = [
-  ["path", { d: "M3 3v16a2 2 0 0 0 2 2h16", key: "c24i48" }],
-  ["path", { d: "m19 9-5 5-4-4-3 3", key: "2osh9i" }]
-];
-const ChartLine = createLucideIcon("chart-line", __iconNode$e);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$d = [
+const __iconNode$8 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "m9 12 2 2 4-4", key: "dzmm74" }]
 ];
-const CircleCheck = createLucideIcon("circle-check", __iconNode$d);
+const CircleCheck = createLucideIcon("circle-check", __iconNode$8);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$c = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
-const Circle = createLucideIcon("circle", __iconNode$c);
+const __iconNode$7 = [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }]];
+const Circle = createLucideIcon("circle", __iconNode$7);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [
+const __iconNode$6 = [
   ["rect", { width: "8", height: "4", x: "8", y: "2", rx: "1", ry: "1", key: "tgr4d6" }],
   [
     "path",
@@ -14441,42 +14405,28 @@ const __iconNode$b = [
   ["path", { d: "M8 11h.01", key: "1dfujw" }],
   ["path", { d: "M8 16h.01", key: "18s6g9" }]
 ];
-const ClipboardList = createLucideIcon("clipboard-list", __iconNode$b);
+const ClipboardList = createLucideIcon("clipboard-list", __iconNode$6);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$a = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["line", { x1: "22", x2: "18", y1: "12", y2: "12", key: "l9bcsi" }],
-  ["line", { x1: "6", x2: "2", y1: "12", y2: "12", key: "13hhkx" }],
-  ["line", { x1: "12", x2: "12", y1: "6", y2: "2", key: "10w3f3" }],
-  ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
-];
-const Crosshair = createLucideIcon("crosshair", __iconNode$a);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$9 = [
+const __iconNode$5 = [
   ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
   ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
   ["path", { d: "M10 9H8", key: "b1mrlr" }],
   ["path", { d: "M16 13H8", key: "t4e002" }],
   ["path", { d: "M16 17H8", key: "z1uh3a" }]
 ];
-const FileText = createLucideIcon("file-text", __iconNode$9);
+const FileText = createLucideIcon("file-text", __iconNode$5);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$8 = [
+const __iconNode$4 = [
   [
     "path",
     {
@@ -14485,14 +14435,14 @@ const __iconNode$8 = [
     }
   ]
 ];
-const FolderOpen = createLucideIcon("folder-open", __iconNode$8);
+const FolderOpen = createLucideIcon("folder-open", __iconNode$4);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$7 = [
+const __iconNode$3 = [
   ["path", { d: "M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2", key: "1fvzgz" }],
   ["path", { d: "M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2", key: "1kc0my" }],
   ["path", { d: "M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8", key: "10h0bg" }],
@@ -14504,61 +14454,7 @@ const __iconNode$7 = [
     }
   ]
 ];
-const Hand = createLucideIcon("hand", __iconNode$7);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$6 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M12 16v-4", key: "1dtifu" }],
-  ["path", { d: "M12 8h.01", key: "e9boi3" }]
-];
-const Info = createLucideIcon("info", __iconNode$6);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$5 = [
-  [
-    "path",
-    {
-      d: "M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0",
-      key: "1r0f0z"
-    }
-  ],
-  ["circle", { cx: "12", cy: "10", r: "3", key: "ilqhr7" }]
-];
-const MapPin = createLucideIcon("map-pin", __iconNode$5);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$4 = [
-  ["path", { d: "m14 10 7-7", key: "oa77jy" }],
-  ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
-  ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
-  ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
-];
-const Minimize2 = createLucideIcon("minimize-2", __iconNode$4);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$3 = [
-  ["path", { d: "m8 11 2 2 4-4", key: "1sed1v" }],
-  ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }],
-  ["path", { d: "m21 21-4.3-4.3", key: "1qie3q" }]
-];
-const SearchCheck = createLucideIcon("search-check", __iconNode$3);
+const Hand = createLucideIcon("hand", __iconNode$3);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14566,6 +14462,17 @@ const SearchCheck = createLucideIcon("search-check", __iconNode$3);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$2 = [
+  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+];
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$2);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1 = [
   ["line", { x1: "21", x2: "14", y1: "4", y2: "4", key: "obuewd" }],
   ["line", { x1: "10", x2: "3", y1: "4", y2: "4", key: "1q6298" }],
   ["line", { x1: "21", x2: "12", y1: "12", y2: "12", key: "1iu8h1" }],
@@ -14576,19 +14483,7 @@ const __iconNode$2 = [
   ["line", { x1: "8", x2: "8", y1: "10", y2: "14", key: "1i6ji0" }],
   ["line", { x1: "16", x2: "16", y1: "18", y2: "22", key: "1lctlv" }]
 ];
-const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$2);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
-  ["circle", { cx: "12", cy: "12", r: "2", key: "1c9p78" }]
-];
-const Target = createLucideIcon("target", __iconNode$1);
+const SlidersHorizontal = createLucideIcon("sliders-horizontal", __iconNode$1);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14627,9 +14522,9 @@ function ArtifactsPanel({
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-panel-header", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Notes" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Evidence and summaries" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "This is where the case stops being a game map and becomes your recommendation trail." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Evidence" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Saved clues" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Use this only when you want to review what you already found." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "eq-ghost-button", type: "button", onClick: onClose, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-4 w-4" }),
@@ -14641,17 +14536,11 @@ function ArtifactsPanel({
           currentCaseEvidence.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-empty", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { className: "h-8 w-8" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: emptyGuidance })
-          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-notes-purpose", "aria-label": "How to use notes", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "How to use this evidence" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Focus on the evidence for the case you are solving right now. One item can be a symptom; the pattern is what supports your final recommendation." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-artifact-list", children: currentCaseEvidence.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(EvidenceNoteCard, { item }, item.id)) })
-          ] })
+          ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-artifact-list", children: currentCaseEvidence.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(EvidenceNoteCard, { item }, item.id)) })
         ] }),
         priorCaseEvidence.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-mini-section", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Evidence from completed cases" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Keep this separate from the case you are solving now. It is useful for comparison, but it should not drive the current diagnosis." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Older evidence is shown separately so it does not clutter this case." }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-artifact-list", children: priorCaseEvidence.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(EvidenceNoteCard, { item }, item.id)) })
         ] }),
         (earnedArtifact || completedCaseIds.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-summary-actions", children: [
@@ -14690,7 +14579,6 @@ function EvidenceNoteCard({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: item.title }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: item.summary }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-artifact-insight", children: item.insight }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: item.metric })
     ] })
   ] });
@@ -14771,17 +14659,11 @@ const conversationPurpose = {
 };
 const stageLabels = {
   briefing: "Step 1 of 5",
+  investigate: "Step 2 of 5",
   diagnose: "Step 3 of 5",
   design: "Step 4 of 5",
   complete: "Step 5 of 5"
 };
-const routeSteps = [
-  { id: "briefing", label: "Request" },
-  { id: "investigate", label: "Evidence" },
-  { id: "diagnose", label: "Cause" },
-  { id: "design", label: "Fix" },
-  { id: "complete", label: "Impact" }
-];
 function Hud({
   sceneName,
   sceneSubtitle,
@@ -14796,145 +14678,121 @@ function Hud({
   onOpenQuest,
   onOpenCaseFile,
   onOpenSettings,
-  onInteract
+  onInteract,
+  onRestart
 }) {
-  const [isGuideExpanded, setIsGuideExpanded] = reactExports.useState(false);
+  const [isRestartConfirmOpen, setIsRestartConfirmOpen] = reactExports.useState(false);
   const stepLabel = getStepLabel(questStage, evidenceCount, evidenceTotal);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "pointer-events-none absolute inset-0 z-20", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "pointer-events-auto absolute left-3 right-3 top-3 flex items-start justify-between gap-2 md:left-5 md:right-5 md:gap-3", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("header", { className: "pointer-events-auto absolute left-3 right-3 top-3 flex justify-end gap-2 md:left-5 md:right-5", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("nav", { className: "eq-hud-nav", "aria-label": "Case controls", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "eq-hud-button", type: "button", onClick: onOpenQuest, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: "h-4 w-4" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Guide" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "Q" })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "section",
+        "button",
         {
-          className: `eq-hud-card max-w-xl ${isGuideExpanded ? "" : "is-collapsed"}`,
+          className: "eq-hud-button",
+          type: "button",
+          onClick: onOpenCaseFile,
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                className: "eq-hud-toggle",
-                type: "button",
-                onClick: () => setIsGuideExpanded((value) => !value),
-                "aria-label": isGuideExpanded ? "Collapse guide" : "Expand guide",
-                children: isGuideExpanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(Minimize2, { className: "h-4 w-4" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Info, { className: "h-4 w-4" })
-              }
-            ),
-            isGuideExpanded ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-start gap-3", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MapPin, { className: "mt-1 h-5 w-5 shrink-0 text-cyan-300" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: sceneName }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: sceneSubtitle }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-next-objective", children: nextObjective }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-hud-coach", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
-                    "Do this next: ",
-                    coachAction
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-                    "Why it matters: ",
-                    coachReason
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(RouteProgress, { questStage }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mt-3 flex flex-wrap gap-2 text-xs", children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eq-pill", children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Crosshair, { className: "h-3.5 w-3.5" }),
-                    stepLabel
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eq-pill", children: [
-                    "Evidence ",
-                    evidenceCount,
-                    "/",
-                    evidenceTotal
-                  ] }),
-                  hasArtifact && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-pill is-success", children: "Summary earned" })
-                ] })
-              ] })
-            ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-hud-summary", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: stepLabel }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { title: nextObjective, children: coachAction }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { children: [
-                "Evidence ",
-                evidenceCount,
-                "/",
-                evidenceTotal
-              ] })
-            ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { className: "h-4 w-4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Evidence" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "B" })
           ]
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "nav",
+        "button",
         {
-          className: "flex gap-2 self-end md:self-auto",
-          "aria-label": "Case controls",
+          className: "eq-hud-button",
+          type: "button",
+          onClick: onOpenSettings,
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "eq-hud-button", type: "button", onClick: onOpenQuest, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ClipboardList, { className: "h-4 w-4" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Help" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "Q" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "eq-hud-button",
-                type: "button",
-                onClick: onOpenCaseFile,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(FolderOpen, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Notes" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "B" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "eq-hud-button",
-                type: "button",
-                onClick: onOpenSettings,
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "h-4 w-4" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Settings" })
-                ]
-              }
-            )
+            /* @__PURE__ */ jsxRuntimeExports.jsx(SlidersHorizontal, { className: "h-4 w-4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Settings" })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          className: "eq-hud-button",
+          type: "button",
+          onClick: () => setIsRestartConfirmOpen(true),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(RotateCcw, { className: "h-4 w-4" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start Over" })
           ]
         }
       )
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-bottom-directive", "aria-label": "Current objective", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "eq-kicker", children: [
+          stepLabel,
+          " | ",
+          sceneName
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: coachAction }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: nextObjective }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: coachReason })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-directive-status", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: sceneSubtitle }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
+          "Evidence ",
+          evidenceCount,
+          "/",
+          evidenceTotal
+        ] }),
+        hasArtifact && /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Summary earned" })
+      ] })
     ] }),
+    isRestartConfirmOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "section",
+      {
+        className: "eq-restart-confirm pointer-events-auto",
+        "aria-label": "Start over confirmation",
+        children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-panel", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Start Over" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Restart the case?" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "This clears your current evidence and returns you to the intro screen." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-confirm-actions", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "eq-ghost-button",
+                type: "button",
+                onClick: () => setIsRestartConfirmOpen(false),
+                children: "Cancel"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                className: "eq-primary-button",
+                type: "button",
+                onClick: () => {
+                  setIsRestartConfirmOpen(false);
+                  onRestart();
+                },
+                children: "Start over"
+              }
+            )
+          ] })
+        ] })
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(MobileControls, { inputRef, onInteract })
   ] });
-}
-function RouteProgress({ questStage }) {
-  const activeIndex = routeSteps.findIndex((step) => step.id === questStage);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "eq-route-progress", "aria-label": "Case route", children: routeSteps.map((step, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "li",
-    {
-      className: `${index2 < activeIndex ? "is-done" : ""} ${index2 === activeIndex ? "is-active" : ""}`,
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: index2 + 1 }),
-        step.label
-      ]
-    },
-    step.id
-  )) });
 }
 function getStepLabel(questStage, evidenceCount, evidenceTotal) {
   if (questStage === "investigate") {
     return `Step 2 of 5 | Evidence ${evidenceCount}/${evidenceTotal}`;
   }
-  if (questStage === "briefing") {
-    return stageLabels.briefing;
-  }
-  if (questStage === "diagnose") {
-    return stageLabels.diagnose;
-  }
-  if (questStage === "design") {
-    return stageLabels.design;
-  }
-  if (questStage === "complete") {
-    return stageLabels.complete;
-  }
-  return `Evidence ${evidenceCount}/${evidenceTotal}`;
+  return stageLabels[questStage] ?? `Evidence ${evidenceCount}/${evidenceTotal}`;
 }
 function MobileControls({
   inputRef,
@@ -15256,9 +15114,38 @@ function getFinishGuidance(caseId, questStage) {
   }
   return "Finish the Atlas Pro case by earning the sales enablement summary. That summary completes the learning path and unlocks the facilitator debrief.";
 }
+const introSlides = [
+  {
+    kicker: "Enablement Quest",
+    title: "The Case of the Vanishing Win Rate",
+    body: "Atlas Pro is reaching proposal, but too few deals are closing. Leaders think the sales team may need more training.",
+    detail: "Your job is not to accept that answer yet. Your job is to investigate."
+  },
+  {
+    kicker: "Your Role",
+    title: "Act like the enablement lead",
+    body: "You will talk to people, inspect evidence, and decide what is really blocking performance.",
+    detail: "The question you keep asking is simple: is this actually a training problem?"
+  },
+  {
+    kicker: "How It Works",
+    title: "Follow one clear path",
+    body: "Start in the lab, go to Leo in Sales Strategy Studio, collect evidence in order, then return to make the recommendation.",
+    detail: "The bottom guide will always tell you exactly what to do next."
+  },
+  {
+    kicker: "Learning Goal",
+    title: "Diagnose before designing",
+    body: "Choose the cause that explains the full evidence pattern. Then choose the fix that changes behavior and can be measured.",
+    detail: "You finish when you can explain the problem, cause, fix, and expected business impact in plain language."
+  }
+];
 function TitleScreen({ onStart }) {
-  const [isReviewGuideOpen, setIsReviewGuideOpen] = reactExports.useState(false);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-title-screen", "aria-label": "Enablement Quest briefing", children: [
+  const [slideIndex, setSlideIndex] = reactExports.useState(0);
+  const slide = introSlides[slideIndex];
+  const isFirstSlide = slideIndex === 0;
+  const isLastSlide = slideIndex === introSlides.length - 1;
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-title-screen", "aria-label": "Enablement Quest intro", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-world", "aria-hidden": "true", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-title-building is-sales" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-title-building is-lab" }),
@@ -15268,217 +15155,71 @@ function TitleScreen({ onStart }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-title-fountain" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-title-avatar" })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        className: `eq-title-card ${isReviewGuideOpen ? "has-review-guide" : ""}`,
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-meta", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Enablement Quest" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-byline", children: "A workplace diagnosis simulation" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "The Learning Systems Lab" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-title-mode", children: "Sales enablement case quest" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-title-copy", children: "A plain-language RPG case study where you diagnose workplace problems, choose enablement fixes, and see the business impact." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "section",
-            {
-              className: "eq-title-promise",
-              "aria-label": "What this experience produces",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "What you do" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Investigate one realistic revenue problem." }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Talk to stakeholders, review evidence, name the real cause, and choose the support that should change sales behavior." })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "What you leave with" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "A repeatable consulting habit." }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "The final debrief helps learners explain the problem, evidence, cause, recommendation, and measurable impact." })
-                ] })
-              ]
-            }
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-card eq-intro-carousel", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-meta", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: slide.kicker }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-byline", children: "Created by Terry Brutus" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-intro-slide", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "eq-title-mode", children: [
+          "Intro ",
+          slideIndex + 1,
+          " of ",
+          introSlides.length
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: slide.title }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-title-copy", children: slide.body }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-title-copy-secondary", children: slide.detail })
+      ] }),
+      !isFirstSlide && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          "aria-label": "Previous intro slide",
+          className: "eq-carousel-arrow is-left",
+          type: "button",
+          onClick: () => setSlideIndex((index2) => Math.max(0, index2 - 1)),
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronLeft, { className: "h-7 w-7" })
+        }
+      ),
+      !isLastSlide && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          "aria-label": "Next intro slide",
+          className: "eq-carousel-arrow is-right",
+          type: "button",
+          onClick: () => setSlideIndex(
+            (index2) => Math.min(introSlides.length - 1, index2 + 1)
           ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "section",
-            {
-              className: "eq-case-path-preview",
-              "aria-label": "Two-case learning path",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { className: "h-5 w-5" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Main case" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "The vanishing win rate" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Diagnose why Atlas Pro deals reach proposal but close below target. The answer depends on evidence, not assumptions." })
-                  ] })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(BriefcaseBusiness, { className: "h-5 w-5" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Practice loop" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Investigate, diagnose, design, measure" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Separate product knowledge, discovery skill, coaching, process, and measurement before recommending a fix." })
-                  ] })
-                ] })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-plain-start", "aria-label": "Plain language start", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Simple path" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "No gaming knowledge needed. Start in the lab, talk with Leo, follow the evidence, and answer one practical question: is this really a training problem?" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-mobile-title-start", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "eq-primary-button eq-start-button",
-                type: "button",
-                onClick: onStart,
-                "data-ocid": "title.mobile_start_button",
-                children: [
-                  "Begin the Case",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "h-5 w-5" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start now; use the debrief after the run." })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-finish-line", "aria-label": "How to finish", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "The finish line" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "You are done when the case produces a plain-language summary and a final debrief: problem, root cause, solution, and measurable impact." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "For non-gamers" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Use the Help button if you feel lost. The experience tells you exactly what to do next; movement is only how you explore the case." })
-            ] })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "section",
-            {
-              className: "eq-reviewer-proof-strip",
-              "aria-label": "What reviewers should look for",
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Business lens" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "The player must question a request, inspect evidence, and choose a fix tied to measurable outcomes." })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Enablement lens" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "The case shows sales enablement judgment: behavior, coaching, process, evidence, and pipeline signals." })
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Learning lens" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "The finished run gives learners a practical way to explain their recommendation in plain language." })
-                ] })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-grid", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(SearchCheck, { className: "h-5 w-5" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Talk with the case owner and review the evidence trail." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(BrainCircuit, { className: "h-5 w-5" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Decide what is actually causing the workplace problem." })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ChartLine, { className: "h-5 w-5" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Choose a fix and review the business-impact summary." })
-            ] })
-          ] }),
-          isReviewGuideOpen && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-review-wrapper", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "section",
-              {
-                className: "eq-reviewer-lens",
-                "aria-label": "What facilitators should review",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Facilitator lens" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Performance consulting: diagnose before designing." }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Learning architecture: evidence becomes a practical fix." }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Business impact: every decision points to a measurable result." })
-                  ] })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "section",
-              {
-                className: "eq-creator-statement",
-                "aria-label": "Learning purpose",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Learning purpose" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "This playable case study helps learners slow down before building training. The goal is to question the request, inspect evidence, diagnose the real problem, choose the right support, and explain the business impact." })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "section",
-              {
-                className: "eq-review-guide",
-                "aria-label": "How to use this learning experience",
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Facilitation path" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Complete the Atlas Pro case. The final debrief gives team discussion prompts and plain-language takeaways." })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "What learners practice" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Learners practice solving performance problems instead of automatically building training." })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Sales enablement lens" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "The case connects discovery behavior, coaching, CRM notes, and pipeline signals." })
-                  ] }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Scenario boundary" }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Metrics are scenario-based impact targets. The strongest proof is the performance-consulting workflow." })
-                  ] })
-                ]
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-title-actions", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "eq-primary-button eq-start-button",
-                type: "button",
-                onClick: onStart,
-                "data-ocid": "title.start_button",
-                children: [
-                  "Begin the Case",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "h-5 w-5" })
-                ]
-              }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                className: "eq-ghost-button eq-review-guide-button",
-                type: "button",
-                "aria-expanded": isReviewGuideOpen,
-                onClick: () => setIsReviewGuideOpen((value) => !value),
-                "data-ocid": "title.review_guide_button",
-                children: isReviewGuideOpen ? "Hide facilitator guide" : "Facilitator guide"
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-control-strip", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Move: WASD / arrows" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Talk or inspect: E / Space / Enter" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Help: Q" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Notes: B" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-mobile-control", children: "Move: joystick" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-mobile-control", children: "Talk or inspect: button" })
-          ] })
-        ]
-      }
-    )
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(ChevronRight, { className: "h-7 w-7" })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-intro-dots", "aria-label": "Intro progress", children: introSlides.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          className: index2 === slideIndex ? "is-active" : ""
+        },
+        item.title
+      )) }),
+      isLastSlide && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          className: "eq-primary-button eq-start-button",
+          type: "button",
+          onClick: onStart,
+          "data-ocid": "title.start_button",
+          children: [
+            "Begin the Case",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { className: "h-5 w-5" })
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-control-strip", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Move: WASD / arrows" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-desktop-control", children: "Talk or inspect: E / Space / Enter" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-mobile-control", children: "Move: joystick" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-mobile-control", children: "Talk or inspect: button" })
+      ] })
+    ] })
   ] });
 }
 function createInitialGameState() {
@@ -15705,7 +15446,7 @@ function GameCanvas() {
       activeCanvasCaseId: null,
       earnedArtifact: null,
       dialogue: null,
-      overlay: "briefing",
+      overlay: "none",
       toast: null
     }));
   }, []);
@@ -15833,6 +15574,31 @@ function GameCanvas() {
       }
     }));
   }, []);
+  const restartCase = reactExports.useCallback(() => {
+    setGameState((previous) => ({
+      ...previous,
+      player: {
+        ...previous.player,
+        hasStarted: false,
+        sceneId: "lab",
+        position: initialPosition,
+        direction: "down",
+        isMoving: false
+      },
+      currentCaseId: "sales",
+      completedCaseIds: [],
+      questStage: "briefing",
+      collectedEvidenceIds: [],
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      activeCanvasCaseId: null,
+      earnedArtifact: null,
+      dialogue: null,
+      overlay: "briefing",
+      toast: null
+    }));
+  }, []);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -15864,6 +15630,7 @@ function GameCanvas() {
             onOpenCaseFile: () => setOverlay("backpack"),
             onOpenSettings: () => setOverlay("settings"),
             onInteract: interact,
+            onRestart: restartCase,
             inputRef
           }
         ),

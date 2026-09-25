@@ -1,12 +1,9 @@
 import type { InputState, QuestStage } from "@/game/types";
 import {
   ClipboardList,
-  Crosshair,
   FolderOpen,
   Hand,
-  Info,
-  MapPin,
-  Minimize2,
+  RotateCcw,
   SlidersHorizontal,
 } from "lucide-react";
 import { type MutableRefObject, type PointerEvent, useState } from "react";
@@ -26,6 +23,7 @@ interface HudProps {
   onOpenCaseFile: () => void;
   onOpenSettings: () => void;
   onInteract: () => void;
+  onRestart: () => void;
 }
 
 const stageLabels: Record<QuestStage, string> = {
@@ -35,14 +33,6 @@ const stageLabels: Record<QuestStage, string> = {
   design: "Step 4 of 5",
   complete: "Step 5 of 5",
 };
-
-const routeSteps: Array<{ id: QuestStage; label: string }> = [
-  { id: "briefing", label: "Request" },
-  { id: "investigate", label: "Evidence" },
-  { id: "diagnose", label: "Cause" },
-  { id: "design", label: "Fix" },
-  { id: "complete", label: "Impact" },
-];
 
 export function Hud({
   sceneName,
@@ -59,73 +49,18 @@ export function Hud({
   onOpenCaseFile,
   onOpenSettings,
   onInteract,
+  onRestart,
 }: HudProps) {
-  const [isGuideExpanded, setIsGuideExpanded] = useState(false);
+  const [isRestartConfirmOpen, setIsRestartConfirmOpen] = useState(false);
   const stepLabel = getStepLabel(questStage, evidenceCount, evidenceTotal);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20">
-      <header className="pointer-events-auto absolute left-3 right-3 top-3 flex items-start justify-between gap-2 md:left-5 md:right-5 md:gap-3">
-        <section
-          className={`eq-hud-card max-w-xl ${isGuideExpanded ? "" : "is-collapsed"}`}
-        >
-          <button
-            className="eq-hud-toggle"
-            type="button"
-            onClick={() => setIsGuideExpanded((value) => !value)}
-            aria-label={isGuideExpanded ? "Collapse guide" : "Expand guide"}
-          >
-            {isGuideExpanded ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Info className="h-4 w-4" />
-            )}
-          </button>
-
-          {isGuideExpanded ? (
-            <div className="flex items-start gap-3">
-              <MapPin className="mt-1 h-5 w-5 shrink-0 text-cyan-300" />
-              <div>
-                <p className="eq-kicker">{sceneName}</p>
-                <h1>{sceneSubtitle}</h1>
-                <p className="eq-next-objective">{nextObjective}</p>
-                <div className="eq-hud-coach">
-                  <strong>Do this next: {coachAction}</strong>
-                  <span>Why it matters: {coachReason}</span>
-                </div>
-                <RouteProgress questStage={questStage} />
-                <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  <span className="eq-pill">
-                    <Crosshair className="h-3.5 w-3.5" />
-                    {stepLabel}
-                  </span>
-                  <span className="eq-pill">
-                    Evidence {evidenceCount}/{evidenceTotal}
-                  </span>
-                  {hasArtifact && (
-                    <span className="eq-pill is-success">Summary earned</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="eq-hud-summary">
-              <span>{stepLabel}</span>
-              <strong title={nextObjective}>{coachAction}</strong>
-              <small>
-                Evidence {evidenceCount}/{evidenceTotal}
-              </small>
-            </div>
-          )}
-        </section>
-
-        <nav
-          className="flex gap-2 self-end md:self-auto"
-          aria-label="Case controls"
-        >
+      <header className="pointer-events-auto absolute left-3 right-3 top-3 flex justify-end gap-2 md:left-5 md:right-5">
+        <nav className="eq-hud-nav" aria-label="Case controls">
           <button className="eq-hud-button" type="button" onClick={onOpenQuest}>
             <ClipboardList className="h-4 w-4" />
-            <span>Help</span>
+            <span>Guide</span>
             <kbd>Q</kbd>
           </button>
           <button
@@ -134,7 +69,7 @@ export function Hud({
             onClick={onOpenCaseFile}
           >
             <FolderOpen className="h-4 w-4" />
-            <span>Notes</span>
+            <span>Evidence</span>
             <kbd>B</kbd>
           </button>
           <button
@@ -145,31 +80,72 @@ export function Hud({
             <SlidersHorizontal className="h-4 w-4" />
             <span>Settings</span>
           </button>
+          <button
+            className="eq-hud-button"
+            type="button"
+            onClick={() => setIsRestartConfirmOpen(true)}
+          >
+            <RotateCcw className="h-4 w-4" />
+            <span>Start Over</span>
+          </button>
         </nav>
       </header>
 
+      <section className="eq-bottom-directive" aria-label="Current objective">
+        <div>
+          <p className="eq-kicker">
+            {stepLabel} | {sceneName}
+          </p>
+          <h1>{coachAction}</h1>
+          <p>{nextObjective}</p>
+          <small>{coachReason}</small>
+        </div>
+        <div className="eq-directive-status">
+          <span>{sceneSubtitle}</span>
+          <strong>
+            Evidence {evidenceCount}/{evidenceTotal}
+          </strong>
+          {hasArtifact && <strong>Summary earned</strong>}
+        </div>
+      </section>
+
+      {isRestartConfirmOpen && (
+        <section
+          className="eq-restart-confirm pointer-events-auto"
+          aria-label="Start over confirmation"
+        >
+          <div className="eq-panel">
+            <p className="eq-kicker">Start Over</p>
+            <h2>Restart the case?</h2>
+            <p>
+              This clears your current evidence and returns you to the intro
+              screen.
+            </p>
+            <div className="eq-confirm-actions">
+              <button
+                className="eq-ghost-button"
+                type="button"
+                onClick={() => setIsRestartConfirmOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="eq-primary-button"
+                type="button"
+                onClick={() => {
+                  setIsRestartConfirmOpen(false);
+                  onRestart();
+                }}
+              >
+                Start over
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       <MobileControls inputRef={inputRef} onInteract={onInteract} />
     </div>
-  );
-}
-
-function RouteProgress({ questStage }: { questStage: QuestStage }) {
-  const activeIndex = routeSteps.findIndex((step) => step.id === questStage);
-
-  return (
-    <ol className="eq-route-progress" aria-label="Case route">
-      {routeSteps.map((step, index) => (
-        <li
-          className={`${index < activeIndex ? "is-done" : ""} ${
-            index === activeIndex ? "is-active" : ""
-          }`}
-          key={step.id}
-        >
-          <span>{index + 1}</span>
-          {step.label}
-        </li>
-      ))}
-    </ol>
   );
 }
 
@@ -181,19 +157,9 @@ function getStepLabel(
   if (questStage === "investigate") {
     return `Step 2 of 5 | Evidence ${evidenceCount}/${evidenceTotal}`;
   }
-  if (questStage === "briefing") {
-    return stageLabels.briefing;
-  }
-  if (questStage === "diagnose") {
-    return stageLabels.diagnose;
-  }
-  if (questStage === "design") {
-    return stageLabels.design;
-  }
-  if (questStage === "complete") {
-    return stageLabels.complete;
-  }
-  return `Evidence ${evidenceCount}/${evidenceTotal}`;
+  return (
+    stageLabels[questStage] ?? `Evidence ${evidenceCount}/${evidenceTotal}`
+  );
 }
 
 function MobileControls({

@@ -299,7 +299,7 @@ export default function GameCanvas() {
       activeCanvasCaseId: null,
       earnedArtifact: null,
       dialogue: null,
-      overlay: "briefing",
+      overlay: "none",
       toast: null,
     }));
   }, []);
@@ -444,6 +444,32 @@ export default function GameCanvas() {
     }));
   }, []);
 
+  const restartCase = useCallback(() => {
+    setGameState((previous) => ({
+      ...previous,
+      player: {
+        ...previous.player,
+        hasStarted: false,
+        sceneId: "lab",
+        position: initialPosition,
+        direction: "down",
+        isMoving: false,
+      },
+      currentCaseId: "sales",
+      completedCaseIds: [],
+      questStage: "briefing",
+      collectedEvidenceIds: [],
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      activeCanvasCaseId: null,
+      earnedArtifact: null,
+      dialogue: null,
+      overlay: "briefing",
+      toast: null,
+    }));
+  }, []);
+
   return (
     <div
       ref={containerRef}
@@ -471,6 +497,7 @@ export default function GameCanvas() {
           onOpenCaseFile={() => setOverlay("backpack")}
           onOpenSettings={() => setOverlay("settings")}
           onInteract={interact}
+          onRestart={restartCase}
           inputRef={inputRef}
         />
       )}
