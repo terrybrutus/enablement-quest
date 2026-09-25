@@ -37,6 +37,7 @@ declare global {
       direction: GameState["player"]["direction"];
       collectedEvidenceIds: string[];
       completedCaseIds: CaseId[];
+      briefedCaseIds: CaseId[];
       currentCaseId: CaseId;
       diagnosisId: string | null;
       interventionId: string | null;
@@ -60,6 +61,7 @@ function createInitialGameState(): GameState {
     },
     currentCaseId: qaScene?.caseId ?? "sales",
     completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
+    briefedCaseIds: [],
     characterStates: Object.fromEntries(
       characters.map((character) => [
         character.id,
@@ -112,6 +114,7 @@ export default function GameCanvas() {
       direction: gameState.player.direction,
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
+      briefedCaseIds: gameState.briefedCaseIds,
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
@@ -291,6 +294,7 @@ export default function GameCanvas() {
       currentCaseId: "sales",
       questStage: "briefing",
       collectedEvidenceIds: [],
+      briefedCaseIds: [],
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
@@ -323,9 +327,15 @@ export default function GameCanvas() {
           previous.questStage === "briefing"
             ? "investigate"
             : previous.questStage;
+        const briefedCaseIds =
+          previous.questStage === "briefing" &&
+          !previous.briefedCaseIds.includes(previous.currentCaseId)
+            ? [...previous.briefedCaseIds, previous.currentCaseId]
+            : previous.briefedCaseIds;
         return {
           ...previous,
           questStage: nextStage,
+          briefedCaseIds,
           overlay: "none",
           dialogue: null,
           toast: previous.questStage === "briefing" ? null : previous.toast,
@@ -435,6 +445,7 @@ export default function GameCanvas() {
       ...previous,
       currentCaseId: "sales",
       questStage: "briefing",
+      briefedCaseIds: previous.briefedCaseIds.filter((id) => id !== "sales"),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
@@ -471,6 +482,7 @@ export default function GameCanvas() {
       },
       currentCaseId: "sales",
       completedCaseIds: [],
+      briefedCaseIds: [],
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,

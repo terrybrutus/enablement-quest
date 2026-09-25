@@ -65,7 +65,7 @@ export function useGameLoop({
       return false;
     }
 
-    if (state.questStage === "briefing") {
+    if (!state.briefedCaseIds.includes(state.currentCaseId)) {
       const stakeholder = state.currentCaseId === "sales" ? "Leo" : "Maya";
       setToast(
         `Talk to ${stakeholder} first. They explain the case before you review evidence.`,
@@ -113,16 +113,24 @@ export function useGameLoop({
       return false;
     }
 
-    setGameState((previous) => ({
-      ...previous,
-      overlay: "dialogue",
-      dialogue: {
-        characterId: character.id,
-        lineIndex: 0,
-        openedAt: Date.now(),
-      },
-      characterStates: faceCharacterTowardPlayer(previous, character.id),
-    }));
+    setGameState((previous) => {
+      const isCaseOwner =
+        character.id === (previous.currentCaseId === "sales" ? "leo" : "maya");
+      const needsBriefing =
+        isCaseOwner &&
+        !previous.briefedCaseIds.includes(previous.currentCaseId);
+      return {
+        ...previous,
+        questStage: needsBriefing ? "briefing" : previous.questStage,
+        overlay: "dialogue",
+        dialogue: {
+          characterId: character.id,
+          lineIndex: 0,
+          openedAt: Date.now(),
+        },
+        characterStates: faceCharacterTowardPlayer(previous, character.id),
+      };
+    });
     return true;
   }, [gameStateRef, setGameState]);
 
@@ -152,7 +160,10 @@ export function useGameLoop({
       return;
     }
 
-    if (state.questStage === "briefing" && openNearbyCharacter()) {
+    if (
+      !state.briefedCaseIds.includes(state.currentCaseId) &&
+      openNearbyCharacter()
+    ) {
       return;
     }
 
@@ -584,6 +595,7 @@ function getCaseTransition(
     return {
       currentCaseId: "sales" as const,
       questStage: "briefing" as const,
+      briefedCaseIds: state.briefedCaseIds.filter((id) => id !== "sales"),
       diagnosisId: null,
       interventionId: null,
       activeEvidenceId: null,
