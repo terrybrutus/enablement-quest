@@ -810,11 +810,6 @@ function drawCharacters(
     drawLabel(ctx, character.name, x + 24, y - 10, "#bbf7d0");
 
     if (character.id === getCurrentCaseOwnerId(gameState)) {
-      ctx.strokeStyle = "rgba(250, 204, 21, 0.9)";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.ellipse(x + 24, y + 91, 22, 8, 0, 0, Math.PI * 2);
-      ctx.stroke();
       drawQuestMarker(ctx, x + 24, y - 35, "!");
     }
   }
