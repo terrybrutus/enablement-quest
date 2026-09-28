@@ -13500,7 +13500,16 @@ function drawProps(ctx, scene, camera, assets) {
       ctx.shadowBlur = 0;
     }
     if (prop.sprite) {
-      drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
+      drawSheetSprite(
+        ctx,
+        assets,
+        prop.sprite,
+        px,
+        py,
+        width,
+        height,
+        prop.spriteTransform
+      );
     }
   }
   for (const prop of sortedProps) {
@@ -13663,11 +13672,30 @@ function drawQuestMarker(ctx, x, y, label) {
   ctx.fillText(label, x, y - 34);
   ctx.restore();
 }
-function drawSheetSprite(ctx, assets, sprite, x, y, width, height) {
+function drawSheetSprite(ctx, assets, sprite, x, y, width, height, transform) {
   const image = assets[sprite.image];
   if (!image) {
     ctx.fillStyle = "rgba(148, 163, 184, 0.4)";
     ctx.fillRect(x, y, width, height);
+    return;
+  }
+  if ((transform == null ? void 0 : transform.flipX) || (transform == null ? void 0 : transform.flipY) || (transform == null ? void 0 : transform.rotate)) {
+    ctx.save();
+    ctx.translate(Math.round(x + width / 2), Math.round(y + height / 2));
+    ctx.rotate((transform.rotate ?? 0) * Math.PI / 180);
+    ctx.scale(transform.flipX ? -1 : 1, transform.flipY ? -1 : 1);
+    ctx.drawImage(
+      image,
+      sprite.sx,
+      sprite.sy,
+      sprite.sw,
+      sprite.sh,
+      Math.round(-width / 2),
+      Math.round(-height / 2),
+      Math.round(width),
+      Math.round(height)
+    );
+    ctx.restore();
     return;
   }
   ctx.drawImage(
@@ -16913,7 +16941,14 @@ const presets = [
   }
 ];
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
-const layoutEditorStorageKey = "enablementQuestRoomLayouts.v2";
+const layoutEditorStorageKey = "enablementQuestRoomLayouts.v3";
+const legacyLayoutEditorStorageKeys = [
+  "enablementQuestRoomLayouts",
+  "enablementQuestRoomLayouts.v2"
+];
+const officeTileSize = 48;
+const officeColumns = officeSheet.width / officeTileSize;
+const officeRows = officeSheet.height / officeTileSize;
 const roomThemes = {
   lab: {
     accent: "#8b5cf6",
@@ -16965,7 +17000,8 @@ function propToEditorItem(prop) {
     position: prop.position,
     presetId: (matchingPreset == null ? void 0 : matchingPreset.id) ?? "custom",
     size: prop.size,
-    sprite: prop.sprite ?? presets[0].sprite
+    sprite: prop.sprite ?? presets[0].sprite,
+    spriteTransform: prop.spriteTransform
   };
 }
 function createItem(preset, index2) {
@@ -16978,6 +17014,21 @@ function createItem(preset, index2) {
     presetId: preset.id,
     size: preset.defaultSize,
     sprite: preset.sprite
+  };
+}
+function createTileItem(tile, index2) {
+  return {
+    collision: true,
+    description: "",
+    id: `${tile.id}-${index2 + 1}`,
+    label: "",
+    position: {
+      x: 2 + index2 % 5 * 1.25,
+      y: 2 + Math.floor(index2 / 5) * 1.25
+    },
+    presetId: tile.id,
+    size: { width: 1, height: 1 },
+    sprite: tile.sprite
   };
 }
 function getCurrentGameLayouts() {
@@ -16994,11 +17045,15 @@ function getBlankLayouts() {
 function RoomLayoutEditor() {
   var _a, _b;
   const [sceneId, setSceneId] = reactExports.useState(((_a = editorScenes[0]) == null ? void 0 : _a.id) ?? "lab");
+  const [tileRow, setTileRow] = reactExports.useState(0);
   const scene = reactExports.useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId]
   );
   const [itemsByScene, setItemsByScene] = reactExports.useState(() => {
+    for (const key of legacyLayoutEditorStorageKeys) {
+      window.localStorage.removeItem(key);
+    }
     const blankLayouts = getBlankLayouts();
     const savedLayouts = window.localStorage.getItem(layoutEditorStorageKey);
     if (!savedLayouts) {
@@ -17048,6 +17103,34 @@ function RoomLayoutEditor() {
     updateItems([...items, nextItem]);
     setSelectedId(nextItem.id);
   }
+  function addRawTile(tile) {
+    const nextItem = createTileItem(tile, items.length);
+    updateItems([...items, nextItem]);
+    setSelectedId(nextItem.id);
+  }
+  function duplicateSelected() {
+    if (!selectedItem) {
+      return;
+    }
+    const nextItem = {
+      ...selectedItem,
+      id: `${selectedItem.id}-copy-${items.length + 1}`,
+      position: {
+        x: clamp(
+          selectedItem.position.x + 0.5,
+          0,
+          scene.width - selectedItem.size.width
+        ),
+        y: clamp(
+          selectedItem.position.y + 0.5,
+          0,
+          scene.height - selectedItem.size.height
+        )
+      }
+    };
+    updateItems([...items, nextItem]);
+    setSelectedId(nextItem.id);
+  }
   function removeSelected() {
     var _a2;
     if (!selectedItem) {
@@ -17068,6 +17151,7 @@ function RoomLayoutEditor() {
         position: roundPosition(item.position),
         size: roundSize(item.size),
         sprite: item.sprite,
+        spriteTransform: getExportTransform(item.spriteTransform),
         collision: item.collision || void 0
       }))
     },
@@ -17110,7 +17194,8 @@ function RoomLayoutEditor() {
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-palette", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Add Assets" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Add Starter Examples" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "These are only starting crops. Use raw tiles below for exact assembly." }),
           presets.map((preset) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
@@ -17126,6 +17211,39 @@ function RoomLayoutEditor() {
             },
             preset.id
           ))
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-tile-browser", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Raw 48px Tile Picker" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "Sheet row",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                max: officeRows - 1,
+                min: 0,
+                type: "range",
+                value: tileRow,
+                onChange: (event) => setTileRow(Number(event.target.value))
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+            "Row ",
+            tileRow + 1,
+            " of ",
+            officeRows,
+            ". Click any tile to add it as a one-tile piece."
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-tile-grid", children: getRawTilesForRow(tileRow).map((tile) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              title: tile.label,
+              type: "button",
+              onClick: () => addRawTile(tile),
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(SpritePreview, { sprite: tile.sprite })
+            },
+            tile.id
+          )) })
         ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-layout-editor-stage-panel", children: [
@@ -17273,6 +17391,59 @@ function RoomLayoutEditor() {
               }
             ),
             "Blocks player movement"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-transform-actions", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  var _a2;
+                  return updateSelected({
+                    spriteTransform: {
+                      ...selectedItem.spriteTransform,
+                      rotate: getNextRotation(
+                        (_a2 = selectedItem.spriteTransform) == null ? void 0 : _a2.rotate
+                      )
+                    }
+                  });
+                },
+                children: "Rotate 90°"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  var _a2;
+                  return updateSelected({
+                    spriteTransform: {
+                      ...selectedItem.spriteTransform,
+                      flipX: !((_a2 = selectedItem.spriteTransform) == null ? void 0 : _a2.flipX)
+                    }
+                  });
+                },
+                children: "Flip horizontal"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                type: "button",
+                onClick: () => {
+                  var _a2;
+                  return updateSelected({
+                    spriteTransform: {
+                      ...selectedItem.spriteTransform,
+                      flipY: !((_a2 = selectedItem.spriteTransform) == null ? void 0 : _a2.flipY)
+                    }
+                  });
+                },
+                children: "Flip vertical"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: duplicateSelected, children: "Duplicate piece" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -17424,6 +17595,7 @@ function DraggableItem({
           {
             fill: true,
             sprite: item.sprite,
+            transform: item.spriteTransform,
             targetHeight: item.size.height * TILE_SIZE,
             targetWidth: item.size.width * TILE_SIZE
           }
@@ -17437,7 +17609,8 @@ function SpritePreview({
   fill = false,
   sprite,
   targetHeight,
-  targetWidth
+  targetWidth,
+  transform
 }) {
   const previewWidth = fill ? "100%" : 76;
   const previewHeight = fill ? "100%" : 58;
@@ -17454,6 +17627,7 @@ function SpritePreview({
         backgroundPosition: `${-sprite.sx * scale}px ${-sprite.sy * scale}px`,
         backgroundSize: `${officeSheet.width * scale}px ${officeSheet.height * scale}px`,
         height: previewHeight,
+        transform: getCssTransform(transform),
         width: previewWidth
       }
     }
@@ -17488,6 +17662,42 @@ function roundSize(size) {
     height: Number(size.height.toFixed(2)),
     width: Number(size.width.toFixed(2))
   };
+}
+function getRawTilesForRow(row) {
+  return Array.from({ length: officeColumns }, (_, col) => ({
+    id: `office-r${row + 1}-c${col + 1}`,
+    label: `Office sheet row ${row + 1}, column ${col + 1}`,
+    sprite: {
+      image: "office",
+      sx: col * officeTileSize,
+      sy: row * officeTileSize,
+      sw: officeTileSize,
+      sh: officeTileSize
+    }
+  }));
+}
+function getNextRotation(rotation) {
+  const nextRotation = ((rotation ?? 0) + 90) % 360;
+  return nextRotation;
+}
+function getCssTransform(transform) {
+  const transforms = [];
+  if (transform == null ? void 0 : transform.rotate) {
+    transforms.push(`rotate(${transform.rotate}deg)`);
+  }
+  if (transform == null ? void 0 : transform.flipX) {
+    transforms.push("scaleX(-1)");
+  }
+  if (transform == null ? void 0 : transform.flipY) {
+    transforms.push("scaleY(-1)");
+  }
+  return transforms.join(" ");
+}
+function getExportTransform(transform) {
+  if (!(transform == null ? void 0 : transform.rotate) && !(transform == null ? void 0 : transform.flipX) && !(transform == null ? void 0 : transform.flipY)) {
+    return void 0;
+  }
+  return transform;
 }
 function snap(value) {
   return Math.round(value * 4) / 4;

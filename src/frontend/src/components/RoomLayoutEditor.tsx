@@ -1,5 +1,5 @@
 import { scenes } from "@/game/levels";
-import type { Prop, Scene, SheetSprite } from "@/game/types";
+import type { Prop, Scene, SheetSprite, SpriteTransform } from "@/game/types";
 import { TILE_SIZE } from "@/game/types";
 import { useEffect, useMemo, useState } from "react";
 import type { PointerEvent } from "react";
@@ -13,6 +13,7 @@ interface EditorItem {
   presetId: string;
   size: { width: number; height: number };
   sprite: SheetSprite;
+  spriteTransform?: SpriteTransform;
 }
 
 interface SpritePreset {
@@ -20,6 +21,12 @@ interface SpritePreset {
   id: string;
   label: string;
   role: string;
+  sprite: SheetSprite;
+}
+
+interface RawTile {
+  id: string;
+  label: string;
   sprite: SheetSprite;
 }
 
@@ -103,7 +110,14 @@ const presets: SpritePreset[] = [
 ];
 
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
-const layoutEditorStorageKey = "enablementQuestRoomLayouts.v2";
+const layoutEditorStorageKey = "enablementQuestRoomLayouts.v3";
+const legacyLayoutEditorStorageKeys = [
+  "enablementQuestRoomLayouts",
+  "enablementQuestRoomLayouts.v2",
+];
+const officeTileSize = 48;
+const officeColumns = officeSheet.width / officeTileSize;
+const officeRows = officeSheet.height / officeTileSize;
 
 const roomThemes = {
   lab: {
@@ -159,6 +173,7 @@ function propToEditorItem(prop: Prop): EditorItem {
     presetId: matchingPreset?.id ?? "custom",
     size: prop.size,
     sprite: prop.sprite ?? presets[0].sprite,
+    spriteTransform: prop.spriteTransform,
   };
 }
 
@@ -172,6 +187,22 @@ function createItem(preset: SpritePreset, index: number): EditorItem {
     presetId: preset.id,
     size: preset.defaultSize,
     sprite: preset.sprite,
+  };
+}
+
+function createTileItem(tile: RawTile, index: number): EditorItem {
+  return {
+    collision: true,
+    description: "",
+    id: `${tile.id}-${index + 1}`,
+    label: "",
+    position: {
+      x: 2 + (index % 5) * 1.25,
+      y: 2 + Math.floor(index / 5) * 1.25,
+    },
+    presetId: tile.id,
+    size: { width: 1, height: 1 },
+    sprite: tile.sprite,
   };
 }
 
@@ -192,6 +223,7 @@ function getBlankLayouts() {
 
 export function RoomLayoutEditor() {
   const [sceneId, setSceneId] = useState<string>(editorScenes[0]?.id ?? "lab");
+  const [tileRow, setTileRow] = useState(0);
   const scene = useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId],
@@ -199,6 +231,9 @@ export function RoomLayoutEditor() {
   const [itemsByScene, setItemsByScene] = useState<
     Record<string, EditorItem[]>
   >(() => {
+    for (const key of legacyLayoutEditorStorageKeys) {
+      window.localStorage.removeItem(key);
+    }
     const blankLayouts = getBlankLayouts();
     const savedLayouts = window.localStorage.getItem(layoutEditorStorageKey);
     if (!savedLayouts) {
@@ -255,6 +290,36 @@ export function RoomLayoutEditor() {
     setSelectedId(nextItem.id);
   }
 
+  function addRawTile(tile: RawTile) {
+    const nextItem = createTileItem(tile, items.length);
+    updateItems([...items, nextItem]);
+    setSelectedId(nextItem.id);
+  }
+
+  function duplicateSelected() {
+    if (!selectedItem) {
+      return;
+    }
+    const nextItem = {
+      ...selectedItem,
+      id: `${selectedItem.id}-copy-${items.length + 1}`,
+      position: {
+        x: clamp(
+          selectedItem.position.x + 0.5,
+          0,
+          scene.width - selectedItem.size.width,
+        ),
+        y: clamp(
+          selectedItem.position.y + 0.5,
+          0,
+          scene.height - selectedItem.size.height,
+        ),
+      },
+    };
+    updateItems([...items, nextItem]);
+    setSelectedId(nextItem.id);
+  }
+
   function removeSelected() {
     if (!selectedItem) {
       return;
@@ -275,6 +340,7 @@ export function RoomLayoutEditor() {
         position: roundPosition(item.position),
         size: roundSize(item.size),
         sprite: item.sprite,
+        spriteTransform: getExportTransform(item.spriteTransform),
         collision: item.collision || undefined,
       })),
     },
@@ -336,7 +402,11 @@ export function RoomLayoutEditor() {
           </div>
 
           <div className="eq-layout-editor-palette">
-            <h2>Add Assets</h2>
+            <h2>Add Starter Examples</h2>
+            <p>
+              These are only starting crops. Use raw tiles below for exact
+              assembly.
+            </p>
             {presets.map((preset) => (
               <button
                 key={preset.id}
@@ -350,6 +420,36 @@ export function RoomLayoutEditor() {
                 </span>
               </button>
             ))}
+          </div>
+
+          <div className="eq-layout-editor-tile-browser">
+            <h2>Raw 48px Tile Picker</h2>
+            <label>
+              Sheet row
+              <input
+                max={officeRows - 1}
+                min={0}
+                type="range"
+                value={tileRow}
+                onChange={(event) => setTileRow(Number(event.target.value))}
+              />
+            </label>
+            <span>
+              Row {tileRow + 1} of {officeRows}. Click any tile to add it as a
+              one-tile piece.
+            </span>
+            <div className="eq-layout-editor-tile-grid">
+              {getRawTilesForRow(tileRow).map((tile) => (
+                <button
+                  key={tile.id}
+                  title={tile.label}
+                  type="button"
+                  onClick={() => addRawTile(tile)}
+                >
+                  <SpritePreview sprite={tile.sprite} />
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
 
@@ -497,6 +597,52 @@ export function RoomLayoutEditor() {
                 />
                 Blocks player movement
               </label>
+              <div className="eq-layout-editor-transform-actions">
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateSelected({
+                      spriteTransform: {
+                        ...selectedItem.spriteTransform,
+                        rotate: getNextRotation(
+                          selectedItem.spriteTransform?.rotate,
+                        ),
+                      },
+                    })
+                  }
+                >
+                  Rotate 90°
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateSelected({
+                      spriteTransform: {
+                        ...selectedItem.spriteTransform,
+                        flipX: !selectedItem.spriteTransform?.flipX,
+                      },
+                    })
+                  }
+                >
+                  Flip horizontal
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateSelected({
+                      spriteTransform: {
+                        ...selectedItem.spriteTransform,
+                        flipY: !selectedItem.spriteTransform?.flipY,
+                      },
+                    })
+                  }
+                >
+                  Flip vertical
+                </button>
+                <button type="button" onClick={duplicateSelected}>
+                  Duplicate piece
+                </button>
+              </div>
               <button
                 className="eq-layout-editor-danger"
                 type="button"
@@ -660,6 +806,7 @@ function DraggableItem({
       <SpritePreview
         fill
         sprite={item.sprite}
+        transform={item.spriteTransform}
         targetHeight={item.size.height * TILE_SIZE}
         targetWidth={item.size.width * TILE_SIZE}
       />
@@ -675,11 +822,13 @@ function SpritePreview({
   sprite,
   targetHeight,
   targetWidth,
+  transform,
 }: {
   fill?: boolean;
   sprite: SheetSprite;
   targetHeight?: number;
   targetWidth?: number;
+  transform?: SpriteTransform;
 }) {
   const previewWidth = fill ? "100%" : 76;
   const previewHeight = fill ? "100%" : 58;
@@ -699,6 +848,7 @@ function SpritePreview({
           officeSheet.height * scale
         }px`,
         height: previewHeight,
+        transform: getCssTransform(transform),
         width: previewWidth,
       }}
     />
@@ -739,6 +889,46 @@ function roundSize(size: EditorItem["size"]) {
     height: Number(size.height.toFixed(2)),
     width: Number(size.width.toFixed(2)),
   };
+}
+
+function getRawTilesForRow(row: number): RawTile[] {
+  return Array.from({ length: officeColumns }, (_, col) => ({
+    id: `office-r${row + 1}-c${col + 1}`,
+    label: `Office sheet row ${row + 1}, column ${col + 1}`,
+    sprite: {
+      image: "office",
+      sx: col * officeTileSize,
+      sy: row * officeTileSize,
+      sw: officeTileSize,
+      sh: officeTileSize,
+    },
+  }));
+}
+
+function getNextRotation(rotation: SpriteTransform["rotate"]) {
+  const nextRotation = ((rotation ?? 0) + 90) % 360;
+  return nextRotation as 0 | 90 | 180 | 270;
+}
+
+function getCssTransform(transform?: SpriteTransform) {
+  const transforms: string[] = [];
+  if (transform?.rotate) {
+    transforms.push(`rotate(${transform.rotate}deg)`);
+  }
+  if (transform?.flipX) {
+    transforms.push("scaleX(-1)");
+  }
+  if (transform?.flipY) {
+    transforms.push("scaleY(-1)");
+  }
+  return transforms.join(" ");
+}
+
+function getExportTransform(transform?: SpriteTransform) {
+  if (!transform?.rotate && !transform?.flipX && !transform?.flipY) {
+    return undefined;
+  }
+  return transform;
 }
 
 function snap(value: number) {

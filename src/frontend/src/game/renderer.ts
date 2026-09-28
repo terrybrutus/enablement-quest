@@ -688,7 +688,16 @@ function drawProps(
     }
 
     if (prop.sprite) {
-      drawSheetSprite(ctx, assets, prop.sprite, px, py, width, height);
+      drawSheetSprite(
+        ctx,
+        assets,
+        prop.sprite,
+        px,
+        py,
+        width,
+        height,
+        prop.spriteTransform,
+      );
     }
   }
 
@@ -913,11 +922,36 @@ function drawSheetSprite(
   y: number,
   width: number,
   height: number,
+  transform?: {
+    flipX?: boolean;
+    flipY?: boolean;
+    rotate?: 0 | 90 | 180 | 270;
+  },
 ) {
   const image = assets[sprite.image];
   if (!image) {
     ctx.fillStyle = "rgba(148, 163, 184, 0.4)";
     ctx.fillRect(x, y, width, height);
+    return;
+  }
+
+  if (transform?.flipX || transform?.flipY || transform?.rotate) {
+    ctx.save();
+    ctx.translate(Math.round(x + width / 2), Math.round(y + height / 2));
+    ctx.rotate(((transform.rotate ?? 0) * Math.PI) / 180);
+    ctx.scale(transform.flipX ? -1 : 1, transform.flipY ? -1 : 1);
+    ctx.drawImage(
+      image,
+      sprite.sx,
+      sprite.sy,
+      sprite.sw,
+      sprite.sh,
+      Math.round(-width / 2),
+      Math.round(-height / 2),
+      Math.round(width),
+      Math.round(height),
+    );
+    ctx.restore();
     return;
   }
 

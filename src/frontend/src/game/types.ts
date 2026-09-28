@@ -42,6 +42,12 @@ export interface SheetSprite {
   sh: number;
 }
 
+export interface SpriteTransform {
+  flipX?: boolean;
+  flipY?: boolean;
+  rotate?: 0 | 90 | 180 | 270;
+}
+
 export type AssetKey =
   | "adamIdle"
   | "adamRun"
@@ -98,6 +104,7 @@ export interface Prop {
   position: Position;
   size: { width: number; height: number };
   sprite?: SheetSprite;
+  spriteTransform?: SpriteTransform;
   collision?: boolean;
   glow?: boolean;
 }
