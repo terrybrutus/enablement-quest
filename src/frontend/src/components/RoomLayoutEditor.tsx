@@ -103,7 +103,7 @@ const presets: SpritePreset[] = [
 ];
 
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
-const layoutEditorStorageKey = "enablementQuestRoomLayouts";
+const layoutEditorStorageKey = "enablementQuestRoomLayouts.v2";
 
 const roomThemes = {
   lab: {
@@ -175,6 +175,21 @@ function createItem(preset: SpritePreset, index: number): EditorItem {
   };
 }
 
+function getCurrentGameLayouts() {
+  return Object.fromEntries(
+    editorScenes.map((item) => [
+      item.id,
+      item.props
+        .filter((prop) => prop.sprite)
+        .map((prop) => propToEditorItem(prop)),
+    ]),
+  );
+}
+
+function getBlankLayouts() {
+  return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
+}
+
 export function RoomLayoutEditor() {
   const [sceneId, setSceneId] = useState<string>(editorScenes[0]?.id ?? "lab");
   const scene = useMemo(
@@ -184,22 +199,15 @@ export function RoomLayoutEditor() {
   const [itemsByScene, setItemsByScene] = useState<
     Record<string, EditorItem[]>
   >(() => {
-    const defaultLayouts = Object.fromEntries(
-      editorScenes.map((item) => [
-        item.id,
-        item.props
-          .filter((prop) => prop.sprite)
-          .map((prop) => propToEditorItem(prop)),
-      ]),
-    );
+    const blankLayouts = getBlankLayouts();
     const savedLayouts = window.localStorage.getItem(layoutEditorStorageKey);
     if (!savedLayouts) {
-      return defaultLayouts;
+      return blankLayouts;
     }
     try {
-      return { ...defaultLayouts, ...JSON.parse(savedLayouts) };
+      return { ...blankLayouts, ...JSON.parse(savedLayouts) };
     } catch {
-      return defaultLayouts;
+      return blankLayouts;
     }
   });
   const items = itemsByScene[scene.id] ?? [];
@@ -216,6 +224,18 @@ export function RoomLayoutEditor() {
 
   function updateItems(nextItems: EditorItem[]) {
     setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
+  }
+
+  function loadCurrentRoomLayout() {
+    const currentLayouts = getCurrentGameLayouts();
+    const nextItems = currentLayouts[scene.id] ?? [];
+    updateItems(nextItems);
+    setSelectedId(nextItems[0]?.id ?? "");
+  }
+
+  function clearRoomLayout() {
+    updateItems([]);
+    setSelectedId("");
   }
 
   function updateSelected(patch: Partial<EditorItem>) {
@@ -280,6 +300,14 @@ export function RoomLayoutEditor() {
 
       <section className="eq-layout-editor-shell">
         <aside className="eq-layout-editor-sidebar">
+          <div className="eq-layout-editor-help">
+            <strong>Recommended workflow</strong>
+            <span>
+              Start with a blank room, add only assets that are clear, then copy
+              the JSON back to Codex.
+            </span>
+          </div>
+
           <label>
             Room
             <select
@@ -297,6 +325,15 @@ export function RoomLayoutEditor() {
               ))}
             </select>
           </label>
+
+          <div className="eq-layout-editor-actions">
+            <button type="button" onClick={clearRoomLayout}>
+              Start blank room
+            </button>
+            <button type="button" onClick={loadCurrentRoomLayout}>
+              Load current game layout
+            </button>
+          </div>
 
           <div className="eq-layout-editor-palette">
             <h2>Add Assets</h2>
@@ -317,6 +354,14 @@ export function RoomLayoutEditor() {
         </aside>
 
         <section className="eq-layout-editor-stage-panel">
+          <div className="eq-layout-editor-stage-note">
+            <strong>{scene.name}</strong>
+            <span>
+              {items.length === 0
+                ? "Blank room. Add objects from the left."
+                : `${items.length} objects in this draft. Select one to inspect it.`}
+            </span>
+          </div>
           <div
             className="eq-layout-editor-stage"
             style={{
@@ -346,6 +391,34 @@ export function RoomLayoutEditor() {
         </section>
 
         <aside className="eq-layout-editor-inspector">
+          <h2>Objects In This Room</h2>
+          {items.length > 0 ? (
+            <div className="eq-layout-editor-object-list">
+              {items.map((item) => (
+                <button
+                  className={item.id === selectedItem?.id ? "is-active" : ""}
+                  key={item.id}
+                  type="button"
+                  onClick={() => setSelectedId(item.id)}
+                >
+                  <SpritePreview sprite={item.sprite} />
+                  <span>
+                    <strong>{item.label || item.id}</strong>
+                    <small>
+                      x {roundPosition(item.position).x}, y{" "}
+                      {roundPosition(item.position).y}
+                    </small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="eq-layout-editor-empty">
+              No objects yet. Add a clear workstation, monitor, board, or plant
+              from the left.
+            </p>
+          )}
+
           <h2>Selected Object</h2>
           {selectedItem ? (
             <>
@@ -608,29 +681,27 @@ function SpritePreview({
   targetHeight?: number;
   targetWidth?: number;
 }) {
-  const previewWidth = fill ? "100%" : 58;
-  const previewHeight = fill ? "100%" : 42;
+  const previewWidth = fill ? "100%" : 76;
+  const previewHeight = fill ? "100%" : 58;
   const scale = fill
     ? Math.min(
         (targetWidth ?? sprite.sw) / sprite.sw,
         (targetHeight ?? sprite.sh) / sprite.sh,
       )
-    : Math.min(58 / sprite.sw, 42 / sprite.sh);
+    : Math.min(76 / sprite.sw, 58 / sprite.sh);
   return (
     <span
       className="eq-layout-editor-sprite"
-      style={{ height: previewHeight, width: previewWidth }}
-    >
-      <img
-        alt=""
-        src={officeSheet.url}
-        style={{
-          height: officeSheet.height * scale,
-          transform: `translate(${-sprite.sx * scale}px, ${-sprite.sy * scale}px)`,
-          width: officeSheet.width * scale,
-        }}
-      />
-    </span>
+      style={{
+        backgroundImage: `url(${officeSheet.url})`,
+        backgroundPosition: `${-sprite.sx * scale}px ${-sprite.sy * scale}px`,
+        backgroundSize: `${officeSheet.width * scale}px ${
+          officeSheet.height * scale
+        }px`,
+        height: previewHeight,
+        width: previewWidth,
+      }}
+    />
   );
 }
 

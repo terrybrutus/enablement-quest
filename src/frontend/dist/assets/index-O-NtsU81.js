@@ -16913,7 +16913,7 @@ const presets = [
   }
 ];
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
-const layoutEditorStorageKey = "enablementQuestRoomLayouts";
+const layoutEditorStorageKey = "enablementQuestRoomLayouts.v2";
 const roomThemes = {
   lab: {
     accent: "#8b5cf6",
@@ -16980,6 +16980,17 @@ function createItem(preset, index2) {
     sprite: preset.sprite
   };
 }
+function getCurrentGameLayouts() {
+  return Object.fromEntries(
+    editorScenes.map((item) => [
+      item.id,
+      item.props.filter((prop) => prop.sprite).map((prop) => propToEditorItem(prop))
+    ])
+  );
+}
+function getBlankLayouts() {
+  return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
+}
 function RoomLayoutEditor() {
   var _a, _b;
   const [sceneId, setSceneId] = reactExports.useState(((_a = editorScenes[0]) == null ? void 0 : _a.id) ?? "lab");
@@ -16988,20 +16999,15 @@ function RoomLayoutEditor() {
     [sceneId]
   );
   const [itemsByScene, setItemsByScene] = reactExports.useState(() => {
-    const defaultLayouts = Object.fromEntries(
-      editorScenes.map((item) => [
-        item.id,
-        item.props.filter((prop) => prop.sprite).map((prop) => propToEditorItem(prop))
-      ])
-    );
+    const blankLayouts = getBlankLayouts();
     const savedLayouts = window.localStorage.getItem(layoutEditorStorageKey);
     if (!savedLayouts) {
-      return defaultLayouts;
+      return blankLayouts;
     }
     try {
-      return { ...defaultLayouts, ...JSON.parse(savedLayouts) };
+      return { ...blankLayouts, ...JSON.parse(savedLayouts) };
     } catch {
-      return defaultLayouts;
+      return blankLayouts;
     }
   });
   const items = itemsByScene[scene.id] ?? [];
@@ -17015,6 +17021,17 @@ function RoomLayoutEditor() {
   }, [itemsByScene]);
   function updateItems(nextItems) {
     setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
+  }
+  function loadCurrentRoomLayout() {
+    var _a2;
+    const currentLayouts = getCurrentGameLayouts();
+    const nextItems = currentLayouts[scene.id] ?? [];
+    updateItems(nextItems);
+    setSelectedId(((_a2 = nextItems[0]) == null ? void 0 : _a2.id) ?? "");
+  }
+  function clearRoomLayout() {
+    updateItems([]);
+    setSelectedId("");
   }
   function updateSelected(patch) {
     if (!selectedItem) {
@@ -17068,6 +17085,10 @@ function RoomLayoutEditor() {
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-layout-editor-shell", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-layout-editor-sidebar", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, then copy the JSON back to Codex." })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
           "Room",
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -17083,6 +17104,10 @@ function RoomLayoutEditor() {
               children: editorScenes.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: item.id, children: item.name }, item.id))
             }
           )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: clearRoomLayout, children: "Start blank room" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-palette", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Add Assets" }),
@@ -17103,38 +17128,67 @@ function RoomLayoutEditor() {
           ))
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "eq-layout-editor-stage-panel", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          className: "eq-layout-editor-stage",
-          style: {
-            height: scene.height * TILE_SIZE,
-            width: scene.width * TILE_SIZE
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(RoomGrid, { scene }),
-            items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-              DraggableItem,
-              {
-                isSelected: item.id === (selectedItem == null ? void 0 : selectedItem.id),
-                item,
-                onChange: (nextItem) => {
-                  updateItems(
-                    items.map(
-                      (current) => current.id === item.id ? nextItem : current
-                    )
-                  );
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-layout-editor-stage-panel", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-stage-note", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: scene.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: items.length === 0 ? "Blank room. Add objects from the left." : `${items.length} objects in this draft. Select one to inspect it.` })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "div",
+          {
+            className: "eq-layout-editor-stage",
+            style: {
+              height: scene.height * TILE_SIZE,
+              width: scene.width * TILE_SIZE
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RoomGrid, { scene }),
+              items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                DraggableItem,
+                {
+                  isSelected: item.id === (selectedItem == null ? void 0 : selectedItem.id),
+                  item,
+                  onChange: (nextItem) => {
+                    updateItems(
+                      items.map(
+                        (current) => current.id === item.id ? nextItem : current
+                      )
+                    );
+                  },
+                  onSelect: () => setSelectedId(item.id),
+                  scene
                 },
-                onSelect: () => setSelectedId(item.id),
-                scene
-              },
-              item.id
-            ))
-          ]
-        }
-      ) }),
+                item.id
+              ))
+            ]
+          }
+        )
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-layout-editor-inspector", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Objects In This Room" }),
+        items.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-object-list", children: items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "button",
+          {
+            className: item.id === (selectedItem == null ? void 0 : selectedItem.id) ? "is-active" : "",
+            type: "button",
+            onClick: () => setSelectedId(item.id),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(SpritePreview, { sprite: item.sprite }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: item.label || item.id }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { children: [
+                  "x ",
+                  roundPosition(item.position).x,
+                  ", y",
+                  " ",
+                  roundPosition(item.position).y
+                ] })
+              ] })
+            ]
+          },
+          item.id
+        )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-layout-editor-empty", children: "No objects yet. Add a clear workstation, monitor, board, or plant from the left." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Selected Object" }),
         selectedItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
@@ -17385,29 +17439,23 @@ function SpritePreview({
   targetHeight,
   targetWidth
 }) {
-  const previewWidth = fill ? "100%" : 58;
-  const previewHeight = fill ? "100%" : 42;
+  const previewWidth = fill ? "100%" : 76;
+  const previewHeight = fill ? "100%" : 58;
   const scale = fill ? Math.min(
     (targetWidth ?? sprite.sw) / sprite.sw,
     (targetHeight ?? sprite.sh) / sprite.sh
-  ) : Math.min(58 / sprite.sw, 42 / sprite.sh);
+  ) : Math.min(76 / sprite.sw, 58 / sprite.sh);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "span",
     {
       className: "eq-layout-editor-sprite",
-      style: { height: previewHeight, width: previewWidth },
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "img",
-        {
-          alt: "",
-          src: officeSheet.url,
-          style: {
-            height: officeSheet.height * scale,
-            transform: `translate(${-sprite.sx * scale}px, ${-sprite.sy * scale}px)`,
-            width: officeSheet.width * scale
-          }
-        }
-      )
+      style: {
+        backgroundImage: `url(${officeSheet.url})`,
+        backgroundPosition: `${-sprite.sx * scale}px ${-sprite.sy * scale}px`,
+        backgroundSize: `${officeSheet.width * scale}px ${officeSheet.height * scale}px`,
+        height: previewHeight,
+        width: previewWidth
+      }
     }
   );
 }
