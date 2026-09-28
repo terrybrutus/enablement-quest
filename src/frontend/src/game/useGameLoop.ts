@@ -172,12 +172,36 @@ export function useGameLoop({
 
     const prop = getNearbyInspectableProp(state);
     if (prop?.description) {
+      if (state.player.sceneId === "lab" && prop.id !== "mission-desk") {
+        setToast(
+          "Start with the Case Board. It explains the mission before you explore.",
+        );
+        return;
+      }
+      if (prop.id === "mission-desk") {
+        setGameState((previous) => ({
+          ...previous,
+          labBriefingCompleted: true,
+          toast: {
+            id: Date.now(),
+            message:
+              "Mission understood. Exit to the campus and find Leo in the Sales Enablement Studio.",
+          },
+        }));
+        return;
+      }
       setToast(prop.description);
       return;
     }
 
     const portal = getPortalAtPosition(state, state.player.position);
     if (portal) {
+      if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
+        setToast(
+          "Review the Case Board first. Then the campus route will make sense.",
+        );
+        return;
+      }
       if (
         portal.targetSceneId === "sales" &&
         state.currentCaseId !== "sales" &&
@@ -422,6 +446,21 @@ function moveWithinScene(
   const direction = getDirection(state.player.position, nextPosition);
   const edgePortal = getPortalAtPosition(state, nextPosition);
   if (edgePortal) {
+    if (edgePortal.id === "lab-to-hub" && !state.labBriefingCompleted) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false,
+        },
+        toast: {
+          id: Date.now(),
+          message:
+            "Review the Case Board first. Then leave the lab and find Leo.",
+        },
+      };
+    }
     if (
       edgePortal.targetSceneId === "sales" &&
       state.currentCaseId !== "sales" &&
@@ -496,6 +535,21 @@ function moveWithinScene(
 
   const portal = getPortalAtPosition(state, bounded);
   if (portal) {
+    if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false,
+        },
+        toast: {
+          id: Date.now(),
+          message:
+            "Review the Case Board first. Then leave the lab and find Leo.",
+        },
+      };
+    }
     if (
       portal.targetSceneId === "sales" &&
       state.currentCaseId !== "sales" &&

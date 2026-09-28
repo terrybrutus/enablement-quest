@@ -12111,7 +12111,8 @@ const scenes = [
     props: [
       {
         id: "mission-desk",
-        description: "This is your case desk. Elena's Atlas Pro request is waiting: investigate before recommending more training.",
+        label: "Case Board",
+        description: "Case board reviewed. Your job is to find out why Atlas Pro sales are not closing before recommending a fix. Start by talking with Leo in the Sales Enablement Studio.",
         position: { x: 3.2, y: 4.6 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(336, 1392, 144, 96),
@@ -12120,7 +12121,7 @@ const scenes = [
       },
       {
         id: "analytics-wall",
-        description: "The dashboard is waiting for the Atlas Pro evidence pattern. Good enablement work starts with facts, not course requests.",
+        description: "This dashboard will matter later. First, review the Case Board so the mission has context.",
         position: { x: 6.9, y: 1.35 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(48, 1488, 144, 96),
@@ -13816,11 +13817,34 @@ function useGameLoop({
     }
     const prop = getNearbyInspectableProp(state);
     if (prop == null ? void 0 : prop.description) {
+      if (state.player.sceneId === "lab" && prop.id !== "mission-desk") {
+        setToast(
+          "Start with the Case Board. It explains the mission before you explore."
+        );
+        return;
+      }
+      if (prop.id === "mission-desk") {
+        setGameState((previous) => ({
+          ...previous,
+          labBriefingCompleted: true,
+          toast: {
+            id: Date.now(),
+            message: "Mission understood. Exit to the campus and find Leo in the Sales Enablement Studio."
+          }
+        }));
+        return;
+      }
       setToast(prop.description);
       return;
     }
     const portal = getPortalAtPosition(state, state.player.position);
     if (portal) {
+      if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
+        setToast(
+          "Review the Case Board first. Then the campus route will make sense."
+        );
+        return;
+      }
       if (portal.targetSceneId === "sales" && state.currentCaseId !== "sales" && !state.completedCaseIds.includes("onboarding")) {
         setGameState((previous) => ({
           ...previous,
@@ -14018,6 +14042,20 @@ function moveWithinScene(state, nextPosition) {
   const direction = getDirection(state.player.position, nextPosition);
   const edgePortal = getPortalAtPosition(state, nextPosition);
   if (edgePortal) {
+    if (edgePortal.id === "lab-to-hub" && !state.labBriefingCompleted) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false
+        },
+        toast: {
+          id: Date.now(),
+          message: "Review the Case Board first. Then leave the lab and find Leo."
+        }
+      };
+    }
     if (edgePortal.targetSceneId === "sales" && state.currentCaseId !== "sales" && !state.completedCaseIds.includes("onboarding")) {
       return {
         ...state,
@@ -14079,6 +14117,20 @@ function moveWithinScene(state, nextPosition) {
   }
   const portal = getPortalAtPosition(state, bounded);
   if (portal) {
+    if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false
+        },
+        toast: {
+          id: Date.now(),
+          message: "Review the Case Board first. Then leave the lab and find Leo."
+        }
+      };
+    }
     if (portal.targetSceneId === "sales" && state.currentCaseId !== "sales" && !state.completedCaseIds.includes("onboarding")) {
       return {
         ...state,
@@ -15292,6 +15344,7 @@ function createInitialGameState() {
     currentCaseId: (qaScene == null ? void 0 : qaScene.caseId) ?? "sales",
     completedCaseIds: (qaScene == null ? void 0 : qaScene.caseId) === "sales" ? ["onboarding"] : [],
     caseBriefingCompletedIds: (qaScene == null ? void 0 : qaScene.caseBriefingCompletedIds) ?? [],
+    labBriefingCompleted: (qaScene == null ? void 0 : qaScene.labBriefingCompleted) ?? false,
     characterStates: Object.fromEntries(
       characters.map((character) => [
         character.id,
@@ -15355,6 +15408,7 @@ function GameCanvas() {
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
       caseBriefingCompletedIds: gameState.caseBriefingCompletedIds,
+      labBriefingCompleted: gameState.labBriefingCompleted,
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
@@ -15476,7 +15530,8 @@ function GameCanvas() {
       (item) => !gameState.collectedEvidenceIds.includes(item.id)
     )) == null ? void 0 : _a.title) ?? null,
     gameState.player.sceneId,
-    gameState.completedCaseIds
+    gameState.completedCaseIds,
+    gameState.labBriefingCompleted
   );
   const coachPrompt = getCoachPrompt(
     gameState.currentCaseId,
@@ -15484,7 +15539,8 @@ function GameCanvas() {
     currentCollectedEvidenceCount,
     currentEvidenceItems.length,
     gameState.player.sceneId,
-    gameState.completedCaseIds
+    gameState.completedCaseIds,
+    gameState.labBriefingCompleted
   );
   const hasBlockingOverlay = [
     "briefing",
@@ -15533,6 +15589,7 @@ function GameCanvas() {
       },
       currentCaseId: "sales",
       caseBriefingCompletedIds: [],
+      labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,
@@ -15706,6 +15763,7 @@ function GameCanvas() {
       currentCaseId: "sales",
       completedCaseIds: [],
       caseBriefingCompletedIds: [],
+      labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,
@@ -15925,7 +15983,16 @@ function getQaScene() {
     return {
       sceneId,
       caseId: "onboarding",
-      position: { x: 12.75, y: 9.8 }
+      position: { x: 12.75, y: 9.8 },
+      labBriefingCompleted: true
+    };
+  }
+  if (sceneId === "lab") {
+    return {
+      sceneId,
+      caseId: "sales",
+      position: { x: 4.7, y: 6.2 },
+      labBriefingCompleted: searchParams.get("qaLabBriefed") === "1"
     };
   }
   return null;
@@ -15996,10 +16063,13 @@ function getCaseOwnerId(caseId) {
 function addUniqueCaseId(caseIds, caseId) {
   return caseIds.includes(caseId) ? caseIds : [...caseIds, caseId];
 }
-function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, completedCaseIds) {
+function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, completedCaseIds, labBriefingCompleted) {
   if (questStage === "briefing") {
     if (caseId === "sales") {
-      return sceneId === "sales" ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales." : sceneId === "lab" ? "Optional: inspect the glowing lab objects, then exit to the campus and find Leo." : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
+      if (sceneId === "lab") {
+        return labBriefingCompleted ? "Exit to the campus and find Leo in the Sales Enablement Studio." : "Review the glowing Case Board. It explains the mission before you leave the lab.";
+      }
+      return sceneId === "sales" ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales." : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
     }
     return sceneId === "operations" ? "Step 1: talk with Maya. Listen to the training request, then question whether training is enough." : "Enter Operations Suite and talk with Maya.";
   }
@@ -16025,15 +16095,24 @@ function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, comple
   }
   return "Case complete: review the Atlas Pro recommendation and the business impact story.";
 }
-function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneId, completedCaseIds) {
+function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneId, completedCaseIds, labBriefingCompleted) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
   const room = caseId === "sales" ? "Sales Enablement Studio" : "Operations";
   if (questStage === "briefing") {
+    if (sceneId === "lab") {
+      return labBriefingCompleted ? {
+        action: "Exit the lab",
+        reason: "The mission is set. Go to the campus, then enter the Sales Enablement Studio."
+      } : {
+        action: "Review the Case Board",
+        reason: "This gives the learner the goal before the case begins."
+      };
+    }
     return sceneId === (caseId === "sales" ? "sales" : "operations") ? {
       action: `Talk with ${caseOwner}`,
       reason: "Start by hearing what leaders asked for and what problem they see."
     } : {
-      action: sceneId === "lab" ? "Explore or exit the lab" : `Go to ${room}`,
+      action: `Go to ${room}`,
       reason: "Start with the request, then verify it with evidence."
     };
   }

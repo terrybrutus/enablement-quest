@@ -38,6 +38,7 @@ declare global {
       collectedEvidenceIds: string[];
       completedCaseIds: CaseId[];
       caseBriefingCompletedIds: CaseId[];
+      labBriefingCompleted: boolean;
       currentCaseId: CaseId;
       diagnosisId: string | null;
       interventionId: string | null;
@@ -62,6 +63,7 @@ function createInitialGameState(): GameState {
     currentCaseId: qaScene?.caseId ?? "sales",
     completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
     caseBriefingCompletedIds: qaScene?.caseBriefingCompletedIds ?? [],
+    labBriefingCompleted: qaScene?.labBriefingCompleted ?? false,
     characterStates: Object.fromEntries(
       characters.map((character) => [
         character.id,
@@ -131,6 +133,7 @@ export default function GameCanvas() {
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
       caseBriefingCompletedIds: gameState.caseBriefingCompletedIds,
+      labBriefingCompleted: gameState.labBriefingCompleted,
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
       interventionId: gameState.interventionId,
@@ -272,6 +275,7 @@ export default function GameCanvas() {
     )?.title ?? null,
     gameState.player.sceneId,
     gameState.completedCaseIds,
+    gameState.labBriefingCompleted,
   );
   const coachPrompt = getCoachPrompt(
     gameState.currentCaseId,
@@ -280,6 +284,7 @@ export default function GameCanvas() {
     currentEvidenceItems.length,
     gameState.player.sceneId,
     gameState.completedCaseIds,
+    gameState.labBriefingCompleted,
   );
   const hasBlockingOverlay = [
     "briefing",
@@ -336,6 +341,7 @@ export default function GameCanvas() {
       },
       currentCaseId: "sales",
       caseBriefingCompletedIds: [],
+      labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,
@@ -531,6 +537,7 @@ export default function GameCanvas() {
       currentCaseId: "sales",
       completedCaseIds: [],
       caseBriefingCompletedIds: [],
+      labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
       diagnosisId: null,
@@ -775,6 +782,7 @@ function getQaScene(): {
   position: Position;
   questStage?: GameState["questStage"];
   caseBriefingCompletedIds?: CaseId[];
+  labBriefingCompleted?: boolean;
   sceneId: SceneId;
 } | null {
   if (typeof window === "undefined") {
@@ -814,6 +822,15 @@ function getQaScene(): {
       sceneId,
       caseId: "onboarding" as const,
       position: { x: 12.75, y: 9.8 },
+      labBriefingCompleted: true,
+    };
+  }
+  if (sceneId === "lab") {
+    return {
+      sceneId,
+      caseId: "sales" as const,
+      position: { x: 4.7, y: 6.2 },
+      labBriefingCompleted: searchParams.get("qaLabBriefed") === "1",
     };
   }
   return null;
@@ -918,14 +935,18 @@ function getNextObjective(
   nextEvidenceTitle: string | null,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
+  labBriefingCompleted: GameState["labBriefingCompleted"],
 ) {
   if (questStage === "briefing") {
     if (caseId === "sales") {
+      if (sceneId === "lab") {
+        return labBriefingCompleted
+          ? "Exit to the campus and find Leo in the Sales Enablement Studio."
+          : "Review the glowing Case Board. It explains the mission before you leave the lab.";
+      }
       return sceneId === "sales"
         ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales."
-        : sceneId === "lab"
-          ? "Optional: inspect the glowing lab objects, then exit to the campus and find Leo."
-          : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
+        : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
     }
     return sceneId === "operations"
       ? "Step 1: talk with Maya. Listen to the training request, then question whether training is enough."
@@ -961,11 +982,24 @@ function getCoachPrompt(
   evidenceTotal: number,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
+  labBriefingCompleted: GameState["labBriefingCompleted"],
 ) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
   const room = caseId === "sales" ? "Sales Enablement Studio" : "Operations";
 
   if (questStage === "briefing") {
+    if (sceneId === "lab") {
+      return labBriefingCompleted
+        ? {
+            action: "Exit the lab",
+            reason:
+              "The mission is set. Go to the campus, then enter the Sales Enablement Studio.",
+          }
+        : {
+            action: "Review the Case Board",
+            reason: "This gives the learner the goal before the case begins.",
+          };
+    }
     return sceneId === (caseId === "sales" ? "sales" : "operations")
       ? {
           action: `Talk with ${caseOwner}`,
@@ -973,8 +1007,7 @@ function getCoachPrompt(
             "Start by hearing what leaders asked for and what problem they see.",
         }
       : {
-          action:
-            sceneId === "lab" ? "Explore or exit the lab" : `Go to ${room}`,
+          action: `Go to ${room}`,
           reason: "Start with the request, then verify it with evidence.",
         };
   }

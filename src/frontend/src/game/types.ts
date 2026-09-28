@@ -221,6 +221,7 @@ export interface GameState {
   currentCaseId: CaseId;
   completedCaseIds: CaseId[];
   caseBriefingCompletedIds: CaseId[];
+  labBriefingCompleted: boolean;
   characterStates: Record<string, CharacterState>;
   questStage: QuestStage;
   collectedEvidenceIds: string[];

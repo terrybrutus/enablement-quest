@@ -121,8 +121,9 @@ export const scenes: Scene[] = [
     props: [
       {
         id: "mission-desk",
+        label: "Case Board",
         description:
-          "This is your case desk. Elena's Atlas Pro request is waiting: investigate before recommending more training.",
+          "Case board reviewed. Your job is to find out why Atlas Pro sales are not closing before recommending a fix. Start by talking with Leo in the Sales Enablement Studio.",
         position: { x: 3.2, y: 4.6 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(336, 1392, 144, 96),
@@ -132,7 +133,7 @@ export const scenes: Scene[] = [
       {
         id: "analytics-wall",
         description:
-          "The dashboard is waiting for the Atlas Pro evidence pattern. Good enablement work starts with facts, not course requests.",
+          "This dashboard will matter later. First, review the Case Board so the mission has context.",
         position: { x: 6.9, y: 1.35 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(48, 1488, 144, 96),
