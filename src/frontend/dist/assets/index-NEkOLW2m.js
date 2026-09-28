@@ -13073,8 +13073,8 @@ function getCamera(viewport, scene, gameState) {
   const centerX = Math.max(0, (viewport.width - worldWidth) / 2);
   const centerY = Math.max(0, (viewport.height - worldHeight) / 2);
   return {
-    x: worldWidth < viewport.width ? -centerX : clamp$1(targetX, 0, Math.max(0, worldWidth - viewport.width)),
-    y: worldHeight < viewport.height ? -centerY : clamp$1(targetY, 0, Math.max(0, worldHeight - viewport.height))
+    x: worldWidth < viewport.width ? -centerX : clamp$2(targetX, 0, Math.max(0, worldWidth - viewport.width)),
+    y: worldHeight < viewport.height ? -centerY : clamp$2(targetY, 0, Math.max(0, worldHeight - viewport.height))
   };
 }
 function drawSceneBase(ctx, viewport, scene, camera, assets) {
@@ -13708,7 +13708,7 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
 }
-function clamp$1(value, min, max) {
+function clamp$2(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 function useGameLoop({
@@ -14105,8 +14105,8 @@ function moveWithinScene(state, nextPosition) {
     };
   }
   const bounded = {
-    x: clamp(nextPosition.x, 1.2, scene.width - 1.2),
-    y: clamp(nextPosition.y, 1.4, scene.height - 1.1)
+    x: clamp$1(nextPosition.x, 1.2, scene.width - 1.2),
+    y: clamp$1(nextPosition.y, 1.4, scene.height - 1.1)
   };
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
   const propBlocked = scene.props.some(
@@ -14363,7 +14363,7 @@ function getDirection(previous, next) {
   }
   return dy > 0 ? "down" : "up";
 }
-function clamp(value, min, max) {
+function clamp$1(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 /**
@@ -16835,7 +16835,622 @@ function FinalReviewerDebrief() {
     ] })
   ] });
 }
+const officeSheet = {
+  height: 2544,
+  url: "/assets/limezu/office-48.png",
+  width: 768
+};
+const presets = [
+  {
+    id: "email-computer-desk",
+    label: "Email Computer Desk",
+    role: "Use for readable email/computer interactions.",
+    defaultSize: { width: 3, height: 2 },
+    sprite: { image: "office", sx: 384, sy: 1296, sw: 144, sh: 96 }
+  },
+  {
+    id: "workstation-blue",
+    label: "Blue Workstation",
+    role: "Use for office work pods and evidence stations.",
+    defaultSize: { width: 3, height: 2 },
+    sprite: { image: "office", sx: 528, sy: 1296, sw: 144, sh: 96 }
+  },
+  {
+    id: "workstation-corner",
+    label: "Corner Workstation",
+    role: "Use when you want a larger cubicle corner.",
+    defaultSize: { width: 3, height: 2 },
+    sprite: { image: "office", sx: 384, sy: 1344, sw: 144, sh: 96 }
+  },
+  {
+    id: "desk-plain",
+    label: "Plain Desk",
+    role: "Use only as supporting furniture, not for email.",
+    defaultSize: { width: 3, height: 1.6 },
+    sprite: { image: "office", sx: 336, sy: 1392, sw: 144, sh: 96 }
+  },
+  {
+    id: "monitor-wall",
+    label: "Wall Monitor",
+    role: "Use for dashboards, reports, or metrics.",
+    defaultSize: { width: 2.7, height: 1.35 },
+    sprite: { image: "office", sx: 432, sy: 528, sw: 144, sh: 48 }
+  },
+  {
+    id: "whiteboard",
+    label: "Whiteboard",
+    role: "Use for planning, evidence boards, or briefing walls.",
+    defaultSize: { width: 2.7, height: 1.35 },
+    sprite: { image: "office", sx: 240, sy: 336, sw: 144, sh: 48 }
+  },
+  {
+    id: "bookcase",
+    label: "Bookcase",
+    role: "Use against walls to reduce empty space.",
+    defaultSize: { width: 2.5, height: 1.8 },
+    sprite: { image: "office", sx: 336, sy: 672, sw: 144, sh: 96 }
+  },
+  {
+    id: "server-rack",
+    label: "Server Rack",
+    role: "Use for evidence storage or systems lab areas.",
+    defaultSize: { width: 1.5, height: 1.8 },
+    sprite: { image: "office", sx: 0, sy: 1152, sw: 96, sh: 96 }
+  },
+  {
+    id: "printer-cluster",
+    label: "Printer Cluster",
+    role: "Use as supporting office equipment.",
+    defaultSize: { width: 2.8, height: 1.05 },
+    sprite: { image: "office", sx: 384, sy: 2004, sw: 192, sh: 60 }
+  },
+  {
+    id: "plant-small",
+    label: "Office Plant",
+    role: "Use sparingly; keep near walls/corners.",
+    defaultSize: { width: 1, height: 1.35 },
+    sprite: { image: "office", sx: 288, sy: 192, sw: 48, sh: 96 }
+  }
+];
+const editorScenes = scenes.filter((scene) => scene.theme === "interior");
+const layoutEditorStorageKey = "enablementQuestRoomLayouts";
+const roomThemes = {
+  lab: {
+    accent: "#8b5cf6",
+    fill: "rgba(124, 58, 237, 0.08)",
+    title: "Learning Systems Lab",
+    zones: [
+      { x: 1.8, y: 3.3, width: 4.4, height: 2.8 },
+      { x: 6.5, y: 3.1, width: 3.9, height: 2.4 },
+      { x: 10.5, y: 3.2, width: 4.9, height: 2.9 },
+      { x: 2.1, y: 7.4, width: 4.5, height: 2.6 },
+      { x: 11.6, y: 7.1, width: 4.3, height: 2.6 }
+    ]
+  },
+  operations: {
+    accent: "#f59e0b",
+    fill: "rgba(120, 53, 15, 0.07)",
+    title: "Onboarding Diagnostic Room",
+    zones: [
+      { x: 6.9, y: 2.8, width: 4.2, height: 2.5 },
+      { x: 2.2, y: 4.1, width: 4.7, height: 2.9 },
+      { x: 7.1, y: 7.2, width: 4.4, height: 3.1 },
+      { x: 11.8, y: 3.8, width: 4.2, height: 3 }
+    ]
+  },
+  sales: {
+    accent: "#22d3ee",
+    fill: "rgba(8, 145, 178, 0.07)",
+    title: "Sales Enablement Studio",
+    zones: [
+      { x: 4.5, y: 3.5, width: 4.2, height: 2.7 },
+      { x: 2.5, y: 5.4, width: 4.4, height: 3.1 },
+      { x: 6.7, y: 7.6, width: 5.6, height: 2.7 },
+      { x: 11.9, y: 4.1, width: 4.5, height: 3.5 }
+    ]
+  }
+};
+function propToEditorItem(prop) {
+  const matchingPreset = presets.find(
+    (preset) => {
+      var _a, _b, _c, _d;
+      return preset.sprite.sx === ((_a = prop.sprite) == null ? void 0 : _a.sx) && preset.sprite.sy === ((_b = prop.sprite) == null ? void 0 : _b.sy) && preset.sprite.sw === ((_c = prop.sprite) == null ? void 0 : _c.sw) && preset.sprite.sh === ((_d = prop.sprite) == null ? void 0 : _d.sh);
+    }
+  );
+  return {
+    collision: Boolean(prop.collision),
+    description: prop.description ?? "",
+    id: prop.id,
+    label: prop.label ?? "",
+    position: prop.position,
+    presetId: (matchingPreset == null ? void 0 : matchingPreset.id) ?? "custom",
+    size: prop.size,
+    sprite: prop.sprite ?? presets[0].sprite
+  };
+}
+function createItem(preset, index2) {
+  return {
+    collision: true,
+    description: "",
+    id: `${preset.id}-${index2 + 1}`,
+    label: preset.label,
+    position: { x: 2 + index2 % 4 * 3.5, y: 2 + Math.floor(index2 / 4) * 2 },
+    presetId: preset.id,
+    size: preset.defaultSize,
+    sprite: preset.sprite
+  };
+}
+function RoomLayoutEditor() {
+  var _a, _b;
+  const [sceneId, setSceneId] = reactExports.useState(((_a = editorScenes[0]) == null ? void 0 : _a.id) ?? "lab");
+  const scene = reactExports.useMemo(
+    () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
+    [sceneId]
+  );
+  const [itemsByScene, setItemsByScene] = reactExports.useState(() => {
+    const defaultLayouts = Object.fromEntries(
+      editorScenes.map((item) => [
+        item.id,
+        item.props.filter((prop) => prop.sprite).map((prop) => propToEditorItem(prop))
+      ])
+    );
+    const savedLayouts = window.localStorage.getItem(layoutEditorStorageKey);
+    if (!savedLayouts) {
+      return defaultLayouts;
+    }
+    try {
+      return { ...defaultLayouts, ...JSON.parse(savedLayouts) };
+    } catch {
+      return defaultLayouts;
+    }
+  });
+  const items = itemsByScene[scene.id] ?? [];
+  const [selectedId, setSelectedId] = reactExports.useState(((_b = items[0]) == null ? void 0 : _b.id) ?? "");
+  const selectedItem = items.find((item) => item.id === selectedId) ?? items[0] ?? null;
+  reactExports.useEffect(() => {
+    window.localStorage.setItem(
+      layoutEditorStorageKey,
+      JSON.stringify(itemsByScene)
+    );
+  }, [itemsByScene]);
+  function updateItems(nextItems) {
+    setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
+  }
+  function updateSelected(patch) {
+    if (!selectedItem) {
+      return;
+    }
+    updateItems(
+      items.map(
+        (item) => item.id === selectedItem.id ? { ...item, ...patch } : item
+      )
+    );
+  }
+  function addPreset(preset) {
+    const nextItem = createItem(preset, items.length);
+    updateItems([...items, nextItem]);
+    setSelectedId(nextItem.id);
+  }
+  function removeSelected() {
+    var _a2;
+    if (!selectedItem) {
+      return;
+    }
+    const remaining = items.filter((item) => item.id !== selectedItem.id);
+    updateItems(remaining);
+    setSelectedId(((_a2 = remaining[0]) == null ? void 0 : _a2.id) ?? "");
+  }
+  const exportJson = JSON.stringify(
+    {
+      sceneId: scene.id,
+      sceneName: scene.name,
+      props: items.map((item) => ({
+        id: item.id,
+        label: item.label || void 0,
+        description: item.description || void 0,
+        position: roundPosition(item.position),
+        size: roundSize(item.size),
+        sprite: item.sprite,
+        collision: item.collision || void 0
+      }))
+    },
+    null,
+    2
+  );
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { className: "eq-layout-editor", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "eq-layout-editor-header", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-kicker", children: "Room Layout Editor" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { children: "Design rooms without writing coordinates" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Drag objects, edit labels/interactions, then export JSON for Codex to convert into the game." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "/", className: "eq-layout-editor-link", children: "Back to game" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-layout-editor-shell", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-layout-editor-sidebar", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Room",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "select",
+            {
+              value: scene.id,
+              onChange: (event) => {
+                var _a2;
+                setSceneId(event.target.value);
+                const nextItems = itemsByScene[event.target.value] ?? [];
+                setSelectedId(((_a2 = nextItems[0]) == null ? void 0 : _a2.id) ?? "");
+              },
+              children: editorScenes.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: item.id, children: item.name }, item.id))
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-palette", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Add Assets" }),
+          presets.map((preset) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => addPreset(preset),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SpritePreview, { sprite: preset.sprite }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: preset.label }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: preset.role })
+                ] })
+              ]
+            },
+            preset.id
+          ))
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("section", { className: "eq-layout-editor-stage-panel", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: "eq-layout-editor-stage",
+          style: {
+            height: scene.height * TILE_SIZE,
+            width: scene.width * TILE_SIZE
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(RoomGrid, { scene }),
+            items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              DraggableItem,
+              {
+                isSelected: item.id === (selectedItem == null ? void 0 : selectedItem.id),
+                item,
+                onChange: (nextItem) => {
+                  updateItems(
+                    items.map(
+                      (current) => current.id === item.id ? nextItem : current
+                    )
+                  );
+                },
+                onSelect: () => setSelectedId(item.id),
+                scene
+              },
+              item.id
+            ))
+          ]
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-layout-editor-inspector", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Selected Object" }),
+        selectedItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "ID",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: selectedItem.id,
+                onChange: (event) => updateSelected({ id: event.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "Visible label",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: selectedItem.label,
+                onChange: (event) => updateSelected({ label: event.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "Interaction text",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                value: selectedItem.description,
+                onChange: (event) => updateSelected({ description: event.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-fields", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "X",
+                value: selectedItem.position.x,
+                onChange: (value) => updateSelected({
+                  position: { ...selectedItem.position, x: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Y",
+                value: selectedItem.position.y,
+                onChange: (value) => updateSelected({
+                  position: { ...selectedItem.position, y: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Width",
+                value: selectedItem.size.width,
+                onChange: (value) => updateSelected({
+                  size: { ...selectedItem.size, width: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Height",
+                value: selectedItem.size.height,
+                onChange: (value) => updateSelected({
+                  size: { ...selectedItem.size, height: value }
+                })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                checked: selectedItem.collision,
+                type: "checkbox",
+                onChange: (event) => updateSelected({ collision: event.target.checked })
+              }
+            ),
+            "Blocks player movement"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "eq-layout-editor-danger",
+              type: "button",
+              onClick: removeSelected,
+              children: "Remove selected"
+            }
+          )
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Select or add an object to edit it." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Export" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("textarea", { readOnly: true, value: exportJson }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => {
+              void navigator.clipboard.writeText(exportJson);
+            },
+            children: "Copy layout JSON"
+          }
+        )
+      ] })
+    ] })
+  ] });
+}
+function RoomBackdrop({ scene }) {
+  const theme = roomThemes[scene.id];
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-backdrop", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-wall" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-room-frame" }),
+    theme && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "eq-layout-editor-room-title",
+          style: { borderColor: theme.accent },
+          children: theme.title
+        }
+      ),
+      theme.zones.map((zone) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "eq-layout-editor-zone",
+          style: {
+            backgroundColor: theme.fill,
+            borderColor: `${theme.accent}55`,
+            height: zone.height * TILE_SIZE,
+            left: zone.x * TILE_SIZE,
+            top: zone.y * TILE_SIZE,
+            width: zone.width * TILE_SIZE
+          }
+        },
+        `${scene.id}-${zone.x}-${zone.y}`
+      ))
+    ] }),
+    scene.portals.map((portal) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "eq-layout-editor-portal",
+        style: {
+          height: portal.rect.height * TILE_SIZE,
+          left: portal.rect.x * TILE_SIZE,
+          top: portal.rect.y * TILE_SIZE,
+          width: portal.rect.width * TILE_SIZE
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: portal.label })
+      },
+      portal.id
+    ))
+  ] });
+}
+function RoomGrid({ scene }) {
+  const cells = [];
+  for (let row = 0; row < scene.height; row += 1) {
+    for (let col = 0; col < scene.width; col += 1) {
+      cells.push(`${col}-${row}`);
+    }
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "eq-layout-editor-grid",
+      style: {
+        gridTemplateColumns: `repeat(${scene.width}, ${TILE_SIZE}px)`,
+        gridTemplateRows: `repeat(${scene.height}, ${TILE_SIZE}px)`
+      },
+      children: cells.map((cell) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, cell))
+    }
+  );
+}
+function DraggableItem({
+  isSelected,
+  item,
+  onChange,
+  onSelect,
+  scene
+}) {
+  function moveItem(event) {
+    const parent = event.currentTarget.parentElement;
+    if (!parent) {
+      return;
+    }
+    const rect = parent.getBoundingClientRect();
+    const x = clamp(
+      snap(
+        (event.clientX - rect.left - item.size.width * TILE_SIZE / 2) / TILE_SIZE
+      ),
+      0,
+      scene.width - item.size.width
+    );
+    const y = clamp(
+      snap(
+        (event.clientY - rect.top - item.size.height * TILE_SIZE / 2) / TILE_SIZE
+      ),
+      0,
+      scene.height - item.size.height
+    );
+    onChange({ ...item, position: { x, y } });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      className: `eq-layout-editor-item ${isSelected ? "is-selected" : ""}`,
+      style: {
+        height: item.size.height * TILE_SIZE,
+        left: item.position.x * TILE_SIZE,
+        top: item.position.y * TILE_SIZE,
+        width: item.size.width * TILE_SIZE
+      },
+      type: "button",
+      onPointerDown: (event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onSelect();
+        moveItem(event);
+      },
+      onPointerMove: (event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          moveItem(event);
+        }
+      },
+      onPointerUp: (event) => {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          SpritePreview,
+          {
+            fill: true,
+            sprite: item.sprite,
+            targetHeight: item.size.height * TILE_SIZE,
+            targetWidth: item.size.width * TILE_SIZE
+          }
+        ),
+        item.label && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label })
+      ]
+    }
+  );
+}
+function SpritePreview({
+  fill = false,
+  sprite,
+  targetHeight,
+  targetWidth
+}) {
+  const previewWidth = fill ? "100%" : 58;
+  const previewHeight = fill ? "100%" : 42;
+  const scale = fill ? Math.min(
+    (targetWidth ?? sprite.sw) / sprite.sw,
+    (targetHeight ?? sprite.sh) / sprite.sh
+  ) : Math.min(58 / sprite.sw, 42 / sprite.sh);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      className: "eq-layout-editor-sprite",
+      style: { height: previewHeight, width: previewWidth },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "img",
+        {
+          alt: "",
+          src: officeSheet.url,
+          style: {
+            height: officeSheet.height * scale,
+            transform: `translate(${-sprite.sx * scale}px, ${-sprite.sy * scale}px)`,
+            width: officeSheet.width * scale
+          }
+        }
+      )
+    }
+  );
+}
+function NumberField({
+  label,
+  onChange,
+  value
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+    label,
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        step: "0.05",
+        type: "number",
+        value,
+        onChange: (event) => onChange(Number(event.target.value))
+      }
+    )
+  ] });
+}
+function roundPosition(position) {
+  return {
+    x: Number(position.x.toFixed(2)),
+    y: Number(position.y.toFixed(2))
+  };
+}
+function roundSize(size) {
+  return {
+    height: Number(size.height.toFixed(2)),
+    width: Number(size.width.toFixed(2))
+  };
+}
+function snap(value) {
+  return Math.round(value * 4) / 4;
+}
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
 function App() {
+  if (new URLSearchParams(window.location.search).has("layoutEditor")) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(RoomLayoutEditor, {});
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsx(GameCanvas, {});
 }
 BigInt.prototype.toJSON = function() {
