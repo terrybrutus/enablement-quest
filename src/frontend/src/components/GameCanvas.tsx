@@ -942,7 +942,7 @@ function getNextObjective(
       if (sceneId === "lab") {
         return labBriefingCompleted
           ? "Exit to the campus and find Leo in the Sales Enablement Studio."
-          : "Review the glowing Case Board. It explains the mission before you leave the lab.";
+          : "Read the leadership email at the desk before you leave the lab.";
       }
       return sceneId === "sales"
         ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales."
@@ -996,8 +996,9 @@ function getCoachPrompt(
               "The mission is set. Go to the campus, then enter the Sales Enablement Studio.",
           }
         : {
-            action: "Review the Case Board",
-            reason: "This gives the learner the goal before the case begins.",
+            action: "Read the leadership email",
+            reason:
+              "The email gives the learner the business request before the case begins.",
           };
     }
     return sceneId === (caseId === "sales" ? "sales" : "operations")

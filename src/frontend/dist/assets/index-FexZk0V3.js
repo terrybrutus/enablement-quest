@@ -12111,8 +12111,8 @@ const scenes = [
     props: [
       {
         id: "mission-desk",
-        label: "Case Board",
-        description: "Case board reviewed. Your job is to find out why Atlas Pro sales are not closing before recommending a fix. Start by talking with Leo in the Sales Enablement Studio.",
+        label: "Leadership Email",
+        description: "Email from Elena, CRO: Atlas Pro is reaching proposal, but too few deals are closing. Leadership is asking whether more product training will fix it. Before recommending anything, meet Leo and investigate the evidence.",
         position: { x: 3.2, y: 4.6 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(336, 1392, 144, 96),
@@ -12121,7 +12121,7 @@ const scenes = [
       },
       {
         id: "analytics-wall",
-        description: "This dashboard will matter later. First, review the Case Board so the mission has context.",
+        description: "This dashboard will matter later. First, read the leadership email at the desk so the mission has context.",
         position: { x: 6.9, y: 1.35 },
         size: { width: 3, height: 2 },
         sprite: officeSprite(48, 1488, 144, 96),
@@ -13819,17 +13819,18 @@ function useGameLoop({
     if (prop == null ? void 0 : prop.description) {
       if (state.player.sceneId === "lab" && prop.id !== "mission-desk") {
         setToast(
-          "Start with the Case Board. It explains the mission before you explore."
+          "Start at the desk. Read the leadership email before you explore."
         );
         return;
       }
       if (prop.id === "mission-desk") {
+        const message = prop.description;
         setGameState((previous) => ({
           ...previous,
           labBriefingCompleted: true,
           toast: {
             id: Date.now(),
-            message: "Mission understood. Exit to the campus and find Leo in the Sales Enablement Studio."
+            message
           }
         }));
         return;
@@ -13841,7 +13842,7 @@ function useGameLoop({
     if (portal) {
       if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
         setToast(
-          "Review the Case Board first. Then the campus route will make sense."
+          "Read the leadership email at the desk first. Then leave the lab."
         );
         return;
       }
@@ -14052,7 +14053,7 @@ function moveWithinScene(state, nextPosition) {
         },
         toast: {
           id: Date.now(),
-          message: "Review the Case Board first. Then leave the lab and find Leo."
+          message: "Read the leadership email at the desk first. Then leave the lab and find Leo."
         }
       };
     }
@@ -14127,7 +14128,7 @@ function moveWithinScene(state, nextPosition) {
         },
         toast: {
           id: Date.now(),
-          message: "Review the Case Board first. Then leave the lab and find Leo."
+          message: "Read the leadership email at the desk first. Then leave the lab and find Leo."
         }
       };
     }
@@ -16067,7 +16068,7 @@ function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, comple
   if (questStage === "briefing") {
     if (caseId === "sales") {
       if (sceneId === "lab") {
-        return labBriefingCompleted ? "Exit to the campus and find Leo in the Sales Enablement Studio." : "Review the glowing Case Board. It explains the mission before you leave the lab.";
+        return labBriefingCompleted ? "Exit to the campus and find Leo in the Sales Enablement Studio." : "Read the leadership email at the desk before you leave the lab.";
       }
       return sceneId === "sales" ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales." : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
     }
@@ -16104,8 +16105,8 @@ function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneI
         action: "Exit the lab",
         reason: "The mission is set. Go to the campus, then enter the Sales Enablement Studio."
       } : {
-        action: "Review the Case Board",
-        reason: "This gives the learner the goal before the case begins."
+        action: "Read the leadership email",
+        reason: "The email gives the learner the business request before the case begins."
       };
     }
     return sceneId === (caseId === "sales" ? "sales" : "operations") ? {

@@ -174,18 +174,18 @@ export function useGameLoop({
     if (prop?.description) {
       if (state.player.sceneId === "lab" && prop.id !== "mission-desk") {
         setToast(
-          "Start with the Case Board. It explains the mission before you explore.",
+          "Start at the desk. Read the leadership email before you explore.",
         );
         return;
       }
       if (prop.id === "mission-desk") {
+        const message = prop.description;
         setGameState((previous) => ({
           ...previous,
           labBriefingCompleted: true,
           toast: {
             id: Date.now(),
-            message:
-              "Mission understood. Exit to the campus and find Leo in the Sales Enablement Studio.",
+            message,
           },
         }));
         return;
@@ -198,7 +198,7 @@ export function useGameLoop({
     if (portal) {
       if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
         setToast(
-          "Review the Case Board first. Then the campus route will make sense.",
+          "Read the leadership email at the desk first. Then leave the lab.",
         );
         return;
       }
@@ -457,7 +457,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Review the Case Board first. Then leave the lab and find Leo.",
+            "Read the leadership email at the desk first. Then leave the lab and find Leo.",
         },
       };
     }
@@ -546,7 +546,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Review the Case Board first. Then leave the lab and find Leo.",
+            "Read the leadership email at the desk first. Then leave the lab and find Leo.",
         },
       };
     }
