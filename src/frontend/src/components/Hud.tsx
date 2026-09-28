@@ -10,7 +10,6 @@ import { type MutableRefObject, type PointerEvent, useState } from "react";
 
 interface HudProps {
   sceneName: string;
-  sceneSubtitle: string;
   questStage: QuestStage;
   evidenceCount: number;
   evidenceTotal: number;
@@ -36,7 +35,6 @@ const stageLabels: Record<QuestStage, string> = {
 
 export function Hud({
   sceneName,
-  sceneSubtitle,
   questStage,
   evidenceCount,
   evidenceTotal,
@@ -101,7 +99,6 @@ export function Hud({
           <small>{coachReason}</small>
         </div>
         <div className="eq-directive-status">
-          <span>{sceneSubtitle}</span>
           <strong>
             Saved evidence {evidenceCount}/{evidenceTotal}
           </strong>

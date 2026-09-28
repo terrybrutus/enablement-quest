@@ -312,25 +312,32 @@
   justify-content: flex-end;
 }
 
+.eq-game-canvas {
+  background: #07111d;
+}
+
 .eq-bottom-directive {
   position: absolute;
-  right: 14px;
-  top: 68px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 24;
-  width: min(450px, calc(100vw - 28px));
+  width: 100%;
+  min-height: 126px;
   border: 1px solid rgba(103, 232, 249, 0.28);
-  border-radius: 18px;
+  border-bottom: 0;
+  border-radius: 20px 20px 0 0;
   background: linear-gradient(
     135deg,
-    rgba(2, 6, 23, 0.84),
-    rgba(8, 47, 73, 0.74)
+    rgba(2, 6, 23, 0.94),
+    rgba(8, 47, 73, 0.88)
   );
   backdrop-filter: blur(10px);
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 -14px 38px rgba(0, 0, 0, 0.34);
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 9px;
-  padding: 11px 13px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: 14px clamp(16px, 4vw, 42px) calc(env(safe-area-inset-bottom) + 14px);
   pointer-events: auto;
 }
 
@@ -357,22 +364,28 @@
 }
 
 .eq-directive-status {
+  align-content: start;
+  align-items: flex-start;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  justify-content: flex-end;
   min-width: 0;
 }
 
-.eq-directive-status span,
 .eq-directive-status strong {
+  align-items: center;
   border: 1px solid rgba(125, 211, 252, 0.2);
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.58);
   color: #bae6fd;
+  display: inline-flex;
   font-size: 0.66rem;
   line-height: 1.2;
+  min-height: 28px;
   padding: 5px 8px;
   text-align: left;
+  white-space: nowrap;
 }
 
 .eq-restart-confirm {
@@ -2847,13 +2860,10 @@
   }
 
   .eq-bottom-directive {
-    top: calc(env(safe-area-inset-top) + 58px);
+    min-height: 128px;
     grid-template-columns: 1fr;
     gap: 7px;
-    left: auto;
-    right: 10px;
-    width: min(360px, calc(100vw - 20px));
-    padding: 9px 11px;
+    padding: 9px 11px calc(env(safe-area-inset-bottom) + 9px);
   }
 
   .eq-bottom-directive h1 {
@@ -2875,14 +2885,9 @@
     min-width: 0;
   }
 
-  .eq-directive-status span {
-    display: none;
-  }
-
-  .eq-directive-status span,
   .eq-directive-status strong {
     font-size: 0.62rem;
-    max-width: 50%;
+    max-width: 100%;
     overflow: hidden;
     padding: 5px 7px;
     text-overflow: ellipsis;
@@ -3336,7 +3341,7 @@
   }
 
   .eq-mobile-controls {
-    bottom: calc(env(safe-area-inset-bottom) + 10px);
+    bottom: calc(env(safe-area-inset-bottom) + 138px);
     left: 10px;
     right: 10px;
   }

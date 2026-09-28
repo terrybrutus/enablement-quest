@@ -14745,7 +14745,6 @@ const stageLabels = {
 };
 function Hud({
   sceneName,
-  sceneSubtitle,
   questStage,
   evidenceCount,
   evidenceTotal,
@@ -14819,7 +14818,6 @@ function Hud({
         /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: coachReason })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-directive-status", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: sceneSubtitle }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { children: [
           "Saved evidence ",
           evidenceCount,
@@ -15343,6 +15341,19 @@ function getCharacterPauseDuration(characterId, step) {
   const seed = characterId.split("").reduce((total, character) => total + character.charCodeAt(0), 0);
   return 900 + (seed + step * 397) % 1400;
 }
+function getObjectiveDockHeight(gameState) {
+  const overlayBlocksDock = [
+    "briefing",
+    "canvas",
+    "decision",
+    "dialogue",
+    "evidence"
+  ].includes(gameState.overlay);
+  if (!gameState.player.hasStarted || overlayBlocksDock) {
+    return 0;
+  }
+  return window.innerWidth <= 780 ? 128 : 126;
+}
 function GameCanvas() {
   var _a;
   const canvasRef = reactExports.useRef(null);
@@ -15351,6 +15362,7 @@ function GameCanvas() {
   const [gameState, setGameState] = reactExports.useState(createInitialGameState);
   const [moveSpeed, setMoveSpeed] = reactExports.useState(MOVE_SPEED);
   const gameStateRef = reactExports.useRef(gameState);
+  const objectiveDockKey = `${gameState.player.hasStarted}:${gameState.overlay}`;
   reactExports.useEffect(() => {
     gameStateRef.current = gameState;
     window.__EQ_QA_STATE = {
@@ -15404,27 +15416,35 @@ function GameCanvas() {
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
   }, [assets]);
-  reactExports.useEffect(() => {
-    const resize = () => {
-      const canvas = canvasRef.current;
-      const container = containerRef.current;
-      const scale = window.devicePixelRatio || 1;
-      if (!canvas || !container) {
-        return;
-      }
-      canvas.width = Math.floor(container.clientWidth * scale);
-      canvas.height = Math.floor(container.clientHeight * scale);
-      canvas.style.width = `${container.clientWidth}px`;
-      canvas.style.height = `${container.clientHeight}px`;
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.setTransform(scale, 0, 0, scale, 0, 0);
-      }
-    };
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+  const resizeCanvas = reactExports.useCallback(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    const scale = window.devicePixelRatio || 1;
+    if (!canvas || !container) {
+      return;
+    }
+    const dockHeight = getObjectiveDockHeight(gameStateRef.current);
+    const canvasHeight = Math.max(320, container.clientHeight - dockHeight);
+    canvas.width = Math.floor(container.clientWidth * scale);
+    canvas.height = Math.floor(canvasHeight * scale);
+    canvas.style.width = `${container.clientWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
+    const context = canvas.getContext("2d");
+    if (context) {
+      context.setTransform(scale, 0, 0, scale, 0, 0);
+    }
   }, []);
+  reactExports.useEffect(() => {
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, [resizeCanvas]);
+  reactExports.useEffect(() => {
+    if (!objectiveDockKey) {
+      return;
+    }
+    resizeCanvas();
+  }, [objectiveDockKey, resizeCanvas]);
   const currentScene = reactExports.useMemo(
     () => scenes.find((scene) => scene.id === gameState.player.sceneId) ?? scenes[0],
     [gameState.player.sceneId]
@@ -15726,7 +15746,7 @@ function GameCanvas() {
           "canvas",
           {
             ref: canvasRef,
-            className: "absolute inset-0 block h-full w-full",
+            className: "eq-game-canvas absolute left-0 top-0 block w-full",
             "data-ocid": "game.canvas_target"
           }
         ),
@@ -15734,7 +15754,6 @@ function GameCanvas() {
           Hud,
           {
             sceneName: currentScene.name,
-            sceneSubtitle: currentScene.subtitle,
             questStage: gameState.questStage,
             evidenceCount: currentCollectedEvidenceCount,
             evidenceTotal: currentEvidenceItems.length,

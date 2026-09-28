@@ -98,6 +98,20 @@ function getCharacterPauseDuration(characterId: string, step: number) {
   return 900 + ((seed + step * 397) % 1400);
 }
 
+function getObjectiveDockHeight(gameState: GameState) {
+  const overlayBlocksDock = [
+    "briefing",
+    "canvas",
+    "decision",
+    "dialogue",
+    "evidence",
+  ].includes(gameState.overlay);
+  if (!gameState.player.hasStarted || overlayBlocksDock) {
+    return 0;
+  }
+  return window.innerWidth <= 780 ? 128 : 126;
+}
+
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,6 +119,7 @@ export default function GameCanvas() {
   const [gameState, setGameState] = useState<GameState>(createInitialGameState);
   const [moveSpeed, setMoveSpeed] = useState(MOVE_SPEED);
   const gameStateRef = useRef<GameState>(gameState);
+  const objectiveDockKey = `${gameState.player.hasStarted}:${gameState.overlay}`;
 
   useEffect(() => {
     gameStateRef.current = gameState;
@@ -167,28 +182,37 @@ export default function GameCanvas() {
     return () => cancelAnimationFrame(frame);
   }, [assets]);
 
-  useEffect(() => {
-    const resize = () => {
-      const canvas = canvasRef.current;
-      const container = containerRef.current;
-      const scale = window.devicePixelRatio || 1;
-      if (!canvas || !container) {
-        return;
-      }
-      canvas.width = Math.floor(container.clientWidth * scale);
-      canvas.height = Math.floor(container.clientHeight * scale);
-      canvas.style.width = `${container.clientWidth}px`;
-      canvas.style.height = `${container.clientHeight}px`;
-      const context = canvas.getContext("2d");
-      if (context) {
-        context.setTransform(scale, 0, 0, scale, 0, 0);
-      }
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+  const resizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    const scale = window.devicePixelRatio || 1;
+    if (!canvas || !container) {
+      return;
+    }
+    const dockHeight = getObjectiveDockHeight(gameStateRef.current);
+    const canvasHeight = Math.max(320, container.clientHeight - dockHeight);
+    canvas.width = Math.floor(container.clientWidth * scale);
+    canvas.height = Math.floor(canvasHeight * scale);
+    canvas.style.width = `${container.clientWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
+    const context = canvas.getContext("2d");
+    if (context) {
+      context.setTransform(scale, 0, 0, scale, 0, 0);
+    }
   }, []);
+
+  useEffect(() => {
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, [resizeCanvas]);
+
+  useEffect(() => {
+    if (!objectiveDockKey) {
+      return;
+    }
+    resizeCanvas();
+  }, [objectiveDockKey, resizeCanvas]);
 
   const currentScene = useMemo(
     () =>
@@ -527,14 +551,13 @@ export default function GameCanvas() {
     >
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 block h-full w-full"
+        className="eq-game-canvas absolute left-0 top-0 block w-full"
         data-ocid="game.canvas_target"
       />
 
       {gameState.player.hasStarted && !hasBlockingOverlay && (
         <Hud
           sceneName={currentScene.name}
-          sceneSubtitle={currentScene.subtitle}
           questStage={gameState.questStage}
           evidenceCount={currentCollectedEvidenceCount}
           evidenceTotal={currentEvidenceItems.length}
