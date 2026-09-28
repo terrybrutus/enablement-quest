@@ -2271,21 +2271,30 @@ video {
 
 .eq-dialogue {
   position: absolute;
-  bottom: 22px;
-  left: 50%;
   z-index: 38;
-  width: min(820px, calc(100vw - 32px));
-  transform: translateX(-50%);
-  border-radius: 22px;
-  padding: 20px;
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.eq-dialogue::after {
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
+  transform: translateX(-50%) rotate(45deg);
+  border-right: 1px solid rgba(148, 163, 184, 0.22);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(8, 13, 28, 0.94);
+  content: "";
 }
 
 .eq-dialogue-speaker,
 .eq-dialogue-actions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .eq-dialogue-speaker span,
@@ -2295,37 +2304,22 @@ video {
 }
 
 .eq-dialogue > p {
-  margin: 16px 0;
+  margin: 8px 0 10px;
   color: #eef6ff;
-  font-size: clamp(1rem, 2vw, 1.14rem);
-  line-height: 1.6;
-}
-
-.eq-dialogue-learning {
-  border: 1px solid rgba(125, 211, 252, 0.18);
-  border-radius: 16px;
-  background: rgba(8, 47, 73, 0.28);
-  color: #dbeafe;
-  display: grid;
-  gap: 4px;
-  margin: -4px 0 14px;
-  padding: 10px 12px;
-}
-
-.eq-dialogue-learning strong {
-  color: #bae6fd;
-  font-size: 0.78rem;
-  text-transform: uppercase;
-}
-
-.eq-dialogue-learning span {
-  font-size: 0.84rem;
-  line-height: 1.4;
+  font-size: clamp(0.88rem, 1.4vw, 0.98rem);
+  line-height: 1.42;
 }
 
 .eq-dialogue-actions > div {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.eq-dialogue .eq-ghost-button,
+.eq-dialogue .eq-primary-button {
+  min-height: 34px;
+  padding: 7px 10px;
 }
 
 .eq-touch-hint {
@@ -4812,10 +4806,9 @@ video {
   }
 
   .eq-dialogue {
-    bottom: calc(env(safe-area-inset-bottom) + 84px);
-    max-height: 38dvh;
-    overflow: auto;
-    padding: 14px;
+    max-height: none;
+    overflow: visible;
+    padding: 11px;
   }
 
   .eq-dialogue-actions {
@@ -4849,8 +4842,9 @@ video {
   }
 
   .eq-dialogue-actions > div {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-wrap: wrap;
+    width: auto;
   }
 
   .eq-keyboard-hint {

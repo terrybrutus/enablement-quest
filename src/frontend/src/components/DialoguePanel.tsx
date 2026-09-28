@@ -1,11 +1,12 @@
-import type { GameCharacter, QuestStage } from "@/game/types";
+import type { GameCharacter } from "@/game/types";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import type { CSSProperties } from "react";
 
 interface DialoguePanelProps {
   character: GameCharacter;
   line: string;
   lineIndex: number;
-  stage: QuestStage;
+  style?: CSSProperties;
   totalLines: number;
   onAdvance: () => void;
   onBack: () => void;
@@ -16,7 +17,7 @@ export function DialoguePanel({
   character,
   line,
   lineIndex,
-  stage,
+  style,
   totalLines,
   onAdvance,
   onBack,
@@ -27,6 +28,7 @@ export function DialoguePanel({
       className="eq-dialogue"
       data-ocid="dialogue.panel"
       aria-label={`${character.name} dialogue`}
+      style={style}
     >
       <div className="eq-dialogue-speaker">
         <div>
@@ -40,15 +42,8 @@ export function DialoguePanel({
 
       <p>{line}</p>
 
-      <aside className="eq-dialogue-learning" aria-label="Conversation tip">
-        <strong>Why this matters</strong>
-        <span>{conversationPurpose[stage]}</span>
-      </aside>
-
       <div className="eq-dialogue-actions">
-        <span className="eq-keyboard-hint">
-          Press <kbd>E</kbd>, <kbd>Space</kbd>, or <kbd>Enter</kbd> to continue
-        </span>
+        <span className="eq-keyboard-hint">Space / Enter continues</span>
         <span className="eq-touch-hint">Tap Continue or Talk or Inspect</span>
         <div>
           <button
@@ -78,12 +73,3 @@ export function DialoguePanel({
     </section>
   );
 }
-
-const conversationPurpose: Record<QuestStage, string> = {
-  briefing:
-    "Leo is explaining the request. Your next job is to check whether the evidence supports it.",
-  investigate: "Compare what people say with the evidence you collect.",
-  diagnose: "Choose the cause that best explains the evidence.",
-  design: "Choose the support that would improve the work.",
-  complete: "Summarize the problem, cause, fix, and expected result.",
-};

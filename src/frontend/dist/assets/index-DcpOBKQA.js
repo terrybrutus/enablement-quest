@@ -13053,8 +13053,8 @@ function getCamera(viewport, scene, gameState) {
   const centerX = Math.max(0, (viewport.width - worldWidth) / 2);
   const centerY = Math.max(0, (viewport.height - worldHeight) / 2);
   return {
-    x: worldWidth < viewport.width ? -centerX : clamp$1(targetX, 0, Math.max(0, worldWidth - viewport.width)),
-    y: worldHeight < viewport.height ? -centerY : clamp$1(targetY, 0, Math.max(0, worldHeight - viewport.height))
+    x: worldWidth < viewport.width ? -centerX : clamp$2(targetX, 0, Math.max(0, worldWidth - viewport.width)),
+    y: worldHeight < viewport.height ? -centerY : clamp$2(targetY, 0, Math.max(0, worldHeight - viewport.height))
   };
 }
 function drawSceneBase(ctx, viewport, scene, camera, assets) {
@@ -13688,7 +13688,7 @@ function roundRect(ctx, x, y, width, height, radius) {
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
 }
-function clamp$1(value, min, max) {
+function clamp$2(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 function useGameLoop({
@@ -14047,8 +14047,8 @@ function moveWithinScene(state, nextPosition) {
     };
   }
   const bounded = {
-    x: clamp(nextPosition.x, 1.2, scene.width - 1.2),
-    y: clamp(nextPosition.y, 1.4, scene.height - 1.1)
+    x: clamp$1(nextPosition.x, 1.2, scene.width - 1.2),
+    y: clamp$1(nextPosition.y, 1.4, scene.height - 1.1)
   };
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
   const propBlocked = scene.props.some(
@@ -14291,7 +14291,7 @@ function getDirection(previous, next) {
   }
   return dy > 0 ? "down" : "up";
 }
-function clamp(value, min, max) {
+function clamp$1(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 /**
@@ -14652,7 +14652,7 @@ function DialoguePanel({
   character,
   line,
   lineIndex,
-  stage,
+  style: style2,
   totalLines,
   onAdvance,
   onBack,
@@ -14664,6 +14664,7 @@ function DialoguePanel({
       className: "eq-dialogue",
       "data-ocid": "dialogue.panel",
       "aria-label": `${character.name} dialogue`,
+      style: style2,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-dialogue-speaker", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -14677,20 +14678,8 @@ function DialoguePanel({
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: line }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-dialogue-learning", "aria-label": "Conversation tip", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Why this matters" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: conversationPurpose[stage] })
-        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-dialogue-actions", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eq-keyboard-hint", children: [
-            "Press ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "E" }),
-            ", ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "Space" }),
-            ", or ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx("kbd", { children: "Enter" }),
-            " to continue"
-          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-keyboard-hint", children: "Space / Enter continues" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-touch-hint", children: "Tap Continue or Talk or Inspect" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -14729,13 +14718,6 @@ function DialoguePanel({
     }
   );
 }
-const conversationPurpose = {
-  briefing: "Leo is explaining the request. Your next job is to check whether the evidence supports it.",
-  investigate: "Compare what people say with the evidence you collect.",
-  diagnose: "Choose the cause that best explains the evidence.",
-  design: "Choose the support that would improve the work.",
-  complete: "Summarize the problem, cause, fix, and expected result."
-};
 const stageLabels = {
   briefing: "Step 1 of 5",
   investigate: "Step 2 of 5",
@@ -15346,13 +15328,52 @@ function getObjectiveDockHeight(gameState) {
     "briefing",
     "canvas",
     "decision",
-    "dialogue",
     "evidence"
   ].includes(gameState.overlay);
   if (!gameState.player.hasStarted || overlayBlocksDock) {
     return 0;
   }
   return window.innerWidth <= 780 ? 128 : 126;
+}
+function getDialogueBubbleStyle(characterId, gameState, scene, container) {
+  const character = characters.find((item) => item.id === characterId);
+  const characterState = gameState.characterStates[characterId];
+  const position = (characterState == null ? void 0 : characterState.position) ?? (character == null ? void 0 : character.position);
+  if (!position || !container) {
+    return void 0;
+  }
+  const dockHeight = getObjectiveDockHeight(gameState);
+  const viewport = {
+    width: container.clientWidth,
+    height: Math.max(320, container.clientHeight - dockHeight)
+  };
+  const worldWidth = scene.width * TILE_SIZE;
+  const worldHeight = scene.height * TILE_SIZE;
+  const targetX = gameState.player.position.x * TILE_SIZE - viewport.width / 2;
+  const targetY = gameState.player.position.y * TILE_SIZE - viewport.height / 2;
+  const centerX = Math.max(0, (viewport.width - worldWidth) / 2);
+  const centerY = Math.max(0, (viewport.height - worldHeight) / 2);
+  const camera = {
+    x: worldWidth < viewport.width ? -centerX : clamp(targetX, 0, Math.max(0, worldWidth - viewport.width)),
+    y: worldHeight < viewport.height ? -centerY : clamp(targetY, 0, Math.max(0, worldHeight - viewport.height))
+  };
+  const bubbleWidth = Math.min(340, Math.max(260, viewport.width - 32));
+  const speakerX = position.x * TILE_SIZE - camera.x;
+  const speakerY = position.y * TILE_SIZE - camera.y - 94;
+  const left = clamp(
+    speakerX - bubbleWidth / 2,
+    14,
+    viewport.width - bubbleWidth - 14
+  );
+  const top = clamp(speakerY, 72, Math.max(82, viewport.height - 210));
+  return {
+    left,
+    top,
+    width: bubbleWidth
+  };
+}
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 function GameCanvas() {
   var _a;
@@ -15507,9 +15528,14 @@ function GameCanvas() {
     "briefing",
     "canvas",
     "decision",
-    "dialogue",
     "evidence"
   ].includes(gameState.overlay);
+  const dialogueBubbleStyle = activeCharacter ? getDialogueBubbleStyle(
+    activeCharacter.id,
+    gameState,
+    currentScene,
+    containerRef.current
+  ) : void 0;
   const closeOverlay = reactExports.useCallback(() => {
     setGameState((previous) => ({
       ...previous,
@@ -15783,7 +15809,7 @@ function GameCanvas() {
               gameState.dialogue.lineIndex,
               activeCharacter.dialogue[gameState.questStage].length - 1
             ),
-            stage: gameState.questStage,
+            style: dialogueBubbleStyle,
             totalLines: activeCharacter.dialogue[gameState.questStage].length,
             onAdvance: advanceDialogue,
             onBack: backDialogue,

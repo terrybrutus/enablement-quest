@@ -17,9 +17,10 @@ import type {
   InterventionOption,
   OverlayKind,
   Position,
+  Scene,
   SceneId,
 } from "@/game/types";
-import { MOVE_SPEED } from "@/game/types";
+import { MOVE_SPEED, TILE_SIZE } from "@/game/types";
 import { completeIntervention, useGameLoop } from "@/game/useGameLoop";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArtifactsPanel } from "./ArtifactsPanel";
@@ -103,13 +104,67 @@ function getObjectiveDockHeight(gameState: GameState) {
     "briefing",
     "canvas",
     "decision",
-    "dialogue",
     "evidence",
   ].includes(gameState.overlay);
   if (!gameState.player.hasStarted || overlayBlocksDock) {
     return 0;
   }
   return window.innerWidth <= 780 ? 128 : 126;
+}
+
+function getDialogueBubbleStyle(
+  characterId: string,
+  gameState: GameState,
+  scene: Scene,
+  container: HTMLDivElement | null,
+) {
+  const character = characters.find((item) => item.id === characterId);
+  const characterState = gameState.characterStates[characterId];
+  const position = characterState?.position ?? character?.position;
+  if (!position || !container) {
+    return undefined;
+  }
+
+  const dockHeight = getObjectiveDockHeight(gameState);
+  const viewport = {
+    width: container.clientWidth,
+    height: Math.max(320, container.clientHeight - dockHeight),
+  };
+  const worldWidth = scene.width * TILE_SIZE;
+  const worldHeight = scene.height * TILE_SIZE;
+  const targetX = gameState.player.position.x * TILE_SIZE - viewport.width / 2;
+  const targetY = gameState.player.position.y * TILE_SIZE - viewport.height / 2;
+  const centerX = Math.max(0, (viewport.width - worldWidth) / 2);
+  const centerY = Math.max(0, (viewport.height - worldHeight) / 2);
+  const camera = {
+    x:
+      worldWidth < viewport.width
+        ? -centerX
+        : clamp(targetX, 0, Math.max(0, worldWidth - viewport.width)),
+    y:
+      worldHeight < viewport.height
+        ? -centerY
+        : clamp(targetY, 0, Math.max(0, worldHeight - viewport.height)),
+  };
+  const bubbleWidth = Math.min(340, Math.max(260, viewport.width - 32));
+  const speakerX = position.x * TILE_SIZE - camera.x;
+  const speakerY = position.y * TILE_SIZE - camera.y - 94;
+  const left = clamp(
+    speakerX - bubbleWidth / 2,
+    14,
+    viewport.width - bubbleWidth - 14,
+  );
+  const top = clamp(speakerY, 72, Math.max(82, viewport.height - 210));
+
+  return {
+    left,
+    top,
+    width: bubbleWidth,
+  };
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
 export default function GameCanvas() {
@@ -284,9 +339,16 @@ export default function GameCanvas() {
     "briefing",
     "canvas",
     "decision",
-    "dialogue",
     "evidence",
   ].includes(gameState.overlay);
+  const dialogueBubbleStyle = activeCharacter
+    ? getDialogueBubbleStyle(
+        activeCharacter.id,
+        gameState,
+        currentScene,
+        containerRef.current,
+      )
+    : undefined;
 
   const closeOverlay = useCallback(() => {
     setGameState((previous) => ({
@@ -599,7 +661,7 @@ export default function GameCanvas() {
               gameState.dialogue.lineIndex,
               activeCharacter.dialogue[gameState.questStage].length - 1,
             )}
-            stage={gameState.questStage}
+            style={dialogueBubbleStyle}
             totalLines={activeCharacter.dialogue[gameState.questStage].length}
             onAdvance={advanceDialogue}
             onBack={backDialogue}
