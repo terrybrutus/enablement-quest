@@ -523,30 +523,22 @@
 
 .eq-dialogue {
   position: absolute;
-  z-index: 38;
-  border-radius: 18px;
-  padding: 12px;
-}
-
-.eq-dialogue::after {
-  position: absolute;
   left: 50%;
-  bottom: -10px;
-  width: 20px;
-  height: 20px;
-  transform: translateX(-50%) rotate(45deg);
-  border-right: 1px solid rgba(148, 163, 184, 0.22);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-  background: rgba(8, 13, 28, 0.94);
-  content: "";
+  bottom: 126px;
+  z-index: 38;
+  width: min(760px, calc(100vw - 32px));
+  min-height: 132px;
+  transform: translateX(-50%);
+  border-radius: 18px 18px 6px 6px;
+  padding: 14px 16px;
 }
 
 .eq-dialogue-speaker,
 .eq-dialogue-actions {
   display: flex;
   align-items: flex-start;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .eq-dialogue-speaker span,
@@ -556,10 +548,10 @@
 }
 
 .eq-dialogue > p {
-  margin: 8px 0 10px;
+  margin: 8px 0 12px;
   color: #eef6ff;
-  font-size: clamp(0.88rem, 1.4vw, 0.98rem);
-  line-height: 1.42;
+  font-size: clamp(0.96rem, 1.6vw, 1.08rem);
+  line-height: 1.45;
 }
 
 .eq-dialogue-actions > div {
@@ -3058,8 +3050,8 @@
   }
 
   .eq-dialogue {
-    max-height: none;
-    overflow: visible;
+    bottom: 128px;
+    min-height: 142px;
     padding: 11px;
   }
 
