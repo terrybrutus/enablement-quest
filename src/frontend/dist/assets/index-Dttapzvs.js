@@ -15334,8 +15334,8 @@ function getObjectiveDockHeight(gameState) {
     return 0;
   }
   const objectiveHeight = window.innerWidth <= 780 ? 128 : 126;
-  const dialogueHeight = window.innerWidth <= 780 ? 150 : 148;
-  return gameState.overlay === "dialogue" ? objectiveHeight + dialogueHeight : objectiveHeight;
+  const dialogueHeight = window.innerWidth <= 780 ? 170 : 164;
+  return gameState.overlay === "dialogue" ? dialogueHeight : objectiveHeight;
 }
 function GameCanvas() {
   var _a;
@@ -15490,6 +15490,7 @@ function GameCanvas() {
     "briefing",
     "canvas",
     "decision",
+    "dialogue",
     "evidence"
   ].includes(gameState.overlay);
   const closeOverlay = reactExports.useCallback(() => {

@@ -2272,13 +2272,14 @@ video {
 .eq-dialogue {
   position: absolute;
   left: 50%;
-  bottom: 126px;
+  bottom: 0;
   z-index: 38;
-  width: min(760px, calc(100vw - 32px));
-  min-height: 132px;
+  width: min(860px, calc(100vw - 32px));
+  min-height: 154px;
   transform: translateX(-50%);
-  border-radius: 18px 18px 6px 6px;
-  padding: 14px 16px;
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  padding: 16px 18px calc(env(safe-area-inset-bottom) + 16px);
 }
 
 .eq-dialogue-speaker,
@@ -4798,9 +4799,8 @@ video {
   }
 
   .eq-dialogue {
-    bottom: 128px;
-    min-height: 142px;
-    padding: 11px;
+    min-height: 170px;
+    padding: 12px 12px calc(env(safe-area-inset-bottom) + 12px);
   }
 
   .eq-dialogue-actions {
