@@ -1851,9 +1851,9 @@ video {
 .eq-layout-editor-shell {
   display: grid;
   gap: 12px;
-  grid-template-columns: 280px minmax(560px, 1fr) 300px;
+  grid-template-columns: 360px minmax(620px, 1fr) 340px;
   margin: 0 auto;
-  max-width: 1500px;
+  max-width: 1760px;
 }
 
 .eq-layout-editor-sidebar,
@@ -2009,7 +2009,7 @@ video {
 .eq-layout-editor-tile-grid {
   display: grid;
   gap: 6px;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .eq-layout-editor-tile-grid button {
@@ -2019,6 +2019,8 @@ video {
   display: grid;
   justify-items: center;
   min-height: 62px;
+  min-width: 0;
+  overflow: hidden;
   padding: 5px;
 }
 
@@ -2141,6 +2143,14 @@ video {
   cursor: grabbing;
 }
 
+.eq-layout-editor-selection-box {
+  background: rgba(34, 211, 238, 0.12);
+  border: 2px dashed rgba(34, 211, 238, 0.78);
+  pointer-events: none;
+  position: absolute;
+  z-index: 20;
+}
+
 .eq-layout-editor-item-label {
   background: rgba(2, 6, 23, 0.84);
   border-radius: 7px;
@@ -2248,6 +2258,11 @@ video {
 
 .eq-layout-editor-transform-actions button:hover {
   border-color: rgba(34, 211, 238, 0.68);
+}
+
+.eq-layout-editor-transform-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
 }
 
 .eq-layout-editor-inspector > button {

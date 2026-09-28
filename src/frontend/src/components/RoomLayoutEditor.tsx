@@ -1,8 +1,8 @@
 import { scenes } from "@/game/levels";
 import type { Prop, Scene, SheetSprite, SpriteTransform } from "@/game/types";
 import { TILE_SIZE } from "@/game/types";
-import { useEffect, useMemo, useState } from "react";
-import type { PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent, PointerEvent } from "react";
 
 interface EditorItem {
   collision: boolean;
@@ -28,6 +28,11 @@ interface RawTile {
   id: string;
   label: string;
   sprite: SheetSprite;
+}
+
+interface SelectionBox {
+  end: { x: number; y: number };
+  start: { x: number; y: number };
 }
 
 const officeSheet = {
@@ -246,9 +251,15 @@ export function RoomLayoutEditor() {
     }
   });
   const items = itemsByScene[scene.id] ?? [];
-  const [selectedId, setSelectedId] = useState(items[0]?.id ?? "");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [history, setHistory] = useState<Array<Record<string, EditorItem[]>>>(
+    [],
+  );
+  const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const selectedItem =
-    items.find((item) => item.id === selectedId) ?? items[0] ?? null;
+    items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ??
+    null;
+  const selectedItems = items.filter((item) => selectedIds.includes(item.id));
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -257,7 +268,14 @@ export function RoomLayoutEditor() {
     );
   }, [itemsByScene]);
 
-  function updateItems(nextItems: EditorItem[]) {
+  function saveHistory() {
+    setHistory((previous) => [...previous.slice(-29), itemsByScene]);
+  }
+
+  function updateItems(nextItems: EditorItem[], saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
   }
 
@@ -265,12 +283,12 @@ export function RoomLayoutEditor() {
     const currentLayouts = getCurrentGameLayouts();
     const nextItems = currentLayouts[scene.id] ?? [];
     updateItems(nextItems);
-    setSelectedId(nextItems[0]?.id ?? "");
+    setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
   }
 
   function clearRoomLayout() {
     updateItems([]);
-    setSelectedId("");
+    setSelectedIds([]);
   }
 
   function updateSelected(patch: Partial<EditorItem>) {
@@ -284,49 +302,149 @@ export function RoomLayoutEditor() {
     );
   }
 
+  function updateSelectedSprite(patch: Partial<SheetSprite>) {
+    if (!selectedItem) {
+      return;
+    }
+    updateSelected({ sprite: { ...selectedItem.sprite, ...patch } });
+  }
+
   function addPreset(preset: SpritePreset) {
     const nextItem = createItem(preset, items.length);
     updateItems([...items, nextItem]);
-    setSelectedId(nextItem.id);
+    setSelectedIds([nextItem.id]);
   }
 
   function addRawTile(tile: RawTile) {
     const nextItem = createTileItem(tile, items.length);
     updateItems([...items, nextItem]);
-    setSelectedId(nextItem.id);
+    setSelectedIds([nextItem.id]);
   }
 
   function duplicateSelected() {
-    if (!selectedItem) {
+    if (selectedItems.length === 0) {
       return;
     }
-    const nextItem = {
-      ...selectedItem,
-      id: `${selectedItem.id}-copy-${items.length + 1}`,
+    const nextItems = selectedItems.map((item, index) => ({
+      ...item,
+      id: `${item.id}-copy-${items.length + index + 1}`,
       position: {
-        x: clamp(
-          selectedItem.position.x + 0.5,
-          0,
-          scene.width - selectedItem.size.width,
-        ),
-        y: clamp(
-          selectedItem.position.y + 0.5,
-          0,
-          scene.height - selectedItem.size.height,
-        ),
+        x: clamp(item.position.x + 0.5, 0, scene.width - item.size.width),
+        y: clamp(item.position.y + 0.5, 0, scene.height - item.size.height),
       },
-    };
-    updateItems([...items, nextItem]);
-    setSelectedId(nextItem.id);
+    }));
+    updateItems([...items, ...nextItems]);
+    setSelectedIds(nextItems.map((item) => item.id));
   }
 
   function removeSelected() {
-    if (!selectedItem) {
+    if (selectedIds.length === 0) {
       return;
     }
-    const remaining = items.filter((item) => item.id !== selectedItem.id);
+    const remaining = items.filter((item) => !selectedIds.includes(item.id));
     updateItems(remaining);
-    setSelectedId(remaining[0]?.id ?? "");
+    setSelectedIds([]);
+  }
+
+  function selectItem(itemId: string, additive: boolean) {
+    if (!additive) {
+      setSelectedIds([itemId]);
+      return;
+    }
+    setSelectedIds((previous) =>
+      previous.includes(itemId)
+        ? previous.filter((id) => id !== itemId)
+        : [...previous, itemId],
+    );
+  }
+
+  function moveItems(
+    itemIds: string[],
+    dx: number,
+    dy: number,
+    saveSnapshot = true,
+  ) {
+    if (itemIds.length === 0) {
+      return;
+    }
+    updateItems(
+      items.map((item) => {
+        if (!itemIds.includes(item.id)) {
+          return item;
+        }
+        return {
+          ...item,
+          position: {
+            x: clamp(item.position.x + dx, 0, scene.width - item.size.width),
+            y: clamp(item.position.y + dy, 0, scene.height - item.size.height),
+          },
+        };
+      }),
+      saveSnapshot,
+    );
+  }
+
+  function undo() {
+    const previous = history.at(-1);
+    if (!previous) {
+      return;
+    }
+    setItemsByScene(previous);
+    setHistory((snapshots) => snapshots.slice(0, -1));
+    setSelectedIds([]);
+  }
+
+  function handleKeyboard(event: KeyboardEvent<HTMLElement>) {
+    const target = event.target;
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement
+    ) {
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+      event.preventDefault();
+      undo();
+      return;
+    }
+    const movement: Record<string, { dx: number; dy: number } | undefined> = {
+      ArrowDown: { dx: 0, dy: event.shiftKey ? 1 : 0.25 },
+      ArrowLeft: { dx: event.shiftKey ? -1 : -0.25, dy: 0 },
+      ArrowRight: { dx: event.shiftKey ? 1 : 0.25, dy: 0 },
+      ArrowUp: { dx: 0, dy: event.shiftKey ? -1 : -0.25 },
+    };
+    const nextMove = movement[event.key];
+    if (nextMove && selectedIds.length > 0) {
+      event.preventDefault();
+      moveItems(selectedIds, nextMove.dx, nextMove.dy);
+    }
+    if (event.key === "Delete" || event.key === "Backspace") {
+      event.preventDefault();
+      removeSelected();
+    }
+  }
+
+  function selectItemsInBox(box: SelectionBox) {
+    const minX = Math.min(box.start.x, box.end.x);
+    const maxX = Math.max(box.start.x, box.end.x);
+    const minY = Math.min(box.start.y, box.end.y);
+    const maxY = Math.max(box.start.y, box.end.y);
+    const nextIds = items
+      .filter((item) => {
+        const itemMinX = item.position.x * TILE_SIZE;
+        const itemMaxX = (item.position.x + item.size.width) * TILE_SIZE;
+        const itemMinY = item.position.y * TILE_SIZE;
+        const itemMaxY = (item.position.y + item.size.height) * TILE_SIZE;
+        return (
+          itemMinX <= maxX &&
+          itemMaxX >= minX &&
+          itemMinY <= maxY &&
+          itemMaxY >= minY
+        );
+      })
+      .map((item) => item.id);
+    setSelectedIds(nextIds);
   }
 
   const exportJson = JSON.stringify(
@@ -349,7 +467,7 @@ export function RoomLayoutEditor() {
   );
 
   return (
-    <main className="eq-layout-editor">
+    <main className="eq-layout-editor" onKeyDown={handleKeyboard}>
       <header className="eq-layout-editor-header">
         <div>
           <p className="eq-kicker">Room Layout Editor</p>
@@ -372,6 +490,10 @@ export function RoomLayoutEditor() {
               Start with a blank room, add only assets that are clear, then copy
               the JSON back to Codex.
             </span>
+            <small>
+              Keys: arrows move selected pieces, Shift+arrows move faster,
+              Ctrl+Z undoes, Ctrl+click multi-select, Shift+drag selects a box.
+            </small>
           </div>
 
           <label>
@@ -381,7 +503,7 @@ export function RoomLayoutEditor() {
               onChange={(event) => {
                 setSceneId(event.target.value);
                 const nextItems = itemsByScene[event.target.value] ?? [];
-                setSelectedId(nextItems[0]?.id ?? "");
+                setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
               }}
             >
               {editorScenes.map((item) => (
@@ -468,25 +590,66 @@ export function RoomLayoutEditor() {
               height: scene.height * TILE_SIZE,
               width: scene.width * TILE_SIZE,
             }}
+            onPointerDown={(event) => {
+              if (!event.shiftKey || event.target !== event.currentTarget) {
+                return;
+              }
+              const rect = event.currentTarget.getBoundingClientRect();
+              const start = {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top,
+              };
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setSelectionBox({ start, end: start });
+            }}
+            onPointerMove={(event) => {
+              if (
+                !selectionBox ||
+                !event.currentTarget.hasPointerCapture(event.pointerId)
+              ) {
+                return;
+              }
+              const rect = event.currentTarget.getBoundingClientRect();
+              setSelectionBox({
+                ...selectionBox,
+                end: {
+                  x: event.clientX - rect.left,
+                  y: event.clientY - rect.top,
+                },
+              });
+            }}
+            onPointerUp={(event) => {
+              if (!selectionBox) {
+                return;
+              }
+              event.currentTarget.releasePointerCapture(event.pointerId);
+              selectItemsInBox(selectionBox);
+              setSelectionBox(null);
+            }}
           >
             <RoomBackdrop scene={scene} />
             <RoomGrid scene={scene} />
             {items.map((item) => (
               <DraggableItem
-                isSelected={item.id === selectedItem?.id}
+                isSelected={selectedIds.includes(item.id)}
                 item={item}
                 key={item.id}
-                onChange={(nextItem) => {
-                  updateItems(
-                    items.map((current) =>
-                      current.id === item.id ? nextItem : current,
-                    ),
-                  );
-                }}
-                onSelect={() => setSelectedId(item.id)}
+                onDragStart={saveHistory}
+                onMoveSelected={(dx, dy) =>
+                  moveItems(
+                    selectedIds.includes(item.id) ? selectedIds : [item.id],
+                    dx,
+                    dy,
+                    false,
+                  )
+                }
+                onSelect={(additive) => selectItem(item.id, additive)}
                 scene={scene}
               />
             ))}
+            {selectionBox && (
+              <SelectionBoxOverlay selectionBox={selectionBox} />
+            )}
           </div>
         </section>
 
@@ -496,10 +659,12 @@ export function RoomLayoutEditor() {
             <div className="eq-layout-editor-object-list">
               {items.map((item) => (
                 <button
-                  className={item.id === selectedItem?.id ? "is-active" : ""}
+                  className={selectedIds.includes(item.id) ? "is-active" : ""}
                   key={item.id}
                   type="button"
-                  onClick={() => setSelectedId(item.id)}
+                  onClick={(event) =>
+                    selectItem(item.id, event.ctrlKey || event.metaKey)
+                  }
                 >
                   <SpritePreview sprite={item.sprite} />
                   <span>
@@ -597,7 +762,37 @@ export function RoomLayoutEditor() {
                 />
                 Blocks player movement
               </label>
+              <h2>Crop Selected Sprite</h2>
+              <div className="eq-layout-editor-fields">
+                <NumberField
+                  label="Crop X"
+                  value={selectedItem.sprite.sx}
+                  onChange={(value) => updateSelectedSprite({ sx: value })}
+                />
+                <NumberField
+                  label="Crop Y"
+                  value={selectedItem.sprite.sy}
+                  onChange={(value) => updateSelectedSprite({ sy: value })}
+                />
+                <NumberField
+                  label="Crop W"
+                  value={selectedItem.sprite.sw}
+                  onChange={(value) => updateSelectedSprite({ sw: value })}
+                />
+                <NumberField
+                  label="Crop H"
+                  value={selectedItem.sprite.sh}
+                  onChange={(value) => updateSelectedSprite({ sh: value })}
+                />
+              </div>
               <div className="eq-layout-editor-transform-actions">
+                <button
+                  disabled={history.length === 0}
+                  type="button"
+                  onClick={undo}
+                >
+                  Undo
+                </button>
                 <button
                   type="button"
                   onClick={() =>
@@ -744,40 +939,23 @@ function RoomGrid({ scene }: { scene: Scene }) {
 function DraggableItem({
   isSelected,
   item,
-  onChange,
+  onDragStart,
+  onMoveSelected,
   onSelect,
   scene,
 }: {
   isSelected: boolean;
   item: EditorItem;
-  onChange: (item: EditorItem) => void;
-  onSelect: () => void;
+  onDragStart: () => void;
+  onMoveSelected: (dx: number, dy: number) => void;
+  onSelect: (additive: boolean) => void;
   scene: Scene;
 }) {
-  function moveItem(event: PointerEvent<HTMLButtonElement>) {
-    const parent = event.currentTarget.parentElement;
-    if (!parent) {
-      return;
-    }
-    const rect = parent.getBoundingClientRect();
-    const x = clamp(
-      snap(
-        (event.clientX - rect.left - (item.size.width * TILE_SIZE) / 2) /
-          TILE_SIZE,
-      ),
-      0,
-      scene.width - item.size.width,
-    );
-    const y = clamp(
-      snap(
-        (event.clientY - rect.top - (item.size.height * TILE_SIZE) / 2) /
-          TILE_SIZE,
-      ),
-      0,
-      scene.height - item.size.height,
-    );
-    onChange({ ...item, position: { x, y } });
-  }
+  const dragState = useRef<{
+    lastClientX: number;
+    lastClientY: number;
+    savedHistory: boolean;
+  } | null>(null);
 
   return (
     <button
@@ -790,17 +968,50 @@ function DraggableItem({
       }}
       type="button"
       onPointerDown={(event) => {
+        event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
-        onSelect();
-        moveItem(event);
+        onSelect(event.ctrlKey || event.metaKey);
+        dragState.current = {
+          lastClientX: event.clientX,
+          lastClientY: event.clientY,
+          savedHistory: false,
+        };
       }}
       onPointerMove={(event) => {
-        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-          moveItem(event);
+        const currentDrag = dragState.current;
+        if (
+          !currentDrag ||
+          !event.currentTarget.hasPointerCapture(event.pointerId)
+        ) {
+          return;
+        }
+        const dx = snap((event.clientX - currentDrag.lastClientX) / TILE_SIZE);
+        const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
+        if (dx === 0 && dy === 0) {
+          return;
+        }
+        if (!currentDrag.savedHistory) {
+          onDragStart();
+          currentDrag.savedHistory = true;
+        }
+        currentDrag.lastClientX = event.clientX;
+        currentDrag.lastClientY = event.clientY;
+        onMoveSelected(dx, dy);
+        const itemMaxX = scene.width - item.size.width;
+        const itemMaxY = scene.height - item.size.height;
+        if (
+          item.position.x + dx < 0 ||
+          item.position.x + dx > itemMaxX ||
+          item.position.y + dy < 0 ||
+          item.position.y + dy > itemMaxY
+        ) {
+          currentDrag.lastClientX -= dx * TILE_SIZE;
+          currentDrag.lastClientY -= dy * TILE_SIZE;
         }
       }}
       onPointerUp={(event) => {
         event.currentTarget.releasePointerCapture(event.pointerId);
+        dragState.current = null;
       }}
     >
       <SpritePreview
@@ -814,6 +1025,22 @@ function DraggableItem({
         <span className="eq-layout-editor-item-label">{item.label}</span>
       )}
     </button>
+  );
+}
+
+function SelectionBoxOverlay({ selectionBox }: { selectionBox: SelectionBox }) {
+  const left = Math.min(selectionBox.start.x, selectionBox.end.x);
+  const top = Math.min(selectionBox.start.y, selectionBox.end.y);
+  return (
+    <div
+      className="eq-layout-editor-selection-box"
+      style={{
+        height: Math.abs(selectionBox.end.y - selectionBox.start.y),
+        left,
+        top,
+        width: Math.abs(selectionBox.end.x - selectionBox.start.x),
+      }}
+    />
   );
 }
 
