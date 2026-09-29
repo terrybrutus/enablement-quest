@@ -1,5 +1,11 @@
 import { assetUrls, scenes } from "@/game/levels";
-import type { Prop, Scene, SheetSprite, SpriteTransform } from "@/game/types";
+import type {
+  Portal,
+  Prop,
+  Scene,
+  SheetSprite,
+  SpriteTransform,
+} from "@/game/types";
 import { TILE_SIZE } from "@/game/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
@@ -8,6 +14,8 @@ interface EditorItem {
   collision: boolean;
   description: string;
   groupId?: string;
+  groupLabel?: string;
+  hideLabel?: boolean;
   id: string;
   label: string;
   position: { x: number; y: number };
@@ -16,6 +24,8 @@ interface EditorItem {
   sprite: SheetSprite;
   spriteTransform?: SpriteTransform;
 }
+
+interface EditorPortal extends Portal {}
 
 interface SpritePreset {
   category: string;
@@ -563,6 +573,15 @@ function getCurrentGameLayouts() {
   );
 }
 
+function getCurrentPortalLayouts() {
+  return Object.fromEntries(
+    editorScenes.map((scene) => [
+      scene.id,
+      scene.portals.map((portal) => ({ ...portal })),
+    ]),
+  );
+}
+
 function getBlankLayouts() {
   return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
 }
@@ -571,6 +590,8 @@ function createOfficeSingleItem({
   collision = true,
   description = "",
   groupId,
+  groupLabel,
+  hideLabel,
   id,
   label,
   number,
@@ -580,6 +601,8 @@ function createOfficeSingleItem({
   collision?: boolean;
   description?: string;
   groupId?: string;
+  groupLabel?: string;
+  hideLabel?: boolean;
   id: string;
   label?: string;
   number: number;
@@ -592,6 +615,8 @@ function createOfficeSingleItem({
     collision,
     description,
     groupId,
+    groupLabel,
+    hideLabel,
     id,
     label: label ?? metadata.label,
     position,
@@ -599,6 +624,37 @@ function createOfficeSingleItem({
     size,
     sprite: { image: officeSingleKey(number), sx: 0, sy: 0, sw: 96, sh: 144 },
   };
+}
+
+const exampleGroupLabels: Record<string, string> = {
+  "lab-inbox-desk": "Leadership Inbox Desk",
+  "lab-review-wall": "Case Review Wall",
+  "lab-resource-corner": "Resource Corner",
+  "lab-reading-corner": "Quiet Planning Corner",
+  "lab-canvas-desk": "Diagnostic Canvas Desk",
+  "lab-research-wall": "Research Wall",
+  "lab-tools-corner": "Tools Corner",
+  "sales-call-zone": "Call Review Zone",
+  "sales-coaching-zone": "Coaching Zone",
+  "sales-dashboard-zone": "Pipeline Dashboard Zone",
+  "sales-deck-zone": "Deck Review Zone",
+  "ops-break-zone": "Break Area",
+  "ops-map-wall": "Process Map Wall",
+  "ops-metrics-zone": "Metrics Zone",
+  "ops-survey-zone": "Survey Review Zone",
+  "ops-ticket-zone": "Ticket Review Zone",
+};
+
+function applyExampleGroupLabels(items: EditorItem[]) {
+  return items.map((item) =>
+    item.groupId && exampleGroupLabels[item.groupId]
+      ? {
+          ...item,
+          groupLabel: exampleGroupLabels[item.groupId],
+          hideLabel: true,
+        }
+      : item,
+  );
 }
 
 function getExampleLayouts(sceneId: string): Array<{
@@ -614,7 +670,7 @@ function getExampleLayouts(sceneId: string): Array<{
         title: "Consulting Base Lab",
         description:
           "A starter lab with a leadership inbox desk, review board, resource shelf, and quiet planning corner.",
-        items: [
+        items: applyExampleGroupLabels([
           createOfficeSingleItem({
             groupId: "lab-inbox-desk",
             id: "lab-inbox-workstation",
@@ -679,7 +735,79 @@ function getExampleLayouts(sceneId: string): Array<{
             position: { x: 1.1, y: 8 },
             size: { width: 1.6, height: 2.2 },
           }),
-        ],
+        ]),
+      },
+      {
+        id: "lab-diagnostic-review",
+        title: "Diagnostic Review Lab",
+        description:
+          "A more open lab with a central canvas desk, research wall, and tools corner for a cleaner walkthrough.",
+        items: applyExampleGroupLabels([
+          createOfficeSingleItem({
+            groupId: "lab-canvas-desk",
+            id: "lab-canvas-workstation",
+            label: "Diagnostic Canvas Workstation",
+            number: 231,
+            position: { x: 6.2, y: 5.2 },
+            size: { width: 2.8, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-canvas-desk",
+            id: "lab-canvas-chair",
+            label: "Canvas Chair",
+            number: 101,
+            position: { x: 6.7, y: 7.1 },
+            size: { width: 1.4, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-research-wall",
+            id: "lab-research-board",
+            label: "Research Board",
+            number: 172,
+            position: { x: 3, y: 2.5 },
+            size: { width: 2.6, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-research-wall",
+            id: "lab-research-display",
+            label: "Research Display",
+            number: 276,
+            position: { x: 5.8, y: 2.7 },
+            size: { width: 1.6, height: 2.1 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-tools-corner",
+            id: "lab-tools-printer",
+            label: "Tool Printer",
+            number: 177,
+            position: { x: 12.3, y: 3.2 },
+            size: { width: 2.3, height: 2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-tools-corner",
+            id: "lab-tools-cabinet",
+            label: "Tool Cabinet",
+            number: 176,
+            position: { x: 14.7, y: 3.1 },
+            size: { width: 1.6, height: 2.3 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-review-plant",
+            label: "Review Plant",
+            number: 339,
+            position: { x: 2, y: 8.4 },
+            size: { width: 1.8, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-review-chair",
+            label: "Review Chair",
+            number: 108,
+            position: { x: 3.4, y: 8.5 },
+            size: { width: 1.4, height: 1.8 },
+          }),
+        ]),
       },
     ];
   }
@@ -690,7 +818,7 @@ function getExampleLayouts(sceneId: string): Array<{
         title: "Sales Enablement Pod",
         description:
           "A cleaner sales case room with a deck review desk, call review station, dashboard station, and coaching desk.",
-        items: [
+        items: applyExampleGroupLabels([
           createOfficeSingleItem({
             groupId: "sales-deck-zone",
             id: "sales-deck-workstation",
@@ -747,7 +875,7 @@ function getExampleLayouts(sceneId: string): Array<{
             position: { x: 1.6, y: 7.8 },
             size: { width: 1.3, height: 2.2 },
           }),
-        ],
+        ]),
       },
     ];
   }
@@ -758,7 +886,7 @@ function getExampleLayouts(sceneId: string): Array<{
         title: "Operations Diagnostic Room",
         description:
           "A workflow-focused room with an onboarding map, ticket review station, survey table, and metrics board.",
-        items: [
+        items: applyExampleGroupLabels([
           createOfficeSingleItem({
             groupId: "ops-map-wall",
             id: "ops-process-board",
@@ -815,7 +943,7 @@ function getExampleLayouts(sceneId: string): Array<{
             position: { x: 1.2, y: 8.1 },
             size: { width: 1.2, height: 2 },
           }),
-        ],
+        ]),
       },
     ];
   }
@@ -877,8 +1005,13 @@ export function RoomLayoutEditor() {
       return blankLayouts;
     }
   });
+  const [portalsByScene, setPortalsByScene] = useState<
+    Record<string, EditorPortal[]>
+  >(() => getCurrentPortalLayouts());
   const items = itemsByScene[scene.id] ?? [];
+  const portals = portalsByScene[scene.id] ?? [];
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
   const [history, setHistory] = useState<Array<Record<string, EditorItem[]>>>(
     [],
   );
@@ -887,10 +1020,13 @@ export function RoomLayoutEditor() {
     items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ??
     null;
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
+  const selectedPortal =
+    portals.find((portal) => portal.id === selectedPortalId) ?? null;
   const selectedBounds = useMemo(
     () => getItemsBounds(selectedItems),
     [selectedItems],
   );
+  const groupOverlays = useMemo(() => getGroupOverlays(items), [items]);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -915,11 +1051,25 @@ export function RoomLayoutEditor() {
     setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
   }
 
+  function updatePortals(nextPortals: EditorPortal[], saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
+    setPortalsByScene((previous) => ({
+      ...previous,
+      [scene.id]: nextPortals,
+    }));
+  }
+
   function loadCurrentRoomLayout() {
     const currentLayouts = getCurrentGameLayouts();
+    const currentPortalLayouts = getCurrentPortalLayouts();
     const nextItems = currentLayouts[scene.id] ?? [];
+    const nextPortals = currentPortalLayouts[scene.id] ?? [];
     updateItems(nextItems);
+    updatePortals(nextPortals, false);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
+    setSelectedPortalId(null);
   }
 
   function clearRoomLayout() {
@@ -930,6 +1080,49 @@ export function RoomLayoutEditor() {
   function loadExampleLayout(nextItems: EditorItem[]) {
     updateItems(nextItems);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
+    setSelectedPortalId(null);
+  }
+
+  function updateSelectedPortal(patch: Partial<EditorPortal>) {
+    if (!selectedPortal) {
+      return;
+    }
+    updatePortals(
+      portals.map((portal) =>
+        portal.id === selectedPortal.id ? { ...portal, ...patch } : portal,
+      ),
+    );
+  }
+
+  function movePortal(
+    portalId: string,
+    dx: number,
+    dy: number,
+    saveSnapshot = true,
+  ) {
+    updatePortals(
+      portals.map((portal) =>
+        portal.id === portalId
+          ? {
+              ...portal,
+              rect: {
+                ...portal.rect,
+                x: clamp(
+                  portal.rect.x + dx,
+                  0,
+                  scene.width - portal.rect.width,
+                ),
+                y: clamp(
+                  portal.rect.y + dy,
+                  0,
+                  scene.height - portal.rect.height,
+                ),
+              },
+            }
+          : portal,
+      ),
+      saveSnapshot,
+    );
   }
 
   function updateSelected(patch: Partial<EditorItem>) {
@@ -952,6 +1145,17 @@ export function RoomLayoutEditor() {
     updateItems(
       items.map((item) =>
         selectedIds.includes(item.id) ? { ...item, ...getPatch(item) } : item,
+      ),
+    );
+  }
+
+  function updateSelectedGroup(patch: Partial<EditorItem>) {
+    if (!selectedItem?.groupId) {
+      return;
+    }
+    updateItems(
+      items.map((item) =>
+        item.groupId === selectedItem.groupId ? { ...item, ...patch } : item,
       ),
     );
   }
@@ -1029,7 +1233,11 @@ export function RoomLayoutEditor() {
       return;
     }
     const nextGroupId = `group-${Date.now().toString(36)}`;
-    updateSelectedItems(() => ({ groupId: nextGroupId }));
+    updateSelectedItems(() => ({
+      groupId: nextGroupId,
+      groupLabel: "New Group",
+      hideLabel: true,
+    }));
   }
 
   function ungroupSelected() {
@@ -1069,6 +1277,7 @@ export function RoomLayoutEditor() {
   }
 
   function selectItem(itemId: string, additive: boolean) {
+    setSelectedPortalId(null);
     const clickedItem = items.find((item) => item.id === itemId);
     const groupItemIds =
       clickedItem?.groupId && !additive
@@ -1327,9 +1536,24 @@ export function RoomLayoutEditor() {
     {
       sceneId: scene.id,
       sceneName: scene.name,
+      portals: portals.map((portal) => ({
+        ...portal,
+        rect: {
+          height: Number(portal.rect.height.toFixed(2)),
+          width: Number(portal.rect.width.toFixed(2)),
+          x: Number(portal.rect.x.toFixed(2)),
+          y: Number(portal.rect.y.toFixed(2)),
+        },
+        targetPosition: {
+          x: Number(portal.targetPosition.x.toFixed(2)),
+          y: Number(portal.targetPosition.y.toFixed(2)),
+        },
+      })),
       props: items.map((item) => ({
         id: item.id,
         groupId: item.groupId || undefined,
+        groupLabel: item.groupLabel || undefined,
+        hideLabel: item.hideLabel || undefined,
         label: item.label || undefined,
         description: item.description || undefined,
         position: roundPosition(item.position),
@@ -1392,6 +1616,7 @@ export function RoomLayoutEditor() {
                 setSceneId(event.target.value);
                 const nextItems = itemsByScene[event.target.value] ?? [];
                 setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
+                setSelectedPortalId(null);
               }}
             >
               {editorScenes.map((item) => (
@@ -1531,6 +1756,7 @@ export function RoomLayoutEditor() {
               }
               if (!event.shiftKey) {
                 setSelectedIds([]);
+                setSelectedPortalId(null);
                 return;
               }
               const rect = event.currentTarget.getBoundingClientRect();
@@ -1568,6 +1794,22 @@ export function RoomLayoutEditor() {
           >
             <RoomBackdrop scene={scene} showZones={showPlanningZones} />
             <RoomGrid scene={scene} />
+            {portals.map((portal) => (
+              <DraggablePortal
+                isSelected={portal.id === selectedPortalId}
+                key={portal.id}
+                portal={portal}
+                onDragStart={saveHistory}
+                onMove={(dx, dy) => movePortal(portal.id, dx, dy, false)}
+                onSelect={() => {
+                  setSelectedIds([]);
+                  setSelectedPortalId(portal.id);
+                }}
+              />
+            ))}
+            {groupOverlays.map((group) => (
+              <GroupLabelOverlay group={group} key={group.groupId} />
+            ))}
             {items.map((item) => (
               <DraggableItem
                 isSelected={selectedIds.includes(item.id)}
@@ -1655,6 +1897,82 @@ export function RoomLayoutEditor() {
           )}
 
           <h2>Selected Object</h2>
+          {selectedPortal && (
+            <div className="eq-layout-editor-group-tools">
+              <h2>Selected Door / Hotspot</h2>
+              <label>
+                Portal label
+                <input
+                  value={selectedPortal.label}
+                  onChange={(event) =>
+                    updateSelectedPortal({ label: event.target.value })
+                  }
+                />
+              </label>
+              <div className="eq-layout-editor-fields">
+                <NumberField
+                  label="Door X"
+                  value={selectedPortal.rect.x}
+                  onChange={(value) =>
+                    updateSelectedPortal({
+                      rect: { ...selectedPortal.rect, x: value },
+                    })
+                  }
+                />
+                <NumberField
+                  label="Door Y"
+                  value={selectedPortal.rect.y}
+                  onChange={(value) =>
+                    updateSelectedPortal({
+                      rect: { ...selectedPortal.rect, y: value },
+                    })
+                  }
+                />
+                <NumberField
+                  label="Door W"
+                  value={selectedPortal.rect.width}
+                  onChange={(value) =>
+                    updateSelectedPortal({
+                      rect: { ...selectedPortal.rect, width: value },
+                    })
+                  }
+                />
+                <NumberField
+                  label="Door H"
+                  value={selectedPortal.rect.height}
+                  onChange={(value) =>
+                    updateSelectedPortal({
+                      rect: { ...selectedPortal.rect, height: value },
+                    })
+                  }
+                />
+                <NumberField
+                  label="Spawn X"
+                  value={selectedPortal.targetPosition.x}
+                  onChange={(value) =>
+                    updateSelectedPortal({
+                      targetPosition: {
+                        ...selectedPortal.targetPosition,
+                        x: value,
+                      },
+                    })
+                  }
+                />
+                <NumberField
+                  label="Spawn Y"
+                  value={selectedPortal.targetPosition.y}
+                  onChange={(value) =>
+                    updateSelectedPortal({
+                      targetPosition: {
+                        ...selectedPortal.targetPosition,
+                        y: value,
+                      },
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
           {selectedItem ? (
             <>
               {selectedIds.length > 1 && (
@@ -1690,6 +2008,32 @@ export function RoomLayoutEditor() {
                   }
                 />
               </label>
+              {selectedItem.groupId && (
+                <div className="eq-layout-editor-group-tools">
+                  <h2>Selected Group</h2>
+                  <label>
+                    Group label
+                    <input
+                      value={selectedItem.groupLabel ?? ""}
+                      onChange={(event) =>
+                        updateSelectedGroup({ groupLabel: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label className="eq-layout-editor-checkbox">
+                    <input
+                      checked={Boolean(selectedItem.hideLabel)}
+                      type="checkbox"
+                      onChange={(event) =>
+                        updateSelectedGroup({
+                          hideLabel: event.target.checked,
+                        })
+                      }
+                    />
+                    Hide individual item labels in this group
+                  </label>
+                </div>
+              )}
               <div className="eq-layout-editor-fields">
                 <NumberField
                   label="X"
@@ -1870,21 +2214,76 @@ function RoomBackdrop({
             ))}
         </>
       )}
-      {scene.portals.map((portal) => (
-        <div
-          className="eq-layout-editor-portal"
-          key={portal.id}
-          style={{
-            height: portal.rect.height * TILE_SIZE,
-            left: portal.rect.x * TILE_SIZE,
-            top: portal.rect.y * TILE_SIZE,
-            width: portal.rect.width * TILE_SIZE,
-          }}
-        >
-          <span>{portal.label}</span>
-        </div>
-      ))}
     </div>
+  );
+}
+
+function DraggablePortal({
+  isSelected,
+  onDragStart,
+  onMove,
+  onSelect,
+  portal,
+}: {
+  isSelected: boolean;
+  onDragStart: () => void;
+  onMove: (dx: number, dy: number) => void;
+  onSelect: () => void;
+  portal: EditorPortal;
+}) {
+  const dragState = useRef<{
+    lastClientX: number;
+    lastClientY: number;
+    savedHistory: boolean;
+  } | null>(null);
+  return (
+    <button
+      className={`eq-layout-editor-portal ${isSelected ? "is-selected" : ""}`}
+      style={{
+        height: portal.rect.height * TILE_SIZE,
+        left: portal.rect.x * TILE_SIZE,
+        top: portal.rect.y * TILE_SIZE,
+        width: portal.rect.width * TILE_SIZE,
+      }}
+      type="button"
+      onPointerDown={(event) => {
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onSelect();
+        dragState.current = {
+          lastClientX: event.clientX,
+          lastClientY: event.clientY,
+          savedHistory: false,
+        };
+      }}
+      onPointerMove={(event) => {
+        const currentDrag = dragState.current;
+        if (
+          !currentDrag ||
+          !event.currentTarget.hasPointerCapture(event.pointerId)
+        ) {
+          return;
+        }
+        const dx = snap((event.clientX - currentDrag.lastClientX) / TILE_SIZE);
+        const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
+        if (dx === 0 && dy === 0) {
+          return;
+        }
+        if (!currentDrag.savedHistory) {
+          onDragStart();
+          currentDrag.savedHistory = true;
+        }
+        currentDrag.lastClientX = event.clientX;
+        currentDrag.lastClientY = event.clientY;
+        onMove(dx, dy);
+      }}
+      onPointerUp={(event) => {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        dragState.current = null;
+      }}
+    >
+      <span>{portal.label}</span>
+    </button>
   );
 }
 
@@ -2012,7 +2411,7 @@ function DraggableItem({
         targetHeight={item.size.height * TILE_SIZE}
         targetWidth={item.size.width * TILE_SIZE}
       />
-      {item.label && (
+      {item.label && !item.hideLabel && (
         <span className="eq-layout-editor-item-label">{item.label}</span>
       )}
       {showResizeHandles &&
@@ -2082,6 +2481,32 @@ function SelectionBoxOverlay({ selectionBox }: { selectionBox: SelectionBox }) {
         width: Math.abs(selectionBox.end.x - selectionBox.start.x),
       }}
     />
+  );
+}
+
+function GroupLabelOverlay({
+  group,
+}: {
+  group: {
+    bounds: {
+      position: { x: number; y: number };
+      size: { height: number; width: number };
+    };
+    groupId: string;
+    label: string;
+  };
+}) {
+  return (
+    <div
+      className="eq-layout-editor-group-label"
+      style={{
+        left:
+          (group.bounds.position.x + group.bounds.size.width / 2) * TILE_SIZE,
+        top: (group.bounds.position.y + group.bounds.size.height) * TILE_SIZE,
+      }}
+    >
+      {group.label}
+    </div>
   );
 }
 
@@ -2290,6 +2715,29 @@ function getItemsBounds(items: EditorItem[]) {
     position: { x: minX, y: minY },
     size: { height: maxY - minY, width: maxX - minX },
   };
+}
+
+function getGroupOverlays(items: EditorItem[]) {
+  const itemsByGroup = new Map<string, EditorItem[]>();
+  for (const item of items) {
+    if (!item.groupId || !item.groupLabel) {
+      continue;
+    }
+    itemsByGroup.set(item.groupId, [
+      ...(itemsByGroup.get(item.groupId) ?? []),
+      item,
+    ]);
+  }
+  return Array.from(itemsByGroup.entries())
+    .map(([groupId, groupItems]) => {
+      const bounds = getItemsBounds(groupItems);
+      const label = groupItems.find((item) => item.groupLabel)?.groupLabel;
+      if (!bounds || !label) {
+        return null;
+      }
+      return { bounds, groupId, label };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
 }
 
 function scaleItemWithinBounds(

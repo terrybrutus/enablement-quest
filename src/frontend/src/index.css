@@ -348,7 +348,16 @@
   background: rgba(34, 211, 238, 0.14);
   border: 2px solid rgba(34, 211, 238, 0.7);
   border-radius: 8px;
+  cursor: grab;
+  color: #cffafe;
+  font: 950 0.62rem var(--font-body), sans-serif;
   position: absolute;
+  z-index: 6;
+}
+
+.eq-layout-editor-portal.is-selected {
+  border-color: #facc15;
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.2);
 }
 
 .eq-layout-editor-portal span {
@@ -478,6 +487,23 @@
   z-index: 20;
 }
 
+.eq-layout-editor-group-label {
+  background: rgba(2, 6, 23, 0.88);
+  border-radius: 8px;
+  color: #e0f2fe;
+  font-size: 0.68rem;
+  font-weight: 950;
+  max-width: 170px;
+  overflow: hidden;
+  padding: 5px 8px;
+  pointer-events: none;
+  position: absolute;
+  text-overflow: ellipsis;
+  transform: translate(-50%, 8px);
+  white-space: nowrap;
+  z-index: 12;
+}
+
 .eq-layout-editor-item-label {
   background: rgba(2, 6, 23, 0.84);
   border-radius: 7px;
@@ -518,10 +544,19 @@
   display: grid;
   gap: 8px;
   margin-bottom: 4px;
-  max-height: 220px;
+  max-height: 340px;
   min-height: 74px;
   overflow: auto;
   padding: 8px;
+}
+
+.eq-layout-editor-group-tools {
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 14px;
+  background: rgba(8, 47, 73, 0.13);
+  display: grid;
+  gap: 10px;
+  padding: 10px;
 }
 
 .eq-layout-editor-object-list button {

@@ -17408,6 +17408,14 @@ function getCurrentGameLayouts() {
     ])
   );
 }
+function getCurrentPortalLayouts() {
+  return Object.fromEntries(
+    editorScenes.map((scene) => [
+      scene.id,
+      scene.portals.map((portal) => ({ ...portal }))
+    ])
+  );
+}
 function getBlankLayouts() {
   return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
 }
@@ -17415,6 +17423,8 @@ function createOfficeSingleItem({
   collision = true,
   description = "",
   groupId,
+  groupLabel,
+  hideLabel,
   id,
   label,
   number,
@@ -17426,6 +17436,8 @@ function createOfficeSingleItem({
     collision,
     description,
     groupId,
+    groupLabel,
+    hideLabel,
     id,
     label: label ?? metadata.label,
     position,
@@ -17434,6 +17446,33 @@ function createOfficeSingleItem({
     sprite: { image: officeSingleKey(number), sx: 0, sy: 0, sw: 96, sh: 144 }
   };
 }
+const exampleGroupLabels = {
+  "lab-inbox-desk": "Leadership Inbox Desk",
+  "lab-review-wall": "Case Review Wall",
+  "lab-resource-corner": "Resource Corner",
+  "lab-reading-corner": "Quiet Planning Corner",
+  "lab-canvas-desk": "Diagnostic Canvas Desk",
+  "lab-research-wall": "Research Wall",
+  "lab-tools-corner": "Tools Corner",
+  "sales-call-zone": "Call Review Zone",
+  "sales-coaching-zone": "Coaching Zone",
+  "sales-dashboard-zone": "Pipeline Dashboard Zone",
+  "sales-deck-zone": "Deck Review Zone",
+  "ops-break-zone": "Break Area",
+  "ops-map-wall": "Process Map Wall",
+  "ops-metrics-zone": "Metrics Zone",
+  "ops-survey-zone": "Survey Review Zone",
+  "ops-ticket-zone": "Ticket Review Zone"
+};
+function applyExampleGroupLabels(items) {
+  return items.map(
+    (item) => item.groupId && exampleGroupLabels[item.groupId] ? {
+      ...item,
+      groupLabel: exampleGroupLabels[item.groupId],
+      hideLabel: true
+    } : item
+  );
+}
 function getExampleLayouts(sceneId) {
   if (sceneId === "lab") {
     return [
@@ -17441,7 +17480,7 @@ function getExampleLayouts(sceneId) {
         id: "lab-consulting-base",
         title: "Consulting Base Lab",
         description: "A starter lab with a leadership inbox desk, review board, resource shelf, and quiet planning corner.",
-        items: [
+        items: applyExampleGroupLabels([
           createOfficeSingleItem({
             groupId: "lab-inbox-desk",
             id: "lab-inbox-workstation",
@@ -17506,7 +17545,78 @@ function getExampleLayouts(sceneId) {
             position: { x: 1.1, y: 8 },
             size: { width: 1.6, height: 2.2 }
           })
-        ]
+        ])
+      },
+      {
+        id: "lab-diagnostic-review",
+        title: "Diagnostic Review Lab",
+        description: "A more open lab with a central canvas desk, research wall, and tools corner for a cleaner walkthrough.",
+        items: applyExampleGroupLabels([
+          createOfficeSingleItem({
+            groupId: "lab-canvas-desk",
+            id: "lab-canvas-workstation",
+            label: "Diagnostic Canvas Workstation",
+            number: 231,
+            position: { x: 6.2, y: 5.2 },
+            size: { width: 2.8, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-canvas-desk",
+            id: "lab-canvas-chair",
+            label: "Canvas Chair",
+            number: 101,
+            position: { x: 6.7, y: 7.1 },
+            size: { width: 1.4, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-research-wall",
+            id: "lab-research-board",
+            label: "Research Board",
+            number: 172,
+            position: { x: 3, y: 2.5 },
+            size: { width: 2.6, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-research-wall",
+            id: "lab-research-display",
+            label: "Research Display",
+            number: 276,
+            position: { x: 5.8, y: 2.7 },
+            size: { width: 1.6, height: 2.1 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-tools-corner",
+            id: "lab-tools-printer",
+            label: "Tool Printer",
+            number: 177,
+            position: { x: 12.3, y: 3.2 },
+            size: { width: 2.3, height: 2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-tools-corner",
+            id: "lab-tools-cabinet",
+            label: "Tool Cabinet",
+            number: 176,
+            position: { x: 14.7, y: 3.1 },
+            size: { width: 1.6, height: 2.3 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-review-plant",
+            label: "Review Plant",
+            number: 339,
+            position: { x: 2, y: 8.4 },
+            size: { width: 1.8, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-review-chair",
+            label: "Review Chair",
+            number: 108,
+            position: { x: 3.4, y: 8.5 },
+            size: { width: 1.4, height: 1.8 }
+          })
+        ])
       }
     ];
   }
@@ -17516,7 +17626,7 @@ function getExampleLayouts(sceneId) {
         id: "sales-enablement-pod",
         title: "Sales Enablement Pod",
         description: "A cleaner sales case room with a deck review desk, call review station, dashboard station, and coaching desk.",
-        items: [
+        items: applyExampleGroupLabels([
           createOfficeSingleItem({
             groupId: "sales-deck-zone",
             id: "sales-deck-workstation",
@@ -17573,7 +17683,7 @@ function getExampleLayouts(sceneId) {
             position: { x: 1.6, y: 7.8 },
             size: { width: 1.3, height: 2.2 }
           })
-        ]
+        ])
       }
     ];
   }
@@ -17583,7 +17693,7 @@ function getExampleLayouts(sceneId) {
         id: "operations-diagnostic-room",
         title: "Operations Diagnostic Room",
         description: "A workflow-focused room with an onboarding map, ticket review station, survey table, and metrics board.",
-        items: [
+        items: applyExampleGroupLabels([
           createOfficeSingleItem({
             groupId: "ops-map-wall",
             id: "ops-process-board",
@@ -17640,7 +17750,7 @@ function getExampleLayouts(sceneId) {
             position: { x: 1.2, y: 8.1 },
             size: { width: 1.2, height: 2 }
           })
-        ]
+        ])
       }
     ];
   }
@@ -17697,18 +17807,23 @@ function RoomLayoutEditor() {
       return blankLayouts;
     }
   });
+  const [portalsByScene, setPortalsByScene] = reactExports.useState(() => getCurrentPortalLayouts());
   const items = itemsByScene[scene.id] ?? [];
+  const portals = portalsByScene[scene.id] ?? [];
   const [selectedIds, setSelectedIds] = reactExports.useState([]);
+  const [selectedPortalId, setSelectedPortalId] = reactExports.useState(null);
   const [history, setHistory] = reactExports.useState(
     []
   );
   const [selectionBox, setSelectionBox] = reactExports.useState(null);
   const selectedItem = items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ?? null;
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
+  const selectedPortal = portals.find((portal) => portal.id === selectedPortalId) ?? null;
   const selectedBounds = reactExports.useMemo(
     () => getItemsBounds(selectedItems),
     [selectedItems]
   );
+  const groupOverlays = reactExports.useMemo(() => getGroupOverlays(items), [items]);
   reactExports.useEffect(() => {
     window.localStorage.setItem(
       layoutEditorStorageKey,
@@ -17728,11 +17843,24 @@ function RoomLayoutEditor() {
     }
     setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
   }
+  function updatePortals(nextPortals, saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
+    setPortalsByScene((previous) => ({
+      ...previous,
+      [scene.id]: nextPortals
+    }));
+  }
   function loadCurrentRoomLayout() {
     const currentLayouts = getCurrentGameLayouts();
+    const currentPortalLayouts = getCurrentPortalLayouts();
     const nextItems = currentLayouts[scene.id] ?? [];
+    const nextPortals = currentPortalLayouts[scene.id] ?? [];
     updateItems(nextItems);
+    updatePortals(nextPortals, false);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
+    setSelectedPortalId(null);
   }
   function clearRoomLayout() {
     updateItems([]);
@@ -17741,6 +17869,40 @@ function RoomLayoutEditor() {
   function loadExampleLayout(nextItems) {
     updateItems(nextItems);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
+    setSelectedPortalId(null);
+  }
+  function updateSelectedPortal(patch) {
+    if (!selectedPortal) {
+      return;
+    }
+    updatePortals(
+      portals.map(
+        (portal) => portal.id === selectedPortal.id ? { ...portal, ...patch } : portal
+      )
+    );
+  }
+  function movePortal(portalId, dx, dy, saveSnapshot = true) {
+    updatePortals(
+      portals.map(
+        (portal) => portal.id === portalId ? {
+          ...portal,
+          rect: {
+            ...portal.rect,
+            x: clamp(
+              portal.rect.x + dx,
+              0,
+              scene.width - portal.rect.width
+            ),
+            y: clamp(
+              portal.rect.y + dy,
+              0,
+              scene.height - portal.rect.height
+            )
+          }
+        } : portal
+      ),
+      saveSnapshot
+    );
   }
   function updateSelected(patch) {
     if (!selectedItem) {
@@ -17759,6 +17921,16 @@ function RoomLayoutEditor() {
     updateItems(
       items.map(
         (item) => selectedIds.includes(item.id) ? { ...item, ...getPatch(item) } : item
+      )
+    );
+  }
+  function updateSelectedGroup(patch) {
+    if (!(selectedItem == null ? void 0 : selectedItem.groupId)) {
+      return;
+    }
+    updateItems(
+      items.map(
+        (item) => item.groupId === selectedItem.groupId ? { ...item, ...patch } : item
       )
     );
   }
@@ -17824,7 +17996,11 @@ function RoomLayoutEditor() {
       return;
     }
     const nextGroupId = `group-${Date.now().toString(36)}`;
-    updateSelectedItems(() => ({ groupId: nextGroupId }));
+    updateSelectedItems(() => ({
+      groupId: nextGroupId,
+      groupLabel: "New Group",
+      hideLabel: true
+    }));
   }
   function ungroupSelected() {
     if (selectedIds.length === 0) {
@@ -17856,6 +18032,7 @@ function RoomLayoutEditor() {
     setSelectedIds([]);
   }
   function selectItem(itemId, additive) {
+    setSelectedPortalId(null);
     const clickedItem = items.find((item) => item.id === itemId);
     const groupItemIds = (clickedItem == null ? void 0 : clickedItem.groupId) && !additive ? items.filter((item) => item.groupId === clickedItem.groupId).map((item) => item.id) : [itemId];
     if (!additive) {
@@ -18057,9 +18234,24 @@ function RoomLayoutEditor() {
     {
       sceneId: scene.id,
       sceneName: scene.name,
+      portals: portals.map((portal) => ({
+        ...portal,
+        rect: {
+          height: Number(portal.rect.height.toFixed(2)),
+          width: Number(portal.rect.width.toFixed(2)),
+          x: Number(portal.rect.x.toFixed(2)),
+          y: Number(portal.rect.y.toFixed(2))
+        },
+        targetPosition: {
+          x: Number(portal.targetPosition.x.toFixed(2)),
+          y: Number(portal.targetPosition.y.toFixed(2))
+        }
+      })),
       props: items.map((item) => ({
         id: item.id,
         groupId: item.groupId || void 0,
+        groupLabel: item.groupLabel || void 0,
+        hideLabel: item.hideLabel || void 0,
         label: item.label || void 0,
         description: item.description || void 0,
         position: roundPosition(item.position),
@@ -18109,6 +18301,7 @@ function RoomLayoutEditor() {
                 setSceneId(event.target.value);
                 const nextItems = itemsByScene[event.target.value] ?? [];
                 setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
+                setSelectedPortalId(null);
               },
               children: editorScenes.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: item.id, children: item.name }, item.id))
             }
@@ -18230,6 +18423,7 @@ function RoomLayoutEditor() {
               }
               if (!event.shiftKey) {
                 setSelectedIds([]);
+                setSelectedPortalId(null);
                 return;
               }
               const rect = event.currentTarget.getBoundingClientRect();
@@ -18264,6 +18458,21 @@ function RoomLayoutEditor() {
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene, showZones: showPlanningZones }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(RoomGrid, { scene }),
+              portals.map((portal) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                DraggablePortal,
+                {
+                  isSelected: portal.id === selectedPortalId,
+                  portal,
+                  onDragStart: saveHistory,
+                  onMove: (dx, dy) => movePortal(portal.id, dx, dy, false),
+                  onSelect: () => {
+                    setSelectedIds([]);
+                    setSelectedPortalId(portal.id);
+                  }
+                },
+                portal.id
+              )),
+              groupOverlays.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsx(GroupLabelOverlay, { group }, group.groupId)),
               items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                 DraggableItem,
                 {
@@ -18337,6 +18546,87 @@ function RoomLayoutEditor() {
           item.id
         )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-layout-editor-empty", children: "No objects yet. Add a clear workstation, monitor, board, or plant from the left." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Selected Object" }),
+        selectedPortal && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-group-tools", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Selected Door / Hotspot" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "Portal label",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: selectedPortal.label,
+                onChange: (event) => updateSelectedPortal({ label: event.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-fields", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Door X",
+                value: selectedPortal.rect.x,
+                onChange: (value) => updateSelectedPortal({
+                  rect: { ...selectedPortal.rect, x: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Door Y",
+                value: selectedPortal.rect.y,
+                onChange: (value) => updateSelectedPortal({
+                  rect: { ...selectedPortal.rect, y: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Door W",
+                value: selectedPortal.rect.width,
+                onChange: (value) => updateSelectedPortal({
+                  rect: { ...selectedPortal.rect, width: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Door H",
+                value: selectedPortal.rect.height,
+                onChange: (value) => updateSelectedPortal({
+                  rect: { ...selectedPortal.rect, height: value }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Spawn X",
+                value: selectedPortal.targetPosition.x,
+                onChange: (value) => updateSelectedPortal({
+                  targetPosition: {
+                    ...selectedPortal.targetPosition,
+                    x: value
+                  }
+                })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Spawn Y",
+                value: selectedPortal.targetPosition.y,
+                onChange: (value) => updateSelectedPortal({
+                  targetPosition: {
+                    ...selectedPortal.targetPosition,
+                    y: value
+                  }
+                })
+              }
+            )
+          ] })
+        ] }),
         selectedItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           selectedIds.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "eq-layout-editor-muted", children: [
             selectedIds.length,
@@ -18371,6 +18661,32 @@ function RoomLayoutEditor() {
                 onChange: (event) => updateSelected({ description: event.target.value })
               }
             )
+          ] }),
+          selectedItem.groupId && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-group-tools", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Selected Group" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+              "Group label",
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  value: selectedItem.groupLabel ?? "",
+                  onChange: (event) => updateSelectedGroup({ groupLabel: event.target.value })
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "input",
+                {
+                  checked: Boolean(selectedItem.hideLabel),
+                  type: "checkbox",
+                  onChange: (event) => updateSelectedGroup({
+                    hideLabel: event.target.checked
+                  })
+                }
+              ),
+              "Hide individual item labels in this group"
+            ] })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-fields", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -18562,22 +18878,63 @@ function RoomBackdrop({
         },
         `${scene.id}-${zone.x}-${zone.y}`
       ))
-    ] }),
-    scene.portals.map((portal) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "div",
-      {
-        className: "eq-layout-editor-portal",
-        style: {
-          height: portal.rect.height * TILE_SIZE,
-          left: portal.rect.x * TILE_SIZE,
-          top: portal.rect.y * TILE_SIZE,
-          width: portal.rect.width * TILE_SIZE
-        },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: portal.label })
-      },
-      portal.id
-    ))
+    ] })
   ] });
+}
+function DraggablePortal({
+  isSelected,
+  onDragStart,
+  onMove,
+  onSelect,
+  portal
+}) {
+  const dragState = reactExports.useRef(null);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "button",
+    {
+      className: `eq-layout-editor-portal ${isSelected ? "is-selected" : ""}`,
+      style: {
+        height: portal.rect.height * TILE_SIZE,
+        left: portal.rect.x * TILE_SIZE,
+        top: portal.rect.y * TILE_SIZE,
+        width: portal.rect.width * TILE_SIZE
+      },
+      type: "button",
+      onPointerDown: (event) => {
+        event.preventDefault();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onSelect();
+        dragState.current = {
+          lastClientX: event.clientX,
+          lastClientY: event.clientY,
+          savedHistory: false
+        };
+      },
+      onPointerMove: (event) => {
+        const currentDrag = dragState.current;
+        if (!currentDrag || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+          return;
+        }
+        const dx = snap((event.clientX - currentDrag.lastClientX) / TILE_SIZE);
+        const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
+        if (dx === 0 && dy === 0) {
+          return;
+        }
+        if (!currentDrag.savedHistory) {
+          onDragStart();
+          currentDrag.savedHistory = true;
+        }
+        currentDrag.lastClientX = event.clientX;
+        currentDrag.lastClientY = event.clientY;
+        onMove(dx, dy);
+      },
+      onPointerUp: (event) => {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        dragState.current = null;
+      },
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: portal.label })
+    }
+  );
 }
 function RoomGrid({ scene }) {
   const cells = [];
@@ -18671,7 +19028,7 @@ function DraggableItem({
             targetWidth: item.size.width * TILE_SIZE
           }
         ),
-        item.label && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label }),
+        item.label && !item.hideLabel && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label }),
         showResizeHandles && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "span",
           {
@@ -18736,6 +19093,21 @@ function SelectionBoxOverlay({ selectionBox }) {
         top,
         width: Math.abs(selectionBox.end.x - selectionBox.start.x)
       }
+    }
+  );
+}
+function GroupLabelOverlay({
+  group
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "eq-layout-editor-group-label",
+      style: {
+        left: (group.bounds.position.x + group.bounds.size.width / 2) * TILE_SIZE,
+        top: (group.bounds.position.y + group.bounds.size.height) * TILE_SIZE
+      },
+      children: group.label
     }
   );
 }
@@ -18903,6 +19275,27 @@ function getItemsBounds(items) {
     position: { x: minX, y: minY },
     size: { height: maxY - minY, width: maxX - minX }
   };
+}
+function getGroupOverlays(items) {
+  const itemsByGroup = /* @__PURE__ */ new Map();
+  for (const item of items) {
+    if (!item.groupId || !item.groupLabel) {
+      continue;
+    }
+    itemsByGroup.set(item.groupId, [
+      ...itemsByGroup.get(item.groupId) ?? [],
+      item
+    ]);
+  }
+  return Array.from(itemsByGroup.entries()).map(([groupId, groupItems]) => {
+    var _a;
+    const bounds = getItemsBounds(groupItems);
+    const label = (_a = groupItems.find((item) => item.groupLabel)) == null ? void 0 : _a.groupLabel;
+    if (!bounds || !label) {
+      return null;
+    }
+    return { bounds, groupId, label };
+  }).filter((item) => Boolean(item));
 }
 function scaleItemWithinBounds(item, previousBounds, nextBounds) {
   const scaleX = nextBounds.size.width / previousBounds.size.width;
