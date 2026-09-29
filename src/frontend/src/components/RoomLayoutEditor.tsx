@@ -1,4 +1,4 @@
-import { scenes } from "@/game/levels";
+import { assetUrls, scenes } from "@/game/levels";
 import type { Prop, Scene, SheetSprite, SpriteTransform } from "@/game/types";
 import { TILE_SIZE } from "@/game/types";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,6 +17,7 @@ interface EditorItem {
 }
 
 interface SpritePreset {
+  category: string;
   defaultSize: { width: number; height: number };
   id: string;
   label: string;
@@ -41,77 +42,321 @@ const officeSheet = {
   width: 768,
 };
 
+const spriteSources: Record<
+  string,
+  { height: number; url: string; width: number }
+> = {
+  office: officeSheet,
+  officeRoomBuilder: {
+    height: 480,
+    url: "/assets/limezu/office-room-builder-48.png",
+    width: 768,
+  },
+  officeShadowless: {
+    height: 2544,
+    url: "/assets/limezu/office-shadowless-48.png",
+    width: 768,
+  },
+  interiorsTiles: {
+    height: 1344,
+    url: "/assets/tiles/Interiors_free_48x48.png",
+    width: 768,
+  },
+  roomBuilderTiles: {
+    height: 480,
+    url: "/assets/tiles/Room_Builder_free_48x48.png",
+    width: 768,
+  },
+};
+
+const starterAssetNumbers = [
+  98, 99, 100, 101, 102, 107, 108, 113, 116, 129, 130, 141, 147, 156, 165, 166,
+  170, 171, 172, 173, 174, 175, 176, 177, 178, 225, 227, 229, 231, 233, 235,
+  275, 276, 277, 278, 320, 321, 323, 324, 325, 329, 331, 333, 335, 337, 338,
+  339,
+];
+
+const namedOfficeSingles: Record<
+  number,
+  { category: string; label: string; role: string }
+> = {
+  98: {
+    category: "Plants",
+    label: "Tall Office Plant",
+    role: "Complete plant; use near corners or office dividers.",
+  },
+  99: {
+    category: "Plants",
+    label: "Small Desk Plant",
+    role: "Complete small plant for desks, shelves, or side tables.",
+  },
+  100: {
+    category: "Plants",
+    label: "Tall Potted Plant",
+    role: "Complete plant; use as a room accent, not as a whiteboard.",
+  },
+  101: {
+    category: "Seating",
+    label: "Black Rolling Office Chair",
+    role: "Complete desk chair.",
+  },
+  102: {
+    category: "Seating",
+    label: "Gray Rolling Office Chair",
+    role: "Complete desk chair.",
+  },
+  107: {
+    category: "Seating",
+    label: "Brown Office Chair",
+    role: "Complete chair for warm-toned offices.",
+  },
+  108: {
+    category: "Seating",
+    label: "Brown Chair Front View",
+    role: "Complete chair variant.",
+  },
+  113: {
+    category: "Wall Items",
+    label: "Pinned Notice",
+    role: "Small wall notice or printed note.",
+  },
+  116: {
+    category: "Wall Items",
+    label: "Horizontal Wall Sign",
+    role: "Small wall sign or label strip.",
+  },
+  129: {
+    category: "Technology",
+    label: "Blue Desktop Monitor",
+    role: "Complete monitor facing left.",
+  },
+  130: {
+    category: "Technology",
+    label: "Blue Desktop Monitor Front",
+    role: "Complete monitor front view.",
+  },
+  141: {
+    category: "Technology",
+    label: "Task Lamp",
+    role: "Complete desk lamp.",
+  },
+  147: {
+    category: "Technology",
+    label: "Desktop Computer Tower",
+    role: "Complete computer tower or small workstation unit.",
+  },
+  156: {
+    category: "Documents",
+    label: "Document Tray",
+    role: "Paper tray or file stack for desk detail.",
+  },
+  165: {
+    category: "Equipment",
+    label: "Wide Office Printer",
+    role: "Complete printer/copier.",
+  },
+  166: {
+    category: "Equipment",
+    label: "Compact Office Printer",
+    role: "Complete printer/copier variant.",
+  },
+  170: {
+    category: "Wall Items",
+    label: "Blank Whiteboard",
+    role: "Complete whiteboard for planning walls.",
+  },
+  171: {
+    category: "Wall Items",
+    label: "Planning Board",
+    role: "Complete board with chart content.",
+  },
+  172: {
+    category: "Wall Items",
+    label: "Presentation Board",
+    role: "Complete board with colorful notes.",
+  },
+  173: {
+    category: "Equipment",
+    label: "Water Cooler",
+    role: "Complete break-area object.",
+  },
+  174: {
+    category: "Storage",
+    label: "Wall Cabinet",
+    role: "Complete cabinet or wall-mounted storage.",
+  },
+  175: {
+    category: "Equipment",
+    label: "Snack Vending Machine",
+    role: "Complete vending machine.",
+  },
+  176: {
+    category: "Storage",
+    label: "Tall Storage Cabinet",
+    role: "Complete cabinet or server-style storage.",
+  },
+  177: {
+    category: "Workstations",
+    label: "Printer Workstation",
+    role: "Complete printer/copier station.",
+  },
+  178: {
+    category: "Workstations",
+    label: "Printer Station With Supplies",
+    role: "Complete office equipment cluster.",
+  },
+  225: {
+    category: "Workstations",
+    label: "Analyst Desk With Monitor",
+    role: "Complete desk setup with screen and desk items.",
+  },
+  227: {
+    category: "Workstations",
+    label: "Dual Monitor Analyst Station",
+    role: "Complete evidence or dashboard workstation.",
+  },
+  229: {
+    category: "Workstations",
+    label: "Compact Computer Desk",
+    role: "Complete desk setup.",
+  },
+  231: {
+    category: "Workstations",
+    label: "Dual Screen Workstation",
+    role: "Complete workstation with multiple screens.",
+  },
+  233: {
+    category: "Workstations",
+    label: "Desk With Monitor And Files",
+    role: "Complete desk setup with documents.",
+  },
+  235: {
+    category: "Workstations",
+    label: "Desk With Monitor And Notes",
+    role: "Complete desk setup with note board.",
+  },
+  275: {
+    category: "Technology",
+    label: "Standing Display Monitor",
+    role: "Complete display stand.",
+  },
+  276: {
+    category: "Technology",
+    label: "White Standing Display",
+    role: "Complete display stand variant.",
+  },
+  277: {
+    category: "Technology",
+    label: "Angled Blue Monitor",
+    role: "Complete standalone monitor.",
+  },
+  278: {
+    category: "Technology",
+    label: "Blue Monitor Front",
+    role: "Complete standalone monitor front.",
+  },
+  320: {
+    category: "Workstations",
+    label: "Busy Desk With Supplies",
+    role: "Complete cluttered work desk.",
+  },
+  321: {
+    category: "Workstations",
+    label: "Busy Desk Alternate",
+    role: "Complete cluttered desk variant.",
+  },
+  323: {
+    category: "Workstations",
+    label: "Office Printer Desk",
+    role: "Complete printer desk setup.",
+  },
+  324: {
+    category: "Workstations",
+    label: "Printer Desk Front View",
+    role: "Complete printer desk variant.",
+  },
+  325: {
+    category: "Workstations",
+    label: "Printer Desk With Cabinet",
+    role: "Complete printer station.",
+  },
+  329: {
+    category: "Bags",
+    label: "Blue Backpack",
+    role: "Complete bag object.",
+  },
+  331: {
+    category: "Bags",
+    label: "Orange Backpack",
+    role: "Complete bag object.",
+  },
+  333: {
+    category: "Bags",
+    label: "Gray Backpack",
+    role: "Complete bag object.",
+  },
+  335: {
+    category: "Bags",
+    label: "Yellow Backpack",
+    role: "Complete bag object.",
+  },
+  337: {
+    category: "Plants",
+    label: "Small Floor Plant",
+    role: "Complete plant.",
+  },
+  338: {
+    category: "Plants",
+    label: "Clustered Office Plant",
+    role: "Complete plant cluster.",
+  },
+  339: {
+    category: "Plants",
+    label: "Large Plant Cluster",
+    role: "Complete large plant cluster.",
+  },
+};
+
+const completeOfficeSingles: SpritePreset[] = starterAssetNumbers.map(
+  (number) => {
+    const metadata = namedOfficeSingles[number];
+    return {
+      ...metadata,
+      defaultSize: { width: 2, height: 3 },
+      id: `office-single-${number}`,
+      sprite: { image: officeSingleKey(number), sx: 0, sy: 0, sw: 96, sh: 144 },
+    };
+  },
+);
+
+const modularOfficeSingles: SpritePreset[] = Array.from(
+  { length: 339 },
+  (_, index) => {
+    const number = index + 1;
+    if (namedOfficeSingles[number]) {
+      return null;
+    }
+    const metadata = getOfficeSingleFallbackMetadata(number);
+    return {
+      ...metadata,
+      defaultSize: { width: 2, height: 3 },
+      id: `office-single-${number}`,
+      sprite: { image: officeSingleKey(number), sx: 0, sy: 0, sw: 96, sh: 144 },
+    };
+  },
+).filter((item): item is SpritePreset => Boolean(item));
+
 const presets: SpritePreset[] = [
   {
-    id: "email-computer-desk",
-    label: "Email Computer Desk",
-    role: "Use for readable email/computer interactions.",
-    defaultSize: { width: 3, height: 2 },
-    sprite: { image: "office", sx: 384, sy: 1296, sw: 144, sh: 96 },
+    category: "Sheets",
+    id: "raw-office-sheet",
+    label: "Raw Office Sheet",
+    role: "Advanced sheet crop. Use only when singles do not cover the object.",
+    defaultSize: { width: 1, height: 1 },
+    sprite: { image: "office", sx: 0, sy: 0, sw: 48, sh: 48 },
   },
-  {
-    id: "workstation-blue",
-    label: "Blue Workstation",
-    role: "Use for office work pods and evidence stations.",
-    defaultSize: { width: 3, height: 2 },
-    sprite: { image: "office", sx: 528, sy: 1296, sw: 144, sh: 96 },
-  },
-  {
-    id: "workstation-corner",
-    label: "Corner Workstation",
-    role: "Use when you want a larger cubicle corner.",
-    defaultSize: { width: 3, height: 2 },
-    sprite: { image: "office", sx: 384, sy: 1344, sw: 144, sh: 96 },
-  },
-  {
-    id: "desk-plain",
-    label: "Plain Desk",
-    role: "Use only as supporting furniture, not for email.",
-    defaultSize: { width: 3, height: 1.6 },
-    sprite: { image: "office", sx: 336, sy: 1392, sw: 144, sh: 96 },
-  },
-  {
-    id: "monitor-wall",
-    label: "Wall Monitor",
-    role: "Use for dashboards, reports, or metrics.",
-    defaultSize: { width: 2.7, height: 1.35 },
-    sprite: { image: "office", sx: 432, sy: 528, sw: 144, sh: 48 },
-  },
-  {
-    id: "whiteboard",
-    label: "Whiteboard",
-    role: "Use for planning, evidence boards, or briefing walls.",
-    defaultSize: { width: 2.7, height: 1.35 },
-    sprite: { image: "office", sx: 240, sy: 336, sw: 144, sh: 48 },
-  },
-  {
-    id: "bookcase",
-    label: "Bookcase",
-    role: "Use against walls to reduce empty space.",
-    defaultSize: { width: 2.5, height: 1.8 },
-    sprite: { image: "office", sx: 336, sy: 672, sw: 144, sh: 96 },
-  },
-  {
-    id: "server-rack",
-    label: "Server Rack",
-    role: "Use for evidence storage or systems lab areas.",
-    defaultSize: { width: 1.5, height: 1.8 },
-    sprite: { image: "office", sx: 0, sy: 1152, sw: 96, sh: 96 },
-  },
-  {
-    id: "printer-cluster",
-    label: "Printer Cluster",
-    role: "Use as supporting office equipment.",
-    defaultSize: { width: 2.8, height: 1.05 },
-    sprite: { image: "office", sx: 384, sy: 2004, sw: 192, sh: 60 },
-  },
-  {
-    id: "plant-small",
-    label: "Office Plant",
-    role: "Use sparingly; keep near walls/corners.",
-    defaultSize: { width: 1, height: 1.35 },
-    sprite: { image: "office", sx: 288, sy: 192, sw: 48, sh: 96 },
-  },
+  ...completeOfficeSingles,
+  ...modularOfficeSingles,
 ];
 
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
@@ -123,6 +368,81 @@ const legacyLayoutEditorStorageKeys = [
 const officeTileSize = 48;
 const officeColumns = officeSheet.width / officeTileSize;
 const officeRows = officeSheet.height / officeTileSize;
+
+function officeSingleKey(number: number) {
+  return `officeSingle${number}`;
+}
+
+function getOfficeSingleFallbackMetadata(number: number) {
+  if (number <= 95) {
+    return {
+      category: "Modular Desk/Table Pieces",
+      label: `Modular Desk Or Counter Piece ${number}`,
+      role: "Piece, not a complete object. Combine with matching pieces intentionally.",
+    };
+  }
+  if (number <= 128) {
+    return {
+      category: "Small Office Objects",
+      label: `Small Office Object ${number}`,
+      role: "Small item; inspect visually before placing.",
+    };
+  }
+  if (number <= 160) {
+    return {
+      category: "Technology And Desk Tools",
+      label: `Technology Or Desk Tool ${number}`,
+      role: "Monitor, lamp, device, or paper detail; inspect before placing.",
+    };
+  }
+  if (number <= 178) {
+    return {
+      category: "Wall Items And Equipment",
+      label: `Wall Item Or Office Equipment ${number}`,
+      role: "Board, cabinet, printer, cooler, or wall-mounted item.",
+    };
+  }
+  if (number <= 224) {
+    return {
+      category: "Modular Desk/Table Pieces",
+      label: `Modular Divider Or Desk Piece ${number}`,
+      role: "Piece, not a complete room object. Use for custom assemblies.",
+    };
+  }
+  if (number <= 244) {
+    return {
+      category: "Workstation Pieces",
+      label: `Workstation Detail ${number}`,
+      role: "Desk cluster, technology, or small workstation detail.",
+    };
+  }
+  if (number <= 305) {
+    return {
+      category: "Modular Desk/Table Pieces",
+      label: `Modular Desk Or Counter Piece ${number}`,
+      role: "Piece, not a complete object. Combine with matching pieces intentionally.",
+    };
+  }
+  if (number <= 328) {
+    return {
+      category: "Workstations",
+      label: `Complete Office Station ${number}`,
+      role: "Likely complete desk or equipment station; inspect before placing.",
+    };
+  }
+  if (number <= 336) {
+    return {
+      category: "Bags",
+      label: `Backpack Or Bag ${number}`,
+      role: "Complete bag object.",
+    };
+  }
+  return {
+    category: "Plants",
+    label: `Plant Cluster ${number}`,
+    role: "Complete plant or foliage cluster.",
+  };
+}
 
 const roomThemes = {
   lab: {
@@ -229,9 +549,38 @@ function getBlankLayouts() {
 export function RoomLayoutEditor() {
   const [sceneId, setSceneId] = useState<string>(editorScenes[0]?.id ?? "lab");
   const [tileRow, setTileRow] = useState(0);
+  const [assetCategory, setAssetCategory] = useState(
+    "Complete Starter Objects",
+  );
+  const [assetSearch, setAssetSearch] = useState("");
   const scene = useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId],
+  );
+  const categorizedPresets = useMemo(() => {
+    if (assetCategory === "Complete Starter Objects") {
+      return completeOfficeSingles;
+    }
+    return presets.filter((preset) => preset.category === assetCategory);
+  }, [assetCategory]);
+  const visiblePresets = useMemo(() => {
+    const query = assetSearch.trim().toLowerCase();
+    if (!query) {
+      return categorizedPresets;
+    }
+    return categorizedPresets.filter(
+      (preset) =>
+        preset.label.toLowerCase().includes(query) ||
+        preset.role.toLowerCase().includes(query) ||
+        preset.category.toLowerCase().includes(query),
+    );
+  }, [assetSearch, categorizedPresets]);
+  const assetCategories = useMemo(
+    () => [
+      "Complete Starter Objects",
+      ...Array.from(new Set(presets.map((preset) => preset.category))).sort(),
+    ],
+    [],
   );
   const [itemsByScene, setItemsByScene] = useState<
     Record<string, EditorItem[]>
@@ -268,6 +617,11 @@ export function RoomLayoutEditor() {
     );
   }, [itemsByScene]);
 
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyboardEvent);
+    return () => window.removeEventListener("keydown", handleKeyboardEvent);
+  });
+
   function saveHistory() {
     setHistory((previous) => [...previous.slice(-29), itemsByScene]);
   }
@@ -302,11 +656,53 @@ export function RoomLayoutEditor() {
     );
   }
 
+  function updateSelectedItems(
+    getPatch: (item: EditorItem) => Partial<EditorItem>,
+  ) {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    updateItems(
+      items.map((item) =>
+        selectedIds.includes(item.id) ? { ...item, ...getPatch(item) } : item,
+      ),
+    );
+  }
+
   function updateSelectedSprite(patch: Partial<SheetSprite>) {
     if (!selectedItem) {
       return;
     }
     updateSelected({ sprite: { ...selectedItem.sprite, ...patch } });
+  }
+
+  function updateSelectedTransform(
+    getPatch: (item: EditorItem) => SpriteTransform,
+  ) {
+    updateSelectedItems((item) => ({
+      spriteTransform: getPatch(item),
+    }));
+  }
+
+  function rotateSelected() {
+    updateSelectedTransform((item) => ({
+      ...item.spriteTransform,
+      rotate: getNextRotation(item.spriteTransform?.rotate),
+    }));
+  }
+
+  function flipSelected(axis: "x" | "y") {
+    updateSelectedTransform((item) => ({
+      ...item.spriteTransform,
+      flipX:
+        axis === "x"
+          ? !item.spriteTransform?.flipX
+          : item.spriteTransform?.flipX,
+      flipY:
+        axis === "y"
+          ? !item.spriteTransform?.flipY
+          : item.spriteTransform?.flipY,
+    }));
   }
 
   function addPreset(preset: SpritePreset) {
@@ -394,13 +790,19 @@ export function RoomLayoutEditor() {
     setSelectedIds([]);
   }
 
-  function handleKeyboard(event: KeyboardEvent<HTMLElement>) {
-    const target = event.target;
-    if (
+  function shouldIgnoreKeyboardTarget(target: EventTarget | null) {
+    return (
       target instanceof HTMLInputElement ||
       target instanceof HTMLTextAreaElement ||
       target instanceof HTMLSelectElement
-    ) {
+    );
+  }
+
+  function handleKeyboardEvent(
+    event: KeyboardEvent<HTMLElement> | globalThis.KeyboardEvent,
+  ) {
+    const target = event.target;
+    if (shouldIgnoreKeyboardTarget(target)) {
       return;
     }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
@@ -423,6 +825,10 @@ export function RoomLayoutEditor() {
       event.preventDefault();
       removeSelected();
     }
+  }
+
+  function handleKeyboard(event: KeyboardEvent<HTMLElement>) {
+    handleKeyboardEvent(event);
   }
 
   function selectItemsInBox(box: SelectionBox) {
@@ -524,12 +930,33 @@ export function RoomLayoutEditor() {
           </div>
 
           <div className="eq-layout-editor-palette">
-            <h2>Add Starter Examples</h2>
+            <h2>Add Assets</h2>
             <p>
-              These are only starting crops. Use raw tiles below for exact
-              assembly.
+              Complete objects are safest. Modular pieces are labeled as pieces
+              so they do not get mistaken for finished furniture.
             </p>
-            {presets.map((preset) => (
+            <label>
+              Asset category
+              <select
+                value={assetCategory}
+                onChange={(event) => setAssetCategory(event.target.value)}
+              >
+                {assetCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Search assets
+              <input
+                placeholder="plant, monitor, workstation..."
+                value={assetSearch}
+                onChange={(event) => setAssetSearch(event.target.value)}
+              />
+            </label>
+            {visiblePresets.map((preset) => (
               <button
                 key={preset.id}
                 type="button"
@@ -538,10 +965,16 @@ export function RoomLayoutEditor() {
                 <SpritePreview sprite={preset.sprite} />
                 <span>
                   <strong>{preset.label}</strong>
+                  <em>{preset.category}</em>
                   <small>{preset.role}</small>
                 </span>
               </button>
             ))}
+            {visiblePresets.length === 0 && (
+              <span className="eq-layout-editor-muted">
+                No assets match that search.
+              </span>
+            )}
           </div>
 
           <div className="eq-layout-editor-tile-browser">
@@ -757,7 +1190,9 @@ export function RoomLayoutEditor() {
                   checked={selectedItem.collision}
                   type="checkbox"
                   onChange={(event) =>
-                    updateSelected({ collision: event.target.checked })
+                    updateSelectedItems(() => ({
+                      collision: event.target.checked,
+                    }))
                   }
                 />
                 Blocks player movement
@@ -793,45 +1228,13 @@ export function RoomLayoutEditor() {
                 >
                   Undo
                 </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSelected({
-                      spriteTransform: {
-                        ...selectedItem.spriteTransform,
-                        rotate: getNextRotation(
-                          selectedItem.spriteTransform?.rotate,
-                        ),
-                      },
-                    })
-                  }
-                >
+                <button type="button" onClick={rotateSelected}>
                   Rotate 90°
                 </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSelected({
-                      spriteTransform: {
-                        ...selectedItem.spriteTransform,
-                        flipX: !selectedItem.spriteTransform?.flipX,
-                      },
-                    })
-                  }
-                >
+                <button type="button" onClick={() => flipSelected("x")}>
                   Flip horizontal
                 </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSelected({
-                      spriteTransform: {
-                        ...selectedItem.spriteTransform,
-                        flipY: !selectedItem.spriteTransform?.flipY,
-                      },
-                    })
-                  }
-                >
+                <button type="button" onClick={() => flipSelected("y")}>
                   Flip vertical
                 </button>
                 <button type="button" onClick={duplicateSelected}>
@@ -1057,6 +1460,7 @@ function SpritePreview({
   targetWidth?: number;
   transform?: SpriteTransform;
 }) {
+  const source = getSpriteSource(sprite);
   const previewWidth = fill ? "100%" : 76;
   const previewHeight = fill ? "100%" : 58;
   const scale = fill
@@ -1069,17 +1473,27 @@ function SpritePreview({
     <span
       className="eq-layout-editor-sprite"
       style={{
-        backgroundImage: `url(${officeSheet.url})`,
+        backgroundImage: `url(${source.url})`,
         backgroundPosition: `${-sprite.sx * scale}px ${-sprite.sy * scale}px`,
-        backgroundSize: `${officeSheet.width * scale}px ${
-          officeSheet.height * scale
-        }px`,
+        backgroundSize: `${source.width * scale}px ${source.height * scale}px`,
         height: previewHeight,
         transform: getCssTransform(transform),
         width: previewWidth,
       }}
     />
   );
+}
+
+function getSpriteSource(sprite: SheetSprite) {
+  if (spriteSources[sprite.image]) {
+    return spriteSources[sprite.image];
+  }
+  const url = (assetUrls as Record<string, string>)[sprite.image];
+  return {
+    height: sprite.sh,
+    url: url ?? officeSheet.url,
+    width: sprite.sw,
+  };
 }
 
 function NumberField({

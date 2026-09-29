@@ -8,3 +8,4 @@ dist/
 .chrome-cdp-qa/
 .chrome-cdp-qa-*/
 qa-artifacts/
+.asset-audit/

@@ -48,38 +48,7 @@ export interface SpriteTransform {
   rotate?: 0 | 90 | 180 | 270;
 }
 
-export type AssetKey =
-  | "adamIdle"
-  | "adamRun"
-  | "ameliaIdle"
-  | "bobIdle"
-  | "roomBuilder"
-  | "office"
-  | "cityTerrains"
-  | "garden"
-  | "exteriorWalls"
-  | "exteriorFloors"
-  | "fountain"
-  | "streetLamp"
-  | "interiorsTiles"
-  | "roomBuilderTiles"
-  | "officeProps1"
-  | "officeProps2"
-  | "officeProps3"
-  | "officeProps4"
-  | "officeProps5"
-  | "officeProps6"
-  | "officeProps7"
-  | "officeProps10"
-  | "officeProps15"
-  | "officeProps20"
-  | "adamRunEnhanced"
-  | "adamIdleEnhanced"
-  | "ameliaRunEnhanced"
-  | "ameliaIdleEnhanced"
-  | "bobRunEnhanced"
-  | "bobIdleEnhanced"
-  | "exteriorFloorsTileset";
+export type AssetKey = string;
 
 export interface TilePatch {
   id: string;

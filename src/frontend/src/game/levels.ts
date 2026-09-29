@@ -36,6 +36,16 @@ const tilePatch = (
   sprite,
 });
 
+const officeSingleAssetUrls = Object.fromEntries(
+  Array.from({ length: 339 }, (_, index) => {
+    const number = index + 1;
+    return [
+      `officeSingle${number}`,
+      `/assets/limezu/office-singles-48/Modern_Office_Singles_48x48_${number}.png`,
+    ];
+  }),
+);
+
 export const assetUrls = {
   // Legacy assets
   adamIdle: "/assets/limezu/adam-idle.png",
@@ -77,6 +87,7 @@ export const assetUrls = {
 
   // Exterior tileset
   exteriorFloorsTileset: "/assets/tiles/A2_Floors_MV_TILESET.png",
+  ...officeSingleAssetUrls,
 } as const;
 
 export const tileSprites = {

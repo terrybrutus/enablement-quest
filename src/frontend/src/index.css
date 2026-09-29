@@ -183,8 +183,17 @@
 }
 
 .eq-layout-editor-palette strong,
+.eq-layout-editor-palette em,
 .eq-layout-editor-palette small {
   display: block;
+}
+
+.eq-layout-editor-palette em {
+  color: #67e8f9;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+  margin-top: 2px;
 }
 
 .eq-layout-editor-palette small {
@@ -192,6 +201,11 @@
   font-size: 0.72rem;
   line-height: 1.25;
   margin-top: 2px;
+}
+
+.eq-layout-editor-muted {
+  color: #93a9c2;
+  font-size: 0.78rem;
 }
 
 .eq-layout-editor-tile-browser {
