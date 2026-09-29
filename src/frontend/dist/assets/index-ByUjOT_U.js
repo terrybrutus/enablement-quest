@@ -17235,6 +17235,16 @@ const legacyLayoutEditorStorageKeys = [
 const officeTileSize = 48;
 const officeColumns = officeSheet.width / officeTileSize;
 const officeRows = officeSheet.height / officeTileSize;
+const resizeHandles = [
+  "top-left",
+  "top",
+  "top-right",
+  "right",
+  "bottom-right",
+  "bottom",
+  "bottom-left",
+  "left"
+];
 function officeSingleKey(number) {
   return `officeSingle${number}`;
 }
@@ -17599,6 +17609,62 @@ function RoomLayoutEditor() {
       saveSnapshot
     );
   }
+  function resizeItems(itemIds, handle, dx, dy, keepRatio, saveSnapshot = true) {
+    if (itemIds.length === 0 || dx === 0 && dy === 0) {
+      return;
+    }
+    updateItems(
+      items.map((item) => {
+        if (!itemIds.includes(item.id)) {
+          return item;
+        }
+        return resizeItem(item, handle, dx, dy, keepRatio, scene);
+      }),
+      saveSnapshot
+    );
+  }
+  function resizeSelectedByKeyboard(dx, dy) {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    if (dx !== 0) {
+      resizeItems(selectedIds, "right", dx, 0, false);
+      return;
+    }
+    resizeItems(selectedIds, "bottom", 0, dy, false);
+  }
+  function cropSelectedByKeyboard(dx, dy, resizeCrop) {
+    if (!selectedItem) {
+      return;
+    }
+    const source = getSpriteSource(selectedItem.sprite);
+    const nextSprite = resizeCrop ? {
+      ...selectedItem.sprite,
+      sw: clamp(
+        selectedItem.sprite.sw + dx,
+        1,
+        source.width - selectedItem.sprite.sx
+      ),
+      sh: clamp(
+        selectedItem.sprite.sh + dy,
+        1,
+        source.height - selectedItem.sprite.sy
+      )
+    } : {
+      ...selectedItem.sprite,
+      sx: clamp(
+        selectedItem.sprite.sx + dx,
+        0,
+        source.width - selectedItem.sprite.sw
+      ),
+      sy: clamp(
+        selectedItem.sprite.sy + dy,
+        0,
+        source.height - selectedItem.sprite.sh
+      )
+    };
+    updateSelected({ sprite: nextSprite });
+  }
   function undo() {
     const previous = history.at(-1);
     if (!previous) {
@@ -17630,6 +17696,19 @@ function RoomLayoutEditor() {
     const nextMove = movement[event.key];
     if (nextMove && selectedIds.length > 0) {
       event.preventDefault();
+      if (event.altKey) {
+        const cropStep = event.shiftKey ? 4 : 1;
+        cropSelectedByKeyboard(
+          Math.sign(nextMove.dx) * cropStep,
+          Math.sign(nextMove.dy) * cropStep,
+          event.shiftKey
+        );
+        return;
+      }
+      if (event.ctrlKey || event.metaKey) {
+        resizeSelectedByKeyboard(nextMove.dx, nextMove.dy);
+        return;
+      }
       moveItems(selectedIds, nextMove.dx, nextMove.dy);
     }
     if (event.key === "Delete" || event.key === "Backspace") {
@@ -17686,7 +17765,7 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, then copy the JSON back to Codex." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move selected pieces, Shift+arrows move faster, Ctrl+Z undoes, Ctrl+click multi-select, Shift+drag selects a box." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag a corner keeps the resize ratio." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
           "Room",
@@ -17843,6 +17922,15 @@ function RoomLayoutEditor() {
                     selectedIds.includes(item.id) ? selectedIds : [item.id],
                     dx,
                     dy,
+                    false
+                  ),
+                  onResizeStart: saveHistory,
+                  onResizeSelected: (handle, dx, dy, keepRatio) => resizeItems(
+                    selectedIds.includes(item.id) ? selectedIds : [item.id],
+                    handle,
+                    dx,
+                    dy,
+                    keepRatio,
                     false
                   ),
                   onSelect: (additive) => selectItem(item.id, additive),
@@ -18112,10 +18200,13 @@ function DraggableItem({
   item,
   onDragStart,
   onMoveSelected,
+  onResizeSelected,
+  onResizeStart,
   onSelect,
   scene
 }) {
   const dragState = reactExports.useRef(null);
+  const resizeState = reactExports.useRef(null);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "button",
     {
@@ -18176,7 +18267,54 @@ function DraggableItem({
             targetWidth: item.size.width * TILE_SIZE
           }
         ),
-        item.label && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label })
+        item.label && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label }),
+        isSelected && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            "aria-label": `Resize ${handle}`,
+            className: `eq-layout-editor-resize-handle is-${handle}`,
+            onPointerDown: (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              onSelect(event.ctrlKey || event.metaKey);
+              resizeState.current = {
+                handle,
+                lastClientX: event.clientX,
+                lastClientY: event.clientY,
+                savedHistory: false
+              };
+            },
+            onPointerMove: (event) => {
+              const currentResize = resizeState.current;
+              if (!currentResize || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+                return;
+              }
+              const dx = snap(
+                (event.clientX - currentResize.lastClientX) / TILE_SIZE
+              );
+              const dy = snap(
+                (event.clientY - currentResize.lastClientY) / TILE_SIZE
+              );
+              if (dx === 0 && dy === 0) {
+                return;
+              }
+              if (!currentResize.savedHistory) {
+                onResizeStart();
+                currentResize.savedHistory = true;
+              }
+              currentResize.lastClientX = event.clientX;
+              currentResize.lastClientY = event.clientY;
+              onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+            },
+            onPointerUp: (event) => {
+              event.currentTarget.releasePointerCapture(event.pointerId);
+              resizeState.current = null;
+            },
+            role: "presentation"
+          },
+          handle
+        ))
       ]
     }
   );
@@ -18283,6 +18421,70 @@ function getRawTilesForRow(row) {
 function getNextRotation(rotation) {
   const nextRotation = ((rotation ?? 0) + 90) % 360;
   return nextRotation;
+}
+function resizeItem(item, handle, dx, dy, keepRatio, scene) {
+  const movesLeft = handle.includes("left");
+  const movesRight = handle.includes("right");
+  const movesTop = handle.includes("top");
+  const movesBottom = handle.includes("bottom");
+  const minimumSize = 0.25;
+  const originalRight = item.position.x + item.size.width;
+  const originalBottom = item.position.y + item.size.height;
+  let nextX = item.position.x;
+  let nextY = item.position.y;
+  let nextWidth = item.size.width;
+  let nextHeight = item.size.height;
+  if (movesLeft) {
+    nextX = clamp(item.position.x + dx, 0, originalRight - minimumSize);
+    nextWidth = originalRight - nextX;
+  }
+  if (movesRight) {
+    nextWidth = clamp(item.size.width + dx, minimumSize, scene.width - nextX);
+  }
+  if (movesTop) {
+    nextY = clamp(item.position.y + dy, 0, originalBottom - minimumSize);
+    nextHeight = originalBottom - nextY;
+  }
+  if (movesBottom) {
+    nextHeight = clamp(
+      item.size.height + dy,
+      minimumSize,
+      scene.height - nextY
+    );
+  }
+  if (keepRatio && (movesLeft || movesRight) && (movesTop || movesBottom)) {
+    const ratio = item.size.width / item.size.height;
+    const widthDelta = Math.abs(nextWidth - item.size.width);
+    const heightDelta = Math.abs(nextHeight - item.size.height);
+    if (widthDelta >= heightDelta) {
+      nextHeight = clamp(nextWidth / ratio, minimumSize, scene.height);
+    } else {
+      nextWidth = clamp(nextHeight * ratio, minimumSize, scene.width);
+    }
+    if (movesLeft) {
+      nextX = clamp(originalRight - nextWidth, 0, originalRight - minimumSize);
+    }
+    if (movesTop) {
+      nextY = clamp(
+        originalBottom - nextHeight,
+        0,
+        originalBottom - minimumSize
+      );
+    }
+    nextWidth = clamp(nextWidth, minimumSize, scene.width - nextX);
+    nextHeight = clamp(nextHeight, minimumSize, scene.height - nextY);
+  }
+  return {
+    ...item,
+    position: {
+      x: snap(nextX),
+      y: snap(nextY)
+    },
+    size: {
+      height: snap(nextHeight),
+      width: snap(nextWidth)
+    }
+  };
 }
 function getCssTransform(transform) {
   const transforms = [];
