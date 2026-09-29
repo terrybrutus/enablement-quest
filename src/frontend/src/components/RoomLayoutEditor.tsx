@@ -7,6 +7,7 @@ import type { KeyboardEvent, PointerEvent } from "react";
 interface EditorItem {
   collision: boolean;
   description: string;
+  groupId?: string;
   id: string;
   label: string;
   position: { x: number; y: number };
@@ -566,6 +567,261 @@ function getBlankLayouts() {
   return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
 }
 
+function createOfficeSingleItem({
+  collision = true,
+  description = "",
+  groupId,
+  id,
+  label,
+  number,
+  position,
+  size = { width: 2, height: 3 },
+}: {
+  collision?: boolean;
+  description?: string;
+  groupId?: string;
+  id: string;
+  label?: string;
+  number: number;
+  position: { x: number; y: number };
+  size?: { width: number; height: number };
+}): EditorItem {
+  const metadata =
+    namedOfficeSingles[number] ?? getOfficeSingleFallbackMetadata(number);
+  return {
+    collision,
+    description,
+    groupId,
+    id,
+    label: label ?? metadata.label,
+    position,
+    presetId: `office-single-${number}`,
+    size,
+    sprite: { image: officeSingleKey(number), sx: 0, sy: 0, sw: 96, sh: 144 },
+  };
+}
+
+function getExampleLayouts(sceneId: string): Array<{
+  description: string;
+  id: string;
+  items: EditorItem[];
+  title: string;
+}> {
+  if (sceneId === "lab") {
+    return [
+      {
+        id: "lab-consulting-base",
+        title: "Consulting Base Lab",
+        description:
+          "A starter lab with a leadership inbox desk, review board, resource shelf, and quiet planning corner.",
+        items: [
+          createOfficeSingleItem({
+            groupId: "lab-inbox-desk",
+            id: "lab-inbox-workstation",
+            label: "Leadership Email Workstation",
+            number: 225,
+            position: { x: 3.1, y: 3.1 },
+            size: { width: 2.6, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-inbox-desk",
+            id: "lab-inbox-chair",
+            label: "Desk Chair",
+            number: 101,
+            position: { x: 3.4, y: 5.1 },
+            size: { width: 1.4, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-review-wall",
+            id: "lab-review-board",
+            label: "Case Review Board",
+            number: 171,
+            position: { x: 8.3, y: 2.5 },
+            size: { width: 2.6, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-review-wall",
+            id: "lab-standing-display",
+            label: "Impact Display",
+            number: 275,
+            position: { x: 11.1, y: 2.8 },
+            size: { width: 1.6, height: 2.1 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-resource-corner",
+            id: "lab-resource-cabinet",
+            label: "Resource Cabinet",
+            number: 176,
+            position: { x: 13.6, y: 6.3 },
+            size: { width: 1.7, height: 2.4 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-resource-corner",
+            id: "lab-water-cooler",
+            label: "Water Cooler",
+            number: 173,
+            position: { x: 15.2, y: 6.4 },
+            size: { width: 1.2, height: 2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-chair-left",
+            label: "Reading Chair",
+            number: 107,
+            position: { x: 2.1, y: 8.6 },
+            size: { width: 1.4, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-plant",
+            label: "Corner Plant",
+            number: 338,
+            position: { x: 1.1, y: 8 },
+            size: { width: 1.6, height: 2.2 },
+          }),
+        ],
+      },
+    ];
+  }
+  if (sceneId === "sales") {
+    return [
+      {
+        id: "sales-enablement-pod",
+        title: "Sales Enablement Pod",
+        description:
+          "A cleaner sales case room with a deck review desk, call review station, dashboard station, and coaching desk.",
+        items: [
+          createOfficeSingleItem({
+            groupId: "sales-deck-zone",
+            id: "sales-deck-workstation",
+            label: "Sales Deck Review Station",
+            number: 235,
+            position: { x: 3.1, y: 3.2 },
+            size: { width: 2.5, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-deck-zone",
+            id: "sales-deck-chair",
+            label: "Review Chair",
+            number: 102,
+            position: { x: 3.5, y: 5.1 },
+            size: { width: 1.3, height: 1.6 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-call-zone",
+            id: "sales-call-workstation",
+            label: "Call Review Workstation",
+            number: 227,
+            position: { x: 7.4, y: 5.9 },
+            size: { width: 2.8, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-dashboard-zone",
+            id: "sales-dashboard-display",
+            label: "Pipeline Dashboard",
+            number: 172,
+            position: { x: 12.1, y: 2.6 },
+            size: { width: 2.5, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-dashboard-zone",
+            id: "sales-dashboard-desk",
+            label: "Operations Monitor Desk",
+            number: 231,
+            position: { x: 12, y: 4.7 },
+            size: { width: 2.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-coaching-printer",
+            label: "Coaching Print Station",
+            number: 178,
+            position: { x: 13.9, y: 8.1 },
+            size: { width: 2.4, height: 2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-coaching-plant",
+            label: "Studio Plant",
+            number: 98,
+            position: { x: 1.6, y: 7.8 },
+            size: { width: 1.3, height: 2.2 },
+          }),
+        ],
+      },
+    ];
+  }
+  if (sceneId === "operations") {
+    return [
+      {
+        id: "operations-diagnostic-room",
+        title: "Operations Diagnostic Room",
+        description:
+          "A workflow-focused room with an onboarding map, ticket review station, survey table, and metrics board.",
+        items: [
+          createOfficeSingleItem({
+            groupId: "ops-map-wall",
+            id: "ops-process-board",
+            label: "Onboarding Process Map",
+            number: 170,
+            position: { x: 7.1, y: 2.5 },
+            size: { width: 2.8, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-ticket-zone",
+            id: "ops-ticket-workstation",
+            label: "Support Ticket Review Desk",
+            number: 233,
+            position: { x: 2.8, y: 4.1 },
+            size: { width: 2.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-ticket-zone",
+            id: "ops-ticket-chair",
+            label: "Ticket Review Chair",
+            number: 101,
+            position: { x: 3.2, y: 6.1 },
+            size: { width: 1.4, height: 1.7 },
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-survey-zone",
+            id: "ops-survey-desk",
+            label: "New Hire Survey Desk",
+            number: 229,
+            position: { x: 8.1, y: 7.1 },
+            size: { width: 2.4, height: 2.1 },
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-metrics-zone",
+            id: "ops-metrics-display",
+            label: "Ramp Metrics Display",
+            number: 276,
+            position: { x: 12.6, y: 4.1 },
+            size: { width: 1.6, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-metrics-zone",
+            id: "ops-printer-station",
+            label: "Checklist Print Station",
+            number: 177,
+            position: { x: 13.8, y: 7.1 },
+            size: { width: 2.3, height: 2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-break-zone",
+            id: "ops-water-cooler",
+            label: "Operations Water Cooler",
+            number: 173,
+            position: { x: 1.2, y: 8.1 },
+            size: { width: 1.2, height: 2 },
+          }),
+        ],
+      },
+    ];
+  }
+  return [];
+}
+
 export function RoomLayoutEditor() {
   const [sceneId, setSceneId] = useState<string>(editorScenes[0]?.id ?? "lab");
   const [tileRow, setTileRow] = useState(0);
@@ -602,6 +858,7 @@ export function RoomLayoutEditor() {
     ],
     [],
   );
+  const exampleLayouts = useMemo(() => getExampleLayouts(scene.id), [scene.id]);
   const [itemsByScene, setItemsByScene] = useState<
     Record<string, EditorItem[]>
   >(() => {
@@ -663,6 +920,11 @@ export function RoomLayoutEditor() {
   function clearRoomLayout() {
     updateItems([]);
     setSelectedIds([]);
+  }
+
+  function loadExampleLayout(nextItems: EditorItem[]) {
+    updateItems(nextItems);
+    setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
   }
 
   function updateSelected(patch: Partial<EditorItem>) {
@@ -741,8 +1003,12 @@ export function RoomLayoutEditor() {
     if (selectedItems.length === 0) {
       return;
     }
+    const copiedGroupIds = new Map<string, string>();
     const nextItems = selectedItems.map((item, index) => ({
       ...item,
+      groupId: item.groupId
+        ? getCopiedGroupId(item.groupId, copiedGroupIds)
+        : undefined,
       id: `${item.id}-copy-${items.length + index + 1}`,
       position: {
         x: clamp(item.position.x + 0.5, 0, scene.width - item.size.width),
@@ -751,6 +1017,41 @@ export function RoomLayoutEditor() {
     }));
     updateItems([...items, ...nextItems]);
     setSelectedIds(nextItems.map((item) => item.id));
+  }
+
+  function groupSelected() {
+    if (selectedIds.length < 2) {
+      return;
+    }
+    const nextGroupId = `group-${Date.now().toString(36)}`;
+    updateSelectedItems(() => ({ groupId: nextGroupId }));
+  }
+
+  function ungroupSelected() {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    const groupIds = new Set(
+      selectedItems.map((item) => item.groupId).filter(Boolean),
+    );
+    updateItems(
+      items.map((item) =>
+        item.groupId && groupIds.has(item.groupId)
+          ? { ...item, groupId: undefined }
+          : item,
+      ),
+    );
+  }
+
+  function selectSelectedGroup() {
+    if (!selectedItem?.groupId) {
+      return;
+    }
+    setSelectedIds(
+      items
+        .filter((item) => item.groupId === selectedItem.groupId)
+        .map((item) => item.id),
+    );
   }
 
   function removeSelected() {
@@ -763,8 +1064,15 @@ export function RoomLayoutEditor() {
   }
 
   function selectItem(itemId: string, additive: boolean) {
+    const clickedItem = items.find((item) => item.id === itemId);
+    const groupIds =
+      clickedItem?.groupId && !additive
+        ? items
+            .filter((item) => item.groupId === clickedItem.groupId)
+            .map((item) => item.id)
+        : [itemId];
     if (!additive) {
-      setSelectedIds([itemId]);
+      setSelectedIds(groupIds);
       return;
     }
     setSelectedIds((previous) =>
@@ -960,6 +1268,7 @@ export function RoomLayoutEditor() {
       sceneName: scene.name,
       props: items.map((item) => ({
         id: item.id,
+        groupId: item.groupId || undefined,
         label: item.label || undefined,
         description: item.description || undefined,
         position: roundPosition(item.position),
@@ -1031,6 +1340,26 @@ export function RoomLayoutEditor() {
               Load current game layout
             </button>
           </div>
+
+          {exampleLayouts.length > 0 && (
+            <div className="eq-layout-editor-examples">
+              <h2>Example Room Layouts</h2>
+              <p>
+                These are assembled starting points using named assets and
+                grouped furniture clusters.
+              </p>
+              {exampleLayouts.map((layout) => (
+                <button
+                  key={layout.id}
+                  type="button"
+                  onClick={() => loadExampleLayout(layout.items)}
+                >
+                  <strong>{layout.title}</strong>
+                  <small>{layout.description}</small>
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="eq-layout-editor-palette">
             <h2>Add Assets</h2>
@@ -1220,6 +1549,7 @@ export function RoomLayoutEditor() {
                       x {roundPosition(item.position).x}, y{" "}
                       {roundPosition(item.position).y}
                     </small>
+                    {item.groupId && <em>{item.groupId}</em>}
                   </span>
                 </button>
               ))}
@@ -1234,6 +1564,12 @@ export function RoomLayoutEditor() {
           <h2>Selected Object</h2>
           {selectedItem ? (
             <>
+              {selectedIds.length > 1 && (
+                <p className="eq-layout-editor-muted">
+                  {selectedIds.length} objects selected. Move, resize, rotate,
+                  flip, duplicate, remove, or group them together.
+                </p>
+              )}
               <label>
                 ID
                 <input
@@ -1353,6 +1689,27 @@ export function RoomLayoutEditor() {
                 </button>
                 <button type="button" onClick={duplicateSelected}>
                   Duplicate piece
+                </button>
+                <button
+                  disabled={selectedIds.length < 2}
+                  type="button"
+                  onClick={groupSelected}
+                >
+                  Group selected
+                </button>
+                <button
+                  disabled={!selectedItems.some((item) => item.groupId)}
+                  type="button"
+                  onClick={ungroupSelected}
+                >
+                  Ungroup
+                </button>
+                <button
+                  disabled={!selectedItem.groupId}
+                  type="button"
+                  onClick={selectSelectedGroup}
+                >
+                  Select group
                 </button>
               </div>
               <button
@@ -1709,6 +2066,19 @@ function roundSize(size: EditorItem["size"]) {
     height: Number(size.height.toFixed(2)),
     width: Number(size.width.toFixed(2)),
   };
+}
+
+function getCopiedGroupId(
+  groupId: string,
+  copiedGroupIds: Map<string, string>,
+) {
+  const existingGroupId = copiedGroupIds.get(groupId);
+  if (existingGroupId) {
+    return existingGroupId;
+  }
+  const nextGroupId = `${groupId}-copy-${copiedGroupIds.size + 1}`;
+  copiedGroupIds.set(groupId, nextGroupId);
+  return nextGroupId;
 }
 
 function getRawTilesForRow(row: number): RawTile[] {

@@ -17411,6 +17411,241 @@ function getCurrentGameLayouts() {
 function getBlankLayouts() {
   return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
 }
+function createOfficeSingleItem({
+  collision = true,
+  description = "",
+  groupId,
+  id,
+  label,
+  number,
+  position,
+  size = { width: 2, height: 3 }
+}) {
+  const metadata = namedOfficeSingles[number] ?? getOfficeSingleFallbackMetadata(number);
+  return {
+    collision,
+    description,
+    groupId,
+    id,
+    label: label ?? metadata.label,
+    position,
+    presetId: `office-single-${number}`,
+    size,
+    sprite: { image: officeSingleKey(number), sx: 0, sy: 0, sw: 96, sh: 144 }
+  };
+}
+function getExampleLayouts(sceneId) {
+  if (sceneId === "lab") {
+    return [
+      {
+        id: "lab-consulting-base",
+        title: "Consulting Base Lab",
+        description: "A starter lab with a leadership inbox desk, review board, resource shelf, and quiet planning corner.",
+        items: [
+          createOfficeSingleItem({
+            groupId: "lab-inbox-desk",
+            id: "lab-inbox-workstation",
+            label: "Leadership Email Workstation",
+            number: 225,
+            position: { x: 3.1, y: 3.1 },
+            size: { width: 2.6, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-inbox-desk",
+            id: "lab-inbox-chair",
+            label: "Desk Chair",
+            number: 101,
+            position: { x: 3.4, y: 5.1 },
+            size: { width: 1.4, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-review-wall",
+            id: "lab-review-board",
+            label: "Case Review Board",
+            number: 171,
+            position: { x: 8.3, y: 2.5 },
+            size: { width: 2.6, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-review-wall",
+            id: "lab-standing-display",
+            label: "Impact Display",
+            number: 275,
+            position: { x: 11.1, y: 2.8 },
+            size: { width: 1.6, height: 2.1 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-resource-corner",
+            id: "lab-resource-cabinet",
+            label: "Resource Cabinet",
+            number: 176,
+            position: { x: 13.6, y: 6.3 },
+            size: { width: 1.7, height: 2.4 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-resource-corner",
+            id: "lab-water-cooler",
+            label: "Water Cooler",
+            number: 173,
+            position: { x: 15.2, y: 6.4 },
+            size: { width: 1.2, height: 2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-chair-left",
+            label: "Reading Chair",
+            number: 107,
+            position: { x: 2.1, y: 8.6 },
+            size: { width: 1.4, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "lab-reading-corner",
+            id: "lab-plant",
+            label: "Corner Plant",
+            number: 338,
+            position: { x: 1.1, y: 8 },
+            size: { width: 1.6, height: 2.2 }
+          })
+        ]
+      }
+    ];
+  }
+  if (sceneId === "sales") {
+    return [
+      {
+        id: "sales-enablement-pod",
+        title: "Sales Enablement Pod",
+        description: "A cleaner sales case room with a deck review desk, call review station, dashboard station, and coaching desk.",
+        items: [
+          createOfficeSingleItem({
+            groupId: "sales-deck-zone",
+            id: "sales-deck-workstation",
+            label: "Sales Deck Review Station",
+            number: 235,
+            position: { x: 3.1, y: 3.2 },
+            size: { width: 2.5, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-deck-zone",
+            id: "sales-deck-chair",
+            label: "Review Chair",
+            number: 102,
+            position: { x: 3.5, y: 5.1 },
+            size: { width: 1.3, height: 1.6 }
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-call-zone",
+            id: "sales-call-workstation",
+            label: "Call Review Workstation",
+            number: 227,
+            position: { x: 7.4, y: 5.9 },
+            size: { width: 2.8, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-dashboard-zone",
+            id: "sales-dashboard-display",
+            label: "Pipeline Dashboard",
+            number: 172,
+            position: { x: 12.1, y: 2.6 },
+            size: { width: 2.5, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-dashboard-zone",
+            id: "sales-dashboard-desk",
+            label: "Operations Monitor Desk",
+            number: 231,
+            position: { x: 12, y: 4.7 },
+            size: { width: 2.7, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-coaching-printer",
+            label: "Coaching Print Station",
+            number: 178,
+            position: { x: 13.9, y: 8.1 },
+            size: { width: 2.4, height: 2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-coaching-plant",
+            label: "Studio Plant",
+            number: 98,
+            position: { x: 1.6, y: 7.8 },
+            size: { width: 1.3, height: 2.2 }
+          })
+        ]
+      }
+    ];
+  }
+  if (sceneId === "operations") {
+    return [
+      {
+        id: "operations-diagnostic-room",
+        title: "Operations Diagnostic Room",
+        description: "A workflow-focused room with an onboarding map, ticket review station, survey table, and metrics board.",
+        items: [
+          createOfficeSingleItem({
+            groupId: "ops-map-wall",
+            id: "ops-process-board",
+            label: "Onboarding Process Map",
+            number: 170,
+            position: { x: 7.1, y: 2.5 },
+            size: { width: 2.8, height: 1.8 }
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-ticket-zone",
+            id: "ops-ticket-workstation",
+            label: "Support Ticket Review Desk",
+            number: 233,
+            position: { x: 2.8, y: 4.1 },
+            size: { width: 2.7, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-ticket-zone",
+            id: "ops-ticket-chair",
+            label: "Ticket Review Chair",
+            number: 101,
+            position: { x: 3.2, y: 6.1 },
+            size: { width: 1.4, height: 1.7 }
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-survey-zone",
+            id: "ops-survey-desk",
+            label: "New Hire Survey Desk",
+            number: 229,
+            position: { x: 8.1, y: 7.1 },
+            size: { width: 2.4, height: 2.1 }
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-metrics-zone",
+            id: "ops-metrics-display",
+            label: "Ramp Metrics Display",
+            number: 276,
+            position: { x: 12.6, y: 4.1 },
+            size: { width: 1.6, height: 2.2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-metrics-zone",
+            id: "ops-printer-station",
+            label: "Checklist Print Station",
+            number: 177,
+            position: { x: 13.8, y: 7.1 },
+            size: { width: 2.3, height: 2 }
+          }),
+          createOfficeSingleItem({
+            groupId: "ops-break-zone",
+            id: "ops-water-cooler",
+            label: "Operations Water Cooler",
+            number: 173,
+            position: { x: 1.2, y: 8.1 },
+            size: { width: 1.2, height: 2 }
+          })
+        ]
+      }
+    ];
+  }
+  return [];
+}
 function RoomLayoutEditor() {
   var _a;
   const [sceneId, setSceneId] = reactExports.useState(((_a = editorScenes[0]) == null ? void 0 : _a.id) ?? "lab");
@@ -17445,6 +17680,7 @@ function RoomLayoutEditor() {
     ],
     []
   );
+  const exampleLayouts = reactExports.useMemo(() => getExampleLayouts(scene.id), [scene.id]);
   const [itemsByScene, setItemsByScene] = reactExports.useState(() => {
     for (const key of legacyLayoutEditorStorageKeys) {
       window.localStorage.removeItem(key);
@@ -17496,6 +17732,10 @@ function RoomLayoutEditor() {
   function clearRoomLayout() {
     updateItems([]);
     setSelectedIds([]);
+  }
+  function loadExampleLayout(nextItems) {
+    updateItems(nextItems);
+    setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
   }
   function updateSelected(patch) {
     if (!selectedItem) {
@@ -17561,8 +17801,10 @@ function RoomLayoutEditor() {
     if (selectedItems.length === 0) {
       return;
     }
+    const copiedGroupIds = /* @__PURE__ */ new Map();
     const nextItems = selectedItems.map((item, index2) => ({
       ...item,
+      groupId: item.groupId ? getCopiedGroupId(item.groupId, copiedGroupIds) : void 0,
       id: `${item.id}-copy-${items.length + index2 + 1}`,
       position: {
         x: clamp(item.position.x + 0.5, 0, scene.width - item.size.width),
@@ -17571,6 +17813,34 @@ function RoomLayoutEditor() {
     }));
     updateItems([...items, ...nextItems]);
     setSelectedIds(nextItems.map((item) => item.id));
+  }
+  function groupSelected() {
+    if (selectedIds.length < 2) {
+      return;
+    }
+    const nextGroupId = `group-${Date.now().toString(36)}`;
+    updateSelectedItems(() => ({ groupId: nextGroupId }));
+  }
+  function ungroupSelected() {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    const groupIds = new Set(
+      selectedItems.map((item) => item.groupId).filter(Boolean)
+    );
+    updateItems(
+      items.map(
+        (item) => item.groupId && groupIds.has(item.groupId) ? { ...item, groupId: void 0 } : item
+      )
+    );
+  }
+  function selectSelectedGroup() {
+    if (!(selectedItem == null ? void 0 : selectedItem.groupId)) {
+      return;
+    }
+    setSelectedIds(
+      items.filter((item) => item.groupId === selectedItem.groupId).map((item) => item.id)
+    );
   }
   function removeSelected() {
     if (selectedIds.length === 0) {
@@ -17581,8 +17851,10 @@ function RoomLayoutEditor() {
     setSelectedIds([]);
   }
   function selectItem(itemId, additive) {
+    const clickedItem = items.find((item) => item.id === itemId);
+    const groupIds = (clickedItem == null ? void 0 : clickedItem.groupId) && !additive ? items.filter((item) => item.groupId === clickedItem.groupId).map((item) => item.id) : [itemId];
     if (!additive) {
-      setSelectedIds([itemId]);
+      setSelectedIds(groupIds);
       return;
     }
     setSelectedIds(
@@ -17739,6 +18011,7 @@ function RoomLayoutEditor() {
       sceneName: scene.name,
       props: items.map((item) => ({
         id: item.id,
+        groupId: item.groupId || void 0,
         label: item.label || void 0,
         description: item.description || void 0,
         position: roundPosition(item.position),
@@ -17785,6 +18058,22 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-actions", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: clearRoomLayout, children: "Start blank room" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" })
+        ] }),
+        exampleLayouts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-examples", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Example Room Layouts" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "These are assembled starting points using named assets and grouped furniture clusters." }),
+          exampleLayouts.map((layout) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              type: "button",
+              onClick: () => loadExampleLayout(layout.items),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: layout.title }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: layout.description })
+              ]
+            },
+            layout.id
+          ))
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-palette", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Add Assets" }),
@@ -17961,7 +18250,8 @@ function RoomLayoutEditor() {
                   ", y",
                   " ",
                   roundPosition(item.position).y
-                ] })
+                ] }),
+                item.groupId && /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: item.groupId })
               ] })
             ]
           },
@@ -17969,6 +18259,10 @@ function RoomLayoutEditor() {
         )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-layout-editor-empty", children: "No objects yet. Add a clear workstation, monitor, board, or plant from the left." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Selected Object" }),
         selectedItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          selectedIds.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "eq-layout-editor-muted", children: [
+            selectedIds.length,
+            " objects selected. Move, resize, rotate, flip, duplicate, remove, or group them together."
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
             "ID",
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -18102,7 +18396,34 @@ function RoomLayoutEditor() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: rotateSelected, children: "Rotate 90°" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => flipSelected("x"), children: "Flip horizontal" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => flipSelected("y"), children: "Flip vertical" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: duplicateSelected, children: "Duplicate piece" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: duplicateSelected, children: "Duplicate piece" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                disabled: selectedIds.length < 2,
+                type: "button",
+                onClick: groupSelected,
+                children: "Group selected"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                disabled: !selectedItems.some((item) => item.groupId),
+                type: "button",
+                onClick: ungroupSelected,
+                children: "Ungroup"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                disabled: !selectedItem.groupId,
+                type: "button",
+                onClick: selectSelectedGroup,
+                children: "Select group"
+              }
+            )
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -18404,6 +18725,15 @@ function roundSize(size) {
     height: Number(size.height.toFixed(2)),
     width: Number(size.width.toFixed(2))
   };
+}
+function getCopiedGroupId(groupId, copiedGroupIds) {
+  const existingGroupId = copiedGroupIds.get(groupId);
+  if (existingGroupId) {
+    return existingGroupId;
+  }
+  const nextGroupId = `${groupId}-copy-${copiedGroupIds.size + 1}`;
+  copiedGroupIds.set(groupId, nextGroupId);
+  return nextGroupId;
 }
 function getRawTilesForRow(row) {
   return Array.from({ length: officeColumns }, (_, col) => ({
