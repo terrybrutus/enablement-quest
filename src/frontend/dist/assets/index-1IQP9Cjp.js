@@ -17654,6 +17654,7 @@ function RoomLayoutEditor() {
     "Complete Starter Objects"
   );
   const [assetSearch, setAssetSearch] = reactExports.useState("");
+  const [showPlanningZones, setShowPlanningZones] = reactExports.useState(false);
   const scene = reactExports.useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId]
@@ -17704,6 +17705,10 @@ function RoomLayoutEditor() {
   const [selectionBox, setSelectionBox] = reactExports.useState(null);
   const selectedItem = items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ?? null;
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
+  const selectedBounds = reactExports.useMemo(
+    () => getItemsBounds(selectedItems),
+    [selectedItems]
+  );
   reactExports.useEffect(() => {
     window.localStorage.setItem(
       layoutEditorStorageKey,
@@ -17852,9 +17857,10 @@ function RoomLayoutEditor() {
   }
   function selectItem(itemId, additive) {
     const clickedItem = items.find((item) => item.id === itemId);
-    const groupIds = (clickedItem == null ? void 0 : clickedItem.groupId) && !additive ? items.filter((item) => item.groupId === clickedItem.groupId).map((item) => item.id) : [itemId];
+    const groupItemIds = (clickedItem == null ? void 0 : clickedItem.groupId) && !additive ? items.filter((item) => item.groupId === clickedItem.groupId).map((item) => item.id) : [itemId];
     if (!additive) {
-      setSelectedIds(groupIds);
+      const isClickingIntoSelectedGroup = (clickedItem == null ? void 0 : clickedItem.groupId) && selectedIds.length > 1 && groupItemIds.every((id) => selectedIds.includes(id));
+      setSelectedIds(isClickingIntoSelectedGroup ? [itemId] : groupItemIds);
       return;
     }
     setSelectedIds(
@@ -17895,8 +17901,41 @@ function RoomLayoutEditor() {
       saveSnapshot
     );
   }
+  function resizeSelectionBounds(itemIds, handle, dx, dy, keepRatio, saveSnapshot = true) {
+    const selectedForResize = items.filter((item) => itemIds.includes(item.id));
+    const bounds = getItemsBounds(selectedForResize);
+    if (!bounds || dx === 0 && dy === 0) {
+      return;
+    }
+    const resizedBounds = resizeItem(
+      {
+        ...selectedForResize[0],
+        position: bounds.position,
+        size: bounds.size
+      },
+      handle,
+      dx,
+      dy,
+      keepRatio,
+      scene
+    );
+    updateItems(
+      items.map(
+        (item) => itemIds.includes(item.id) ? scaleItemWithinBounds(item, bounds, resizedBounds) : item
+      ),
+      saveSnapshot
+    );
+  }
   function resizeSelectedByKeyboard(dx, dy) {
     if (selectedIds.length === 0) {
+      return;
+    }
+    if (selectedIds.length > 1) {
+      if (dx !== 0) {
+        resizeSelectionBounds(selectedIds, "right", dx, 0, false);
+        return;
+      }
+      resizeSelectionBounds(selectedIds, "bottom", 0, dy, false);
       return;
     }
     if (dx !== 0) {
@@ -17957,6 +17996,15 @@ function RoomLayoutEditor() {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
       event.preventDefault();
       undo();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "g") {
+      event.preventDefault();
+      if (event.shiftKey) {
+        ungroupSelected();
+        return;
+      }
+      groupSelected();
       return;
     }
     const movement = {
@@ -18038,7 +18086,18 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, then copy the JSON back to Codex." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag a corner keeps the resize ratio." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag a corner keeps the resize ratio." })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              checked: showPlanningZones,
+              type: "checkbox",
+              onChange: (event) => setShowPlanningZones(event.target.checked)
+            }
+          ),
+          "Show planning-zone guides"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
           "Room",
@@ -18166,7 +18225,11 @@ function RoomLayoutEditor() {
               width: scene.width * TILE_SIZE
             },
             onPointerDown: (event) => {
-              if (!event.shiftKey || event.target !== event.currentTarget) {
+              if (event.target !== event.currentTarget) {
+                return;
+              }
+              if (!event.shiftKey) {
+                setSelectedIds([]);
                 return;
               }
               const rect = event.currentTarget.getBoundingClientRect();
@@ -18199,13 +18262,14 @@ function RoomLayoutEditor() {
               setSelectionBox(null);
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene, showZones: showPlanningZones }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(RoomGrid, { scene }),
               items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                 DraggableItem,
                 {
                   isSelected: selectedIds.includes(item.id),
                   item,
+                  showResizeHandles: selectedIds.length === 1 && selectedIds.includes(item.id),
                   onDragStart: saveHistory,
                   onMoveSelected: (dx, dy) => moveItems(
                     selectedIds.includes(item.id) ? selectedIds : [item.id],
@@ -18227,6 +18291,21 @@ function RoomLayoutEditor() {
                 },
                 item.id
               )),
+              selectedBounds && selectedIds.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                SelectedBoundsOverlay,
+                {
+                  bounds: selectedBounds,
+                  onResizeSelected: (handle, dx, dy, keepRatio) => resizeSelectionBounds(
+                    selectedIds,
+                    handle,
+                    dx,
+                    dy,
+                    keepRatio,
+                    false
+                  ),
+                  onResizeStart: saveHistory
+                }
+              ),
               selectionBox && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectionBoxOverlay, { selectionBox })
             ]
           }
@@ -18451,7 +18530,10 @@ function RoomLayoutEditor() {
     ] })
   ] });
 }
-function RoomBackdrop({ scene }) {
+function RoomBackdrop({
+  scene,
+  showZones
+}) {
   const theme = roomThemes[scene.id];
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-backdrop", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-wall" }),
@@ -18465,7 +18547,7 @@ function RoomBackdrop({ scene }) {
           children: theme.title
         }
       ),
-      theme.zones.map((zone) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      showZones && theme.zones.map((zone) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         "div",
         {
           className: "eq-layout-editor-zone",
@@ -18524,7 +18606,8 @@ function DraggableItem({
   onResizeSelected,
   onResizeStart,
   onSelect,
-  scene
+  scene,
+  showResizeHandles
 }) {
   const dragState = reactExports.useRef(null);
   const resizeState = reactExports.useRef(null);
@@ -18589,7 +18672,7 @@ function DraggableItem({
           }
         ),
         item.label && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label }),
-        isSelected && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        showResizeHandles && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "span",
           {
             "aria-label": `Resize ${handle}`,
@@ -18656,6 +18739,71 @@ function SelectionBoxOverlay({ selectionBox }) {
     }
   );
 }
+function SelectedBoundsOverlay({
+  bounds,
+  onResizeSelected,
+  onResizeStart
+}) {
+  const resizeState = reactExports.useRef(null);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "div",
+    {
+      className: "eq-layout-editor-bounds-box",
+      style: {
+        height: bounds.size.height * TILE_SIZE,
+        left: bounds.position.x * TILE_SIZE,
+        top: bounds.position.y * TILE_SIZE,
+        width: bounds.size.width * TILE_SIZE
+      },
+      children: resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "span",
+        {
+          "aria-label": `Resize selection ${handle}`,
+          className: `eq-layout-editor-resize-handle is-${handle}`,
+          onPointerDown: (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.setPointerCapture(event.pointerId);
+            resizeState.current = {
+              handle,
+              lastClientX: event.clientX,
+              lastClientY: event.clientY,
+              savedHistory: false
+            };
+          },
+          onPointerMove: (event) => {
+            const currentResize = resizeState.current;
+            if (!currentResize || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+              return;
+            }
+            const dx = snap(
+              (event.clientX - currentResize.lastClientX) / TILE_SIZE
+            );
+            const dy = snap(
+              (event.clientY - currentResize.lastClientY) / TILE_SIZE
+            );
+            if (dx === 0 && dy === 0) {
+              return;
+            }
+            if (!currentResize.savedHistory) {
+              onResizeStart();
+              currentResize.savedHistory = true;
+            }
+            currentResize.lastClientX = event.clientX;
+            currentResize.lastClientY = event.clientY;
+            onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+          },
+          onPointerUp: (event) => {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            resizeState.current = null;
+          },
+          role: "presentation"
+        },
+        handle
+      ))
+    }
+  );
+}
 function SpritePreview({
   fill = false,
   sprite,
@@ -18670,13 +18818,17 @@ function SpritePreview({
     (targetWidth ?? sprite.sw) / sprite.sw,
     (targetHeight ?? sprite.sh) / sprite.sh
   ) : Math.min(76 / sprite.sw, 58 / sprite.sh);
+  const renderedWidth = sprite.sw * scale;
+  const renderedHeight = sprite.sh * scale;
+  const offsetX = fill ? ((targetWidth ?? sprite.sw) - renderedWidth) / 2 : 0;
+  const offsetY = fill ? ((targetHeight ?? sprite.sh) - renderedHeight) / 2 : 0;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "span",
     {
       className: "eq-layout-editor-sprite",
       style: {
         backgroundImage: `url(${source.url})`,
-        backgroundPosition: `${-sprite.sx * scale}px ${-sprite.sy * scale}px`,
+        backgroundPosition: `${offsetX - sprite.sx * scale}px ${offsetY - sprite.sy * scale}px`,
         backgroundSize: `${source.width * scale}px ${source.height * scale}px`,
         height: previewHeight,
         transform: getCssTransform(transform),
@@ -18734,6 +18886,40 @@ function getCopiedGroupId(groupId, copiedGroupIds) {
   const nextGroupId = `${groupId}-copy-${copiedGroupIds.size + 1}`;
   copiedGroupIds.set(groupId, nextGroupId);
   return nextGroupId;
+}
+function getItemsBounds(items) {
+  if (items.length === 0) {
+    return null;
+  }
+  const minX = Math.min(...items.map((item) => item.position.x));
+  const minY = Math.min(...items.map((item) => item.position.y));
+  const maxX = Math.max(
+    ...items.map((item) => item.position.x + item.size.width)
+  );
+  const maxY = Math.max(
+    ...items.map((item) => item.position.y + item.size.height)
+  );
+  return {
+    position: { x: minX, y: minY },
+    size: { height: maxY - minY, width: maxX - minX }
+  };
+}
+function scaleItemWithinBounds(item, previousBounds, nextBounds) {
+  const scaleX = nextBounds.size.width / previousBounds.size.width;
+  const scaleY = nextBounds.size.height / previousBounds.size.height;
+  const relativeX = item.position.x - previousBounds.position.x;
+  const relativeY = item.position.y - previousBounds.position.y;
+  return {
+    ...item,
+    position: {
+      x: snap(nextBounds.position.x + relativeX * scaleX),
+      y: snap(nextBounds.position.y + relativeY * scaleY)
+    },
+    size: {
+      height: snap(item.size.height * scaleY),
+      width: snap(item.size.width * scaleX)
+    }
+  };
 }
 function getRawTilesForRow(row) {
   return Array.from({ length: officeColumns }, (_, col) => ({

@@ -829,6 +829,7 @@ export function RoomLayoutEditor() {
     "Complete Starter Objects",
   );
   const [assetSearch, setAssetSearch] = useState("");
+  const [showPlanningZones, setShowPlanningZones] = useState(false);
   const scene = useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId],
@@ -886,6 +887,10 @@ export function RoomLayoutEditor() {
     items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ??
     null;
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
+  const selectedBounds = useMemo(
+    () => getItemsBounds(selectedItems),
+    [selectedItems],
+  );
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -1065,14 +1070,18 @@ export function RoomLayoutEditor() {
 
   function selectItem(itemId: string, additive: boolean) {
     const clickedItem = items.find((item) => item.id === itemId);
-    const groupIds =
+    const groupItemIds =
       clickedItem?.groupId && !additive
         ? items
             .filter((item) => item.groupId === clickedItem.groupId)
             .map((item) => item.id)
         : [itemId];
     if (!additive) {
-      setSelectedIds(groupIds);
+      const isClickingIntoSelectedGroup =
+        clickedItem?.groupId &&
+        selectedIds.length > 1 &&
+        groupItemIds.every((id) => selectedIds.includes(id));
+      setSelectedIds(isClickingIntoSelectedGroup ? [itemId] : groupItemIds);
       return;
     }
     setSelectedIds((previous) =>
@@ -1130,8 +1139,51 @@ export function RoomLayoutEditor() {
     );
   }
 
+  function resizeSelectionBounds(
+    itemIds: string[],
+    handle: ResizeHandle,
+    dx: number,
+    dy: number,
+    keepRatio: boolean,
+    saveSnapshot = true,
+  ) {
+    const selectedForResize = items.filter((item) => itemIds.includes(item.id));
+    const bounds = getItemsBounds(selectedForResize);
+    if (!bounds || (dx === 0 && dy === 0)) {
+      return;
+    }
+    const resizedBounds = resizeItem(
+      {
+        ...selectedForResize[0],
+        position: bounds.position,
+        size: bounds.size,
+      },
+      handle,
+      dx,
+      dy,
+      keepRatio,
+      scene,
+    );
+    updateItems(
+      items.map((item) =>
+        itemIds.includes(item.id)
+          ? scaleItemWithinBounds(item, bounds, resizedBounds)
+          : item,
+      ),
+      saveSnapshot,
+    );
+  }
+
   function resizeSelectedByKeyboard(dx: number, dy: number) {
     if (selectedIds.length === 0) {
+      return;
+    }
+    if (selectedIds.length > 1) {
+      if (dx !== 0) {
+        resizeSelectionBounds(selectedIds, "right", dx, 0, false);
+        return;
+      }
+      resizeSelectionBounds(selectedIds, "bottom", 0, dy, false);
       return;
     }
     if (dx !== 0) {
@@ -1204,6 +1256,15 @@ export function RoomLayoutEditor() {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
       event.preventDefault();
       undo();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "g") {
+      event.preventDefault();
+      if (event.shiftKey) {
+        ungroupSelected();
+        return;
+      }
+      groupSelected();
       return;
     }
     const movement: Record<string, { dx: number; dy: number } | undefined> = {
@@ -1308,11 +1369,20 @@ export function RoomLayoutEditor() {
             </span>
             <small>
               Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position,
-              Alt+Shift+arrows crop size, Delete removes. Ctrl+click
-              multi-select, Shift+drag selects a box, Ctrl+drag a corner keeps
-              the resize ratio.
+              Alt+Shift+arrows crop size, Delete removes, Ctrl+G groups,
+              Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects
+              a box, Ctrl+drag a corner keeps the resize ratio.
             </small>
           </div>
+
+          <label className="eq-layout-editor-checkbox">
+            <input
+              checked={showPlanningZones}
+              type="checkbox"
+              onChange={(event) => setShowPlanningZones(event.target.checked)}
+            />
+            Show planning-zone guides
+          </label>
 
           <label>
             Room
@@ -1456,7 +1526,11 @@ export function RoomLayoutEditor() {
               width: scene.width * TILE_SIZE,
             }}
             onPointerDown={(event) => {
-              if (!event.shiftKey || event.target !== event.currentTarget) {
+              if (event.target !== event.currentTarget) {
+                return;
+              }
+              if (!event.shiftKey) {
+                setSelectedIds([]);
                 return;
               }
               const rect = event.currentTarget.getBoundingClientRect();
@@ -1492,13 +1566,16 @@ export function RoomLayoutEditor() {
               setSelectionBox(null);
             }}
           >
-            <RoomBackdrop scene={scene} />
+            <RoomBackdrop scene={scene} showZones={showPlanningZones} />
             <RoomGrid scene={scene} />
             {items.map((item) => (
               <DraggableItem
                 isSelected={selectedIds.includes(item.id)}
                 item={item}
                 key={item.id}
+                showResizeHandles={
+                  selectedIds.length === 1 && selectedIds.includes(item.id)
+                }
                 onDragStart={saveHistory}
                 onMoveSelected={(dx, dy) =>
                   moveItems(
@@ -1523,6 +1600,22 @@ export function RoomLayoutEditor() {
                 scene={scene}
               />
             ))}
+            {selectedBounds && selectedIds.length > 1 && (
+              <SelectedBoundsOverlay
+                bounds={selectedBounds}
+                onResizeSelected={(handle, dx, dy, keepRatio) =>
+                  resizeSelectionBounds(
+                    selectedIds,
+                    handle,
+                    dx,
+                    dy,
+                    keepRatio,
+                    false,
+                  )
+                }
+                onResizeStart={saveHistory}
+              />
+            )}
             {selectionBox && (
               <SelectionBoxOverlay selectionBox={selectionBox} />
             )}
@@ -1740,7 +1833,13 @@ export function RoomLayoutEditor() {
   );
 }
 
-function RoomBackdrop({ scene }: { scene: Scene }) {
+function RoomBackdrop({
+  scene,
+  showZones,
+}: {
+  scene: Scene;
+  showZones: boolean;
+}) {
   const theme = roomThemes[scene.id];
   return (
     <div className="eq-layout-editor-backdrop">
@@ -1754,20 +1853,21 @@ function RoomBackdrop({ scene }: { scene: Scene }) {
           >
             {theme.title}
           </div>
-          {theme.zones.map((zone) => (
-            <div
-              className="eq-layout-editor-zone"
-              key={`${scene.id}-${zone.x}-${zone.y}`}
-              style={{
-                backgroundColor: theme.fill,
-                borderColor: `${theme.accent}55`,
-                height: zone.height * TILE_SIZE,
-                left: zone.x * TILE_SIZE,
-                top: zone.y * TILE_SIZE,
-                width: zone.width * TILE_SIZE,
-              }}
-            />
-          ))}
+          {showZones &&
+            theme.zones.map((zone) => (
+              <div
+                className="eq-layout-editor-zone"
+                key={`${scene.id}-${zone.x}-${zone.y}`}
+                style={{
+                  backgroundColor: theme.fill,
+                  borderColor: `${theme.accent}55`,
+                  height: zone.height * TILE_SIZE,
+                  left: zone.x * TILE_SIZE,
+                  top: zone.y * TILE_SIZE,
+                  width: zone.width * TILE_SIZE,
+                }}
+              />
+            ))}
         </>
       )}
       {scene.portals.map((portal) => (
@@ -1819,6 +1919,7 @@ function DraggableItem({
   onResizeStart,
   onSelect,
   scene,
+  showResizeHandles,
 }: {
   isSelected: boolean;
   item: EditorItem;
@@ -1833,6 +1934,7 @@ function DraggableItem({
   onResizeStart: () => void;
   onSelect: (additive: boolean) => void;
   scene: Scene;
+  showResizeHandles: boolean;
 }) {
   const dragState = useRef<{
     lastClientX: number;
@@ -1913,7 +2015,7 @@ function DraggableItem({
       {item.label && (
         <span className="eq-layout-editor-item-label">{item.label}</span>
       )}
-      {isSelected &&
+      {showResizeHandles &&
         resizeHandles.map((handle) => (
           <span
             aria-label={`Resize ${handle}`}
@@ -1983,6 +2085,91 @@ function SelectionBoxOverlay({ selectionBox }: { selectionBox: SelectionBox }) {
   );
 }
 
+function SelectedBoundsOverlay({
+  bounds,
+  onResizeSelected,
+  onResizeStart,
+}: {
+  bounds: {
+    position: { x: number; y: number };
+    size: { height: number; width: number };
+  };
+  onResizeSelected: (
+    handle: ResizeHandle,
+    dx: number,
+    dy: number,
+    keepRatio: boolean,
+  ) => void;
+  onResizeStart: () => void;
+}) {
+  const resizeState = useRef<{
+    handle: ResizeHandle;
+    lastClientX: number;
+    lastClientY: number;
+    savedHistory: boolean;
+  } | null>(null);
+  return (
+    <div
+      className="eq-layout-editor-bounds-box"
+      style={{
+        height: bounds.size.height * TILE_SIZE,
+        left: bounds.position.x * TILE_SIZE,
+        top: bounds.position.y * TILE_SIZE,
+        width: bounds.size.width * TILE_SIZE,
+      }}
+    >
+      {resizeHandles.map((handle) => (
+        <span
+          aria-label={`Resize selection ${handle}`}
+          className={`eq-layout-editor-resize-handle is-${handle}`}
+          key={handle}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.setPointerCapture(event.pointerId);
+            resizeState.current = {
+              handle,
+              lastClientX: event.clientX,
+              lastClientY: event.clientY,
+              savedHistory: false,
+            };
+          }}
+          onPointerMove={(event) => {
+            const currentResize = resizeState.current;
+            if (
+              !currentResize ||
+              !event.currentTarget.hasPointerCapture(event.pointerId)
+            ) {
+              return;
+            }
+            const dx = snap(
+              (event.clientX - currentResize.lastClientX) / TILE_SIZE,
+            );
+            const dy = snap(
+              (event.clientY - currentResize.lastClientY) / TILE_SIZE,
+            );
+            if (dx === 0 && dy === 0) {
+              return;
+            }
+            if (!currentResize.savedHistory) {
+              onResizeStart();
+              currentResize.savedHistory = true;
+            }
+            currentResize.lastClientX = event.clientX;
+            currentResize.lastClientY = event.clientY;
+            onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+          }}
+          onPointerUp={(event) => {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            resizeState.current = null;
+          }}
+          role="presentation"
+        />
+      ))}
+    </div>
+  );
+}
+
 function SpritePreview({
   fill = false,
   sprite,
@@ -2005,12 +2192,18 @@ function SpritePreview({
         (targetHeight ?? sprite.sh) / sprite.sh,
       )
     : Math.min(76 / sprite.sw, 58 / sprite.sh);
+  const renderedWidth = sprite.sw * scale;
+  const renderedHeight = sprite.sh * scale;
+  const offsetX = fill ? ((targetWidth ?? sprite.sw) - renderedWidth) / 2 : 0;
+  const offsetY = fill ? ((targetHeight ?? sprite.sh) - renderedHeight) / 2 : 0;
   return (
     <span
       className="eq-layout-editor-sprite"
       style={{
         backgroundImage: `url(${source.url})`,
-        backgroundPosition: `${-sprite.sx * scale}px ${-sprite.sy * scale}px`,
+        backgroundPosition: `${offsetX - sprite.sx * scale}px ${
+          offsetY - sprite.sy * scale
+        }px`,
         backgroundSize: `${source.width * scale}px ${source.height * scale}px`,
         height: previewHeight,
         transform: getCssTransform(transform),
@@ -2079,6 +2272,49 @@ function getCopiedGroupId(
   const nextGroupId = `${groupId}-copy-${copiedGroupIds.size + 1}`;
   copiedGroupIds.set(groupId, nextGroupId);
   return nextGroupId;
+}
+
+function getItemsBounds(items: EditorItem[]) {
+  if (items.length === 0) {
+    return null;
+  }
+  const minX = Math.min(...items.map((item) => item.position.x));
+  const minY = Math.min(...items.map((item) => item.position.y));
+  const maxX = Math.max(
+    ...items.map((item) => item.position.x + item.size.width),
+  );
+  const maxY = Math.max(
+    ...items.map((item) => item.position.y + item.size.height),
+  );
+  return {
+    position: { x: minX, y: minY },
+    size: { height: maxY - minY, width: maxX - minX },
+  };
+}
+
+function scaleItemWithinBounds(
+  item: EditorItem,
+  previousBounds: {
+    position: { x: number; y: number };
+    size: { height: number; width: number };
+  },
+  nextBounds: EditorItem,
+) {
+  const scaleX = nextBounds.size.width / previousBounds.size.width;
+  const scaleY = nextBounds.size.height / previousBounds.size.height;
+  const relativeX = item.position.x - previousBounds.position.x;
+  const relativeY = item.position.y - previousBounds.position.y;
+  return {
+    ...item,
+    position: {
+      x: snap(nextBounds.position.x + relativeX * scaleX),
+      y: snap(nextBounds.position.y + relativeY * scaleY),
+    },
+    size: {
+      height: snap(item.size.height * scaleY),
+      width: snap(item.size.width * scaleX),
+    },
+  };
 }
 
 function getRawTilesForRow(row: number): RawTile[] {
