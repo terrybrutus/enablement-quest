@@ -48,6 +48,11 @@ interface SelectionBox {
   start: { x: number; y: number };
 }
 
+interface EditorBounds {
+  position: { x: number; y: number };
+  size: { height: number; width: number };
+}
+
 type EditingLabel =
   | { id: string; kind: "item" }
   | { groupId: string; kind: "group" }
@@ -405,6 +410,10 @@ const resizeHandles: ResizeHandle[] = [
   "bottom-left",
   "left",
 ];
+
+function isCornerResizeHandle(handle: ResizeHandle) {
+  return handle.includes("-left") || handle.includes("-right");
+}
 
 function officeSingleKey(number: number) {
   return `officeSingle${number}`;
@@ -1033,6 +1042,11 @@ export function RoomLayoutEditor() {
     () => getItemsBounds(selectedItems),
     [selectedItems],
   );
+  const selectionResizeStartRef = useRef<{
+    bounds: EditorBounds;
+    itemIds: string[];
+    items: EditorItem[];
+  } | null>(null);
   const groupOverlays = useMemo(() => getGroupOverlays(items), [items]);
 
   useEffect(() => {
@@ -1386,11 +1400,20 @@ export function RoomLayoutEditor() {
     if (!bounds || (dx === 0 && dy === 0)) {
       return;
     }
+    const resizeStart = selectionResizeStartRef.current;
+    const resizeStartMatches =
+      resizeStart &&
+      resizeStart.itemIds.length === itemIds.length &&
+      resizeStart.itemIds.every((id) => itemIds.includes(id));
+    const sourceBounds = resizeStartMatches ? resizeStart.bounds : bounds;
+    const sourceItems = resizeStartMatches
+      ? resizeStart.items
+      : selectedForResize;
     const resizedBounds = resizeItem(
       {
         ...selectedForResize[0],
-        position: bounds.position,
-        size: bounds.size,
+        position: sourceBounds.position,
+        size: sourceBounds.size,
       },
       handle,
       dx,
@@ -1401,7 +1424,12 @@ export function RoomLayoutEditor() {
     updateItems(
       items.map((item) =>
         itemIds.includes(item.id)
-          ? scaleItemWithinBounds(item, bounds, resizedBounds)
+          ? scaleItemWithinBounds(
+              sourceItems.find((sourceItem) => sourceItem.id === item.id) ??
+                item,
+              sourceBounds,
+              resizedBounds,
+            )
           : item,
       ),
       saveSnapshot,
@@ -1898,6 +1926,9 @@ export function RoomLayoutEditor() {
             {selectedBounds && selectedIds.length > 1 && (
               <SelectedBoundsOverlay
                 bounds={selectedBounds}
+                onResizeEnd={() => {
+                  selectionResizeStartRef.current = null;
+                }}
                 onResizeSelected={(handle, dx, dy, keepRatio) =>
                   resizeSelectionBounds(
                     selectedIds,
@@ -1908,7 +1939,14 @@ export function RoomLayoutEditor() {
                     false,
                   )
                 }
-                onResizeStart={saveHistory}
+                onResizeStart={() => {
+                  saveHistory();
+                  selectionResizeStartRef.current = {
+                    bounds: selectedBounds,
+                    itemIds: selectedIds,
+                    items: selectedItems,
+                  };
+                }}
               />
             )}
             {selectionBox && (
@@ -2522,7 +2560,12 @@ function DraggableItem({
               }
               currentResize.lastClientX = event.clientX;
               currentResize.lastClientY = event.clientY;
-              onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+              onResizeSelected(
+                handle,
+                dx,
+                dy,
+                isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey,
+              );
             }}
             onPointerUp={(event) => {
               event.currentTarget.releasePointerCapture(event.pointerId);
@@ -2674,13 +2717,12 @@ function InlineEditableLabel({
 
 function SelectedBoundsOverlay({
   bounds,
+  onResizeEnd,
   onResizeSelected,
   onResizeStart,
 }: {
-  bounds: {
-    position: { x: number; y: number };
-    size: { height: number; width: number };
-  };
+  bounds: EditorBounds;
+  onResizeEnd: () => void;
   onResizeSelected: (
     handle: ResizeHandle,
     dx: number,
@@ -2691,8 +2733,8 @@ function SelectedBoundsOverlay({
 }) {
   const resizeState = useRef<{
     handle: ResizeHandle;
-    lastClientX: number;
-    lastClientY: number;
+    startClientX: number;
+    startClientY: number;
     savedHistory: boolean;
   } | null>(null);
   return (
@@ -2716,8 +2758,8 @@ function SelectedBoundsOverlay({
             event.currentTarget.setPointerCapture(event.pointerId);
             resizeState.current = {
               handle,
-              lastClientX: event.clientX,
-              lastClientY: event.clientY,
+              startClientX: event.clientX,
+              startClientY: event.clientY,
               savedHistory: false,
             };
           }}
@@ -2730,10 +2772,10 @@ function SelectedBoundsOverlay({
               return;
             }
             const dx = snap(
-              (event.clientX - currentResize.lastClientX) / TILE_SIZE,
+              (event.clientX - currentResize.startClientX) / TILE_SIZE,
             );
             const dy = snap(
-              (event.clientY - currentResize.lastClientY) / TILE_SIZE,
+              (event.clientY - currentResize.startClientY) / TILE_SIZE,
             );
             if (dx === 0 && dy === 0) {
               return;
@@ -2742,13 +2784,17 @@ function SelectedBoundsOverlay({
               onResizeStart();
               currentResize.savedHistory = true;
             }
-            currentResize.lastClientX = event.clientX;
-            currentResize.lastClientY = event.clientY;
-            onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+            onResizeSelected(
+              handle,
+              dx,
+              dy,
+              isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey,
+            );
           }}
           onPointerUp={(event) => {
             event.currentTarget.releasePointerCapture(event.pointerId);
             resizeState.current = null;
+            onResizeEnd();
           }}
           role="presentation"
         />
@@ -2848,6 +2894,10 @@ function roundSize(size: EditorItem["size"]) {
   };
 }
 
+function roundToPrecision(value: number) {
+  return Number(value.toFixed(3));
+}
+
 function getCopiedGroupId(
   groupId: string,
   copiedGroupIds: Map<string, string>,
@@ -2917,12 +2967,12 @@ function scaleItemWithinBounds(
   return {
     ...item,
     position: {
-      x: snap(nextBounds.position.x + relativeX * scaleX),
-      y: snap(nextBounds.position.y + relativeY * scaleY),
+      x: roundToPrecision(nextBounds.position.x + relativeX * scaleX),
+      y: roundToPrecision(nextBounds.position.y + relativeY * scaleY),
     },
     size: {
-      height: snap(item.size.height * scaleY),
-      width: snap(item.size.width * scaleX),
+      height: roundToPrecision(item.size.height * scaleY),
+      width: roundToPrecision(item.size.width * scaleX),
     },
   };
 }

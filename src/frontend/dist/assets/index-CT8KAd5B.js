@@ -17245,6 +17245,9 @@ const resizeHandles = [
   "bottom-left",
   "left"
 ];
+function isCornerResizeHandle(handle) {
+  return handle.includes("-left") || handle.includes("-right");
+}
 function officeSingleKey(number) {
   return `officeSingle${number}`;
 }
@@ -17824,6 +17827,7 @@ function RoomLayoutEditor() {
     () => getItemsBounds(selectedItems),
     [selectedItems]
   );
+  const selectionResizeStartRef = reactExports.useRef(null);
   const groupOverlays = reactExports.useMemo(() => getGroupOverlays(items), [items]);
   reactExports.useEffect(() => {
     window.localStorage.setItem(
@@ -18099,11 +18103,15 @@ function RoomLayoutEditor() {
     if (!bounds || dx === 0 && dy === 0) {
       return;
     }
+    const resizeStart = selectionResizeStartRef.current;
+    const resizeStartMatches = resizeStart && resizeStart.itemIds.length === itemIds.length && resizeStart.itemIds.every((id) => itemIds.includes(id));
+    const sourceBounds = resizeStartMatches ? resizeStart.bounds : bounds;
+    const sourceItems = resizeStartMatches ? resizeStart.items : selectedForResize;
     const resizedBounds = resizeItem(
       {
         ...selectedForResize[0],
-        position: bounds.position,
-        size: bounds.size
+        position: sourceBounds.position,
+        size: sourceBounds.size
       },
       handle,
       dx,
@@ -18113,7 +18121,11 @@ function RoomLayoutEditor() {
     );
     updateItems(
       items.map(
-        (item) => itemIds.includes(item.id) ? scaleItemWithinBounds(item, bounds, resizedBounds) : item
+        (item) => itemIds.includes(item.id) ? scaleItemWithinBounds(
+          sourceItems.find((sourceItem) => sourceItem.id === item.id) ?? item,
+          sourceBounds,
+          resizedBounds
+        ) : item
       ),
       saveSnapshot
     );
@@ -18543,6 +18555,9 @@ function RoomLayoutEditor() {
                 SelectedBoundsOverlay,
                 {
                   bounds: selectedBounds,
+                  onResizeEnd: () => {
+                    selectionResizeStartRef.current = null;
+                  },
                   onResizeSelected: (handle, dx, dy, keepRatio) => resizeSelectionBounds(
                     selectedIds,
                     handle,
@@ -18551,7 +18566,14 @@ function RoomLayoutEditor() {
                     keepRatio,
                     false
                   ),
-                  onResizeStart: saveHistory
+                  onResizeStart: () => {
+                    saveHistory();
+                    selectionResizeStartRef.current = {
+                      bounds: selectedBounds,
+                      itemIds: selectedIds,
+                      items: selectedItems
+                    };
+                  }
                 }
               ),
               selectionBox && /* @__PURE__ */ jsxRuntimeExports.jsx(SelectionBoxOverlay, { selectionBox })
@@ -19118,7 +19140,12 @@ function DraggableItem({
               }
               currentResize.lastClientX = event.clientX;
               currentResize.lastClientY = event.clientY;
-              onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+              onResizeSelected(
+                handle,
+                dx,
+                dy,
+                isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey
+              );
             },
             onPointerUp: (event) => {
               event.currentTarget.releasePointerCapture(event.pointerId);
@@ -19246,6 +19273,7 @@ function InlineEditableLabel({
 }
 function SelectedBoundsOverlay({
   bounds,
+  onResizeEnd,
   onResizeSelected,
   onResizeStart
 }) {
@@ -19271,8 +19299,8 @@ function SelectedBoundsOverlay({
             event.currentTarget.setPointerCapture(event.pointerId);
             resizeState.current = {
               handle,
-              lastClientX: event.clientX,
-              lastClientY: event.clientY,
+              startClientX: event.clientX,
+              startClientY: event.clientY,
               savedHistory: false
             };
           },
@@ -19282,10 +19310,10 @@ function SelectedBoundsOverlay({
               return;
             }
             const dx = snap(
-              (event.clientX - currentResize.lastClientX) / TILE_SIZE
+              (event.clientX - currentResize.startClientX) / TILE_SIZE
             );
             const dy = snap(
-              (event.clientY - currentResize.lastClientY) / TILE_SIZE
+              (event.clientY - currentResize.startClientY) / TILE_SIZE
             );
             if (dx === 0 && dy === 0) {
               return;
@@ -19294,13 +19322,17 @@ function SelectedBoundsOverlay({
               onResizeStart();
               currentResize.savedHistory = true;
             }
-            currentResize.lastClientX = event.clientX;
-            currentResize.lastClientY = event.clientY;
-            onResizeSelected(handle, dx, dy, event.ctrlKey || event.metaKey);
+            onResizeSelected(
+              handle,
+              dx,
+              dy,
+              isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey
+            );
           },
           onPointerUp: (event) => {
             event.currentTarget.releasePointerCapture(event.pointerId);
             resizeState.current = null;
+            onResizeEnd();
           },
           role: "presentation"
         },
@@ -19383,6 +19415,9 @@ function roundSize(size) {
     width: Number(size.width.toFixed(2))
   };
 }
+function roundToPrecision(value) {
+  return Number(value.toFixed(3));
+}
 function getCopiedGroupId(groupId, copiedGroupIds) {
   const existingGroupId = copiedGroupIds.get(groupId);
   if (existingGroupId) {
@@ -19438,12 +19473,12 @@ function scaleItemWithinBounds(item, previousBounds, nextBounds) {
   return {
     ...item,
     position: {
-      x: snap(nextBounds.position.x + relativeX * scaleX),
-      y: snap(nextBounds.position.y + relativeY * scaleY)
+      x: roundToPrecision(nextBounds.position.x + relativeX * scaleX),
+      y: roundToPrecision(nextBounds.position.y + relativeY * scaleY)
     },
     size: {
-      height: snap(item.size.height * scaleY),
-      width: snap(item.size.width * scaleX)
+      height: roundToPrecision(item.size.height * scaleY),
+      width: roundToPrecision(item.size.width * scaleX)
     }
   };
 }
