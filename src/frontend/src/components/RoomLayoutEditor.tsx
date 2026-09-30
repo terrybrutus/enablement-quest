@@ -8,6 +8,7 @@ import type {
 } from "@/game/types";
 import { TILE_SIZE } from "@/game/types";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
 
 interface EditorItem {
@@ -46,6 +47,11 @@ interface SelectionBox {
   end: { x: number; y: number };
   start: { x: number; y: number };
 }
+
+type EditingLabel =
+  | { id: string; kind: "item" }
+  | { groupId: string; kind: "group" }
+  | null;
 
 type ResizeHandle =
   | "bottom"
@@ -1016,6 +1022,7 @@ export function RoomLayoutEditor() {
     [],
   );
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
+  const [editingLabel, setEditingLabel] = useState<EditingLabel>(null);
   const selectedItem =
     items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ??
     null;
@@ -1156,6 +1163,24 @@ export function RoomLayoutEditor() {
     updateItems(
       items.map((item) =>
         item.groupId === selectedItem.groupId ? { ...item, ...patch } : item,
+      ),
+    );
+  }
+
+  function updateItemLabel(itemId: string, label: string) {
+    updateItems(
+      items.map((item) =>
+        item.id === itemId ? { ...item, label: label.trim() } : item,
+      ),
+    );
+  }
+
+  function updateGroupLabel(groupId: string, groupLabel: string) {
+    updateItems(
+      items.map((item) =>
+        item.groupId === groupId
+          ? { ...item, groupLabel: groupLabel.trim() || "New Group" }
+          : item,
       ),
     );
   }
@@ -1808,13 +1833,32 @@ export function RoomLayoutEditor() {
               />
             ))}
             {groupOverlays.map((group) => (
-              <GroupLabelOverlay group={group} key={group.groupId} />
+              <GroupLabelOverlay
+                group={group}
+                isEditing={
+                  editingLabel?.kind === "group" &&
+                  editingLabel.groupId === group.groupId
+                }
+                key={group.groupId}
+                onCancelEdit={() => setEditingLabel(null)}
+                onRename={(label) => {
+                  updateGroupLabel(group.groupId, label);
+                  setEditingLabel(null);
+                }}
+                onStartEdit={() =>
+                  setEditingLabel({ groupId: group.groupId, kind: "group" })
+                }
+              />
             ))}
             {items.map((item) => (
               <DraggableItem
+                isEditingLabel={
+                  editingLabel?.kind === "item" && editingLabel.id === item.id
+                }
                 isSelected={selectedIds.includes(item.id)}
                 item={item}
                 key={item.id}
+                onCancelLabelEdit={() => setEditingLabel(null)}
                 showResizeHandles={
                   selectedIds.length === 1 && selectedIds.includes(item.id)
                 }
@@ -1827,6 +1871,10 @@ export function RoomLayoutEditor() {
                     false,
                   )
                 }
+                onRenameLabel={(label) => {
+                  updateItemLabel(item.id, label);
+                  setEditingLabel(null);
+                }}
                 onResizeStart={saveHistory}
                 onResizeSelected={(handle, dx, dy, keepRatio) =>
                   resizeItems(
@@ -1839,6 +1887,11 @@ export function RoomLayoutEditor() {
                   )
                 }
                 onSelect={(additive) => selectItem(item.id, additive)}
+                onStartLabelEdit={() => {
+                  setSelectedIds([item.id]);
+                  setSelectedPortalId(null);
+                  setEditingLabel({ id: item.id, kind: "item" });
+                }}
                 scene={scene}
               />
             ))}
@@ -2310,20 +2363,27 @@ function RoomGrid({ scene }: { scene: Scene }) {
 }
 
 function DraggableItem({
+  isEditingLabel,
   isSelected,
   item,
+  onCancelLabelEdit,
   onDragStart,
   onMoveSelected,
+  onRenameLabel,
   onResizeSelected,
   onResizeStart,
   onSelect,
+  onStartLabelEdit,
   scene,
   showResizeHandles,
 }: {
+  isEditingLabel: boolean;
   isSelected: boolean;
   item: EditorItem;
+  onCancelLabelEdit: () => void;
   onDragStart: () => void;
   onMoveSelected: (dx: number, dy: number) => void;
+  onRenameLabel: (label: string) => void;
   onResizeSelected: (
     handle: ResizeHandle,
     dx: number,
@@ -2332,6 +2392,7 @@ function DraggableItem({
   ) => void;
   onResizeStart: () => void;
   onSelect: (additive: boolean) => void;
+  onStartLabelEdit: () => void;
   scene: Scene;
   showResizeHandles: boolean;
 }) {
@@ -2348,7 +2409,7 @@ function DraggableItem({
   } | null>(null);
 
   return (
-    <button
+    <div
       className={`eq-layout-editor-item ${isSelected ? "is-selected" : ""}`}
       style={{
         height: item.size.height * TILE_SIZE,
@@ -2356,7 +2417,6 @@ function DraggableItem({
         top: item.position.y * TILE_SIZE,
         width: item.size.width * TILE_SIZE,
       }}
-      type="button"
       onPointerDown={(event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -2412,7 +2472,14 @@ function DraggableItem({
         targetWidth={item.size.width * TILE_SIZE}
       />
       {item.label && !item.hideLabel && (
-        <span className="eq-layout-editor-item-label">{item.label}</span>
+        <InlineEditableLabel
+          className="eq-layout-editor-item-label"
+          isEditing={isEditingLabel}
+          value={item.label}
+          onCancel={onCancelLabelEdit}
+          onCommit={onRenameLabel}
+          onStartEdit={onStartLabelEdit}
+        />
       )}
       {showResizeHandles &&
         resizeHandles.map((handle) => (
@@ -2464,7 +2531,7 @@ function DraggableItem({
             role="presentation"
           />
         ))}
-    </button>
+    </div>
   );
 }
 
@@ -2486,6 +2553,10 @@ function SelectionBoxOverlay({ selectionBox }: { selectionBox: SelectionBox }) {
 
 function GroupLabelOverlay({
   group,
+  isEditing,
+  onCancelEdit,
+  onRename,
+  onStartEdit,
 }: {
   group: {
     bounds: {
@@ -2495,18 +2566,109 @@ function GroupLabelOverlay({
     groupId: string;
     label: string;
   };
+  isEditing: boolean;
+  onCancelEdit: () => void;
+  onRename: (label: string) => void;
+  onStartEdit: () => void;
 }) {
   return (
-    <div
+    <InlineEditableLabel
       className="eq-layout-editor-group-label"
+      isEditing={isEditing}
       style={{
         left:
           (group.bounds.position.x + group.bounds.size.width / 2) * TILE_SIZE,
         top: (group.bounds.position.y + group.bounds.size.height) * TILE_SIZE,
       }}
+      value={group.label}
+      onCancel={onCancelEdit}
+      onCommit={onRename}
+      onStartEdit={onStartEdit}
+    />
+  );
+}
+
+function InlineEditableLabel({
+  className,
+  isEditing,
+  onCancel,
+  onCommit,
+  onStartEdit,
+  style,
+  value,
+}: {
+  className: string;
+  isEditing: boolean;
+  onCancel: () => void;
+  onCommit: (label: string) => void;
+  onStartEdit: () => void;
+  style?: CSSProperties;
+  value: string;
+}) {
+  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const shouldCommitOnBlurRef = useRef(true);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      return;
+    }
+    shouldCommitOnBlurRef.current = true;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, [isEditing]);
+
+  if (isEditing) {
+    return (
+      <input
+        aria-label="Edit label"
+        className={`${className} is-editing`}
+        ref={inputRef}
+        style={style}
+        value={draft}
+        onBlur={() => {
+          if (shouldCommitOnBlurRef.current) {
+            onCommit(draft);
+          }
+        }}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          if (event.key === "Enter") {
+            event.preventDefault();
+            shouldCommitOnBlurRef.current = false;
+            onCommit(draft);
+          }
+          if (event.key === "Escape") {
+            event.preventDefault();
+            shouldCommitOnBlurRef.current = false;
+            setDraft(value);
+            onCancel();
+          }
+        }}
+        onPointerDown={(event) => event.stopPropagation()}
+      />
+    );
+  }
+
+  return (
+    <span
+      className={className}
+      style={style}
+      title="Double-click to rename"
+      onDoubleClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onStartEdit();
+      }}
+      onPointerDown={(event) => event.stopPropagation()}
     >
-      {group.label}
-    </div>
+      {value}
+    </span>
   );
 }
 

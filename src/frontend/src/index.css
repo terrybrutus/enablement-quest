@@ -491,12 +491,13 @@
   background: rgba(2, 6, 23, 0.88);
   border-radius: 8px;
   color: #e0f2fe;
+  cursor: text;
   font-size: 0.68rem;
   font-weight: 950;
   max-width: 170px;
   overflow: hidden;
   padding: 5px 8px;
-  pointer-events: none;
+  pointer-events: auto;
   position: absolute;
   text-overflow: ellipsis;
   transform: translate(-50%, 8px);
@@ -509,6 +510,7 @@
   border-radius: 7px;
   bottom: -24px;
   color: #e0f2fe;
+  cursor: text;
   font-size: 0.66rem;
   font-weight: 950;
   left: 50%;
@@ -519,6 +521,21 @@
   text-overflow: ellipsis;
   transform: translateX(-50%);
   white-space: nowrap;
+}
+
+.eq-layout-editor-group-label.is-editing,
+.eq-layout-editor-item-label.is-editing {
+  border: 2px solid #22d3ee;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.22);
+  color: #f8fafc;
+  font: 950 0.72rem var(--font-body), sans-serif;
+  max-width: 260px;
+  min-height: 0;
+  min-width: 180px;
+  outline: none;
+  text-align: center;
+  width: auto;
+  z-index: 24;
 }
 
 .eq-layout-editor-sprite {

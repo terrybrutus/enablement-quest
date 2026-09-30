@@ -17816,6 +17816,7 @@ function RoomLayoutEditor() {
     []
   );
   const [selectionBox, setSelectionBox] = reactExports.useState(null);
+  const [editingLabel, setEditingLabel] = reactExports.useState(null);
   const selectedItem = items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ?? null;
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
   const selectedPortal = portals.find((portal) => portal.id === selectedPortalId) ?? null;
@@ -17931,6 +17932,20 @@ function RoomLayoutEditor() {
     updateItems(
       items.map(
         (item) => item.groupId === selectedItem.groupId ? { ...item, ...patch } : item
+      )
+    );
+  }
+  function updateItemLabel(itemId, label) {
+    updateItems(
+      items.map(
+        (item) => item.id === itemId ? { ...item, label: label.trim() } : item
+      )
+    );
+  }
+  function updateGroupLabel(groupId, groupLabel) {
+    updateItems(
+      items.map(
+        (item) => item.groupId === groupId ? { ...item, groupLabel: groupLabel.trim() || "New Group" } : item
       )
     );
   }
@@ -18472,12 +18487,27 @@ function RoomLayoutEditor() {
                 },
                 portal.id
               )),
-              groupOverlays.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsx(GroupLabelOverlay, { group }, group.groupId)),
+              groupOverlays.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                GroupLabelOverlay,
+                {
+                  group,
+                  isEditing: (editingLabel == null ? void 0 : editingLabel.kind) === "group" && editingLabel.groupId === group.groupId,
+                  onCancelEdit: () => setEditingLabel(null),
+                  onRename: (label) => {
+                    updateGroupLabel(group.groupId, label);
+                    setEditingLabel(null);
+                  },
+                  onStartEdit: () => setEditingLabel({ groupId: group.groupId, kind: "group" })
+                },
+                group.groupId
+              )),
               items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                 DraggableItem,
                 {
+                  isEditingLabel: (editingLabel == null ? void 0 : editingLabel.kind) === "item" && editingLabel.id === item.id,
                   isSelected: selectedIds.includes(item.id),
                   item,
+                  onCancelLabelEdit: () => setEditingLabel(null),
                   showResizeHandles: selectedIds.length === 1 && selectedIds.includes(item.id),
                   onDragStart: saveHistory,
                   onMoveSelected: (dx, dy) => moveItems(
@@ -18486,6 +18516,10 @@ function RoomLayoutEditor() {
                     dy,
                     false
                   ),
+                  onRenameLabel: (label) => {
+                    updateItemLabel(item.id, label);
+                    setEditingLabel(null);
+                  },
                   onResizeStart: saveHistory,
                   onResizeSelected: (handle, dx, dy, keepRatio) => resizeItems(
                     selectedIds.includes(item.id) ? selectedIds : [item.id],
@@ -18496,6 +18530,11 @@ function RoomLayoutEditor() {
                     false
                   ),
                   onSelect: (additive) => selectItem(item.id, additive),
+                  onStartLabelEdit: () => {
+                    setSelectedIds([item.id]);
+                    setSelectedPortalId(null);
+                    setEditingLabel({ id: item.id, kind: "item" });
+                  },
                   scene
                 },
                 item.id
@@ -18956,20 +18995,24 @@ function RoomGrid({ scene }) {
   );
 }
 function DraggableItem({
+  isEditingLabel,
   isSelected,
   item,
+  onCancelLabelEdit,
   onDragStart,
   onMoveSelected,
+  onRenameLabel,
   onResizeSelected,
   onResizeStart,
   onSelect,
+  onStartLabelEdit,
   scene,
   showResizeHandles
 }) {
   const dragState = reactExports.useRef(null);
   const resizeState = reactExports.useRef(null);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    "button",
+    "div",
     {
       className: `eq-layout-editor-item ${isSelected ? "is-selected" : ""}`,
       style: {
@@ -18978,7 +19021,6 @@ function DraggableItem({
         top: item.position.y * TILE_SIZE,
         width: item.size.width * TILE_SIZE
       },
-      type: "button",
       onPointerDown: (event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
@@ -19028,7 +19070,17 @@ function DraggableItem({
             targetWidth: item.size.width * TILE_SIZE
           }
         ),
-        item.label && !item.hideLabel && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-item-label", children: item.label }),
+        item.label && !item.hideLabel && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          InlineEditableLabel,
+          {
+            className: "eq-layout-editor-item-label",
+            isEditing: isEditingLabel,
+            value: item.label,
+            onCancel: onCancelLabelEdit,
+            onCommit: onRenameLabel,
+            onStartEdit: onStartLabelEdit
+          }
+        ),
         showResizeHandles && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
           "span",
           {
@@ -19097,17 +19149,98 @@ function SelectionBoxOverlay({ selectionBox }) {
   );
 }
 function GroupLabelOverlay({
-  group
+  group,
+  isEditing,
+  onCancelEdit,
+  onRename,
+  onStartEdit
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
-    "div",
+    InlineEditableLabel,
     {
       className: "eq-layout-editor-group-label",
+      isEditing,
       style: {
         left: (group.bounds.position.x + group.bounds.size.width / 2) * TILE_SIZE,
         top: (group.bounds.position.y + group.bounds.size.height) * TILE_SIZE
       },
-      children: group.label
+      value: group.label,
+      onCancel: onCancelEdit,
+      onCommit: onRename,
+      onStartEdit
+    }
+  );
+}
+function InlineEditableLabel({
+  className,
+  isEditing,
+  onCancel,
+  onCommit,
+  onStartEdit,
+  style: style2,
+  value
+}) {
+  const [draft, setDraft] = reactExports.useState(value);
+  const inputRef = reactExports.useRef(null);
+  const shouldCommitOnBlurRef = reactExports.useRef(true);
+  reactExports.useEffect(() => {
+    setDraft(value);
+  }, [value]);
+  reactExports.useEffect(() => {
+    var _a, _b;
+    if (!isEditing) {
+      return;
+    }
+    shouldCommitOnBlurRef.current = true;
+    (_a = inputRef.current) == null ? void 0 : _a.focus();
+    (_b = inputRef.current) == null ? void 0 : _b.select();
+  }, [isEditing]);
+  if (isEditing) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "input",
+      {
+        "aria-label": "Edit label",
+        className: `${className} is-editing`,
+        ref: inputRef,
+        style: style2,
+        value: draft,
+        onBlur: () => {
+          if (shouldCommitOnBlurRef.current) {
+            onCommit(draft);
+          }
+        },
+        onChange: (event) => setDraft(event.target.value),
+        onKeyDown: (event) => {
+          event.stopPropagation();
+          if (event.key === "Enter") {
+            event.preventDefault();
+            shouldCommitOnBlurRef.current = false;
+            onCommit(draft);
+          }
+          if (event.key === "Escape") {
+            event.preventDefault();
+            shouldCommitOnBlurRef.current = false;
+            setDraft(value);
+            onCancel();
+          }
+        },
+        onPointerDown: (event) => event.stopPropagation()
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "span",
+    {
+      className,
+      style: style2,
+      title: "Double-click to rename",
+      onDoubleClick: (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onStartEdit();
+      },
+      onPointerDown: (event) => event.stopPropagation(),
+      children: value
     }
   );
 }
