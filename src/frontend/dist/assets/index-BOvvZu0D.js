@@ -17228,6 +17228,8 @@ const presets = [
 ];
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
 const layoutEditorStorageKey = "enablementQuestRoomLayouts.v3";
+const layoutEditorPortalStorageKey = "enablementQuestRoomPortals.v1";
+const savedLayoutLibraryStorageKey = "enablementQuestSavedRoomLayouts.v1";
 const legacyLayoutEditorStorageKeys = [
   "enablementQuestRoomLayouts",
   "enablementQuestRoomLayouts.v2"
@@ -17418,6 +17420,10 @@ function getCurrentPortalLayouts() {
       scene.portals.map((portal) => ({ ...portal }))
     ])
   );
+}
+function getSceneName(sceneId) {
+  var _a;
+  return ((_a = editorScenes.find((scene) => scene.id === sceneId)) == null ? void 0 : _a.name) ?? sceneId;
 }
 function getBlankLayouts() {
   return Object.fromEntries(editorScenes.map((item) => [item.id, []]));
@@ -17800,19 +17806,44 @@ function RoomLayoutEditor() {
       window.localStorage.removeItem(key);
     }
     const blankLayouts = getBlankLayouts();
-    const savedLayouts = window.localStorage.getItem(layoutEditorStorageKey);
-    if (!savedLayouts) {
+    const savedLayouts2 = window.localStorage.getItem(layoutEditorStorageKey);
+    if (!savedLayouts2) {
       return blankLayouts;
     }
     try {
-      return { ...blankLayouts, ...JSON.parse(savedLayouts) };
+      return { ...blankLayouts, ...JSON.parse(savedLayouts2) };
     } catch {
       return blankLayouts;
     }
   });
-  const [portalsByScene, setPortalsByScene] = reactExports.useState(() => getCurrentPortalLayouts());
+  const [portalsByScene, setPortalsByScene] = reactExports.useState(() => {
+    const currentPortalLayouts = getCurrentPortalLayouts();
+    const savedPortals = window.localStorage.getItem(
+      layoutEditorPortalStorageKey
+    );
+    if (!savedPortals) {
+      return currentPortalLayouts;
+    }
+    try {
+      return { ...currentPortalLayouts, ...JSON.parse(savedPortals) };
+    } catch {
+      return currentPortalLayouts;
+    }
+  });
   const items = itemsByScene[scene.id] ?? [];
   const portals = portalsByScene[scene.id] ?? [];
+  const [savedLayoutName, setSavedLayoutName] = reactExports.useState("");
+  const [savedLayouts, setSavedLayouts] = reactExports.useState(() => {
+    const saved = window.localStorage.getItem(savedLayoutLibraryStorageKey);
+    if (!saved) {
+      return [];
+    }
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return [];
+    }
+  });
   const [selectedIds, setSelectedIds] = reactExports.useState([]);
   const [selectedPortalId, setSelectedPortalId] = reactExports.useState(null);
   const [history, setHistory] = reactExports.useState(
@@ -17836,6 +17867,18 @@ function RoomLayoutEditor() {
     );
   }, [itemsByScene]);
   reactExports.useEffect(() => {
+    window.localStorage.setItem(
+      layoutEditorPortalStorageKey,
+      JSON.stringify(portalsByScene)
+    );
+  }, [portalsByScene]);
+  reactExports.useEffect(() => {
+    window.localStorage.setItem(
+      savedLayoutLibraryStorageKey,
+      JSON.stringify(savedLayouts)
+    );
+  }, [savedLayouts]);
+  reactExports.useEffect(() => {
     window.addEventListener("keydown", handleKeyboardEvent);
     return () => window.removeEventListener("keydown", handleKeyboardEvent);
   });
@@ -17843,18 +17886,24 @@ function RoomLayoutEditor() {
     setHistory((previous) => [...previous.slice(-29), itemsByScene]);
   }
   function updateItems(nextItems, saveSnapshot = true) {
+    updateItemsForScene(scene.id, nextItems, saveSnapshot);
+  }
+  function updateItemsForScene(nextSceneId, nextItems, saveSnapshot = true) {
     if (saveSnapshot) {
       saveHistory();
     }
-    setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
+    setItemsByScene((previous) => ({ ...previous, [nextSceneId]: nextItems }));
   }
   function updatePortals(nextPortals, saveSnapshot = true) {
+    updatePortalsForScene(scene.id, nextPortals, saveSnapshot);
+  }
+  function updatePortalsForScene(nextSceneId, nextPortals, saveSnapshot = true) {
     if (saveSnapshot) {
       saveHistory();
     }
     setPortalsByScene((previous) => ({
       ...previous,
-      [scene.id]: nextPortals
+      [nextSceneId]: nextPortals
     }));
   }
   function loadCurrentRoomLayout() {
@@ -17875,6 +17924,39 @@ function RoomLayoutEditor() {
     updateItems(nextItems);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
     setSelectedPortalId(null);
+  }
+  function saveNamedLayout() {
+    const layoutName = savedLayoutName.trim() || `${scene.name} ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
+    const now2 = (/* @__PURE__ */ new Date()).toISOString();
+    const existingLayout = savedLayouts.find(
+      (layout) => layout.sceneId === scene.id && layout.name === layoutName
+    );
+    const nextLayout = {
+      id: (existingLayout == null ? void 0 : existingLayout.id) ?? `layout-${Date.now()}`,
+      items,
+      name: layoutName,
+      portals,
+      sceneId: scene.id,
+      updatedAt: now2
+    };
+    setSavedLayouts((layouts) => [
+      nextLayout,
+      ...layouts.filter((layout) => layout.id !== nextLayout.id)
+    ]);
+    setSavedLayoutName(layoutName);
+  }
+  function loadSavedLayout(layout) {
+    setSceneId(layout.sceneId);
+    updateItemsForScene(layout.sceneId, layout.items);
+    updatePortalsForScene(layout.sceneId, layout.portals, false);
+    setSelectedIds(layout.items[0] ? [layout.items[0].id] : []);
+    setSelectedPortalId(null);
+    setSavedLayoutName(layout.name);
+  }
+  function deleteSavedLayout(layoutId) {
+    setSavedLayouts(
+      (layouts) => layouts.filter((layout) => layout.id !== layoutId)
+    );
   }
   function updateSelectedPortal(patch) {
     if (!selectedPortal) {
@@ -18304,7 +18386,7 @@ function RoomLayoutEditor() {
       /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-layout-editor-sidebar", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, then copy the JSON back to Codex." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, save your layout, then copy the JSON back to Codex." }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag a corner keeps the resize ratio." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
@@ -18337,6 +18419,48 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-actions", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: clearRoomLayout, children: "Start blank room" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-saved-layouts", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Saved Layouts" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "Layout name",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                placeholder: `${scene.name} draft`,
+                value: savedLayoutName,
+                onChange: (event) => setSavedLayoutName(event.target.value)
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: saveNamedLayout, children: "Save this room layout" }),
+          savedLayouts.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-saved-list", children: savedLayouts.map((layout) => /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-saved-row", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              "button",
+              {
+                type: "button",
+                onClick: () => loadSavedLayout(layout),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: layout.name }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { children: [
+                    getSceneName(layout.sceneId),
+                    " |",
+                    " ",
+                    new Date(layout.updatedAt).toLocaleString()
+                  ] })
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                "aria-label": `Delete saved layout ${layout.name}`,
+                type: "button",
+                onClick: () => deleteSavedLayout(layout.id),
+                children: "Delete"
+              }
+            )
+          ] }, layout.id)) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No saved layouts yet." })
         ] }),
         exampleLayouts.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-examples", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Example Room Layouts" }),

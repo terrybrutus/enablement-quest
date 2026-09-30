@@ -168,7 +168,23 @@
   padding: 12px;
 }
 
+.eq-layout-editor-saved-layouts {
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  border-radius: 16px;
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
 .eq-layout-editor-examples p {
+  color: #a8bdd5;
+  font-size: 0.74rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.eq-layout-editor-saved-layouts p {
   color: #a8bdd5;
   font-size: 0.74rem;
   line-height: 1.3;
@@ -184,16 +200,55 @@
   text-align: left;
 }
 
+.eq-layout-editor-saved-layouts > button,
+.eq-layout-editor-saved-row button {
+  background: rgba(15, 23, 42, 0.82);
+  cursor: pointer;
+  font-weight: 900;
+  padding: 10px;
+  text-align: left;
+}
+
 .eq-layout-editor-examples button:hover {
   border-color: rgba(52, 211, 153, 0.64);
 }
 
+.eq-layout-editor-saved-layouts > button:hover,
+.eq-layout-editor-saved-row button:hover {
+  border-color: rgba(34, 211, 238, 0.68);
+}
+
+.eq-layout-editor-saved-list {
+  display: grid;
+  gap: 8px;
+}
+
+.eq-layout-editor-saved-row {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr auto;
+}
+
+.eq-layout-editor-saved-row button:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.eq-layout-editor-saved-row button:last-child {
+  color: #fecdd3;
+}
+
 .eq-layout-editor-examples strong,
-.eq-layout-editor-examples small {
+.eq-layout-editor-examples small,
+.eq-layout-editor-saved-row strong,
+.eq-layout-editor-saved-row small {
   display: block;
 }
 
-.eq-layout-editor-examples small {
+.eq-layout-editor-examples small,
+.eq-layout-editor-saved-row small {
   color: #a7f3d0;
   font-size: 0.72rem;
   line-height: 1.3;
@@ -202,7 +257,8 @@
 .eq-layout-editor-palette h2,
 .eq-layout-editor-inspector h2,
 .eq-layout-editor-tile-browser h2,
-.eq-layout-editor-examples h2 {
+.eq-layout-editor-examples h2,
+.eq-layout-editor-saved-layouts h2 {
   font-size: 0.95rem;
   font-weight: 950;
   margin: 0;

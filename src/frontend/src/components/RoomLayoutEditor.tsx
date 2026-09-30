@@ -28,6 +28,15 @@ interface EditorItem {
 
 interface EditorPortal extends Portal {}
 
+interface SavedEditorLayout {
+  id: string;
+  items: EditorItem[];
+  name: string;
+  portals: EditorPortal[];
+  sceneId: string;
+  updatedAt: string;
+}
+
 interface SpritePreset {
   category: string;
   defaultSize: { width: number; height: number };
@@ -393,6 +402,8 @@ const presets: SpritePreset[] = [
 
 const editorScenes = scenes.filter((scene) => scene.theme === "interior");
 const layoutEditorStorageKey = "enablementQuestRoomLayouts.v3";
+const layoutEditorPortalStorageKey = "enablementQuestRoomPortals.v1";
+const savedLayoutLibraryStorageKey = "enablementQuestSavedRoomLayouts.v1";
 const legacyLayoutEditorStorageKeys = [
   "enablementQuestRoomLayouts",
   "enablementQuestRoomLayouts.v2",
@@ -595,6 +606,10 @@ function getCurrentPortalLayouts() {
       scene.portals.map((portal) => ({ ...portal })),
     ]),
   );
+}
+
+function getSceneName(sceneId: string) {
+  return editorScenes.find((scene) => scene.id === sceneId)?.name ?? sceneId;
 }
 
 function getBlankLayouts() {
@@ -1022,9 +1037,34 @@ export function RoomLayoutEditor() {
   });
   const [portalsByScene, setPortalsByScene] = useState<
     Record<string, EditorPortal[]>
-  >(() => getCurrentPortalLayouts());
+  >(() => {
+    const currentPortalLayouts = getCurrentPortalLayouts();
+    const savedPortals = window.localStorage.getItem(
+      layoutEditorPortalStorageKey,
+    );
+    if (!savedPortals) {
+      return currentPortalLayouts;
+    }
+    try {
+      return { ...currentPortalLayouts, ...JSON.parse(savedPortals) };
+    } catch {
+      return currentPortalLayouts;
+    }
+  });
   const items = itemsByScene[scene.id] ?? [];
   const portals = portalsByScene[scene.id] ?? [];
+  const [savedLayoutName, setSavedLayoutName] = useState("");
+  const [savedLayouts, setSavedLayouts] = useState<SavedEditorLayout[]>(() => {
+    const saved = window.localStorage.getItem(savedLayoutLibraryStorageKey);
+    if (!saved) {
+      return [];
+    }
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return [];
+    }
+  });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
   const [history, setHistory] = useState<Array<Record<string, EditorItem[]>>>(
@@ -1057,6 +1097,20 @@ export function RoomLayoutEditor() {
   }, [itemsByScene]);
 
   useEffect(() => {
+    window.localStorage.setItem(
+      layoutEditorPortalStorageKey,
+      JSON.stringify(portalsByScene),
+    );
+  }, [portalsByScene]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      savedLayoutLibraryStorageKey,
+      JSON.stringify(savedLayouts),
+    );
+  }, [savedLayouts]);
+
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyboardEvent);
     return () => window.removeEventListener("keydown", handleKeyboardEvent);
   });
@@ -1066,19 +1120,35 @@ export function RoomLayoutEditor() {
   }
 
   function updateItems(nextItems: EditorItem[], saveSnapshot = true) {
+    updateItemsForScene(scene.id, nextItems, saveSnapshot);
+  }
+
+  function updateItemsForScene(
+    nextSceneId: string,
+    nextItems: EditorItem[],
+    saveSnapshot = true,
+  ) {
     if (saveSnapshot) {
       saveHistory();
     }
-    setItemsByScene((previous) => ({ ...previous, [scene.id]: nextItems }));
+    setItemsByScene((previous) => ({ ...previous, [nextSceneId]: nextItems }));
   }
 
   function updatePortals(nextPortals: EditorPortal[], saveSnapshot = true) {
+    updatePortalsForScene(scene.id, nextPortals, saveSnapshot);
+  }
+
+  function updatePortalsForScene(
+    nextSceneId: string,
+    nextPortals: EditorPortal[],
+    saveSnapshot = true,
+  ) {
     if (saveSnapshot) {
       saveHistory();
     }
     setPortalsByScene((previous) => ({
       ...previous,
-      [scene.id]: nextPortals,
+      [nextSceneId]: nextPortals,
     }));
   }
 
@@ -1102,6 +1172,44 @@ export function RoomLayoutEditor() {
     updateItems(nextItems);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
     setSelectedPortalId(null);
+  }
+
+  function saveNamedLayout() {
+    const layoutName =
+      savedLayoutName.trim() ||
+      `${scene.name} ${new Date().toLocaleDateString()}`;
+    const now = new Date().toISOString();
+    const existingLayout = savedLayouts.find(
+      (layout) => layout.sceneId === scene.id && layout.name === layoutName,
+    );
+    const nextLayout: SavedEditorLayout = {
+      id: existingLayout?.id ?? `layout-${Date.now()}`,
+      items,
+      name: layoutName,
+      portals,
+      sceneId: scene.id,
+      updatedAt: now,
+    };
+    setSavedLayouts((layouts) => [
+      nextLayout,
+      ...layouts.filter((layout) => layout.id !== nextLayout.id),
+    ]);
+    setSavedLayoutName(layoutName);
+  }
+
+  function loadSavedLayout(layout: SavedEditorLayout) {
+    setSceneId(layout.sceneId);
+    updateItemsForScene(layout.sceneId, layout.items);
+    updatePortalsForScene(layout.sceneId, layout.portals, false);
+    setSelectedIds(layout.items[0] ? [layout.items[0].id] : []);
+    setSelectedPortalId(null);
+    setSavedLayoutName(layout.name);
+  }
+
+  function deleteSavedLayout(layoutId: string) {
+    setSavedLayouts((layouts) =>
+      layouts.filter((layout) => layout.id !== layoutId),
+    );
   }
 
   function updateSelectedPortal(patch: Partial<EditorPortal>) {
@@ -1641,8 +1749,8 @@ export function RoomLayoutEditor() {
           <div className="eq-layout-editor-help">
             <strong>Recommended workflow</strong>
             <span>
-              Start with a blank room, add only assets that are clear, then copy
-              the JSON back to Codex.
+              Start with a blank room, add only assets that are clear, save your
+              layout, then copy the JSON back to Codex.
             </span>
             <small>
               Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position,
@@ -1687,6 +1795,48 @@ export function RoomLayoutEditor() {
             <button type="button" onClick={loadCurrentRoomLayout}>
               Load current game layout
             </button>
+          </div>
+
+          <div className="eq-layout-editor-saved-layouts">
+            <h2>Saved Layouts</h2>
+            <label>
+              Layout name
+              <input
+                placeholder={`${scene.name} draft`}
+                value={savedLayoutName}
+                onChange={(event) => setSavedLayoutName(event.target.value)}
+              />
+            </label>
+            <button type="button" onClick={saveNamedLayout}>
+              Save this room layout
+            </button>
+            {savedLayouts.length > 0 ? (
+              <div className="eq-layout-editor-saved-list">
+                {savedLayouts.map((layout) => (
+                  <div className="eq-layout-editor-saved-row" key={layout.id}>
+                    <button
+                      type="button"
+                      onClick={() => loadSavedLayout(layout)}
+                    >
+                      <strong>{layout.name}</strong>
+                      <small>
+                        {getSceneName(layout.sceneId)} |{" "}
+                        {new Date(layout.updatedAt).toLocaleString()}
+                      </small>
+                    </button>
+                    <button
+                      aria-label={`Delete saved layout ${layout.name}`}
+                      type="button"
+                      onClick={() => deleteSavedLayout(layout.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No saved layouts yet.</p>
+            )}
           </div>
 
           {exampleLayouts.length > 0 && (
