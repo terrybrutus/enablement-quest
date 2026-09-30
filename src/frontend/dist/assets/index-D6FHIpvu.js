@@ -17949,7 +17949,7 @@ function RoomLayoutEditor() {
   function updateGroupLabel(groupId, groupLabel) {
     updateItems(
       items.map(
-        (item) => item.groupId === groupId ? { ...item, groupLabel: groupLabel.trim() || "New Group" } : item
+        (item) => item.groupId === groupId ? { ...item, groupLabel: groupLabel.trim() } : item
       )
     );
   }

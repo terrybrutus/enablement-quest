@@ -1193,7 +1193,7 @@ export function RoomLayoutEditor() {
     updateItems(
       items.map((item) =>
         item.groupId === groupId
-          ? { ...item, groupLabel: groupLabel.trim() || "New Group" }
+          ? { ...item, groupLabel: groupLabel.trim() }
           : item,
       ),
     );
