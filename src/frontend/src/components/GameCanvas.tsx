@@ -829,7 +829,7 @@ function getQaScene(): {
     return {
       sceneId,
       caseId: "sales" as const,
-      position: { x: 4.7, y: 6.2 },
+      position: initialPosition,
       labBriefingCompleted: searchParams.get("qaLabBriefed") === "1",
     };
   }
@@ -942,7 +942,7 @@ function getNextObjective(
       if (sceneId === "lab") {
         return labBriefingCompleted
           ? "Exit to the campus and find Leo in the Sales Enablement Studio."
-          : "Read the leadership email at the desk before you leave the lab.";
+          : "Grab the orange backpack from the center table before you leave the lab.";
       }
       return sceneId === "sales"
         ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales."
@@ -996,9 +996,9 @@ function getCoachPrompt(
               "The mission is set. Go to the campus, then enter the Sales Enablement Studio.",
           }
         : {
-            action: "Read the leadership email",
+            action: "Grab the orange backpack",
             reason:
-              "The email gives the learner the business request before the case begins.",
+              "The backpack is where your saved evidence will live during the case.",
           };
     }
     return sceneId === (caseId === "sales" ? "sales" : "operations")

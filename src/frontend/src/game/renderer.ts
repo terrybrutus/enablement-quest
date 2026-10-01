@@ -81,7 +81,7 @@ export function renderGame(
   ctx.fillRect(0, 0, viewport.width, viewport.height);
 
   drawSceneBase(ctx, viewport, scene, camera, assets);
-  drawProps(ctx, scene, camera, assets);
+  drawProps(ctx, scene, gameState, camera, assets);
   drawPortals(ctx, scene, camera);
   drawEvidence(ctx, scene, gameState, camera, assets);
   drawCharacters(ctx, scene, gameState, camera, assets);
@@ -665,12 +665,18 @@ function shortPortalLabel(label: string) {
 function drawProps(
   ctx: CanvasRenderingContext2D,
   scene: Scene,
+  gameState: GameState,
   camera: { x: number; y: number },
   assets: LoadedAssets,
 ) {
-  const sortedProps = [...scene.props].sort(
-    (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height),
-  );
+  const sortedProps = scene.props
+    .filter(
+      (prop) =>
+        !(prop.id === "mission-backpack" && gameState.labBriefingCompleted),
+    )
+    .sort(
+      (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height),
+    );
   for (const prop of sortedProps) {
     const px = prop.position.x * TILE_SIZE - camera.x;
     const py = prop.position.y * TILE_SIZE - camera.y;
@@ -865,6 +871,78 @@ function drawPlayer(
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
+  if (gameState.labBriefingCompleted) {
+    drawEquippedBackpack(ctx, x, y, gameState.player.direction);
+  }
+}
+
+function drawEquippedBackpack(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  direction: Direction,
+) {
+  const placements: Record<
+    Direction,
+    {
+      height: number;
+      strapX: number;
+      strapY: number;
+      width: number;
+      x: number;
+      y: number;
+    }
+  > = {
+    down: {
+      x: x + 8,
+      y: y + 22,
+      width: 18,
+      height: 20,
+      strapX: x + 16,
+      strapY: y + 20,
+    },
+    left: {
+      x: x + 20,
+      y: y + 19,
+      width: 14,
+      height: 22,
+      strapX: x + 22,
+      strapY: y + 20,
+    },
+    right: {
+      x,
+      y: y + 19,
+      width: 14,
+      height: 22,
+      strapX: x + 10,
+      strapY: y + 20,
+    },
+    up: {
+      x: x + 8,
+      y: y + 18,
+      width: 18,
+      height: 24,
+      strapX: x + 16,
+      strapY: y + 18,
+    },
+  };
+  const pack = placements[direction];
+  ctx.save();
+  ctx.fillStyle = "#c46a18";
+  ctx.fillRect(pack.x, pack.y, pack.width, pack.height);
+  ctx.fillStyle = "#f59e0b";
+  ctx.fillRect(pack.x + 3, pack.y + 4, pack.width - 6, 5);
+  ctx.strokeStyle = "#7c2d12";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pack.x, pack.y, pack.width, pack.height);
+  ctx.strokeStyle = "#fef3c7";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pack.strapX - 6, pack.strapY + 3);
+  ctx.lineTo(pack.strapX, pack.strapY);
+  ctx.lineTo(pack.strapX + 6, pack.strapY + 3);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function getDirectionSpriteOffset(direction: Direction) {

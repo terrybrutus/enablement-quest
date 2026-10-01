@@ -1470,7 +1470,25 @@ export function RoomLayoutEditor() {
     saveSnapshot = true,
   ) {
     if (itemIds.length === 0) {
-      return;
+      return { dx: 0, dy: 0 };
+    }
+    const movingItems = items.filter((item) => itemIds.includes(item.id));
+    const movingBounds = getItemsBounds(movingItems);
+    if (!movingBounds) {
+      return { dx: 0, dy: 0 };
+    }
+    const actualDx = clamp(
+      dx,
+      -movingBounds.position.x,
+      scene.width - (movingBounds.position.x + movingBounds.size.width),
+    );
+    const actualDy = clamp(
+      dy,
+      -movingBounds.position.y,
+      scene.height - (movingBounds.position.y + movingBounds.size.height),
+    );
+    if (actualDx === 0 && actualDy === 0) {
+      return { dx: 0, dy: 0 };
     }
     updateItems(
       items.map((item) => {
@@ -1480,13 +1498,14 @@ export function RoomLayoutEditor() {
         return {
           ...item,
           position: {
-            x: clamp(item.position.x + dx, 0, scene.width - item.size.width),
-            y: clamp(item.position.y + dy, 0, scene.height - item.size.height),
+            x: roundToPrecision(item.position.x + actualDx),
+            y: roundToPrecision(item.position.y + actualDy),
           },
         };
       }),
       saveSnapshot,
     );
+    return { dx: actualDx, dy: actualDy };
   }
 
   function resizeItems(
@@ -2103,7 +2122,6 @@ export function RoomLayoutEditor() {
                   setSelectedPortalId(null);
                   setEditingLabel({ id: item.id, kind: "item" });
                 }}
-                scene={scene}
               />
             ))}
             {selectedBounds && selectedIds.length > 1 && (
@@ -2662,7 +2680,6 @@ function DraggableItem({
   onResizeStart,
   onSelect,
   onStartLabelEdit,
-  scene,
   showResizeHandles,
 }: {
   isEditingLabel: boolean;
@@ -2670,7 +2687,7 @@ function DraggableItem({
   item: EditorItem;
   onCancelLabelEdit: () => void;
   onDragStart: () => void;
-  onMoveSelected: (dx: number, dy: number) => void;
+  onMoveSelected: (dx: number, dy: number) => { dx: number; dy: number };
   onRenameLabel: (label: string) => void;
   onResizeSelected: (
     handle: ResizeHandle,
@@ -2681,7 +2698,6 @@ function DraggableItem({
   onResizeStart: () => void;
   onSelect: (additive: boolean) => void;
   onStartLabelEdit: () => void;
-  scene: Scene;
   showResizeHandles: boolean;
 }) {
   const dragState = useRef<{
@@ -2732,20 +2748,9 @@ function DraggableItem({
           onDragStart();
           currentDrag.savedHistory = true;
         }
-        currentDrag.lastClientX = event.clientX;
-        currentDrag.lastClientY = event.clientY;
-        onMoveSelected(dx, dy);
-        const itemMaxX = scene.width - item.size.width;
-        const itemMaxY = scene.height - item.size.height;
-        if (
-          item.position.x + dx < 0 ||
-          item.position.x + dx > itemMaxX ||
-          item.position.y + dy < 0 ||
-          item.position.y + dy > itemMaxY
-        ) {
-          currentDrag.lastClientX -= dx * TILE_SIZE;
-          currentDrag.lastClientY -= dy * TILE_SIZE;
-        }
+        const actualMove = onMoveSelected(dx, dy);
+        currentDrag.lastClientX += actualMove.dx * TILE_SIZE;
+        currentDrag.lastClientY += actualMove.dy * TILE_SIZE;
       }}
       onPointerUp={(event) => {
         event.currentTarget.releasePointerCapture(event.pointerId);

@@ -12106,7 +12106,7 @@ const scenes = [
       {
         id: "lab-to-hub",
         label: "Organization Floor",
-        rect: { x: 8, y: 11.15, width: 2, height: 1.6 },
+        rect: { x: 2.5, y: 11.4, width: 2, height: 1.6 },
         targetSceneId: "hub",
         targetPosition: { x: 15, y: 15.95 }
       }
@@ -12115,83 +12115,201 @@ const scenes = [
       { x: 0, y: 0, width: 18, height: 1 },
       { x: 0, y: 0, width: 1, height: 13 },
       { x: 17, y: 0, width: 1, height: 13 },
-      { x: 0, y: 12, width: 8, height: 1 },
-      { x: 10, y: 12, width: 8, height: 1 }
+      { x: 0, y: 12, width: 2.4, height: 1 },
+      { x: 4.6, y: 12, width: 13.4, height: 1 }
     ],
     props: [
       {
-        id: "mission-desk",
-        label: "Email",
-        description: "Email from Elena, CRO: Atlas Pro is reaching proposal, but too few deals are closing. Leadership is asking whether more product training will fix it. Before recommending anything, meet Leo and investigate the evidence.",
-        position: { x: 2.15, y: 4.35 },
-        size: { width: 3.15, height: 2.05 },
-        sprite: officeSprite(336, 1392, 144, 96),
+        id: "lab-canvas-workstation",
+        position: { x: 0.75, y: 2 },
+        size: { width: 3.75, height: 3.06 },
+        sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
-        id: "analytics-wall",
-        description: "This dashboard will matter later. First, read the leadership email at the desk so the mission has context.",
-        position: { x: 6.05, y: 1.25 },
-        size: { width: 2.75, height: 1.65 },
-        sprite: officeSprite(48, 1488, 144, 96),
+        id: "lab-canvas-chair",
+        position: { x: 2.57, y: 3.5 },
+        size: { width: 1.5, height: 2 },
+        sprite: { image: "officeSingle101", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
-        id: "lab-ai-workbench",
-        description: "The AI workbench can summarize evidence, but the diagnosis still has to be human-reviewed.",
-        position: { x: 10.85, y: 4.3 },
-        size: { width: 3.25, height: 2.05 },
-        sprite: officeSprite(576, 1488, 144, 96),
+        id: "lab-tools-printer",
+        position: { x: 1.5, y: 0.5 },
+        size: { width: 1.75, height: 1.75 },
+        sprite: { image: "officeSingle177", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
-        id: "lab-server-stack",
-        description: "The server rack stores case evidence. Claims are useful; evidence decides what to build.",
-        position: { x: 2.6, y: 8.35 },
-        size: { width: 1.5, height: 1.7 },
-        sprite: officeSprite(0, 1152, 96, 96),
+        id: "lab-tools-cabinet-left",
+        position: { x: 0, y: 1 },
+        size: { width: 1.25, height: 1.25 },
+        sprite: { image: "officeSingle176", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
-        id: "lab-case-library",
-        position: { x: 9.45, y: 1.45 },
-        size: { width: 2.4, height: 1.9 },
-        sprite: officeSprite(384, 576, 144, 96),
+        id: "lab-tools-cabinet-right",
+        position: { x: 2.75, y: 1 },
+        size: { width: 1.25, height: 1.25 },
+        sprite: { image: "officeSingle176", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
-        id: "lab-briefing-board",
-        position: { x: 12.85, y: 1.45 },
-        size: { width: 2.6, height: 1.55 },
-        sprite: officeSprite(240, 336, 144, 48),
+        id: "lab-top-right-plant-a",
+        position: { x: 16.5, y: 1 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        spriteTransform: { flipX: true },
         collision: true
       },
       {
-        id: "lab-review-desk",
-        position: { x: 6.05, y: 4.55 },
-        size: { width: 2.55, height: 1.7 },
-        sprite: officeSprite(384, 1392, 96, 96),
+        id: "lab-top-right-equipment",
+        position: { x: 13, y: 0.25 },
+        size: { width: 1.5, height: 2.75 },
+        sprite: { image: "officeSingle175", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
-        id: "lab-side-desk",
-        position: { x: 12.1, y: 8.2 },
-        size: { width: 2.65, height: 1.75 },
-        sprite: officeSprite(384, 1584, 144, 96),
+        id: "lab-center-table-top-left",
+        position: { x: 6.5, y: 5.25 },
+        size: { width: 1.9, height: 1.86 },
+        sprite: officeSprite(48, 0),
         collision: true
       },
       {
-        id: "lab-plants",
-        position: { x: 15.2, y: 7.95 },
-        size: { width: 1.45, height: 1.9 },
-        sprite: officeSprite(288, 192),
+        id: "lab-center-table-top-right",
+        position: { x: 9.35, y: 5.25 },
+        size: { width: 1.9, height: 1.86 },
+        sprite: officeSprite(48, 0),
+        spriteTransform: { flipX: true },
         collision: true
       },
       {
-        id: "lab-paper-stack",
-        position: { x: 5.65, y: 7.9 },
-        size: { width: 1.3, height: 1 },
-        sprite: officeSprite(0, 480, 96, 48)
+        id: "lab-center-table-top-middle",
+        position: { x: 7.93, y: 5.25 },
+        size: { width: 1.9, height: 1.86 },
+        sprite: officeSprite(96, 0),
+        collision: true
+      },
+      {
+        id: "lab-center-table-bottom-left",
+        position: { x: 6.5, y: 6.64 },
+        size: { width: 1.9, height: 1.86 },
+        sprite: officeSprite(48, 0),
+        spriteTransform: { flipY: true },
+        collision: true
+      },
+      {
+        id: "lab-center-table-bottom-right",
+        position: { x: 9.35, y: 6.64 },
+        size: { width: 1.9, height: 1.86 },
+        sprite: officeSprite(48, 0),
+        spriteTransform: { flipX: true, flipY: true },
+        collision: true
+      },
+      {
+        id: "lab-center-table-bottom-middle",
+        position: { x: 7.93, y: 6.64 },
+        size: { width: 1.9, height: 1.86 },
+        sprite: officeSprite(96, 0),
+        spriteTransform: { flipY: true },
+        collision: true
+      },
+      {
+        id: "mission-backpack",
+        label: "Orange Backpack",
+        description: "Backpack equipped. This is where your saved evidence will live during the case. Now leave the lab and find Leo in the Sales Enablement Studio.",
+        position: { x: 7.5, y: 6.35 },
+        size: { width: 1, height: 2 },
+        sprite: { image: "officeSingle331", sx: 0, sy: 0, sw: 96, sh: 144 },
+        glow: true
+      },
+      {
+        id: "lab-top-right-plant-b",
+        position: { x: 17, y: 1.5 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        spriteTransform: { flipX: true },
+        collision: true
+      },
+      {
+        id: "lab-top-right-plant-c",
+        position: { x: 16.75, y: 1.75 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        spriteTransform: { flipX: true },
+        collision: true
+      },
+      {
+        id: "lab-top-right-plant-d",
+        position: { x: 16.25, y: 1.5 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        spriteTransform: { flipX: true },
+        collision: true
+      },
+      {
+        id: "lab-bottom-right-plant-a",
+        position: { x: 16.5, y: 11 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-right-plant-b",
+        position: { x: 17, y: 11.5 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-right-plant-c",
+        position: { x: 16.75, y: 11.75 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-right-plant-d",
+        position: { x: 16.25, y: 11.5 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-left-plant-a",
+        position: { x: 0.25, y: 11 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-left-plant-b",
+        position: { x: 0.75, y: 11.5 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-left-plant-c",
+        position: { x: 0.5, y: 11.75 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-bottom-left-plant-d",
+        position: { x: 0, y: 11.5 },
+        size: { width: 1, height: 1.25 },
+        sprite: { image: "officeSingle98", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
+      },
+      {
+        id: "lab-water-cooler",
+        position: { x: 12.25, y: 0.75 },
+        size: { width: 1.25, height: 2 },
+        sprite: { image: "officeSingle173", sx: 0, sy: 0, sw: 96, sh: 144 },
+        collision: true
       }
     ]
   },
@@ -13056,7 +13174,7 @@ function renderGame(ctx, canvas, gameState, assets) {
   ctx.fillStyle = "#07111d";
   ctx.fillRect(0, 0, viewport.width, viewport.height);
   drawSceneBase(ctx, viewport, scene, camera, assets);
-  drawProps(ctx, scene, camera, assets);
+  drawProps(ctx, scene, gameState, camera, assets);
   drawPortals(ctx, scene, camera);
   drawEvidence(ctx, scene, gameState, camera, assets);
   drawCharacters(ctx, scene, gameState, camera, assets);
@@ -13492,8 +13610,10 @@ function shortPortalLabel(label) {
   }
   return "door";
 }
-function drawProps(ctx, scene, camera, assets) {
-  const sortedProps = [...scene.props].sort(
+function drawProps(ctx, scene, gameState, camera, assets) {
+  const sortedProps = scene.props.filter(
+    (prop) => !(prop.id === "mission-backpack" && gameState.labBriefingCompleted)
+  ).sort(
     (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height)
   );
   for (const prop of sortedProps) {
@@ -13643,6 +13763,62 @@ function drawPlayer(ctx, gameState, camera, assets) {
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
+  if (gameState.labBriefingCompleted) {
+    drawEquippedBackpack(ctx, x, y, gameState.player.direction);
+  }
+}
+function drawEquippedBackpack(ctx, x, y, direction) {
+  const placements = {
+    down: {
+      x: x + 8,
+      y: y + 22,
+      width: 18,
+      height: 20,
+      strapX: x + 16,
+      strapY: y + 20
+    },
+    left: {
+      x: x + 20,
+      y: y + 19,
+      width: 14,
+      height: 22,
+      strapX: x + 22,
+      strapY: y + 20
+    },
+    right: {
+      x,
+      y: y + 19,
+      width: 14,
+      height: 22,
+      strapX: x + 10,
+      strapY: y + 20
+    },
+    up: {
+      x: x + 8,
+      y: y + 18,
+      width: 18,
+      height: 24,
+      strapX: x + 16,
+      strapY: y + 18
+    }
+  };
+  const pack = placements[direction];
+  ctx.save();
+  ctx.fillStyle = "#c46a18";
+  ctx.fillRect(pack.x, pack.y, pack.width, pack.height);
+  ctx.fillStyle = "#f59e0b";
+  ctx.fillRect(pack.x + 3, pack.y + 4, pack.width - 6, 5);
+  ctx.strokeStyle = "#7c2d12";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(pack.x, pack.y, pack.width, pack.height);
+  ctx.strokeStyle = "#fef3c7";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pack.strapX - 6, pack.strapY + 3);
+  ctx.lineTo(pack.strapX, pack.strapY);
+  ctx.lineTo(pack.strapX + 6, pack.strapY + 3);
+  ctx.stroke();
+  ctx.restore();
 }
 function getDirectionSpriteOffset(direction) {
   const offsets = {
@@ -13874,13 +14050,13 @@ function useGameLoop({
     }
     const prop = getNearbyInspectableProp(state);
     if (prop == null ? void 0 : prop.description) {
-      if (state.player.sceneId === "lab" && prop.id !== "mission-desk") {
+      if (state.player.sceneId === "lab" && prop.id !== "mission-backpack") {
         setToast(
-          "Start at the desk. Read the leadership email before you explore."
+          "Grab your orange backpack first. You will use it to store evidence during the case."
         );
         return;
       }
-      if (prop.id === "mission-desk") {
+      if (prop.id === "mission-backpack") {
         const message = prop.description;
         setGameState((previous) => ({
           ...previous,
@@ -13899,7 +14075,7 @@ function useGameLoop({
     if (portal) {
       if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
         setToast(
-          "Read the leadership email at the desk first. Then leave the lab."
+          "Grab your orange backpack first. Then leave the lab and find Leo."
         );
         return;
       }
@@ -14110,7 +14286,7 @@ function moveWithinScene(state, nextPosition) {
         },
         toast: {
           id: Date.now(),
-          message: "Read the leadership email at the desk first. Then leave the lab and find Leo."
+          message: "Grab your orange backpack first. Then leave the lab and find Leo."
         }
       };
     }
@@ -14185,7 +14361,7 @@ function moveWithinScene(state, nextPosition) {
         },
         toast: {
           id: Date.now(),
-          message: "Read the leadership email at the desk first. Then leave the lab and find Leo."
+          message: "Grab your orange backpack first. Then leave the lab and find Leo."
         }
       };
     }
@@ -16049,7 +16225,7 @@ function getQaScene() {
     return {
       sceneId,
       caseId: "sales",
-      position: { x: 4.7, y: 6.2 },
+      position: initialPosition,
       labBriefingCompleted: searchParams.get("qaLabBriefed") === "1"
     };
   }
@@ -16125,7 +16301,7 @@ function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, comple
   if (questStage === "briefing") {
     if (caseId === "sales") {
       if (sceneId === "lab") {
-        return labBriefingCompleted ? "Exit to the campus and find Leo in the Sales Enablement Studio." : "Read the leadership email at the desk before you leave the lab.";
+        return labBriefingCompleted ? "Exit to the campus and find Leo in the Sales Enablement Studio." : "Grab the orange backpack from the center table before you leave the lab.";
       }
       return sceneId === "sales" ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales." : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
     }
@@ -16162,8 +16338,8 @@ function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneI
         action: "Exit the lab",
         reason: "The mission is set. Go to the campus, then enter the Sales Enablement Studio."
       } : {
-        action: "Read the leadership email",
-        reason: "The email gives the learner the business request before the case begins."
+        action: "Grab the orange backpack",
+        reason: "The backpack is where your saved evidence will live during the case."
       };
     }
     return sceneId === (caseId === "sales" ? "sales" : "operations") ? {
@@ -18160,7 +18336,25 @@ function RoomLayoutEditor() {
   }
   function moveItems(itemIds, dx, dy, saveSnapshot = true) {
     if (itemIds.length === 0) {
-      return;
+      return { dx: 0, dy: 0 };
+    }
+    const movingItems = items.filter((item) => itemIds.includes(item.id));
+    const movingBounds = getItemsBounds(movingItems);
+    if (!movingBounds) {
+      return { dx: 0, dy: 0 };
+    }
+    const actualDx = clamp(
+      dx,
+      -movingBounds.position.x,
+      scene.width - (movingBounds.position.x + movingBounds.size.width)
+    );
+    const actualDy = clamp(
+      dy,
+      -movingBounds.position.y,
+      scene.height - (movingBounds.position.y + movingBounds.size.height)
+    );
+    if (actualDx === 0 && actualDy === 0) {
+      return { dx: 0, dy: 0 };
     }
     updateItems(
       items.map((item) => {
@@ -18170,13 +18364,14 @@ function RoomLayoutEditor() {
         return {
           ...item,
           position: {
-            x: clamp(item.position.x + dx, 0, scene.width - item.size.width),
-            y: clamp(item.position.y + dy, 0, scene.height - item.size.height)
+            x: roundToPrecision(item.position.x + actualDx),
+            y: roundToPrecision(item.position.y + actualDy)
           }
         };
       }),
       saveSnapshot
     );
+    return { dx: actualDx, dy: actualDy };
   }
   function resizeItems(itemIds, handle, dx, dy, keepRatio, saveSnapshot = true) {
     if (itemIds.length === 0 || dx === 0 && dy === 0) {
@@ -18701,8 +18896,7 @@ function RoomLayoutEditor() {
                     setSelectedIds([item.id]);
                     setSelectedPortalId(null);
                     setEditingLabel({ id: item.id, kind: "item" });
-                  },
-                  scene
+                  }
                 },
                 item.id
               )),
@@ -19242,7 +19436,6 @@ function DraggableItem({
   onResizeStart,
   onSelect,
   onStartLabelEdit,
-  scene,
   showResizeHandles
 }) {
   const dragState = reactExports.useRef(null);
@@ -19281,15 +19474,9 @@ function DraggableItem({
           onDragStart();
           currentDrag.savedHistory = true;
         }
-        currentDrag.lastClientX = event.clientX;
-        currentDrag.lastClientY = event.clientY;
-        onMoveSelected(dx, dy);
-        const itemMaxX = scene.width - item.size.width;
-        const itemMaxY = scene.height - item.size.height;
-        if (item.position.x + dx < 0 || item.position.x + dx > itemMaxX || item.position.y + dy < 0 || item.position.y + dy > itemMaxY) {
-          currentDrag.lastClientX -= dx * TILE_SIZE;
-          currentDrag.lastClientY -= dy * TILE_SIZE;
-        }
+        const actualMove = onMoveSelected(dx, dy);
+        currentDrag.lastClientX += actualMove.dx * TILE_SIZE;
+        currentDrag.lastClientY += actualMove.dy * TILE_SIZE;
       },
       onPointerUp: (event) => {
         event.currentTarget.releasePointerCapture(event.pointerId);

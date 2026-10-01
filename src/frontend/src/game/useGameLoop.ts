@@ -172,13 +172,13 @@ export function useGameLoop({
 
     const prop = getNearbyInspectableProp(state);
     if (prop?.description) {
-      if (state.player.sceneId === "lab" && prop.id !== "mission-desk") {
+      if (state.player.sceneId === "lab" && prop.id !== "mission-backpack") {
         setToast(
-          "Start at the desk. Read the leadership email before you explore.",
+          "Grab your orange backpack first. You will use it to store evidence during the case.",
         );
         return;
       }
-      if (prop.id === "mission-desk") {
+      if (prop.id === "mission-backpack") {
         const message = prop.description;
         setGameState((previous) => ({
           ...previous,
@@ -198,7 +198,7 @@ export function useGameLoop({
     if (portal) {
       if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
         setToast(
-          "Read the leadership email at the desk first. Then leave the lab.",
+          "Grab your orange backpack first. Then leave the lab and find Leo.",
         );
         return;
       }
@@ -457,7 +457,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Read the leadership email at the desk first. Then leave the lab and find Leo.",
+            "Grab your orange backpack first. Then leave the lab and find Leo.",
         },
       };
     }
@@ -546,7 +546,7 @@ function moveWithinScene(
         toast: {
           id: Date.now(),
           message:
-            "Read the leadership email at the desk first. Then leave the lab and find Leo.",
+            "Grab your orange backpack first. Then leave the lab and find Leo.",
         },
       };
     }
