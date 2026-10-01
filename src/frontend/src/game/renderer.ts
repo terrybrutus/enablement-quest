@@ -877,7 +877,7 @@ function drawPlayer(
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
-  if (gameState.labBriefingCompleted && gameState.player.direction !== "down") {
+  if (gameState.labBriefingCompleted) {
     drawEquippedBackpack(ctx, x, y, gameState.player.direction);
   }
 }
@@ -900,36 +900,36 @@ function drawEquippedBackpack(
     }
   > = {
     down: {
-      x: x + 8,
-      y: y + 22,
+      x: x + 9,
+      y: y + 30,
       width: 18,
-      height: 20,
+      height: 22,
       strapX: x + 16,
-      strapY: y + 20,
+      strapY: y + 30,
     },
     left: {
       x: x + 20,
-      y: y + 19,
+      y: y + 30,
       width: 14,
-      height: 22,
+      height: 21,
       strapX: x + 22,
-      strapY: y + 20,
+      strapY: y + 31,
     },
     right: {
       x,
-      y: y + 19,
+      y: y + 30,
       width: 14,
-      height: 22,
+      height: 21,
       strapX: x + 10,
-      strapY: y + 20,
+      strapY: y + 31,
     },
     up: {
       x: x + 8,
-      y: y + 18,
+      y: y + 28,
       width: 18,
       height: 24,
       strapX: x + 16,
-      strapY: y + 18,
+      strapY: y + 29,
     },
   };
   const pack = placements[direction];
