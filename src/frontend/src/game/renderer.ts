@@ -871,7 +871,7 @@ function drawPlayer(
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
-  if (gameState.labBriefingCompleted) {
+  if (gameState.labBriefingCompleted && gameState.player.direction !== "down") {
     drawEquippedBackpack(ctx, x, y, gameState.player.direction);
   }
 }

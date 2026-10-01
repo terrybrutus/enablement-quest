@@ -12219,10 +12219,9 @@ const scenes = [
         id: "mission-backpack",
         label: "Orange Backpack",
         description: "Backpack equipped. This is where your saved evidence will live during the case. Now leave the lab and find Leo in the Sales Enablement Studio.",
-        position: { x: 7.5, y: 6.35 },
+        position: { x: 6.75, y: 5.75 },
         size: { width: 1, height: 2 },
-        sprite: { image: "officeSingle331", sx: 0, sy: 0, sw: 96, sh: 144 },
-        glow: true
+        sprite: { image: "officeSingle331", sx: 0, sy: 0, sw: 96, sh: 144 }
       },
       {
         id: "lab-top-right-plant-b",
@@ -13127,7 +13126,7 @@ const earnedArtifactsByCase = {
   onboarding: earnedCanvas,
   sales: salesCanvas
 };
-const initialPosition = { x: 9, y: 7.6 };
+const initialPosition = { x: 9, y: 9.65 };
 const TILE_SIZE = 48;
 const PLAYER_WIDTH = 34;
 const PLAYER_HEIGHT = 52;
@@ -13763,7 +13762,7 @@ function drawPlayer(ctx, gameState, camera, assets) {
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
-  if (gameState.labBriefingCompleted) {
+  if (gameState.labBriefingCompleted && gameState.player.direction !== "down") {
     drawEquippedBackpack(ctx, x, y, gameState.player.direction);
   }
 }
@@ -14551,7 +14550,8 @@ function getNearbyInspectableProp(state) {
       x: prop.position.x + prop.size.width / 2,
       y: prop.position.y + prop.size.height / 2
     };
-    return distanceInPixels(state.player.position, center) < INTERACT_DISTANCE;
+    const interactionDistance = prop.id === "mission-backpack" ? INTERACT_DISTANCE * 2.1 : INTERACT_DISTANCE;
+    return distanceInPixels(state.player.position, center) < interactionDistance;
   });
 }
 function getCurrentScene(state) {

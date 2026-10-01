@@ -231,10 +231,9 @@ export const scenes: Scene[] = [
         label: "Orange Backpack",
         description:
           "Backpack equipped. This is where your saved evidence will live during the case. Now leave the lab and find Leo in the Sales Enablement Studio.",
-        position: { x: 7.5, y: 6.35 },
+        position: { x: 6.75, y: 5.75 },
         size: { width: 1, height: 2 },
         sprite: { image: "officeSingle331", sx: 0, sy: 0, sw: 96, sh: 144 },
-        glow: true,
       },
       {
         id: "lab-top-right-plant-b",
@@ -1318,4 +1317,4 @@ export const earnedArtifactsByCase = {
   sales: salesCanvas,
 } as const;
 
-export const initialPosition = { x: 9, y: 7.6 };
+export const initialPosition = { x: 9, y: 9.65 };

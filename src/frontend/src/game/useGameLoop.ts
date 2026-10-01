@@ -786,7 +786,13 @@ function getNearbyInspectableProp(state: GameState) {
       x: prop.position.x + prop.size.width / 2,
       y: prop.position.y + prop.size.height / 2,
     };
-    return distanceInPixels(state.player.position, center) < INTERACT_DISTANCE;
+    const interactionDistance =
+      prop.id === "mission-backpack"
+        ? INTERACT_DISTANCE * 2.1
+        : INTERACT_DISTANCE;
+    return (
+      distanceInPixels(state.player.position, center) < interactionDistance
+    );
   });
 }
 
