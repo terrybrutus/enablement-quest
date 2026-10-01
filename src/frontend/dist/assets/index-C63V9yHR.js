@@ -13634,6 +13634,8 @@ function drawProps(ctx, scene, gameState, camera, assets) {
       ctx.shadowBlur = 0;
     }
     if (prop.sprite) {
+      const previousSmoothing = ctx.imageSmoothingEnabled;
+      ctx.imageSmoothingEnabled = true;
       drawSheetSprite(
         ctx,
         assets,
@@ -13644,6 +13646,7 @@ function drawProps(ctx, scene, gameState, camera, assets) {
         height,
         prop.spriteTransform
       );
+      ctx.imageSmoothingEnabled = previousSmoothing;
     }
   }
   for (const prop of sortedProps) {
@@ -13774,7 +13777,7 @@ function drawPlayer(ctx, gameState, camera, assets) {
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
-  if (gameState.labBriefingCompleted) {
+  if (gameState.labBriefingCompleted && gameState.player.direction !== "down") {
     drawEquippedBackpack(ctx, x, y, gameState.player.direction);
   }
 }
@@ -13790,27 +13793,27 @@ function drawEquippedBackpack(ctx, x, y, direction) {
     },
     left: {
       x: x + 20,
-      y: y + 30,
+      y: y + 35,
       width: 14,
-      height: 21,
+      height: 18,
       strapX: x + 22,
-      strapY: y + 31
+      strapY: y + 36
     },
     right: {
       x,
-      y: y + 30,
+      y: y + 35,
       width: 14,
-      height: 21,
+      height: 18,
       strapX: x + 10,
-      strapY: y + 31
+      strapY: y + 36
     },
     up: {
       x: x + 8,
-      y: y + 28,
+      y: y + 34,
       width: 18,
-      height: 24,
+      height: 20,
       strapX: x + 16,
-      strapY: y + 29
+      strapY: y + 35
     }
   };
   const pack = placements[direction];
@@ -18046,6 +18049,7 @@ function RoomLayoutEditor() {
   );
   const [selectionBox, setSelectionBox] = reactExports.useState(null);
   const [editingLabel, setEditingLabel] = reactExports.useState(null);
+  const clipboardRef = reactExports.useRef(null);
   const selectedItem = items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ?? null;
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
   const selectedPortal = portals.find((portal) => portal.id === selectedPortalId) ?? null;
@@ -18280,18 +18284,65 @@ function RoomLayoutEditor() {
     if (selectedItems.length === 0) {
       return;
     }
+    copyItems(selectedItems);
+  }
+  function copyItems(sourceItems, offset = { x: 0.5, y: 0.5 }, saveSnapshot = true) {
+    if (sourceItems.length === 0) {
+      return [];
+    }
     const copiedGroupIds = /* @__PURE__ */ new Map();
-    const nextItems = selectedItems.map((item, index2) => ({
+    const copyStamp = Date.now().toString(36);
+    const nextItems = sourceItems.map((item, index2) => ({
       ...item,
       groupId: item.groupId ? getCopiedGroupId(item.groupId, copiedGroupIds) : void 0,
-      id: `${item.id}-copy-${items.length + index2 + 1}`,
+      id: `${item.id}-copy-${copyStamp}-${index2 + 1}`,
       position: {
-        x: clamp(item.position.x + 0.5, 0, scene.width - item.size.width),
-        y: clamp(item.position.y + 0.5, 0, scene.height - item.size.height)
+        x: clamp(item.position.x + offset.x, 0, scene.width - item.size.width),
+        y: clamp(
+          item.position.y + offset.y,
+          0,
+          scene.height - item.size.height
+        )
       }
     }));
-    updateItems([...items, ...nextItems]);
+    updateItems([...items, ...nextItems], saveSnapshot);
     setSelectedIds(nextItems.map((item) => item.id));
+    return nextItems.map((item) => item.id);
+  }
+  function copySelectedToEditorClipboard() {
+    if (selectedItems.length === 0) {
+      return;
+    }
+    clipboardRef.current = {
+      items: selectedItems.map((item) => ({ ...item }))
+    };
+  }
+  function cutSelectedToEditorClipboard() {
+    if (selectedItems.length === 0) {
+      return;
+    }
+    copySelectedToEditorClipboard();
+    removeSelected();
+  }
+  function pasteEditorClipboard() {
+    var _a2;
+    const sourceItems = ((_a2 = clipboardRef.current) == null ? void 0 : _a2.items) ?? [];
+    if (sourceItems.length === 0) {
+      return;
+    }
+    copyItems(sourceItems, { x: 0.75, y: 0.75 });
+  }
+  function copySelectedForDrag(itemId) {
+    const sourceItems = selectedIds.includes(itemId) ? selectedItems : items.filter((item) => item.id === itemId);
+    return copyItems(sourceItems, { x: 0, y: 0 });
+  }
+  function resetSelectedSize() {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    updateSelectedItems((item) => ({
+      size: getDefaultSizeForItem(item)
+    }));
   }
   function groupSelected() {
     if (selectedIds.length < 2) {
@@ -18504,6 +18555,26 @@ function RoomLayoutEditor() {
       undo();
       return;
     }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
+      event.preventDefault();
+      copySelectedToEditorClipboard();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "x") {
+      event.preventDefault();
+      cutSelectedToEditorClipboard();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "v") {
+      event.preventDefault();
+      pasteEditorClipboard();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      duplicateSelected();
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "g") {
       event.preventDefault();
       if (event.shiftKey) {
@@ -18607,7 +18678,7 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, save your layout, then copy the JSON back to Codex." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag a corner keeps the resize ratio." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag copies, and dragging a corner keeps the resize ratio." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -18883,13 +18954,10 @@ function RoomLayoutEditor() {
                   item,
                   onCancelLabelEdit: () => setEditingLabel(null),
                   showResizeHandles: selectedIds.length === 1 && selectedIds.includes(item.id),
+                  dragItemIds: selectedIds.includes(item.id) ? selectedIds : [item.id],
                   onDragStart: saveHistory,
-                  onMoveSelected: (dx, dy) => moveItems(
-                    selectedIds.includes(item.id) ? selectedIds : [item.id],
-                    dx,
-                    dy,
-                    false
-                  ),
+                  onCopyDragStart: () => copySelectedForDrag(item.id),
+                  onMoveItems: (itemIds, dx, dy) => moveItems(itemIds, dx, dy, false),
                   onRenameLabel: (label) => {
                     updateItemLabel(item.id, label);
                     setEditingLabel(null);
@@ -19213,6 +19281,10 @@ function RoomLayoutEditor() {
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: rotateSelected, children: "Rotate 90°" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => flipSelected("x"), children: "Flip horizontal" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => flipSelected("y"), children: "Flip vertical" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: resetSelectedSize, children: "Reset size" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: copySelectedToEditorClipboard, children: "Copy" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: cutSelectedToEditorClipboard, children: "Cut" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: pasteEditorClipboard, children: "Paste" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: duplicateSelected, children: "Duplicate piece" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
@@ -19437,12 +19509,14 @@ function PlayerScaleReference({
   );
 }
 function DraggableItem({
+  dragItemIds,
   isEditingLabel,
   isSelected,
   item,
   onCancelLabelEdit,
+  onCopyDragStart,
   onDragStart,
-  onMoveSelected,
+  onMoveItems,
   onRenameLabel,
   onResizeSelected,
   onResizeStart,
@@ -19465,11 +19539,16 @@ function DraggableItem({
       onPointerDown: (event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
-        onSelect(event.ctrlKey || event.metaKey);
+        const shouldCopyDrag = isSelected && (event.ctrlKey || event.metaKey) && event.button === 0;
+        const itemIdsForDrag = shouldCopyDrag ? onCopyDragStart() : dragItemIds;
+        if (!shouldCopyDrag) {
+          onSelect(event.ctrlKey || event.metaKey);
+        }
         dragState.current = {
+          itemIds: itemIdsForDrag,
           lastClientX: event.clientX,
           lastClientY: event.clientY,
-          savedHistory: false
+          savedHistory: shouldCopyDrag
         };
       },
       onPointerMove: (event) => {
@@ -19486,7 +19565,7 @@ function DraggableItem({
           onDragStart();
           currentDrag.savedHistory = true;
         }
-        const actualMove = onMoveSelected(dx, dy);
+        const actualMove = onMoveItems(currentDrag.itemIds, dx, dy);
         currentDrag.lastClientX += actualMove.dx * TILE_SIZE;
         currentDrag.lastClientY += actualMove.dy * TILE_SIZE;
       },
@@ -19839,6 +19918,18 @@ function getCopiedGroupId(groupId, copiedGroupIds) {
   const nextGroupId = `${groupId}-copy-${copiedGroupIds.size + 1}`;
   copiedGroupIds.set(groupId, nextGroupId);
   return nextGroupId;
+}
+function getDefaultSizeForItem(item) {
+  const matchingPreset = presets.find((preset) => preset.id === item.presetId) ?? presets.find(
+    (preset) => preset.sprite.image === item.sprite.image && preset.sprite.sx === item.sprite.sx && preset.sprite.sy === item.sprite.sy && preset.sprite.sw === item.sprite.sw && preset.sprite.sh === item.sprite.sh
+  );
+  if (matchingPreset) {
+    return matchingPreset.defaultSize;
+  }
+  return {
+    height: Math.max(0.25, item.sprite.sh / TILE_SIZE),
+    width: Math.max(0.25, item.sprite.sw / TILE_SIZE)
+  };
 }
 function getItemsBounds(items) {
   if (items.length === 0) {

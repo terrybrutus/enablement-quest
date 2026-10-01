@@ -37,6 +37,10 @@ interface SavedEditorLayout {
   updatedAt: string;
 }
 
+interface EditorClipboard {
+  items: EditorItem[];
+}
+
 interface SpritePreset {
   category: string;
   defaultSize: { width: number; height: number };
@@ -1081,6 +1085,7 @@ export function RoomLayoutEditor() {
   );
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [editingLabel, setEditingLabel] = useState<EditingLabel>(null);
+  const clipboardRef = useRef<EditorClipboard | null>(null);
   const selectedItem =
     items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ??
     null;
@@ -1375,20 +1380,78 @@ export function RoomLayoutEditor() {
     if (selectedItems.length === 0) {
       return;
     }
+    copyItems(selectedItems);
+  }
+
+  function copyItems(
+    sourceItems: EditorItem[],
+    offset = { x: 0.5, y: 0.5 },
+    saveSnapshot = true,
+  ) {
+    if (sourceItems.length === 0) {
+      return [];
+    }
     const copiedGroupIds = new Map<string, string>();
-    const nextItems = selectedItems.map((item, index) => ({
+    const copyStamp = Date.now().toString(36);
+    const nextItems = sourceItems.map((item, index) => ({
       ...item,
       groupId: item.groupId
         ? getCopiedGroupId(item.groupId, copiedGroupIds)
         : undefined,
-      id: `${item.id}-copy-${items.length + index + 1}`,
+      id: `${item.id}-copy-${copyStamp}-${index + 1}`,
       position: {
-        x: clamp(item.position.x + 0.5, 0, scene.width - item.size.width),
-        y: clamp(item.position.y + 0.5, 0, scene.height - item.size.height),
+        x: clamp(item.position.x + offset.x, 0, scene.width - item.size.width),
+        y: clamp(
+          item.position.y + offset.y,
+          0,
+          scene.height - item.size.height,
+        ),
       },
     }));
-    updateItems([...items, ...nextItems]);
+    updateItems([...items, ...nextItems], saveSnapshot);
     setSelectedIds(nextItems.map((item) => item.id));
+    return nextItems.map((item) => item.id);
+  }
+
+  function copySelectedToEditorClipboard() {
+    if (selectedItems.length === 0) {
+      return;
+    }
+    clipboardRef.current = {
+      items: selectedItems.map((item) => ({ ...item })),
+    };
+  }
+
+  function cutSelectedToEditorClipboard() {
+    if (selectedItems.length === 0) {
+      return;
+    }
+    copySelectedToEditorClipboard();
+    removeSelected();
+  }
+
+  function pasteEditorClipboard() {
+    const sourceItems = clipboardRef.current?.items ?? [];
+    if (sourceItems.length === 0) {
+      return;
+    }
+    copyItems(sourceItems, { x: 0.75, y: 0.75 });
+  }
+
+  function copySelectedForDrag(itemId: string) {
+    const sourceItems = selectedIds.includes(itemId)
+      ? selectedItems
+      : items.filter((item) => item.id === itemId);
+    return copyItems(sourceItems, { x: 0, y: 0 });
+  }
+
+  function resetSelectedSize() {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    updateSelectedItems((item) => ({
+      size: getDefaultSizeForItem(item),
+    }));
   }
 
   function groupSelected() {
@@ -1663,6 +1726,26 @@ export function RoomLayoutEditor() {
       undo();
       return;
     }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c") {
+      event.preventDefault();
+      copySelectedToEditorClipboard();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "x") {
+      event.preventDefault();
+      cutSelectedToEditorClipboard();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "v") {
+      event.preventDefault();
+      pasteEditorClipboard();
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "d") {
+      event.preventDefault();
+      duplicateSelected();
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "g") {
       event.preventDefault();
       if (event.shiftKey) {
@@ -1789,9 +1872,11 @@ export function RoomLayoutEditor() {
             </span>
             <small>
               Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position,
-              Alt+Shift+arrows crop size, Delete removes, Ctrl+G groups,
+              Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V
+              pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups,
               Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects
-              a box, Ctrl+drag a corner keeps the resize ratio.
+              a box, Ctrl+drag copies, and dragging a corner keeps the resize
+              ratio.
             </small>
           </div>
 
@@ -2092,14 +2177,13 @@ export function RoomLayoutEditor() {
                 showResizeHandles={
                   selectedIds.length === 1 && selectedIds.includes(item.id)
                 }
+                dragItemIds={
+                  selectedIds.includes(item.id) ? selectedIds : [item.id]
+                }
                 onDragStart={saveHistory}
-                onMoveSelected={(dx, dy) =>
-                  moveItems(
-                    selectedIds.includes(item.id) ? selectedIds : [item.id],
-                    dx,
-                    dy,
-                    false,
-                  )
+                onCopyDragStart={() => copySelectedForDrag(item.id)}
+                onMoveItems={(itemIds, dx, dy) =>
+                  moveItems(itemIds, dx, dy, false)
                 }
                 onRenameLabel={(label) => {
                   updateItemLabel(item.id, label);
@@ -2416,6 +2500,18 @@ export function RoomLayoutEditor() {
                 <button type="button" onClick={() => flipSelected("y")}>
                   Flip vertical
                 </button>
+                <button type="button" onClick={resetSelectedSize}>
+                  Reset size
+                </button>
+                <button type="button" onClick={copySelectedToEditorClipboard}>
+                  Copy
+                </button>
+                <button type="button" onClick={cutSelectedToEditorClipboard}>
+                  Cut
+                </button>
+                <button type="button" onClick={pasteEditorClipboard}>
+                  Paste
+                </button>
                 <button type="button" onClick={duplicateSelected}>
                   Duplicate piece
                 </button>
@@ -2669,12 +2765,14 @@ function PlayerScaleReference({
 }
 
 function DraggableItem({
+  dragItemIds,
   isEditingLabel,
   isSelected,
   item,
   onCancelLabelEdit,
+  onCopyDragStart,
   onDragStart,
-  onMoveSelected,
+  onMoveItems,
   onRenameLabel,
   onResizeSelected,
   onResizeStart,
@@ -2682,12 +2780,18 @@ function DraggableItem({
   onStartLabelEdit,
   showResizeHandles,
 }: {
+  dragItemIds: string[];
   isEditingLabel: boolean;
   isSelected: boolean;
   item: EditorItem;
   onCancelLabelEdit: () => void;
+  onCopyDragStart: () => string[];
   onDragStart: () => void;
-  onMoveSelected: (dx: number, dy: number) => { dx: number; dy: number };
+  onMoveItems: (
+    itemIds: string[],
+    dx: number,
+    dy: number,
+  ) => { dx: number; dy: number };
   onRenameLabel: (label: string) => void;
   onResizeSelected: (
     handle: ResizeHandle,
@@ -2701,6 +2805,7 @@ function DraggableItem({
   showResizeHandles: boolean;
 }) {
   const dragState = useRef<{
+    itemIds: string[];
     lastClientX: number;
     lastClientY: number;
     savedHistory: boolean;
@@ -2724,11 +2829,17 @@ function DraggableItem({
       onPointerDown={(event) => {
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
-        onSelect(event.ctrlKey || event.metaKey);
+        const shouldCopyDrag =
+          isSelected && (event.ctrlKey || event.metaKey) && event.button === 0;
+        const itemIdsForDrag = shouldCopyDrag ? onCopyDragStart() : dragItemIds;
+        if (!shouldCopyDrag) {
+          onSelect(event.ctrlKey || event.metaKey);
+        }
         dragState.current = {
+          itemIds: itemIdsForDrag,
           lastClientX: event.clientX,
           lastClientY: event.clientY,
-          savedHistory: false,
+          savedHistory: shouldCopyDrag,
         };
       }}
       onPointerMove={(event) => {
@@ -2748,7 +2859,7 @@ function DraggableItem({
           onDragStart();
           currentDrag.savedHistory = true;
         }
-        const actualMove = onMoveSelected(dx, dy);
+        const actualMove = onMoveItems(currentDrag.itemIds, dx, dy);
         currentDrag.lastClientX += actualMove.dx * TILE_SIZE;
         currentDrag.lastClientY += actualMove.dy * TILE_SIZE;
       }}
@@ -3164,6 +3275,26 @@ function getCopiedGroupId(
   const nextGroupId = `${groupId}-copy-${copiedGroupIds.size + 1}`;
   copiedGroupIds.set(groupId, nextGroupId);
   return nextGroupId;
+}
+
+function getDefaultSizeForItem(item: EditorItem) {
+  const matchingPreset =
+    presets.find((preset) => preset.id === item.presetId) ??
+    presets.find(
+      (preset) =>
+        preset.sprite.image === item.sprite.image &&
+        preset.sprite.sx === item.sprite.sx &&
+        preset.sprite.sy === item.sprite.sy &&
+        preset.sprite.sw === item.sprite.sw &&
+        preset.sprite.sh === item.sprite.sh,
+    );
+  if (matchingPreset) {
+    return matchingPreset.defaultSize;
+  }
+  return {
+    height: Math.max(0.25, item.sprite.sh / TILE_SIZE),
+    width: Math.max(0.25, item.sprite.sw / TILE_SIZE),
+  };
 }
 
 function getItemsBounds(items: EditorItem[]) {

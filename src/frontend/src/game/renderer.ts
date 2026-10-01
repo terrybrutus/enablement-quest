@@ -692,6 +692,8 @@ function drawProps(
     }
 
     if (prop.sprite) {
+      const previousSmoothing = ctx.imageSmoothingEnabled;
+      ctx.imageSmoothingEnabled = true;
       drawSheetSprite(
         ctx,
         assets,
@@ -702,6 +704,7 @@ function drawProps(
         height,
         prop.spriteTransform,
       );
+      ctx.imageSmoothingEnabled = previousSmoothing;
     }
   }
 
@@ -877,7 +880,7 @@ function drawPlayer(
   );
   ctx.fill();
   drawSheetSprite(ctx, assets, sprite, x - 7, y - 20, 48, 96);
-  if (gameState.labBriefingCompleted) {
+  if (gameState.labBriefingCompleted && gameState.player.direction !== "down") {
     drawEquippedBackpack(ctx, x, y, gameState.player.direction);
   }
 }
@@ -909,27 +912,27 @@ function drawEquippedBackpack(
     },
     left: {
       x: x + 20,
-      y: y + 30,
+      y: y + 35,
       width: 14,
-      height: 21,
+      height: 18,
       strapX: x + 22,
-      strapY: y + 31,
+      strapY: y + 36,
     },
     right: {
       x,
-      y: y + 30,
+      y: y + 35,
       width: 14,
-      height: 21,
+      height: 18,
       strapX: x + 10,
-      strapY: y + 31,
+      strapY: y + 36,
     },
     up: {
       x: x + 8,
-      y: y + 28,
+      y: y + 34,
       width: 18,
-      height: 24,
+      height: 20,
       strapX: x + 16,
-      strapY: y + 29,
+      strapY: y + 35,
     },
   };
   const pack = placements[direction];
