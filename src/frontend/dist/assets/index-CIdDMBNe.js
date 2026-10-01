@@ -16892,7 +16892,7 @@ const spriteSources = {
   },
   adamIdle: {
     height: 32,
-    url: "/assets/characters/Adam_idle_anim_16x16.png",
+    url: "/assets/characters/Adam_idle_16x16.png",
     width: 64
   },
   interiorsTiles: {
