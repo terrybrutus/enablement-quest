@@ -12127,16 +12127,16 @@ const scenes = [
       },
       {
         id: "lab-canvas-workstation",
-        position: { x: 0.75, y: 2 },
-        size: { width: 3.75, height: 3.06 },
+        position: { x: 0.9, y: 2.25 },
+        size: { width: 2.8, height: 2.2 },
         sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
       {
         id: "lab-canvas-chair",
         label: "Workstation",
-        position: { x: 2.57, y: 3.5 },
-        size: { width: 1.5, height: 2 },
+        position: { x: 2.45, y: 3.55 },
+        size: { width: 1.25, height: 1.7 },
         sprite: { image: "officeSingle101", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
       },
@@ -13634,8 +13634,6 @@ function drawProps(ctx, scene, gameState, camera, assets) {
       ctx.shadowBlur = 0;
     }
     if (prop.sprite) {
-      const previousSmoothing = ctx.imageSmoothingEnabled;
-      ctx.imageSmoothingEnabled = true;
       drawSheetSprite(
         ctx,
         assets,
@@ -13646,7 +13644,6 @@ function drawProps(ctx, scene, gameState, camera, assets) {
         height,
         prop.spriteTransform
       );
-      ctx.imageSmoothingEnabled = previousSmoothing;
     }
   }
   for (const prop of sortedProps) {

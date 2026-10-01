@@ -692,8 +692,6 @@ function drawProps(
     }
 
     if (prop.sprite) {
-      const previousSmoothing = ctx.imageSmoothingEnabled;
-      ctx.imageSmoothingEnabled = true;
       drawSheetSprite(
         ctx,
         assets,
@@ -704,7 +702,6 @@ function drawProps(
         height,
         prop.spriteTransform,
       );
-      ctx.imageSmoothingEnabled = previousSmoothing;
     }
   }
 
