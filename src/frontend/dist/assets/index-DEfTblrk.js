@@ -16890,6 +16890,11 @@ const spriteSources = {
     url: "/assets/limezu/office-shadowless-48.png",
     width: 768
   },
+  adamIdle: {
+    height: 32,
+    url: "/assets/characters/Adam_idle_anim_16x16.png",
+    width: 64
+  },
   interiorsTiles: {
     height: 1344,
     url: "/assets/tiles/Interiors_free_48x48.png",
@@ -17774,6 +17779,8 @@ function RoomLayoutEditor() {
   );
   const [assetSearch, setAssetSearch] = reactExports.useState("");
   const [showPlanningZones, setShowPlanningZones] = reactExports.useState(false);
+  const [showPlayerScaleReference, setShowPlayerScaleReference] = reactExports.useState(true);
+  const [playerScaleReferencePosition, setPlayerScaleReferencePosition] = reactExports.useState({ x: 1.5, y: 9.8 });
   const scene = reactExports.useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId]
@@ -17990,6 +17997,12 @@ function RoomLayoutEditor() {
       ),
       saveSnapshot
     );
+  }
+  function movePlayerScaleReference(dx, dy) {
+    setPlayerScaleReferencePosition((position) => ({
+      x: clamp(position.x + dx, 0, scene.width - 1),
+      y: clamp(position.y + dy, 0, scene.height - 2)
+    }));
   }
   function updateSelected(patch) {
     if (!selectedItem) {
@@ -18400,6 +18413,17 @@ function RoomLayoutEditor() {
           ),
           "Show planning-zone guides"
         ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              checked: showPlayerScaleReference,
+              type: "checkbox",
+              onChange: (event) => setShowPlayerScaleReference(event.target.checked)
+            }
+          ),
+          "Show player scale reference"
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
           "Room",
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -18623,6 +18647,13 @@ function RoomLayoutEditor() {
                 },
                 portal.id
               )),
+              showPlayerScaleReference && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                PlayerScaleReference,
+                {
+                  position: playerScaleReferencePosition,
+                  onMove: movePlayerScaleReference
+                }
+              ),
               groupOverlays.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                 GroupLabelOverlay,
                 {
@@ -19137,6 +19168,65 @@ function RoomGrid({ scene }) {
         gridTemplateRows: `repeat(${scene.height}, ${TILE_SIZE}px)`
       },
       children: cells.map((cell) => /* @__PURE__ */ jsxRuntimeExports.jsx("span", {}, cell))
+    }
+  );
+}
+function PlayerScaleReference({
+  onMove,
+  position
+}) {
+  const dragState = reactExports.useRef(null);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "button",
+    {
+      className: "eq-layout-editor-player-reference",
+      style: {
+        height: 96,
+        left: position.x * TILE_SIZE,
+        top: position.y * TILE_SIZE,
+        width: 48
+      },
+      type: "button",
+      onPointerDown: (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        dragState.current = {
+          lastClientX: event.clientX,
+          lastClientY: event.clientY
+        };
+      },
+      onPointerMove: (event) => {
+        const currentDrag = dragState.current;
+        if (!currentDrag || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+          return;
+        }
+        const dx = snap((event.clientX - currentDrag.lastClientX) / TILE_SIZE);
+        const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
+        if (dx === 0 && dy === 0) {
+          return;
+        }
+        currentDrag.lastClientX = event.clientX;
+        currentDrag.lastClientY = event.clientY;
+        onMove(dx, dy);
+      },
+      onPointerUp: (event) => {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        dragState.current = null;
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-player-shadow" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          SpritePreview,
+          {
+            fill: true,
+            sprite: { image: "adamIdle", sx: 48, sy: 0, sw: 16, sh: 32 },
+            targetHeight: 96,
+            targetWidth: 48
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-player-label", children: "Player size reference" })
+      ]
     }
   );
 }

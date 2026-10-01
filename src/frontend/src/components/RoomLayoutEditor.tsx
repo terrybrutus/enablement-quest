@@ -98,6 +98,11 @@ const spriteSources: Record<
     url: "/assets/limezu/office-shadowless-48.png",
     width: 768,
   },
+  adamIdle: {
+    height: 32,
+    url: "/assets/characters/Adam_idle_anim_16x16.png",
+    width: 64,
+  },
   interiorsTiles: {
     height: 1344,
     url: "/assets/tiles/Interiors_free_48x48.png",
@@ -988,6 +993,10 @@ export function RoomLayoutEditor() {
   );
   const [assetSearch, setAssetSearch] = useState("");
   const [showPlanningZones, setShowPlanningZones] = useState(false);
+  const [showPlayerScaleReference, setShowPlayerScaleReference] =
+    useState(true);
+  const [playerScaleReferencePosition, setPlayerScaleReferencePosition] =
+    useState({ x: 1.5, y: 9.8 });
   const scene = useMemo(
     () => editorScenes.find((item) => item.id === sceneId) ?? editorScenes[0],
     [sceneId],
@@ -1252,6 +1261,13 @@ export function RoomLayoutEditor() {
       ),
       saveSnapshot,
     );
+  }
+
+  function movePlayerScaleReference(dx: number, dy: number) {
+    setPlayerScaleReferencePosition((position) => ({
+      x: clamp(position.x + dx, 0, scene.width - 1),
+      y: clamp(position.y + dy, 0, scene.height - 2),
+    }));
   }
 
   function updateSelected(patch: Partial<EditorItem>) {
@@ -1769,6 +1785,17 @@ export function RoomLayoutEditor() {
             Show planning-zone guides
           </label>
 
+          <label className="eq-layout-editor-checkbox">
+            <input
+              checked={showPlayerScaleReference}
+              type="checkbox"
+              onChange={(event) =>
+                setShowPlayerScaleReference(event.target.checked)
+              }
+            />
+            Show player scale reference
+          </label>
+
           <label>
             Room
             <select
@@ -2010,6 +2037,12 @@ export function RoomLayoutEditor() {
                 }}
               />
             ))}
+            {showPlayerScaleReference && (
+              <PlayerScaleReference
+                position={playerScaleReferencePosition}
+                onMove={movePlayerScaleReference}
+              />
+            )}
             {groupOverlays.map((group) => (
               <GroupLabelOverlay
                 group={group}
@@ -2547,6 +2580,73 @@ function RoomGrid({ scene }: { scene: Scene }) {
         <span key={cell} />
       ))}
     </div>
+  );
+}
+
+function PlayerScaleReference({
+  onMove,
+  position,
+}: {
+  onMove: (dx: number, dy: number) => void;
+  position: { x: number; y: number };
+}) {
+  const dragState = useRef<{
+    lastClientX: number;
+    lastClientY: number;
+  } | null>(null);
+
+  return (
+    <button
+      className="eq-layout-editor-player-reference"
+      style={{
+        height: 96,
+        left: position.x * TILE_SIZE,
+        top: position.y * TILE_SIZE,
+        width: 48,
+      }}
+      type="button"
+      onPointerDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        dragState.current = {
+          lastClientX: event.clientX,
+          lastClientY: event.clientY,
+        };
+      }}
+      onPointerMove={(event) => {
+        const currentDrag = dragState.current;
+        if (
+          !currentDrag ||
+          !event.currentTarget.hasPointerCapture(event.pointerId)
+        ) {
+          return;
+        }
+        const dx = snap((event.clientX - currentDrag.lastClientX) / TILE_SIZE);
+        const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
+        if (dx === 0 && dy === 0) {
+          return;
+        }
+        currentDrag.lastClientX = event.clientX;
+        currentDrag.lastClientY = event.clientY;
+        onMove(dx, dy);
+      }}
+      onPointerUp={(event) => {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        dragState.current = null;
+      }}
+    >
+      <span className="eq-layout-editor-player-shadow" />
+      <SpritePreview
+        fill
+        sprite={{ image: "adamIdle", sx: 48, sy: 0, sw: 16, sh: 32 }}
+        targetHeight={96}
+        targetWidth={48}
+      />
+      <span className="eq-layout-editor-player-label">
+        Player size reference
+      </span>
+    </button>
   );
 }
 
