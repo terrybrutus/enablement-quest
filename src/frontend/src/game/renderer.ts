@@ -674,9 +674,7 @@ function drawProps(
       (prop) =>
         !(prop.id === "mission-backpack" && gameState.labBriefingCompleted),
     )
-    .sort(
-      (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height),
-    );
+    .sort((a, b) => getPropSortValue(a) - getPropSortValue(b));
   for (const prop of sortedProps) {
     const px = prop.position.x * TILE_SIZE - camera.x;
     const py = prop.position.y * TILE_SIZE - camera.y;
@@ -718,6 +716,14 @@ function drawProps(
 
     drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
   }
+}
+
+function getPropSortValue(prop: Scene["props"][number]) {
+  const base = prop.position.y + prop.size.height;
+  if (prop.id === "mission-backpack") {
+    return base + 10;
+  }
+  return base;
 }
 
 function drawEvidence(

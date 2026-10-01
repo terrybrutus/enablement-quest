@@ -12120,6 +12120,12 @@ const scenes = [
     ],
     props: [
       {
+        id: "lab-room-label",
+        label: "Learning Systems Lab",
+        position: { x: 7.2, y: 1.15 },
+        size: { width: 3.6, height: 0.35 }
+      },
+      {
         id: "lab-canvas-workstation",
         position: { x: 0.75, y: 2 },
         size: { width: 3.75, height: 3.06 },
@@ -12128,6 +12134,7 @@ const scenes = [
       },
       {
         id: "lab-canvas-chair",
+        label: "Workstation",
         position: { x: 2.57, y: 3.5 },
         size: { width: 1.5, height: 2 },
         sprite: { image: "officeSingle101", sx: 0, sy: 0, sw: 96, sh: 144 },
@@ -13612,9 +13619,7 @@ function shortPortalLabel(label) {
 function drawProps(ctx, scene, gameState, camera, assets) {
   const sortedProps = scene.props.filter(
     (prop) => !(prop.id === "mission-backpack" && gameState.labBriefingCompleted)
-  ).sort(
-    (a, b) => a.position.y + a.size.height - (b.position.y + b.size.height)
-  );
+  ).sort((a, b) => getPropSortValue(a) - getPropSortValue(b));
   for (const prop of sortedProps) {
     const px = prop.position.x * TILE_SIZE - camera.x;
     const py = prop.position.y * TILE_SIZE - camera.y;
@@ -13651,6 +13656,13 @@ function drawProps(ctx, scene, gameState, camera, assets) {
     const height = prop.size.height * TILE_SIZE;
     drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
   }
+}
+function getPropSortValue(prop) {
+  const base = prop.position.y + prop.size.height;
+  if (prop.id === "mission-backpack") {
+    return base + 10;
+  }
+  return base;
 }
 function drawEvidence(ctx, scene, gameState, camera, assets) {
   if (!isCaseBriefingComplete(gameState)) {

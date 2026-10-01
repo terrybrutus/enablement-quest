@@ -131,6 +131,12 @@ export const scenes: Scene[] = [
     ],
     props: [
       {
+        id: "lab-room-label",
+        label: "Learning Systems Lab",
+        position: { x: 7.2, y: 1.15 },
+        size: { width: 3.6, height: 0.35 },
+      },
+      {
         id: "lab-canvas-workstation",
         position: { x: 0.75, y: 2 },
         size: { width: 3.75, height: 3.06 },
@@ -139,6 +145,7 @@ export const scenes: Scene[] = [
       },
       {
         id: "lab-canvas-chair",
+        label: "Workstation",
         position: { x: 2.57, y: 3.5 },
         size: { width: 1.5, height: 2 },
         sprite: { image: "officeSingle101", sx: 0, sy: 0, sw: 96, sh: 144 },
