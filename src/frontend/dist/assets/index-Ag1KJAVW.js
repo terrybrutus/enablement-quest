@@ -14540,10 +14540,38 @@ function getPortalDestination(state, portal) {
   const pairedPortal = targetScene == null ? void 0 : targetScene.portals.find(
     (candidate) => candidate.targetSceneId === currentSceneId
   );
+  if ((targetScene == null ? void 0 : targetScene.theme) === "exterior") {
+    return {
+      direction: pairedPortal ? getDirectionAwayFromPortal(targetScene, pairedPortal) : state.player.direction,
+      position: portal.targetPosition
+    };
+  }
   if (!targetScene || !pairedPortal) {
     return { position: portal.targetPosition };
   }
   return getEntryPositionFromPortal(targetScene, pairedPortal);
+}
+function getDirectionAwayFromPortal(scene, portal) {
+  var _a;
+  const distances = {
+    bottom: scene.height - (portal.rect.y + portal.rect.height),
+    left: portal.rect.x,
+    right: scene.width - (portal.rect.x + portal.rect.width),
+    top: portal.rect.y
+  };
+  const side = ((_a = Object.entries(distances).sort(
+    (first, second) => first[1] - second[1]
+  )[0]) == null ? void 0 : _a[0]) ?? "bottom";
+  if (side === "left") {
+    return "left";
+  }
+  if (side === "right") {
+    return "right";
+  }
+  if (side === "top") {
+    return "up";
+  }
+  return "down";
 }
 function getEntryPositionFromPortal(scene, portal) {
   var _a;
