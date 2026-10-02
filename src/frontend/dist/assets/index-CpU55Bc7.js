@@ -19994,7 +19994,16 @@ function RoomLayoutEditor() {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-layout-editor-muted", children: "These zones are exported as scene blocks. Use them for walls, building footprints, and areas players or NPCs should not cross." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-layout-editor-muted", children: "These zones are exported as scene blocks. Use them for walls, building footprints, and areas players or NPCs should not cross." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "eq-layout-editor-danger",
+              type: "button",
+              onClick: removeSelected,
+              children: "Delete walk block"
+            }
+          )
         ] }),
         selectedItem ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           selectedIds.length > 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "eq-layout-editor-muted", children: [

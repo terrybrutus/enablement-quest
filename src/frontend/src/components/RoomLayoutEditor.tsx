@@ -3050,6 +3050,13 @@ export function RoomLayoutEditor() {
                 These zones are exported as scene blocks. Use them for walls,
                 building footprints, and areas players or NPCs should not cross.
               </p>
+              <button
+                className="eq-layout-editor-danger"
+                type="button"
+                onClick={removeSelected}
+              >
+                Delete walk block
+              </button>
             </div>
           )}
           {selectedItem ? (
