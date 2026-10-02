@@ -1330,6 +1330,14 @@ export function RoomLayoutEditor() {
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [editingLabel, setEditingLabel] = useState<EditingLabel>(null);
   const clipboardRef = useRef<EditorClipboard | null>(null);
+  const stageViewportRef = useRef<HTMLDivElement | null>(null);
+  const panStateRef = useRef<{
+    left: number;
+    startClientX: number;
+    startClientY: number;
+    top: number;
+  } | null>(null);
+  const [isSpacePanning, setIsSpacePanning] = useState(false);
   const selectedItem =
     items.find((item) => item.id === selectedIds[selectedIds.length - 1]) ??
     null;
@@ -1383,6 +1391,34 @@ export function RoomLayoutEditor() {
       JSON.stringify(savedLayouts),
     );
   }, [savedLayouts]);
+
+  useEffect(() => {
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (shouldIgnoreKeyboardTarget(event.target)) {
+        return;
+      }
+      if (event.code === "Space") {
+        event.preventDefault();
+        setIsSpacePanning(true);
+      }
+    }
+
+    function handleKeyUp(event: globalThis.KeyboardEvent) {
+      if (event.code === "Space") {
+        setIsSpacePanning(false);
+        panStateRef.current = null;
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleKeyUp);
+    };
+  }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyboardEvent);
@@ -1561,6 +1597,31 @@ export function RoomLayoutEditor() {
     setSavedLayouts((layouts) =>
       layouts.filter((layout) => layout.id !== layoutId),
     );
+  }
+
+  function downloadLayoutBackup() {
+    const backup = {
+      currentDrafts: {
+        blocksByScene,
+        characterSettingsByScene,
+        itemsByScene,
+        portalsByScene,
+      },
+      exportedAt: new Date().toISOString(),
+      savedLayouts,
+      version: 1,
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `enablement-quest-layouts-${new Date()
+      .toISOString()
+      .slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   function updateSelectedPortal(patch: Partial<EditorPortal>) {
@@ -2396,8 +2457,8 @@ export function RoomLayoutEditor() {
               Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V
               pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups,
               Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects
-              a box, Ctrl+drag copies, and dragging a corner keeps the resize
-              ratio.
+              a box, Ctrl+drag copies, Space+drag pans the canvas, and dragging
+              a corner keeps the resize ratio.
             </small>
           </div>
 
@@ -2459,6 +2520,9 @@ export function RoomLayoutEditor() {
             </button>
             <button type="button" onClick={addWalkBlock}>
               Add walk block
+            </button>
+            <button type="button" onClick={downloadLayoutBackup}>
+              Download layout backup
             </button>
           </div>
 
@@ -2613,185 +2677,225 @@ export function RoomLayoutEditor() {
             </span>
           </div>
           <div
-            className="eq-layout-editor-stage"
-            style={{
-              height: scene.height * TILE_SIZE,
-              width: scene.width * TILE_SIZE,
-            }}
+            className={`eq-layout-editor-stage-viewport ${
+              isSpacePanning ? "is-panning-ready" : ""
+            }`}
+            ref={stageViewportRef}
             onPointerDown={(event) => {
-              if (event.target !== event.currentTarget) {
+              if (!isSpacePanning || !stageViewportRef.current) {
                 return;
               }
-              if (!event.shiftKey) {
-                setSelectedIds([]);
-                setSelectedPortalId(null);
-                setSelectedBlockId(null);
-                return;
-              }
-              const rect = event.currentTarget.getBoundingClientRect();
-              const start = {
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top,
-              };
+              event.preventDefault();
               event.currentTarget.setPointerCapture(event.pointerId);
-              setSelectionBox({ start, end: start });
+              panStateRef.current = {
+                left: stageViewportRef.current.scrollLeft,
+                startClientX: event.clientX,
+                startClientY: event.clientY,
+                top: stageViewportRef.current.scrollTop,
+              };
             }}
             onPointerMove={(event) => {
-              if (
-                !selectionBox ||
-                !event.currentTarget.hasPointerCapture(event.pointerId)
-              ) {
+              if (!panStateRef.current || !stageViewportRef.current) {
                 return;
               }
-              const rect = event.currentTarget.getBoundingClientRect();
-              setSelectionBox({
-                ...selectionBox,
-                end: {
-                  x: event.clientX - rect.left,
-                  y: event.clientY - rect.top,
-                },
-              });
+              stageViewportRef.current.scrollLeft =
+                panStateRef.current.left -
+                (event.clientX - panStateRef.current.startClientX);
+              stageViewportRef.current.scrollTop =
+                panStateRef.current.top -
+                (event.clientY - panStateRef.current.startClientY);
             }}
             onPointerUp={(event) => {
-              if (!selectionBox) {
-                return;
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.releasePointerCapture(event.pointerId);
               }
-              event.currentTarget.releasePointerCapture(event.pointerId);
-              selectItemsInBox(selectionBox);
-              setSelectionBox(null);
+              panStateRef.current = null;
             }}
           >
-            <RoomBackdrop scene={scene} showZones={showPlanningZones} />
-            <RoomGrid scene={scene} />
-            {showWalkBlocks &&
-              blocks.map((block) => (
-                <DraggableBlock
-                  block={block}
-                  isSelected={block.id === selectedBlockId}
-                  key={block.id}
+            <div
+              className="eq-layout-editor-stage"
+              style={{
+                height: scene.height * TILE_SIZE,
+                width: scene.width * TILE_SIZE,
+              }}
+              onPointerDown={(event) => {
+                if (isSpacePanning) {
+                  return;
+                }
+                if (event.target !== event.currentTarget) {
+                  return;
+                }
+                if (!event.shiftKey) {
+                  setSelectedIds([]);
+                  setSelectedPortalId(null);
+                  setSelectedBlockId(null);
+                  return;
+                }
+                const rect = event.currentTarget.getBoundingClientRect();
+                const start = {
+                  x: event.clientX - rect.left,
+                  y: event.clientY - rect.top,
+                };
+                event.currentTarget.setPointerCapture(event.pointerId);
+                setSelectionBox({ start, end: start });
+              }}
+              onPointerMove={(event) => {
+                if (
+                  !selectionBox ||
+                  !event.currentTarget.hasPointerCapture(event.pointerId)
+                ) {
+                  return;
+                }
+                const rect = event.currentTarget.getBoundingClientRect();
+                setSelectionBox({
+                  ...selectionBox,
+                  end: {
+                    x: event.clientX - rect.left,
+                    y: event.clientY - rect.top,
+                  },
+                });
+              }}
+              onPointerUp={(event) => {
+                if (!selectionBox) {
+                  return;
+                }
+                event.currentTarget.releasePointerCapture(event.pointerId);
+                selectItemsInBox(selectionBox);
+                setSelectionBox(null);
+              }}
+            >
+              <RoomBackdrop scene={scene} showZones={showPlanningZones} />
+              <RoomGrid scene={scene} />
+              {showWalkBlocks &&
+                blocks.map((block) => (
+                  <DraggableBlock
+                    block={block}
+                    isSelected={block.id === selectedBlockId}
+                    key={block.id}
+                    onDragStart={saveHistory}
+                    onMove={(dx, dy) => moveBlock(block.id, dx, dy, false)}
+                    onResizeStart={saveHistory}
+                    onResize={(handle, dx, dy) =>
+                      resizeBlock(block.id, handle, dx, dy, false)
+                    }
+                    onSelect={() => {
+                      setSelectedIds([]);
+                      setSelectedPortalId(null);
+                      setSelectedBlockId(block.id);
+                    }}
+                  />
+                ))}
+              {portals.map((portal) => (
+                <DraggablePortal
+                  isSelected={portal.id === selectedPortalId}
+                  key={portal.id}
+                  portal={portal}
                   onDragStart={saveHistory}
-                  onMove={(dx, dy) => moveBlock(block.id, dx, dy, false)}
-                  onResizeStart={saveHistory}
-                  onResize={(handle, dx, dy) =>
-                    resizeBlock(block.id, handle, dx, dy, false)
-                  }
+                  onMove={(dx, dy) => movePortal(portal.id, dx, dy, false)}
                   onSelect={() => {
                     setSelectedIds([]);
-                    setSelectedPortalId(null);
-                    setSelectedBlockId(block.id);
+                    setSelectedPortalId(portal.id);
+                    setSelectedBlockId(null);
                   }}
                 />
               ))}
-            {portals.map((portal) => (
-              <DraggablePortal
-                isSelected={portal.id === selectedPortalId}
-                key={portal.id}
-                portal={portal}
-                onDragStart={saveHistory}
-                onMove={(dx, dy) => movePortal(portal.id, dx, dy, false)}
-                onSelect={() => {
-                  setSelectedIds([]);
-                  setSelectedPortalId(portal.id);
-                  setSelectedBlockId(null);
-                }}
-              />
-            ))}
-            {showPlayerScaleReference && (
-              <PlayerScaleReference
-                position={playerScaleReferencePosition}
-                onMove={movePlayerScaleReference}
-              />
-            )}
-            {groupOverlays.map((group) => (
-              <GroupLabelOverlay
-                group={group}
-                isEditing={
-                  editingLabel?.kind === "group" &&
-                  editingLabel.groupId === group.groupId
-                }
-                key={group.groupId}
-                onCancelEdit={() => setEditingLabel(null)}
-                onRename={(label) => {
-                  updateGroupLabel(group.groupId, label);
-                  setEditingLabel(null);
-                }}
-                onStartEdit={() =>
-                  setEditingLabel({ groupId: group.groupId, kind: "group" })
-                }
-              />
-            ))}
-            {items.map((item) => (
-              <DraggableItem
-                isEditingLabel={
-                  editingLabel?.kind === "item" && editingLabel.id === item.id
-                }
-                isSelected={selectedIds.includes(item.id)}
-                item={item}
-                key={item.id}
-                onCancelLabelEdit={() => setEditingLabel(null)}
-                showResizeHandles={
-                  selectedIds.length === 1 && selectedIds.includes(item.id)
-                }
-                dragItemIds={
-                  selectedIds.includes(item.id) ? selectedIds : [item.id]
-                }
-                onDragStart={saveHistory}
-                onCopyDragStart={() => copySelectedForDrag(item.id)}
-                onMoveItems={(itemIds, dx, dy) =>
-                  moveItems(itemIds, dx, dy, false)
-                }
-                onRenameLabel={(label) => {
-                  updateItemLabel(item.id, label);
-                  setEditingLabel(null);
-                }}
-                onResizeStart={saveHistory}
-                onResizeSelected={(handle, dx, dy, keepRatio) =>
-                  resizeItems(
-                    selectedIds.includes(item.id) ? selectedIds : [item.id],
-                    handle,
-                    dx,
-                    dy,
-                    keepRatio,
-                    false,
-                  )
-                }
-                onSelect={(additive) => selectItem(item.id, additive)}
-                onStartLabelEdit={() => {
-                  setSelectedIds([item.id]);
-                  setSelectedPortalId(null);
-                  setEditingLabel({ id: item.id, kind: "item" });
-                }}
-              />
-            ))}
-            {selectedBounds && selectedIds.length > 1 && (
-              <SelectedBoundsOverlay
-                bounds={selectedBounds}
-                onResizeEnd={() => {
-                  selectionResizeStartRef.current = null;
-                }}
-                onResizeSelected={(handle, dx, dy, keepRatio) =>
-                  resizeSelectionBounds(
-                    selectedIds,
-                    handle,
-                    dx,
-                    dy,
-                    keepRatio,
-                    false,
-                  )
-                }
-                onResizeStart={() => {
-                  saveHistory();
-                  selectionResizeStartRef.current = {
-                    bounds: selectedBounds,
-                    itemIds: selectedIds,
-                    items: selectedItems,
-                  };
-                }}
-              />
-            )}
-            {selectionBox && (
-              <SelectionBoxOverlay selectionBox={selectionBox} />
-            )}
+              {showPlayerScaleReference && (
+                <PlayerScaleReference
+                  position={playerScaleReferencePosition}
+                  onMove={movePlayerScaleReference}
+                />
+              )}
+              {groupOverlays.map((group) => (
+                <GroupLabelOverlay
+                  group={group}
+                  isEditing={
+                    editingLabel?.kind === "group" &&
+                    editingLabel.groupId === group.groupId
+                  }
+                  key={group.groupId}
+                  onCancelEdit={() => setEditingLabel(null)}
+                  onRename={(label) => {
+                    updateGroupLabel(group.groupId, label);
+                    setEditingLabel(null);
+                  }}
+                  onStartEdit={() =>
+                    setEditingLabel({ groupId: group.groupId, kind: "group" })
+                  }
+                />
+              ))}
+              {items.map((item) => (
+                <DraggableItem
+                  isEditingLabel={
+                    editingLabel?.kind === "item" && editingLabel.id === item.id
+                  }
+                  isSelected={selectedIds.includes(item.id)}
+                  item={item}
+                  key={item.id}
+                  onCancelLabelEdit={() => setEditingLabel(null)}
+                  showResizeHandles={
+                    selectedIds.length === 1 && selectedIds.includes(item.id)
+                  }
+                  dragItemIds={
+                    selectedIds.includes(item.id) ? selectedIds : [item.id]
+                  }
+                  onDragStart={saveHistory}
+                  onCopyDragStart={() => copySelectedForDrag(item.id)}
+                  onMoveItems={(itemIds, dx, dy) =>
+                    moveItems(itemIds, dx, dy, false)
+                  }
+                  onRenameLabel={(label) => {
+                    updateItemLabel(item.id, label);
+                    setEditingLabel(null);
+                  }}
+                  onResizeStart={saveHistory}
+                  onResizeSelected={(handle, dx, dy, keepRatio) =>
+                    resizeItems(
+                      selectedIds.includes(item.id) ? selectedIds : [item.id],
+                      handle,
+                      dx,
+                      dy,
+                      keepRatio,
+                      false,
+                    )
+                  }
+                  onSelect={(additive) => selectItem(item.id, additive)}
+                  onStartLabelEdit={() => {
+                    setSelectedIds([item.id]);
+                    setSelectedPortalId(null);
+                    setEditingLabel({ id: item.id, kind: "item" });
+                  }}
+                />
+              ))}
+              {selectedBounds && selectedIds.length > 1 && (
+                <SelectedBoundsOverlay
+                  bounds={selectedBounds}
+                  onResizeEnd={() => {
+                    selectionResizeStartRef.current = null;
+                  }}
+                  onResizeSelected={(handle, dx, dy, keepRatio) =>
+                    resizeSelectionBounds(
+                      selectedIds,
+                      handle,
+                      dx,
+                      dy,
+                      keepRatio,
+                      false,
+                    )
+                  }
+                  onResizeStart={() => {
+                    saveHistory();
+                    selectionResizeStartRef.current = {
+                      bounds: selectedBounds,
+                      itemIds: selectedIds,
+                      items: selectedItems,
+                    };
+                  }}
+                />
+              )}
+              {selectionBox && (
+                <SelectionBoxOverlay selectionBox={selectionBox} />
+              )}
+            </div>
           </div>
         </section>
 
@@ -3228,6 +3332,132 @@ function RoomBackdrop({
   showZones: boolean;
 }) {
   const theme = roomThemes[scene.id];
+  if (scene.theme === "exterior") {
+    const buildings = [
+      {
+        accent: "#22d3ee",
+        door: { x: 6.85, y: 7.02, width: 1.05, height: 0.72 },
+        fill: "#164e63",
+        label: "Sales Enablement Studio",
+        rect: { x: 3, y: 2.7, width: 7.1, height: 4.85 },
+      },
+      {
+        accent: "#f59e0b",
+        door: { x: 21.55, y: 7.02, width: 1.05, height: 0.72 },
+        fill: "#713f12",
+        label: "Operations Suite",
+        rect: { x: 18.9, y: 2.7, width: 8.5, height: 4.85 },
+      },
+      {
+        accent: "#a78bfa",
+        door: { x: 14.45, y: 14.72, width: 1.1, height: 0.72 },
+        fill: "#4c1d95",
+        label: "Learning Systems Lab",
+        rect: { x: 11, y: 11.2, width: 8.2, height: 4 },
+      },
+    ];
+    const shrubs = [
+      { x: 4.4, y: 8.15 },
+      { x: 9.2, y: 8.15 },
+      { x: 20.1, y: 8.15 },
+      { x: 25.4, y: 8.15 },
+      { x: 12.2, y: 15.7 },
+      { x: 18.1, y: 15.7 },
+      { x: 13.2, y: 9.95 },
+      { x: 16.8, y: 9.95 },
+    ];
+    return (
+      <div className="eq-layout-editor-backdrop eq-layout-editor-campus-backdrop">
+        {scene.tilePatches?.map((patch) => (
+          <div
+            className={`eq-layout-editor-campus-patch ${
+              patch.id.includes("threshold") ? "is-threshold" : "is-path"
+            }`}
+            key={patch.id}
+            style={{
+              height: patch.size.height * TILE_SIZE,
+              left: patch.position.x * TILE_SIZE,
+              top: patch.position.y * TILE_SIZE,
+              width: patch.size.width * TILE_SIZE,
+            }}
+          />
+        ))}
+        {buildings.map((building) => (
+          <div
+            className="eq-layout-editor-campus-building"
+            key={building.label}
+            style={
+              {
+                "--building-accent": building.accent,
+                "--building-fill": building.fill,
+                height: building.rect.height * TILE_SIZE,
+                left: building.rect.x * TILE_SIZE,
+                top: building.rect.y * TILE_SIZE,
+                width: building.rect.width * TILE_SIZE,
+              } as CSSProperties
+            }
+          >
+            <div className="eq-layout-editor-campus-roof" />
+            <div className="eq-layout-editor-campus-plaque">
+              {building.label}
+            </div>
+            <div className="eq-layout-editor-campus-windows">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+        ))}
+        {buildings.map((building) => (
+          <div
+            className="eq-layout-editor-campus-door"
+            key={`${building.label}-door`}
+            style={
+              {
+                "--building-accent": building.accent,
+                height: building.door.height * TILE_SIZE,
+                left: building.door.x * TILE_SIZE,
+                top: building.door.y * TILE_SIZE,
+                width: building.door.width * TILE_SIZE,
+              } as CSSProperties
+            }
+          >
+            <span />
+          </div>
+        ))}
+        <div className="eq-layout-editor-campus-fountain" />
+        {shrubs.map((shrub) => (
+          <div
+            className="eq-layout-editor-campus-shrub"
+            key={`${shrub.x}-${shrub.y}`}
+            style={{
+              left: shrub.x * TILE_SIZE,
+              top: shrub.y * TILE_SIZE,
+            }}
+          />
+        ))}
+        {theme &&
+          showZones &&
+          theme.zones.map((zone) => (
+            <div
+              className="eq-layout-editor-zone"
+              key={`${scene.id}-${zone.x}-${zone.y}`}
+              style={{
+                backgroundColor: theme.fill,
+                borderColor: `${theme.accent}55`,
+                height: zone.height * TILE_SIZE,
+                left: zone.x * TILE_SIZE,
+                top: zone.y * TILE_SIZE,
+                width: zone.width * TILE_SIZE,
+              }}
+            />
+          ))}
+      </div>
+    );
+  }
   return (
     <div className="eq-layout-editor-backdrop">
       <div className="eq-layout-editor-wall" />
