@@ -570,10 +570,36 @@ function drawPortals(
   camera: { x: number; y: number },
 ) {
   for (const portal of scene.portals) {
-    const px = portal.rect.x * TILE_SIZE - camera.x;
-    const py = portal.rect.y * TILE_SIZE - camera.y;
-    const width = portal.rect.width * TILE_SIZE;
-    const height = portal.rect.height * TILE_SIZE;
+    const visualInset = scene.theme === "interior" ? 0.35 : 0;
+    const visibleX = clamp(
+      portal.rect.x,
+      visualInset,
+      scene.width - visualInset,
+    );
+    const visibleY = clamp(
+      portal.rect.y,
+      visualInset,
+      scene.height - visualInset,
+    );
+    const visibleRight = clamp(
+      portal.rect.x + portal.rect.width,
+      visualInset,
+      scene.width - visualInset,
+    );
+    const visibleBottom = clamp(
+      portal.rect.y + portal.rect.height,
+      visualInset,
+      scene.height - visualInset,
+    );
+    const visibleWidth = visibleRight - visibleX;
+    const visibleHeight = visibleBottom - visibleY;
+    if (visibleWidth <= 0 || visibleHeight <= 0) {
+      continue;
+    }
+    const px = visibleX * TILE_SIZE - camera.x;
+    const py = visibleY * TILE_SIZE - camera.y;
+    const width = visibleWidth * TILE_SIZE;
+    const height = visibleHeight * TILE_SIZE;
 
     if (scene.theme === "exterior") {
       drawPortalHotspot(ctx, px, py, width, height, portal.label);

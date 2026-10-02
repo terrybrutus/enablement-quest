@@ -10,8 +10,10 @@ import type {
   Direction,
   GameState,
   InputState,
+  Portal,
   Position,
   Rect,
+  Scene,
 } from "./types";
 import { INTERACT_DISTANCE, TILE_SIZE } from "./types";
 
@@ -218,13 +220,15 @@ export function useGameLoop({
         return;
       }
       const caseTransition = getCaseTransition(state, portal.targetSceneId);
+      const destination = getPortalDestination(state, portal);
       setGameState((previous) => ({
         ...previous,
         ...caseTransition,
         player: {
           ...previous.player,
           sceneId: portal.targetSceneId,
-          position: portal.targetPosition,
+          position: destination.position,
+          direction: destination.direction ?? previous.player.direction,
         },
         toast:
           "toast" in caseTransition && caseTransition.toast
@@ -481,14 +485,15 @@ function moveWithinScene(
       };
     }
     const caseTransition = getCaseTransition(state, edgePortal.targetSceneId);
+    const destination = getPortalDestination(state, edgePortal);
     return {
       ...state,
       ...caseTransition,
       player: {
         ...state.player,
         sceneId: edgePortal.targetSceneId,
-        position: edgePortal.targetPosition,
-        direction,
+        position: destination.position,
+        direction: destination.direction ?? direction,
         isMoving: false,
       },
       toast:
@@ -570,14 +575,15 @@ function moveWithinScene(
       };
     }
     const caseTransition = getCaseTransition(state, portal.targetSceneId);
+    const destination = getPortalDestination(state, portal);
     return {
       ...state,
       ...caseTransition,
       player: {
         ...state.player,
         sceneId: portal.targetSceneId,
-        position: portal.targetPosition,
-        direction,
+        position: destination.position,
+        direction: destination.direction ?? direction,
         isMoving: false,
       },
       toast:
@@ -616,6 +622,78 @@ function getNearbyCharacter(state: GameState) {
 function getPortalAtPosition(state: GameState, position: Position) {
   const scene = getCurrentScene(state);
   return scene.portals.find((portal) => pointInRect(position, portal.rect));
+}
+
+function getPortalDestination(state: GameState, portal: Portal) {
+  const targetScene = scenes.find((scene) => scene.id === portal.targetSceneId);
+  const currentSceneId = state.player.sceneId;
+  const pairedPortal = targetScene?.portals.find(
+    (candidate) => candidate.targetSceneId === currentSceneId,
+  );
+  if (!targetScene || !pairedPortal) {
+    return { position: portal.targetPosition };
+  }
+  return getEntryPositionFromPortal(targetScene, pairedPortal);
+}
+
+function getEntryPositionFromPortal(scene: Scene, portal: Portal) {
+  const inset = 0.45;
+  const center = {
+    x: portal.rect.x + portal.rect.width / 2,
+    y: portal.rect.y + portal.rect.height / 2,
+  };
+  const distances = {
+    bottom: scene.height - (portal.rect.y + portal.rect.height),
+    left: portal.rect.x,
+    right: scene.width - (portal.rect.x + portal.rect.width),
+    top: portal.rect.y,
+  };
+  const side = (Object.entries(distances).sort(
+    (first, second) => first[1] - second[1],
+  )[0]?.[0] ?? "bottom") as "bottom" | "left" | "right" | "top";
+
+  if (side === "left") {
+    return {
+      direction: "right" as const,
+      position: {
+        x: clamp(
+          portal.rect.x + portal.rect.width + inset,
+          1.2,
+          scene.width - 1.2,
+        ),
+        y: clamp(center.y, 1.4, scene.height - 1.1),
+      },
+    };
+  }
+  if (side === "right") {
+    return {
+      direction: "left" as const,
+      position: {
+        x: clamp(portal.rect.x - inset, 1.2, scene.width - 1.2),
+        y: clamp(center.y, 1.4, scene.height - 1.1),
+      },
+    };
+  }
+  if (side === "top") {
+    return {
+      direction: "down" as const,
+      position: {
+        x: clamp(center.x, 1.2, scene.width - 1.2),
+        y: clamp(
+          portal.rect.y + portal.rect.height + inset,
+          1.4,
+          scene.height - 1.1,
+        ),
+      },
+    };
+  }
+  return {
+    direction: "up" as const,
+    position: {
+      x: clamp(center.x, 1.2, scene.width - 1.2),
+      y: clamp(portal.rect.y - inset, 1.4, scene.height - 1.1),
+    },
+  };
 }
 
 function getNearbyCaseOwner(state: GameState) {

@@ -13545,10 +13545,36 @@ function drawRoomBorders(ctx, scene, camera, assets) {
 }
 function drawPortals(ctx, scene, camera) {
   for (const portal of scene.portals) {
-    const px = portal.rect.x * TILE_SIZE - camera.x;
-    const py = portal.rect.y * TILE_SIZE - camera.y;
-    const width = portal.rect.width * TILE_SIZE;
-    const height = portal.rect.height * TILE_SIZE;
+    const visualInset = scene.theme === "interior" ? 0.35 : 0;
+    const visibleX = clamp$2(
+      portal.rect.x,
+      visualInset,
+      scene.width - visualInset
+    );
+    const visibleY = clamp$2(
+      portal.rect.y,
+      visualInset,
+      scene.height - visualInset
+    );
+    const visibleRight = clamp$2(
+      portal.rect.x + portal.rect.width,
+      visualInset,
+      scene.width - visualInset
+    );
+    const visibleBottom = clamp$2(
+      portal.rect.y + portal.rect.height,
+      visualInset,
+      scene.height - visualInset
+    );
+    const visibleWidth = visibleRight - visibleX;
+    const visibleHeight = visibleBottom - visibleY;
+    if (visibleWidth <= 0 || visibleHeight <= 0) {
+      continue;
+    }
+    const px = visibleX * TILE_SIZE - camera.x;
+    const py = visibleY * TILE_SIZE - camera.y;
+    const width = visibleWidth * TILE_SIZE;
+    const height = visibleHeight * TILE_SIZE;
     if (scene.theme === "exterior") {
       drawPortalHotspot(ctx, px, py, width, height, portal.label);
       continue;
@@ -14101,13 +14127,15 @@ function useGameLoop({
         return;
       }
       const caseTransition = getCaseTransition(state, portal.targetSceneId);
+      const destination = getPortalDestination(state, portal);
       setGameState((previous) => ({
         ...previous,
         ...caseTransition,
         player: {
           ...previous.player,
           sceneId: portal.targetSceneId,
-          position: portal.targetPosition
+          position: destination.position,
+          direction: destination.direction ?? previous.player.direction
         },
         toast: "toast" in caseTransition && caseTransition.toast ? caseTransition.toast : null
       }));
@@ -14316,14 +14344,15 @@ function moveWithinScene(state, nextPosition) {
       };
     }
     const caseTransition = getCaseTransition(state, edgePortal.targetSceneId);
+    const destination = getPortalDestination(state, edgePortal);
     return {
       ...state,
       ...caseTransition,
       player: {
         ...state.player,
         sceneId: edgePortal.targetSceneId,
-        position: edgePortal.targetPosition,
-        direction,
+        position: destination.position,
+        direction: destination.direction ?? direction,
         isMoving: false
       },
       toast: "toast" in caseTransition && caseTransition.toast ? caseTransition.toast : null
@@ -14391,14 +14420,15 @@ function moveWithinScene(state, nextPosition) {
       };
     }
     const caseTransition = getCaseTransition(state, portal.targetSceneId);
+    const destination = getPortalDestination(state, portal);
     return {
       ...state,
       ...caseTransition,
       player: {
         ...state.player,
         sceneId: portal.targetSceneId,
-        position: portal.targetPosition,
-        direction,
+        position: destination.position,
+        direction: destination.direction ?? direction,
         isMoving: false
       },
       toast: "toast" in caseTransition && caseTransition.toast ? caseTransition.toast : null
@@ -14429,6 +14459,76 @@ function getNearbyCharacter(state) {
 function getPortalAtPosition(state, position) {
   const scene = getCurrentScene(state);
   return scene.portals.find((portal) => pointInRect(position, portal.rect));
+}
+function getPortalDestination(state, portal) {
+  const targetScene = scenes.find((scene) => scene.id === portal.targetSceneId);
+  const currentSceneId = state.player.sceneId;
+  const pairedPortal = targetScene == null ? void 0 : targetScene.portals.find(
+    (candidate) => candidate.targetSceneId === currentSceneId
+  );
+  if (!targetScene || !pairedPortal) {
+    return { position: portal.targetPosition };
+  }
+  return getEntryPositionFromPortal(targetScene, pairedPortal);
+}
+function getEntryPositionFromPortal(scene, portal) {
+  var _a;
+  const inset = 0.45;
+  const center = {
+    x: portal.rect.x + portal.rect.width / 2,
+    y: portal.rect.y + portal.rect.height / 2
+  };
+  const distances = {
+    bottom: scene.height - (portal.rect.y + portal.rect.height),
+    left: portal.rect.x,
+    right: scene.width - (portal.rect.x + portal.rect.width),
+    top: portal.rect.y
+  };
+  const side = ((_a = Object.entries(distances).sort(
+    (first, second) => first[1] - second[1]
+  )[0]) == null ? void 0 : _a[0]) ?? "bottom";
+  if (side === "left") {
+    return {
+      direction: "right",
+      position: {
+        x: clamp$1(
+          portal.rect.x + portal.rect.width + inset,
+          1.2,
+          scene.width - 1.2
+        ),
+        y: clamp$1(center.y, 1.4, scene.height - 1.1)
+      }
+    };
+  }
+  if (side === "right") {
+    return {
+      direction: "left",
+      position: {
+        x: clamp$1(portal.rect.x - inset, 1.2, scene.width - 1.2),
+        y: clamp$1(center.y, 1.4, scene.height - 1.1)
+      }
+    };
+  }
+  if (side === "top") {
+    return {
+      direction: "down",
+      position: {
+        x: clamp$1(center.x, 1.2, scene.width - 1.2),
+        y: clamp$1(
+          portal.rect.y + portal.rect.height + inset,
+          1.4,
+          scene.height - 1.1
+        )
+      }
+    };
+  }
+  return {
+    direction: "up",
+    position: {
+      x: clamp$1(center.x, 1.2, scene.width - 1.2),
+      y: clamp$1(portal.rect.y - inset, 1.4, scene.height - 1.1)
+    }
+  };
 }
 function getNearbyCaseOwner(state) {
   const ownerId = state.currentCaseId === "sales" ? "leo" : "maya";
