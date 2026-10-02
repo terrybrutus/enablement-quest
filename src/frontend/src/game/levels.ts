@@ -116,7 +116,7 @@ export const scenes: Scene[] = [
     portals: [
       {
         id: "lab-to-hub",
-        label: "Organization Floor",
+        label: "Campus Yard",
         rect: { x: 2.5, y: 11.4, width: 2, height: 1.6 },
         targetSceneId: "hub",
         targetPosition: { x: 15, y: 15.95 },
@@ -334,7 +334,7 @@ export const scenes: Scene[] = [
   },
   {
     id: "hub",
-    name: "Organization Floor",
+    name: "Campus Yard",
     subtitle: "A compact campus for performance discovery",
     width: 30,
     height: 18,
@@ -376,7 +376,9 @@ export const scenes: Scene[] = [
     blocks: [
       { x: 18.9, y: 3.1, width: 8.5, height: 4.45 },
       { x: 3, y: 3.1, width: 7.1, height: 4.45 },
-      { x: 11, y: 11.2, width: 8.2, height: 4 },
+      { x: 11, y: 11.2, width: 3.25, height: 4 },
+      { x: 15.75, y: 11.2, width: 3.45, height: 4 },
+      { x: 14.25, y: 11.2, width: 1.5, height: 3.05 },
     ],
     props: [],
   },
@@ -391,7 +393,7 @@ export const scenes: Scene[] = [
     portals: [
       {
         id: "operations-to-hub",
-        label: "Organization Floor",
+        label: "Campus Yard",
         rect: { x: 8.4, y: 11.5, width: 1.2, height: 0.65 },
         targetSceneId: "hub",
         targetPosition: { x: 22.1, y: 9.25 },
@@ -515,7 +517,7 @@ export const scenes: Scene[] = [
     portals: [
       {
         id: "sales-to-hub",
-        label: "Organization Floor",
+        label: "Campus Yard",
         rect: { x: 8.4, y: 11.5, width: 1.2, height: 0.65 },
         targetSceneId: "hub",
         targetPosition: { x: 7.6, y: 9.25 },
@@ -669,10 +671,18 @@ export const characters: GameCharacter[] = [
     position: { x: 9.6, y: 11.15 },
     patrol: [
       { x: 9.6, y: 11.15 },
-      { x: 11.1, y: 11.15 },
-      { x: 11.1, y: 12.25 },
-      { x: 9.6, y: 12.25 },
+      { x: 12.25, y: 10.05 },
+      { x: 17.9, y: 10.15 },
+      { x: 20.1, y: 11.25 },
+      { x: 18.5, y: 12.75 },
+      { x: 11.8, y: 12.65 },
+      { x: 9.25, y: 12.05 },
     ],
+    movement: {
+      pauseMaxMs: 4200,
+      pauseMinMs: 1800,
+      speed: 0.0085,
+    },
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [

@@ -1,7 +1,9 @@
-import { assetUrls, scenes } from "@/game/levels";
+import { assetUrls, characters, scenes } from "@/game/levels";
 import type {
+  GameCharacter,
   Portal,
   Prop,
+  Rect,
   Scene,
   SheetSprite,
   SpriteTransform,
@@ -28,7 +30,25 @@ interface EditorItem {
 
 interface EditorPortal extends Portal {}
 
+interface EditorBlock {
+  id: string;
+  label: string;
+  rect: Rect;
+}
+
+interface EditorCharacterSettings {
+  id: string;
+  name: string;
+  pauseMaxMs: number;
+  pauseMinMs: number;
+  patrol: GameCharacter["patrol"];
+  sceneId: string;
+  speed: number;
+}
+
 interface SavedEditorLayout {
+  blocks: EditorBlock[];
+  characterSettings: EditorCharacterSettings[];
   id: string;
   items: EditorItem[];
   name: string;
@@ -409,9 +429,11 @@ const presets: SpritePreset[] = [
   ...modularOfficeSingles,
 ];
 
-const editorScenes = scenes.filter((scene) => scene.theme === "interior");
+const editorScenes = scenes;
 const layoutEditorStorageKey = "enablementQuestRoomLayouts.v3";
 const layoutEditorPortalStorageKey = "enablementQuestRoomPortals.v1";
+const layoutEditorBlockStorageKey = "enablementQuestRoomBlocks.v1";
+const layoutEditorCharacterStorageKey = "enablementQuestCharacterSettings.v1";
 const savedLayoutLibraryStorageKey = "enablementQuestSavedRoomLayouts.v1";
 const legacyLayoutEditorStorageKeys = [
   "enablementQuestRoomLayouts",
@@ -511,6 +533,17 @@ function getOfficeSingleFallbackMetadata(number: number) {
 }
 
 const roomThemes = {
+  hub: {
+    accent: "#38bdf8",
+    fill: "rgba(14, 165, 233, 0.08)",
+    title: "Campus Yard",
+    zones: [
+      { x: 2.8, y: 7.3, width: 7.6, height: 2.3 },
+      { x: 10.4, y: 7.2, width: 9.2, height: 4.6 },
+      { x: 19.4, y: 7.3, width: 7.8, height: 2.3 },
+      { x: 13.5, y: 13.8, width: 3.2, height: 2.5 },
+    ],
+  },
   lab: {
     accent: "#8b5cf6",
     fill: "rgba(124, 58, 237, 0.08)",
@@ -617,6 +650,38 @@ function getCurrentPortalLayouts() {
   );
 }
 
+function getCurrentBlockLayouts() {
+  return Object.fromEntries(
+    editorScenes.map((scene) => [
+      scene.id,
+      scene.blocks.map((block, index) => ({
+        id: `${scene.id}-block-${index + 1}`,
+        label: `Walk block ${index + 1}`,
+        rect: { ...block },
+      })),
+    ]),
+  );
+}
+
+function getCurrentCharacterSettings() {
+  return Object.fromEntries(
+    editorScenes.map((scene) => [
+      scene.id,
+      characters
+        .filter((character) => character.sceneId === scene.id)
+        .map((character) => ({
+          id: character.id,
+          name: character.name,
+          pauseMaxMs: character.movement?.pauseMaxMs ?? 2300,
+          pauseMinMs: character.movement?.pauseMinMs ?? 900,
+          patrol: character.patrol?.map((point) => ({ ...point })),
+          sceneId: character.sceneId,
+          speed: character.movement?.speed ?? 0.012,
+        })),
+    ]),
+  );
+}
+
 function getSceneName(sceneId: string) {
   return editorScenes.find((scene) => scene.id === sceneId)?.name ?? sceneId;
 }
@@ -677,6 +742,10 @@ const exampleGroupLabels: Record<string, string> = {
   "sales-coaching-zone": "Coaching Zone",
   "sales-dashboard-zone": "Pipeline Dashboard Zone",
   "sales-deck-zone": "Deck Review Zone",
+  "sales-leadership-wall": "Leadership Review Wall",
+  "sales-practice-pod": "Practice Pod",
+  "sales-strategy-desk": "Strategy Desk",
+  "sales-war-room": "Deal War Room",
   "ops-break-zone": "Break Area",
   "ops-map-wall": "Process Map Wall",
   "ops-metrics-zone": "Metrics Zone",
@@ -853,6 +922,134 @@ function getExampleLayouts(sceneId: string): Array<{
   if (sceneId === "sales") {
     return [
       {
+        id: "sales-deal-war-room",
+        title: "Deal War Room",
+        description:
+          "A leadership-review layout with the pipeline wall up front, deal review desk left, and coaching tools along the right side.",
+        items: applyExampleGroupLabels([
+          createOfficeSingleItem({
+            groupId: "sales-leadership-wall",
+            id: "sales-war-room-board",
+            label: "Leadership Review Board",
+            number: 172,
+            position: { x: 7.1, y: 2.1 },
+            size: { width: 3, height: 1.9 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-leadership-wall",
+            id: "sales-war-room-display",
+            label: "Pipeline Display",
+            number: 276,
+            position: { x: 10.5, y: 2.35 },
+            size: { width: 1.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-war-room",
+            id: "sales-war-room-table-a",
+            label: "Deal Review Table",
+            number: 229,
+            position: { x: 3, y: 5.1 },
+            size: { width: 2.5, height: 2.1 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-war-room",
+            id: "sales-war-room-chair-a",
+            label: "Review Chair",
+            number: 101,
+            position: { x: 3.3, y: 7.1 },
+            size: { width: 1.4, height: 1.7 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-war-room-coaching-desk",
+            label: "Manager Coaching Desk",
+            number: 233,
+            position: { x: 12.2, y: 5.5 },
+            size: { width: 2.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-war-room-files",
+            label: "Coaching File Cabinet",
+            number: 176,
+            position: { x: 14.8, y: 5.4 },
+            size: { width: 1.45, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-deck-zone",
+            id: "sales-war-room-deck-station",
+            label: "Deck Review Monitor",
+            number: 225,
+            position: { x: 7.2, y: 8.1 },
+            size: { width: 2.5, height: 2.1 },
+          }),
+        ]),
+      },
+      {
+        id: "sales-practice-studio",
+        title: "Practice And Coaching Studio",
+        description:
+          "A room built around behavior practice: call review on the left, practice pod center, and manager rubric station on the right.",
+        items: applyExampleGroupLabels([
+          createOfficeSingleItem({
+            groupId: "sales-call-zone",
+            id: "sales-practice-call-review",
+            label: "Call Review Screen",
+            number: 275,
+            position: { x: 2.3, y: 2.6 },
+            size: { width: 1.8, height: 2.3 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-call-zone",
+            id: "sales-practice-call-desk",
+            label: "Call Notes Desk",
+            number: 227,
+            position: { x: 2.7, y: 5.1 },
+            size: { width: 2.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-practice-pod",
+            id: "sales-practice-center-desk",
+            label: "Discovery Practice Desk",
+            number: 235,
+            position: { x: 7.5, y: 5.1 },
+            size: { width: 2.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-practice-pod",
+            id: "sales-practice-chair",
+            label: "Practice Chair",
+            number: 102,
+            position: { x: 8, y: 7.1 },
+            size: { width: 1.35, height: 1.7 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-practice-rubric-board",
+            label: "Coaching Rubric Board",
+            number: 171,
+            position: { x: 12.1, y: 2.5 },
+            size: { width: 2.6, height: 1.8 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-coaching-zone",
+            id: "sales-practice-manager-desk",
+            label: "Manager Coaching Desk",
+            number: 231,
+            position: { x: 12.1, y: 5.1 },
+            size: { width: 2.7, height: 2.2 },
+          }),
+          createOfficeSingleItem({
+            groupId: "sales-strategy-desk",
+            id: "sales-practice-resource-shelf",
+            label: "Resource Shelf",
+            number: 176,
+            position: { x: 6.7, y: 2.3 },
+            size: { width: 1.5, height: 2.2 },
+          }),
+        ]),
+      },
+      {
         id: "sales-enablement-pod",
         title: "Sales Enablement Pod",
         description:
@@ -997,6 +1194,7 @@ export function RoomLayoutEditor() {
   );
   const [assetSearch, setAssetSearch] = useState("");
   const [showPlanningZones, setShowPlanningZones] = useState(false);
+  const [showWalkBlocks, setShowWalkBlocks] = useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] =
     useState(true);
   const [playerScaleReferencePosition, setPlayerScaleReferencePosition] =
@@ -1064,8 +1262,45 @@ export function RoomLayoutEditor() {
       return currentPortalLayouts;
     }
   });
+  const [blocksByScene, setBlocksByScene] = useState<
+    Record<string, EditorBlock[]>
+  >(() => {
+    const currentBlockLayouts = getCurrentBlockLayouts();
+    const savedBlocks = window.localStorage.getItem(
+      layoutEditorBlockStorageKey,
+    );
+    if (!savedBlocks) {
+      return currentBlockLayouts;
+    }
+    try {
+      return { ...currentBlockLayouts, ...JSON.parse(savedBlocks) };
+    } catch {
+      return currentBlockLayouts;
+    }
+  });
+  const [characterSettingsByScene, setCharacterSettingsByScene] = useState<
+    Record<string, EditorCharacterSettings[]>
+  >(() => {
+    const currentCharacterSettings = getCurrentCharacterSettings();
+    const savedCharacterSettings = window.localStorage.getItem(
+      layoutEditorCharacterStorageKey,
+    );
+    if (!savedCharacterSettings) {
+      return currentCharacterSettings;
+    }
+    try {
+      return {
+        ...currentCharacterSettings,
+        ...JSON.parse(savedCharacterSettings),
+      };
+    } catch {
+      return currentCharacterSettings;
+    }
+  });
   const items = itemsByScene[scene.id] ?? [];
   const portals = portalsByScene[scene.id] ?? [];
+  const blocks = blocksByScene[scene.id] ?? [];
+  const characterSettings = characterSettingsByScene[scene.id] ?? [];
   const [savedLayoutName, setSavedLayoutName] = useState("");
   const [savedLayouts, setSavedLayouts] = useState<SavedEditorLayout[]>(() => {
     const saved = window.localStorage.getItem(savedLayoutLibraryStorageKey);
@@ -1080,6 +1315,7 @@ export function RoomLayoutEditor() {
   });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [history, setHistory] = useState<Array<Record<string, EditorItem[]>>>(
     [],
   );
@@ -1092,6 +1328,8 @@ export function RoomLayoutEditor() {
   const selectedItems = items.filter((item) => selectedIds.includes(item.id));
   const selectedPortal =
     portals.find((portal) => portal.id === selectedPortalId) ?? null;
+  const selectedBlock =
+    blocks.find((block) => block.id === selectedBlockId) ?? null;
   const selectedBounds = useMemo(
     () => getItemsBounds(selectedItems),
     [selectedItems],
@@ -1116,6 +1354,20 @@ export function RoomLayoutEditor() {
       JSON.stringify(portalsByScene),
     );
   }, [portalsByScene]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      layoutEditorBlockStorageKey,
+      JSON.stringify(blocksByScene),
+    );
+  }, [blocksByScene]);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      layoutEditorCharacterStorageKey,
+      JSON.stringify(characterSettingsByScene),
+    );
+  }, [characterSettingsByScene]);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -1166,15 +1418,60 @@ export function RoomLayoutEditor() {
     }));
   }
 
+  function updateBlocks(nextBlocks: EditorBlock[]) {
+    setBlocksByScene((previous) => ({
+      ...previous,
+      [scene.id]: nextBlocks,
+    }));
+  }
+
+  function updateBlocksForScene(
+    nextSceneId: string,
+    nextBlocks: EditorBlock[],
+  ) {
+    setBlocksByScene((previous) => ({
+      ...previous,
+      [nextSceneId]: nextBlocks,
+    }));
+  }
+
+  function updateCharacterSettings(
+    nextSettings: EditorCharacterSettings[],
+    nextSceneId = scene.id,
+  ) {
+    setCharacterSettingsByScene((previous) => ({
+      ...previous,
+      [nextSceneId]: nextSettings,
+    }));
+  }
+
+  function updateCharacterSetting(
+    characterId: string,
+    patch: Partial<EditorCharacterSettings>,
+  ) {
+    updateCharacterSettings(
+      characterSettings.map((setting) =>
+        setting.id === characterId ? { ...setting, ...patch } : setting,
+      ),
+    );
+  }
+
   function loadCurrentRoomLayout() {
     const currentLayouts = getCurrentGameLayouts();
     const currentPortalLayouts = getCurrentPortalLayouts();
+    const currentBlockLayouts = getCurrentBlockLayouts();
+    const currentCharacterSettings = getCurrentCharacterSettings();
     const nextItems = currentLayouts[scene.id] ?? [];
     const nextPortals = currentPortalLayouts[scene.id] ?? [];
+    const nextBlocks = currentBlockLayouts[scene.id] ?? [];
+    const nextCharacterSettings = currentCharacterSettings[scene.id] ?? [];
     updateItems(nextItems);
     updatePortals(nextPortals, false);
+    updateBlocks(nextBlocks);
+    updateCharacterSettings(nextCharacterSettings);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
     setSelectedPortalId(null);
+    setSelectedBlockId(null);
   }
 
   function clearRoomLayout() {
@@ -1186,6 +1483,7 @@ export function RoomLayoutEditor() {
     updateItems(nextItems);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
     setSelectedPortalId(null);
+    setSelectedBlockId(null);
   }
 
   function saveNamedLayout() {
@@ -1197,6 +1495,8 @@ export function RoomLayoutEditor() {
       (layout) => layout.sceneId === scene.id && layout.name === layoutName,
     );
     const nextLayout: SavedEditorLayout = {
+      blocks,
+      characterSettings,
       id: existingLayout?.id ?? `layout-${Date.now()}`,
       items,
       name: layoutName,
@@ -1215,8 +1515,11 @@ export function RoomLayoutEditor() {
     setSceneId(layout.sceneId);
     updateItemsForScene(layout.sceneId, layout.items);
     updatePortalsForScene(layout.sceneId, layout.portals, false);
+    updateBlocksForScene(layout.sceneId, layout.blocks ?? []);
+    updateCharacterSettings(layout.characterSettings ?? [], layout.sceneId);
     setSelectedIds(layout.items[0] ? [layout.items[0].id] : []);
     setSelectedPortalId(null);
+    setSelectedBlockId(null);
     setSavedLayoutName(layout.name);
   }
 
@@ -1233,6 +1536,68 @@ export function RoomLayoutEditor() {
     updatePortals(
       portals.map((portal) =>
         portal.id === selectedPortal.id ? { ...portal, ...patch } : portal,
+      ),
+    );
+  }
+
+  function updateSelectedBlock(patch: Partial<EditorBlock>) {
+    if (!selectedBlock) {
+      return;
+    }
+    updateBlocks(
+      blocks.map((block) =>
+        block.id === selectedBlock.id ? { ...block, ...patch } : block,
+      ),
+    );
+  }
+
+  function updateSelectedBlockRect(patch: Partial<Rect>) {
+    if (!selectedBlock) {
+      return;
+    }
+    updateSelectedBlock({
+      rect: {
+        ...selectedBlock.rect,
+        ...patch,
+      },
+    });
+  }
+
+  function moveBlock(blockId: string, dx: number, dy: number) {
+    updateBlocks(
+      blocks.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              rect: {
+                ...block.rect,
+                x: clamp(block.rect.x + dx, 0, scene.width - block.rect.width),
+                y: clamp(
+                  block.rect.y + dy,
+                  0,
+                  scene.height - block.rect.height,
+                ),
+              },
+            }
+          : block,
+      ),
+    );
+  }
+
+  function resizeBlock(
+    blockId: string,
+    handle: ResizeHandle,
+    dx: number,
+    dy: number,
+  ) {
+    updateBlocks(
+      blocks.map((block) =>
+        block.id === blockId
+          ? {
+              ...block,
+              rect: resizeRect(block.rect, handle, dx, dy, scene),
+            }
+          : block,
       ),
     );
   }
@@ -1504,6 +1869,7 @@ export function RoomLayoutEditor() {
 
   function selectItem(itemId: string, additive: boolean) {
     setSelectedPortalId(null);
+    setSelectedBlockId(null);
     const clickedItem = items.find((item) => item.id === itemId);
     const groupItemIds =
       clickedItem?.groupId && !additive
@@ -1828,6 +2194,26 @@ export function RoomLayoutEditor() {
           y: Number(portal.targetPosition.y.toFixed(2)),
         },
       })),
+      blocks: blocks.map((block) => ({
+        id: block.id,
+        label: block.label,
+        rect: {
+          height: Number(block.rect.height.toFixed(2)),
+          width: Number(block.rect.width.toFixed(2)),
+          x: Number(block.rect.x.toFixed(2)),
+          y: Number(block.rect.y.toFixed(2)),
+        },
+      })),
+      characterSettings: characterSettings.map((setting) => ({
+        id: setting.id,
+        name: setting.name,
+        movement: {
+          pauseMaxMs: setting.pauseMaxMs,
+          pauseMinMs: setting.pauseMinMs,
+          speed: setting.speed,
+        },
+        patrol: setting.patrol,
+      })),
       props: items.map((item) => ({
         id: item.id,
         groupId: item.groupId || undefined,
@@ -1891,6 +2277,15 @@ export function RoomLayoutEditor() {
 
           <label className="eq-layout-editor-checkbox">
             <input
+              checked={showWalkBlocks}
+              type="checkbox"
+              onChange={(event) => setShowWalkBlocks(event.target.checked)}
+            />
+            Show walk-block zones
+          </label>
+
+          <label className="eq-layout-editor-checkbox">
+            <input
               checked={showPlayerScaleReference}
               type="checkbox"
               onChange={(event) =>
@@ -1909,6 +2304,7 @@ export function RoomLayoutEditor() {
                 const nextItems = itemsByScene[event.target.value] ?? [];
                 setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
                 setSelectedPortalId(null);
+                setSelectedBlockId(null);
               }}
             >
               {editorScenes.map((item) => (
@@ -2091,6 +2487,7 @@ export function RoomLayoutEditor() {
               if (!event.shiftKey) {
                 setSelectedIds([]);
                 setSelectedPortalId(null);
+                setSelectedBlockId(null);
                 return;
               }
               const rect = event.currentTarget.getBoundingClientRect();
@@ -2128,6 +2525,23 @@ export function RoomLayoutEditor() {
           >
             <RoomBackdrop scene={scene} showZones={showPlanningZones} />
             <RoomGrid scene={scene} />
+            {showWalkBlocks &&
+              blocks.map((block) => (
+                <DraggableBlock
+                  block={block}
+                  isSelected={block.id === selectedBlockId}
+                  key={block.id}
+                  onMove={(dx, dy) => moveBlock(block.id, dx, dy)}
+                  onResize={(handle, dx, dy) =>
+                    resizeBlock(block.id, handle, dx, dy)
+                  }
+                  onSelect={() => {
+                    setSelectedIds([]);
+                    setSelectedPortalId(null);
+                    setSelectedBlockId(block.id);
+                  }}
+                />
+              ))}
             {portals.map((portal) => (
               <DraggablePortal
                 isSelected={portal.id === selectedPortalId}
@@ -2138,6 +2552,7 @@ export function RoomLayoutEditor() {
                 onSelect={() => {
                   setSelectedIds([]);
                   setSelectedPortalId(portal.id);
+                  setSelectedBlockId(null);
                 }}
               />
             ))}
@@ -2349,6 +2764,50 @@ export function RoomLayoutEditor() {
               </div>
             </div>
           )}
+          {selectedBlock && (
+            <div className="eq-layout-editor-group-tools">
+              <h2>Selected Walk Block</h2>
+              <label>
+                Block label
+                <input
+                  value={selectedBlock.label}
+                  onChange={(event) =>
+                    updateSelectedBlock({ label: event.target.value })
+                  }
+                />
+              </label>
+              <div className="eq-layout-editor-fields">
+                <NumberField
+                  label="Block X"
+                  value={selectedBlock.rect.x}
+                  onChange={(value) => updateSelectedBlockRect({ x: value })}
+                />
+                <NumberField
+                  label="Block Y"
+                  value={selectedBlock.rect.y}
+                  onChange={(value) => updateSelectedBlockRect({ y: value })}
+                />
+                <NumberField
+                  label="Block W"
+                  value={selectedBlock.rect.width}
+                  onChange={(value) =>
+                    updateSelectedBlockRect({ width: value })
+                  }
+                />
+                <NumberField
+                  label="Block H"
+                  value={selectedBlock.rect.height}
+                  onChange={(value) =>
+                    updateSelectedBlockRect({ height: value })
+                  }
+                />
+              </div>
+              <p className="eq-layout-editor-muted">
+                These zones are exported as scene blocks. Use them for walls,
+                building footprints, and areas players or NPCs should not cross.
+              </p>
+            </div>
+          )}
           {selectedItem ? (
             <>
               {selectedIds.length > 1 && (
@@ -2549,6 +3008,62 @@ export function RoomLayoutEditor() {
             <p>Select or add an object to edit it.</p>
           )}
 
+          <h2>Characters In This Scene</h2>
+          {characterSettings.length > 0 ? (
+            <div className="eq-layout-editor-group-tools">
+              {characterSettings.map((setting) => (
+                <div
+                  className="eq-layout-editor-character-card"
+                  key={setting.id}
+                >
+                  <strong>{setting.name}</strong>
+                  <div className="eq-layout-editor-fields">
+                    <NumberField
+                      label="Speed"
+                      step={0.001}
+                      value={setting.speed}
+                      onChange={(value) =>
+                        updateCharacterSetting(setting.id, { speed: value })
+                      }
+                    />
+                    <NumberField
+                      label="Pause min ms"
+                      step={100}
+                      value={setting.pauseMinMs}
+                      onChange={(value) =>
+                        updateCharacterSetting(setting.id, {
+                          pauseMinMs: value,
+                        })
+                      }
+                    />
+                    <NumberField
+                      label="Pause max ms"
+                      step={100}
+                      value={setting.pauseMaxMs}
+                      onChange={(value) =>
+                        updateCharacterSetting(setting.id, {
+                          pauseMaxMs: value,
+                        })
+                      }
+                    />
+                  </div>
+                  <p className="eq-layout-editor-muted">
+                    Patrol points:{" "}
+                    {setting.patrol?.length
+                      ? setting.patrol
+                          .map((point) => `${point.x},${point.y}`)
+                          .join(" | ")
+                      : "stationary"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="eq-layout-editor-empty">
+              No NPCs currently start in this scene.
+            </p>
+          )}
+
           <h2>Export</h2>
           <textarea readOnly value={exportJson} />
           <button
@@ -2602,6 +3117,119 @@ function RoomBackdrop({
             ))}
         </>
       )}
+    </div>
+  );
+}
+
+function DraggableBlock({
+  block,
+  isSelected,
+  onMove,
+  onResize,
+  onSelect,
+}: {
+  block: EditorBlock;
+  isSelected: boolean;
+  onMove: (dx: number, dy: number) => void;
+  onResize: (handle: ResizeHandle, dx: number, dy: number) => void;
+  onSelect: () => void;
+}) {
+  const dragState = useRef<{
+    lastClientX: number;
+    lastClientY: number;
+  } | null>(null);
+  const resizeState = useRef<{
+    handle: ResizeHandle;
+    lastClientX: number;
+    lastClientY: number;
+  } | null>(null);
+
+  return (
+    <div
+      className={`eq-layout-editor-block ${isSelected ? "is-selected" : ""}`}
+      style={{
+        height: block.rect.height * TILE_SIZE,
+        left: block.rect.x * TILE_SIZE,
+        top: block.rect.y * TILE_SIZE,
+        width: block.rect.width * TILE_SIZE,
+      }}
+      onPointerDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onSelect();
+        dragState.current = {
+          lastClientX: event.clientX,
+          lastClientY: event.clientY,
+        };
+      }}
+      onPointerMove={(event) => {
+        const currentDrag = dragState.current;
+        if (
+          !currentDrag ||
+          !event.currentTarget.hasPointerCapture(event.pointerId)
+        ) {
+          return;
+        }
+        const dx = snap((event.clientX - currentDrag.lastClientX) / TILE_SIZE);
+        const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
+        if (dx === 0 && dy === 0) {
+          return;
+        }
+        currentDrag.lastClientX = event.clientX;
+        currentDrag.lastClientY = event.clientY;
+        onMove(dx, dy);
+      }}
+      onPointerUp={(event) => {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        dragState.current = null;
+      }}
+    >
+      <span>{block.label}</span>
+      {isSelected &&
+        resizeHandles.map((handle) => (
+          <span
+            aria-label={`Resize block ${handle}`}
+            className={`eq-layout-editor-resize-handle is-${handle}`}
+            key={handle}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              event.currentTarget.setPointerCapture(event.pointerId);
+              resizeState.current = {
+                handle,
+                lastClientX: event.clientX,
+                lastClientY: event.clientY,
+              };
+            }}
+            onPointerMove={(event) => {
+              const currentResize = resizeState.current;
+              if (
+                !currentResize ||
+                !event.currentTarget.hasPointerCapture(event.pointerId)
+              ) {
+                return;
+              }
+              const dx = snap(
+                (event.clientX - currentResize.lastClientX) / TILE_SIZE,
+              );
+              const dy = snap(
+                (event.clientY - currentResize.lastClientY) / TILE_SIZE,
+              );
+              if (dx === 0 && dy === 0) {
+                return;
+              }
+              currentResize.lastClientX = event.clientX;
+              currentResize.lastClientY = event.clientY;
+              onResize(handle, dx, dy);
+            }}
+            onPointerUp={(event) => {
+              event.currentTarget.releasePointerCapture(event.pointerId);
+              resizeState.current = null;
+            }}
+            role="presentation"
+          />
+        ))}
     </div>
   );
 }
@@ -3227,17 +3855,19 @@ function getSpriteSource(sprite: SheetSprite) {
 function NumberField({
   label,
   onChange,
+  step = 0.05,
   value,
 }: {
   label: string;
   onChange: (value: number) => void;
+  step?: number;
   value: number;
 }) {
   return (
     <label>
       {label}
       <input
-        step="0.05"
+        step={step}
         type="number"
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
@@ -3454,6 +4084,48 @@ function resizeItem(
       height: snap(nextHeight),
       width: snap(nextWidth),
     },
+  };
+}
+
+function resizeRect(
+  rect: Rect,
+  handle: ResizeHandle,
+  dx: number,
+  dy: number,
+  scene: Scene,
+) {
+  const movesLeft = handle.includes("left");
+  const movesRight = handle.includes("right");
+  const movesTop = handle.includes("top");
+  const movesBottom = handle.includes("bottom");
+  const minimumSize = 0.25;
+  const originalRight = rect.x + rect.width;
+  const originalBottom = rect.y + rect.height;
+  let nextX = rect.x;
+  let nextY = rect.y;
+  let nextWidth = rect.width;
+  let nextHeight = rect.height;
+
+  if (movesLeft) {
+    nextX = clamp(rect.x + dx, 0, originalRight - minimumSize);
+    nextWidth = originalRight - nextX;
+  }
+  if (movesRight) {
+    nextWidth = clamp(rect.width + dx, minimumSize, scene.width - nextX);
+  }
+  if (movesTop) {
+    nextY = clamp(rect.y + dy, 0, originalBottom - minimumSize);
+    nextHeight = originalBottom - nextY;
+  }
+  if (movesBottom) {
+    nextHeight = clamp(rect.height + dy, minimumSize, scene.height - nextY);
+  }
+
+  return {
+    height: snap(nextHeight),
+    width: snap(nextWidth),
+    x: snap(nextX),
+    y: snap(nextY),
   };
 }
 

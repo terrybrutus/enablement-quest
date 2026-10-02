@@ -107,6 +107,11 @@ export interface GameCharacter {
   sceneId: SceneId;
   position: Position;
   patrol?: Position[];
+  movement?: {
+    pauseMaxMs?: number;
+    pauseMinMs?: number;
+    speed?: number;
+  };
   sprite: SheetSprite;
   dialogue: Record<QuestStage, string[]>;
 }

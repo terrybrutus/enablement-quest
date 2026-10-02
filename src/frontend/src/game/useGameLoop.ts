@@ -848,7 +848,7 @@ function moveCharacters(state: GameState, delta: number) {
       continue;
     }
 
-    const speed = 0.012 * delta;
+    const speed = (character.movement?.speed ?? 0.012) * delta;
     const step = Math.min(speed, distance);
     const nextPosition = {
       x: current.position.x + (dx / distance) * step,
@@ -870,10 +870,14 @@ function getCharacterPauseUntil(characterId: string, step: number) {
 }
 
 function getCharacterPauseDuration(characterId: string, step: number) {
+  const character = characters.find((item) => item.id === characterId);
+  const minPause = character?.movement?.pauseMinMs ?? 900;
+  const maxPause = character?.movement?.pauseMaxMs ?? 2300;
+  const pauseRange = Math.max(0, maxPause - minPause);
   const seed = characterId
     .split("")
     .reduce((total, character) => total + character.charCodeAt(0), 0);
-  return 900 + ((seed + step * 397) % 1400);
+  return minPause + ((seed + step * 397) % (pauseRange + 1));
 }
 
 function faceActiveCharacterTowardPlayer(state: GameState) {
