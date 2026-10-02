@@ -12362,9 +12362,9 @@ const scenes = [
       }
     ],
     blocks: [
-      { x: 19, y: 2.25, width: 8.5, height: 4.75 },
-      { x: 3, y: 2.25, width: 7.25, height: 4.75 },
-      { x: 11, y: 10.75, width: 8.25, height: 4 }
+      { x: 19, y: 2, width: 8.5, height: 5 },
+      { x: 3, y: 2, width: 7.25, height: 5 },
+      { x: 11, y: 10.5, width: 8.25, height: 4.25 }
     ],
     props: []
   },
@@ -12380,9 +12380,17 @@ const scenes = [
       {
         id: "operations-to-hub",
         label: "Campus Yard",
-        rect: { x: 8.4, y: 11.5, width: 1.2, height: 0.65 },
+        rect: {
+          height: 0.65,
+          width: 1.2,
+          x: 8.4,
+          y: 12
+        },
         targetSceneId: "hub",
-        targetPosition: { x: 22.1, y: 9.25 }
+        targetPosition: {
+          x: 22.1,
+          y: 9.25
+        }
       }
     ],
     blocks: [
@@ -12394,97 +12402,137 @@ const scenes = [
     ],
     props: [
       {
-        id: "manager-table",
-        description: "Stakeholder notes point to unclear handoffs and inconsistent manager follow-through.",
-        position: { x: 2.15, y: 3.45 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(384, 1296, 144, 96),
+        id: "ops-process-board",
+        position: {
+          x: 7.1,
+          y: 2.5
+        },
+        size: {
+          height: 1.8,
+          width: 2.8
+        },
+        sprite: {
+          image: "officeSingle170",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "ops-ramp-desk",
-        position: { x: 6.4, y: 3.45 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(528, 1296, 144, 96),
+        id: "ops-ticket-workstation",
+        position: {
+          x: 2.8,
+          y: 4.1
+        },
+        size: {
+          height: 2.2,
+          width: 2.7
+        },
+        sprite: {
+          image: "officeSingle233",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "ops-manager-desk",
-        position: { x: 10.65, y: 3.45 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(672, 1296, 144, 96),
+        id: "ops-ticket-chair",
+        position: {
+          x: 3.2,
+          y: 6.1
+        },
+        size: {
+          height: 1.7,
+          width: 1.4
+        },
+        sprite: {
+          image: "officeSingle101",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "ops-whiteboard",
-        position: { x: 1.7, y: 1.35 },
-        size: { width: 2.55, height: 1.2 },
-        sprite: officeSprite(240, 336, 144, 48),
+        id: "ops-survey-desk",
+        position: {
+          x: 8.1,
+          y: 7.1
+        },
+        size: {
+          height: 2.1,
+          width: 2.4
+        },
+        sprite: {
+          image: "officeSingle229",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "metric-board",
-        description: "Ramp data shows the problem spikes after orientation, which suggests reinforcement and workflow gaps.",
-        position: { x: 12.15, y: 6.9 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(384, 1344, 144, 96),
+        id: "ops-metrics-display",
+        position: {
+          x: 12.6,
+          y: 4.1
+        },
+        size: {
+          height: 2.2,
+          width: 1.6
+        },
+        sprite: {
+          image: "officeSingle276",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "ops-ticket-monitor",
-        position: { x: 11.9, y: 1.35 },
-        size: { width: 2.55, height: 1.25 },
-        sprite: officeSprite(432, 576, 96, 96),
+        id: "ops-printer-station",
+        position: {
+          x: 13.8,
+          y: 7.1
+        },
+        size: {
+          height: 2,
+          width: 2.3
+        },
+        sprite: {
+          image: "officeSingle177",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "process-desk",
-        description: "The process review desk shows access delays and too many handoffs before new hires can work confidently.",
-        position: { x: 6.4, y: 6.9 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(528, 1344, 144, 96),
+        id: "ops-water-cooler",
+        position: {
+          x: 1.2,
+          y: 8.1
+        },
+        size: {
+          height: 2,
+          width: 1.2
+        },
+        sprite: {
+          image: "officeSingle173",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
-      },
-      {
-        id: "ops-handoff-cabinets",
-        position: { x: 6.4, y: 8.85 },
-        size: { width: 2.45, height: 0.95 },
-        sprite: officeSprite(240, 480, 144, 48)
-      },
-      {
-        id: "ops-support-printers",
-        position: { x: 12.1, y: 9.2 },
-        size: { width: 2.55, height: 0.95 },
-        sprite: officeSprite(384, 2004, 192, 60),
-        collision: true
-      },
-      {
-        id: "ops-reference-shelf",
-        description: "Reference binders and job aids. This is the kind of support that belongs at the point of work.",
-        position: { x: 2.15, y: 6.9 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(288, 576, 144, 96),
-        collision: true
-      },
-      {
-        id: "ops-wall-case-files",
-        position: { x: 5.25, y: 1.35 },
-        size: { width: 2.55, height: 1.7 },
-        sprite: officeSprite(384, 576, 144, 96),
-        collision: true
-      },
-      {
-        id: "ops-standup-desk",
-        position: { x: 8.35, y: 1.45 },
-        size: { width: 2.15, height: 1.25 },
-        sprite: officeSprite(336, 528, 144, 48),
-        collision: true
-      },
-      {
-        id: "ops-floor-plant",
-        position: { x: 15.25, y: 8.85 },
-        size: { width: 1.05, height: 1.35 },
-        sprite: officeSprite(288, 192)
       }
     ]
   },
@@ -12500,104 +12548,264 @@ const scenes = [
       {
         id: "sales-to-hub",
         label: "Campus Yard",
-        rect: { x: 8.4, y: 11.5, width: 1.2, height: 0.65 },
+        rect: {
+          height: 0.65,
+          width: 1.2,
+          x: 12.9,
+          y: 12.1
+        },
         targetSceneId: "hub",
-        targetPosition: { x: 7.6, y: 9.25 }
+        targetPosition: {
+          x: 7.6,
+          y: 9.25
+        }
       }
     ],
     blocks: [
       { x: 0, y: 0, width: 18, height: 1 },
       { x: 0, y: 0, width: 1, height: 13 },
       { x: 17, y: 0, width: 1, height: 13 },
-      { x: 0, y: 12, width: 8, height: 1 },
-      { x: 10, y: 12, width: 8, height: 1 }
+      { x: 0, y: 12, width: 12.5, height: 1 },
+      { x: 14.5, y: 12, width: 3.5, height: 1 }
     ],
     props: [
       {
-        id: "deal-review-table",
-        description: "Deal reviews show reps can demo features, but discovery notes rarely connect the demo to business pain.",
-        position: { x: 2.15, y: 3.45 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(384, 1296, 144, 96),
+        id: "sales-dashboard-display",
+        position: {
+          x: 13.5,
+          y: 0.25
+        },
+        size: {
+          height: 3,
+          width: 3.75
+        },
+        sprite: {
+          image: "officeSingle172",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "sales-discovery-pod",
-        position: { x: 6.4, y: 3.45 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(528, 1296, 144, 96),
+        id: "sales-coaching-plant",
+        position: {
+          x: 2.1,
+          y: 1.8
+        },
+        size: {
+          height: 2.2,
+          width: 1.3
+        },
+        sprite: {
+          image: "officeSingle98",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "sales-demo-screens",
-        position: { x: 2.15, y: 6.9 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(288, 336, 144, 96),
+        id: "office-single-320-6",
+        label: "Busy Desk With Supplies",
+        position: {
+          x: 15,
+          y: 5.25
+        },
+        size: {
+          height: 3,
+          width: 2
+        },
+        sprite: {
+          image: "officeSingle320",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "pipeline-board",
-        description: "The board shows plenty of demos but weak next-step conversion. The issue is not activity volume.",
-        position: { x: 10.65, y: 3.45 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(672, 1296, 96, 96),
+        id: "office-r1-c9-7-copy-murluu2e-1",
+        position: {
+          x: 9.85,
+          y: 4
+        },
+        size: {
+          height: 3,
+          width: 2.9
+        },
+        sprite: {
+          image: "office",
+          sx: 384,
+          sy: 0,
+          sw: 48,
+          sh: 48
+        },
         collision: true
       },
       {
-        id: "sales-value-monitor",
-        position: { x: 11.9, y: 1.35 },
-        size: { width: 2.55, height: 1.25 },
-        sprite: officeSprite(432, 480, 96, 96),
+        id: "office-r1-c8-8-copy-murluu2e-2",
+        position: {
+          x: 7.67,
+          y: 4
+        },
+        size: {
+          height: 3,
+          width: 2.9
+        },
+        sprite: {
+          image: "office",
+          sx: 336,
+          sy: 0,
+          sw: 48,
+          sh: 48
+        },
         collision: true
       },
       {
-        id: "call-coaching-station",
-        description: "The coaching station points to inconsistent discovery prompts and limited manager reinforcement after training.",
-        position: { x: 6.4, y: 6.9 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(576, 1488, 144, 96),
+        id: "office-r1-c7-9-copy-murluu2e-3",
+        position: {
+          x: 5.5,
+          y: 4
+        },
+        size: {
+          height: 3,
+          width: 2.9
+        },
+        sprite: {
+          image: "office",
+          sx: 288,
+          sy: 0,
+          sw: 48,
+          sh: 48
+        },
         collision: true
       },
       {
-        id: "sales-rubric-cards",
-        position: { x: 6.55, y: 8.85 },
-        size: { width: 1.7, height: 1 },
-        sprite: officeSprite(528, 480, 96, 48)
-      },
-      {
-        id: "sales-coaching-tools",
-        position: { x: 12.1, y: 9.2 },
-        size: { width: 2.55, height: 0.95 },
-        sprite: officeSprite(384, 2004, 192, 60),
+        id: "office-r1-c9-7-copy-murlt6d2-1-copy-murluu2e-4",
+        position: {
+          x: 9.85,
+          y: 6.25
+        },
+        size: {
+          height: 3,
+          width: 2.9
+        },
+        sprite: {
+          image: "office",
+          sx: 384,
+          sy: 0,
+          sw: 48,
+          sh: 48
+        },
+        spriteTransform: {
+          flipY: true
+        },
         collision: true
       },
       {
-        id: "sales-call-library",
-        description: "Recorded calls and manager notes. Sales enablement needs practice, coaching, and inspection, not only more slides.",
-        position: { x: 5.25, y: 1.35 },
-        size: { width: 2.55, height: 1.7 },
-        sprite: officeSprite(576, 576, 144, 96),
+        id: "office-r1-c8-8-copy-murlt6d2-2-copy-murluu2e-5",
+        position: {
+          x: 7.67,
+          y: 6.25
+        },
+        size: {
+          height: 3,
+          width: 2.9
+        },
+        sprite: {
+          image: "office",
+          sx: 336,
+          sy: 0,
+          sw: 48,
+          sh: 48
+        },
+        spriteTransform: {
+          flipY: true
+        },
         collision: true
       },
       {
-        id: "sales-wall-board",
-        position: { x: 8.35, y: 1.45 },
-        size: { width: 2.15, height: 1.25 },
-        sprite: officeSprite(240, 336, 144, 48),
+        id: "office-r1-c7-9-copy-murlt6d2-3-copy-murluu2e-6",
+        position: {
+          x: 5.5,
+          y: 6.25
+        },
+        size: {
+          height: 3,
+          width: 2.9
+        },
+        sprite: {
+          image: "office",
+          sx: 288,
+          sy: 0,
+          sw: 48,
+          sh: 48
+        },
+        spriteTransform: {
+          flipY: true
+        },
         collision: true
       },
       {
-        id: "sales-side-desk",
-        position: { x: 10.65, y: 6.9 },
-        size: { width: 2.85, height: 1.9 },
-        sprite: officeSprite(528, 1344, 144, 96),
+        id: "sales-deck-chair-copy-murlwccf-1",
+        position: {
+          x: 7.5,
+          y: 5.75
+        },
+        size: {
+          height: 2.75,
+          width: 2.25
+        },
+        sprite: {
+          image: "officeSingle102",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
         collision: true
       },
       {
-        id: "sales-floor-plant",
-        position: { x: 15.25, y: 8.85 },
-        size: { width: 1.05, height: 1.35 },
-        sprite: officeSprite(288, 192)
+        id: "sales-call-workstation-copy-murlwccf-2",
+        position: {
+          x: 6.05,
+          y: 4.42
+        },
+        size: {
+          height: 3.08,
+          width: 3.87
+        },
+        sprite: {
+          image: "officeSingle227",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
+        collision: true
+      },
+      {
+        id: "sales-coaching-printer-copy-murlwccf-3",
+        position: {
+          x: 9.64,
+          y: 4.7
+        },
+        size: {
+          height: 2.1,
+          width: 2.42
+        },
+        sprite: {
+          image: "officeSingle178",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
+        collision: true
       }
     ]
   }
@@ -12615,6 +12823,11 @@ const characters = [
       { x: 10.1, y: 5.65 },
       { x: 8.25, y: 5.55 }
     ],
+    movement: {
+      pauseMaxMs: 2300,
+      pauseMinMs: 900,
+      speed: 0.012
+    },
     sprite: { image: "ameliaIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
@@ -12690,6 +12903,11 @@ const characters = [
       { x: 9.7, y: 7.25 },
       { x: 11.5, y: 6.15 }
     ],
+    movement: {
+      pauseMaxMs: 2300,
+      pauseMinMs: 900,
+      speed: 0.012
+    },
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
@@ -19034,6 +19252,17 @@ function RoomLayoutEditor() {
       size: getDefaultSizeForItem(item)
     }));
   }
+  function arrangeSelectedItems(direction) {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    const selectedSet = new Set(selectedIds);
+    const selectedInOrder = items.filter((item) => selectedSet.has(item.id));
+    const unselectedInOrder = items.filter((item) => !selectedSet.has(item.id));
+    updateItems(
+      direction === "front" ? [...unselectedInOrder, ...selectedInOrder] : [...selectedInOrder, ...unselectedInOrder]
+    );
+  }
   function groupSelected() {
     if (selectedIds.length < 2) {
       return;
@@ -19289,6 +19518,16 @@ function RoomLayoutEditor() {
       duplicateSelected();
       return;
     }
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.code === "BracketRight") {
+      event.preventDefault();
+      arrangeSelectedItems("front");
+      return;
+    }
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.code === "BracketLeft") {
+      event.preventDefault();
+      arrangeSelectedItems("back");
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "g") {
       event.preventDefault();
       if (event.shiftKey) {
@@ -19438,7 +19677,7 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, save your layout, then copy the JSON back to Codex." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag copies, Space+drag pans the canvas, and dragging a corner keeps the resize ratio." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag copies, Ctrl+Shift+] brings selected objects to front, Ctrl+Shift+[ sends them to back, Space+drag pans the canvas, and dragging a corner keeps the resize ratio." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(

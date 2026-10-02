@@ -1966,6 +1966,20 @@ export function RoomLayoutEditor() {
     }));
   }
 
+  function arrangeSelectedItems(direction: "back" | "front") {
+    if (selectedIds.length === 0) {
+      return;
+    }
+    const selectedSet = new Set(selectedIds);
+    const selectedInOrder = items.filter((item) => selectedSet.has(item.id));
+    const unselectedInOrder = items.filter((item) => !selectedSet.has(item.id));
+    updateItems(
+      direction === "front"
+        ? [...unselectedInOrder, ...selectedInOrder]
+        : [...selectedInOrder, ...unselectedInOrder],
+    );
+  }
+
   function groupSelected() {
     if (selectedIds.length < 2) {
       return;
@@ -2282,6 +2296,24 @@ export function RoomLayoutEditor() {
       duplicateSelected();
       return;
     }
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.shiftKey &&
+      event.code === "BracketRight"
+    ) {
+      event.preventDefault();
+      arrangeSelectedItems("front");
+      return;
+    }
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.shiftKey &&
+      event.code === "BracketLeft"
+    ) {
+      event.preventDefault();
+      arrangeSelectedItems("back");
+      return;
+    }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "g") {
       event.preventDefault();
       if (event.shiftKey) {
@@ -2457,8 +2489,9 @@ export function RoomLayoutEditor() {
               Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V
               pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups,
               Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects
-              a box, Ctrl+drag copies, Space+drag pans the canvas, and dragging
-              a corner keeps the resize ratio.
+              a box, Ctrl+drag copies, Ctrl+Shift+] brings selected objects to
+              front, Ctrl+Shift+[ sends them to back, Space+drag pans the
+              canvas, and dragging a corner keeps the resize ratio.
             </small>
           </div>
 
