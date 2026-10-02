@@ -1799,6 +1799,9 @@ video {
 .ease-linear {
   animation-timing-function: linear;
 }
+.running {
+  animation-play-state: running;
+}
 .\[--cell-size\:--spacing\(8\)\] {
   --cell-size: var(--spacing(8));
 }
@@ -3005,8 +3008,8 @@ video {
 
 .eq-email-window {
   width: min(84%, 880px);
-  height: min(82%, 570px);
-  max-height: 82%;
+  height: min(68%, 480px);
+  max-height: 68%;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   border: 4px solid #0f172a;

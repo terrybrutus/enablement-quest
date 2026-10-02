@@ -812,22 +812,31 @@ function LeadershipEmailPanel({ onClose }: { onClose: () => void }) {
               <strong>Inbox / Leadership Request</strong>
             </div>
             <div className="eq-email-body">
-              <p className="eq-email-meta">From: Sales Strategy Leadership</p>
+              <p className="eq-email-meta">From: Elena Reyes, VP of Sales</p>
+              <p className="eq-email-meta">To: Enablement Team</p>
               <p className="eq-email-meta">
                 Subject: Atlas Pro support request
               </p>
-              <h2>Find out what is blocking sales results.</h2>
+              <h2>Quick read on Atlas Pro?</h2>
+              <p>Hi team,</p>
               <p>
-                Atlas Pro demos are reaching proposal, but too few are turning
-                into qualified next steps.
+                We have a problem with Atlas Pro. Reps are getting meetings and
+                running demos, but too many opportunities stall after proposal.
               </p>
               <p>
-                Leaders are asking for more demo training. Before building
-                anything, investigate whether training is actually the problem.
+                The ask coming my way is more demo training. Before we commit to
+                that, can you check what is actually happening and tell me what
+                support would make the biggest difference?
               </p>
               <p>
-                Talk with the team, inspect the evidence, identify the cause,
-                and recommend a practical fix we can measure.
+                Please start with Leo, review the sales and pipeline evidence,
+                and bring back a recommendation we can defend in the leadership
+                review.
+              </p>
+              <p>
+                Thanks,
+                <br />
+                Elena
               </p>
             </div>
             <button className="eq-email-button" type="button" onClick={onClose}>

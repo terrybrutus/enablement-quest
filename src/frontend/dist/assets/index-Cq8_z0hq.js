@@ -16386,12 +16386,19 @@ function LeadershipEmailPanel({ onClose }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Inbox / Leadership Request" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-email-body", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-email-meta", children: "From: Sales Strategy Leadership" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-email-meta", children: "From: Elena Reyes, VP of Sales" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-email-meta", children: "To: Enablement Team" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-email-meta", children: "Subject: Atlas Pro support request" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Find out what is blocking sales results." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Atlas Pro demos are reaching proposal, but too few are turning into qualified next steps." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Leaders are asking for more demo training. Before building anything, investigate whether training is actually the problem." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Talk with the team, inspect the evidence, identify the cause, and recommend a practical fix we can measure." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Quick read on Atlas Pro?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Hi team," }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We have a problem with Atlas Pro. Reps are getting meetings and running demos, but too many opportunities stall after proposal." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "The ask coming my way is more demo training. Before we commit to that, can you check what is actually happening and tell me what support would make the biggest difference?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Please start with Leo, review the sales and pipeline evidence, and bring back a recommendation we can defend in the leadership review." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+          "Thanks,",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+          "Elena"
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "eq-email-button", type: "button", onClick: onClose, children: "Close email" })
     ] }) }) }),
