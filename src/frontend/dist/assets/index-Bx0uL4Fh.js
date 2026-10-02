@@ -12128,8 +12128,8 @@ const scenes = [
       {
         id: "lab-canvas-workstation",
         description: "A new leadership request is waiting in your inbox.",
-        position: { x: 0.9, y: 2.25 },
-        size: { width: 2.8, height: 2.2 },
+        position: { x: 0.95, y: 2.22 },
+        size: { width: 2.35, height: 2.2 },
         sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
         glow: true,
         collision: true
@@ -12137,7 +12137,7 @@ const scenes = [
       {
         id: "lab-canvas-chair",
         label: "Workstation",
-        position: { x: 2.45, y: 3.55 },
+        position: { x: 2.12, y: 3.5 },
         size: { width: 1.25, height: 1.7 },
         sprite: { image: "officeSingle101", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true
@@ -14111,12 +14111,6 @@ function useGameLoop({
     const prop = getNearbyInspectableProp(state);
     if (prop == null ? void 0 : prop.description) {
       if (prop.id === "lab-canvas-workstation") {
-        if (state.labEmailRead) {
-          setToast(
-            "You already read the leadership request. Grab your backpack before you leave the lab."
-          );
-          return;
-        }
         setGameState((previous) => ({
           ...previous,
           overlay: "email",
@@ -14733,7 +14727,7 @@ function getNearbyInspectableProp(state) {
       x: prop.position.x + prop.size.width / 2,
       y: prop.position.y + prop.size.height / 2
     };
-    const interactionDistance = prop.id === "mission-backpack" ? INTERACT_DISTANCE * 2.1 : INTERACT_DISTANCE;
+    const interactionDistance = prop.id === "mission-backpack" ? INTERACT_DISTANCE * 2.1 : prop.id === "lab-canvas-workstation" ? INTERACT_DISTANCE * 2.35 : INTERACT_DISTANCE;
     return distanceInPixels(state.player.position, center) < interactionDistance;
   });
 }
@@ -15985,7 +15979,7 @@ function GameCanvas() {
       ...previous,
       labEmailRead: true,
       overlay: "none",
-      toast: {
+      toast: previous.labEmailRead ? null : {
         id: Date.now(),
         message: "Request understood. Grab your orange backpack before you leave the lab."
       }
@@ -16402,10 +16396,15 @@ function LeadershipEmailPanel({ onClose }) {
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "eq-email-button", type: "button", onClick: onClose, children: "Close email" })
     ] }) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-workstation-player", "aria-hidden": "true", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-workstation-hair" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-workstation-neck" })
-    ] })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "img",
+      {
+        alt: "",
+        "aria-hidden": "true",
+        className: "eq-workstation-player",
+        src: "/assets/characters/player-back-computer.png"
+      }
+    )
   ] });
 }
 function getQaScene() {

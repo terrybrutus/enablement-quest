@@ -139,8 +139,8 @@ export const scenes: Scene[] = [
       {
         id: "lab-canvas-workstation",
         description: "A new leadership request is waiting in your inbox.",
-        position: { x: 0.9, y: 2.25 },
-        size: { width: 2.8, height: 2.2 },
+        position: { x: 0.95, y: 2.22 },
+        size: { width: 2.35, height: 2.2 },
         sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
         glow: true,
         collision: true,
@@ -148,7 +148,7 @@ export const scenes: Scene[] = [
       {
         id: "lab-canvas-chair",
         label: "Workstation",
-        position: { x: 2.45, y: 3.55 },
+        position: { x: 2.12, y: 3.5 },
         size: { width: 1.25, height: 1.7 },
         sprite: { image: "officeSingle101", sx: 0, sy: 0, sw: 96, sh: 144 },
         collision: true,

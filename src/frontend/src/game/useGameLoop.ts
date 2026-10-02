@@ -175,12 +175,6 @@ export function useGameLoop({
     const prop = getNearbyInspectableProp(state);
     if (prop?.description) {
       if (prop.id === "lab-canvas-workstation") {
-        if (state.labEmailRead) {
-          setToast(
-            "You already read the leadership request. Grab your backpack before you leave the lab.",
-          );
-          return;
-        }
         setGameState((previous) => ({
           ...previous,
           overlay: "email",
@@ -917,7 +911,9 @@ function getNearbyInspectableProp(state: GameState) {
     const interactionDistance =
       prop.id === "mission-backpack"
         ? INTERACT_DISTANCE * 2.1
-        : INTERACT_DISTANCE;
+        : prop.id === "lab-canvas-workstation"
+          ? INTERACT_DISTANCE * 2.35
+          : INTERACT_DISTANCE;
     return (
       distanceInPixels(state.player.position, center) < interactionDistance
     );

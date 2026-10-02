@@ -315,11 +315,13 @@ export default function GameCanvas() {
       ...previous,
       labEmailRead: true,
       overlay: "none",
-      toast: {
-        id: Date.now(),
-        message:
-          "Request understood. Grab your orange backpack before you leave the lab.",
-      },
+      toast: previous.labEmailRead
+        ? null
+        : {
+            id: Date.now(),
+            message:
+              "Request understood. Grab your orange backpack before you leave the lab.",
+          },
     }));
   }, []);
 
@@ -834,10 +836,12 @@ function LeadershipEmailPanel({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
-      <div className="eq-workstation-player" aria-hidden="true">
-        <span className="eq-workstation-hair" />
-        <span className="eq-workstation-neck" />
-      </div>
+      <img
+        alt=""
+        aria-hidden="true"
+        className="eq-workstation-player"
+        src="/assets/characters/player-back-computer.png"
+      />
     </section>
   );
 }
