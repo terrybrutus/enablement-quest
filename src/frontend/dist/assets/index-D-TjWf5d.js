@@ -12131,7 +12131,6 @@ const scenes = [
         position: { x: 0.95, y: 2.22 },
         size: { width: 2.35, height: 2.2 },
         sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
-        glow: true,
         collision: true
       },
       {
