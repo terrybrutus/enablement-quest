@@ -18528,9 +18528,7 @@ function RoomLayoutEditor() {
   const [selectedIds, setSelectedIds] = reactExports.useState([]);
   const [selectedPortalId, setSelectedPortalId] = reactExports.useState(null);
   const [selectedBlockId, setSelectedBlockId] = reactExports.useState(null);
-  const [history, setHistory] = reactExports.useState(
-    []
-  );
+  const [history, setHistory] = reactExports.useState([]);
   const [selectionBox, setSelectionBox] = reactExports.useState(null);
   const [editingLabel, setEditingLabel] = reactExports.useState(null);
   const clipboardRef = reactExports.useRef(null);
@@ -18579,7 +18577,18 @@ function RoomLayoutEditor() {
     return () => window.removeEventListener("keydown", handleKeyboardEvent);
   });
   function saveHistory() {
-    setHistory((previous) => [...previous.slice(-29), itemsByScene]);
+    setHistory((previous) => [
+      ...previous.slice(-29),
+      {
+        blocksByScene,
+        characterSettingsByScene,
+        itemsByScene,
+        portalsByScene,
+        selectedBlockId,
+        selectedIds,
+        selectedPortalId
+      }
+    ]);
   }
   function updateItems(nextItems, saveSnapshot = true) {
     updateItemsForScene(scene.id, nextItems, saveSnapshot);
@@ -18602,19 +18611,28 @@ function RoomLayoutEditor() {
       [nextSceneId]: nextPortals
     }));
   }
-  function updateBlocks(nextBlocks) {
+  function updateBlocks(nextBlocks, saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setBlocksByScene((previous) => ({
       ...previous,
       [scene.id]: nextBlocks
     }));
   }
-  function updateBlocksForScene(nextSceneId, nextBlocks) {
+  function updateBlocksForScene(nextSceneId, nextBlocks, saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setBlocksByScene((previous) => ({
       ...previous,
       [nextSceneId]: nextBlocks
     }));
   }
-  function updateCharacterSettings(nextSettings, nextSceneId = scene.id) {
+  function updateCharacterSettings(nextSettings, nextSceneId = scene.id, saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setCharacterSettingsByScene((previous) => ({
       ...previous,
       [nextSceneId]: nextSettings
@@ -18638,8 +18656,8 @@ function RoomLayoutEditor() {
     const nextCharacterSettings = currentCharacterSettings[scene.id] ?? [];
     updateItems(nextItems);
     updatePortals(nextPortals, false);
-    updateBlocks(nextBlocks);
-    updateCharacterSettings(nextCharacterSettings);
+    updateBlocks(nextBlocks, false);
+    updateCharacterSettings(nextCharacterSettings, scene.id, false);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
     setSelectedPortalId(null);
     setSelectedBlockId(null);
@@ -18680,8 +18698,12 @@ function RoomLayoutEditor() {
     setSceneId(layout.sceneId);
     updateItemsForScene(layout.sceneId, layout.items);
     updatePortalsForScene(layout.sceneId, layout.portals, false);
-    updateBlocksForScene(layout.sceneId, layout.blocks ?? []);
-    updateCharacterSettings(layout.characterSettings ?? [], layout.sceneId);
+    updateBlocksForScene(layout.sceneId, layout.blocks ?? [], false);
+    updateCharacterSettings(
+      layout.characterSettings ?? [],
+      layout.sceneId,
+      false
+    );
     setSelectedIds(layout.items[0] ? [layout.items[0].id] : []);
     setSelectedPortalId(null);
     setSelectedBlockId(null);
@@ -18723,7 +18745,30 @@ function RoomLayoutEditor() {
       }
     });
   }
-  function moveBlock(blockId, dx, dy) {
+  function addWalkBlock() {
+    const width = Math.min(2, scene.width);
+    const height = Math.min(1.5, scene.height);
+    const nextBlock = {
+      id: `${scene.id}-walk-block-${Date.now().toString(36)}`,
+      label: `Walk block ${blocks.length + 1}`,
+      rect: {
+        height,
+        width,
+        x: roundToPrecision(
+          clamp(scene.width / 2 - width / 2, 0, scene.width - width)
+        ),
+        y: roundToPrecision(
+          clamp(scene.height / 2 - height / 2, 0, scene.height - height)
+        )
+      }
+    };
+    updateBlocks([...blocks, nextBlock]);
+    setSelectedIds([]);
+    setSelectedPortalId(null);
+    setSelectedBlockId(nextBlock.id);
+    setShowWalkBlocks(true);
+  }
+  function moveBlock(blockId, dx, dy, saveSnapshot = true) {
     updateBlocks(
       blocks.map(
         (block) => block.id === blockId ? {
@@ -18738,17 +18783,19 @@ function RoomLayoutEditor() {
             )
           }
         } : block
-      )
+      ),
+      saveSnapshot
     );
   }
-  function resizeBlock(blockId, handle, dx, dy) {
+  function resizeBlock(blockId, handle, dx, dy, saveSnapshot = true) {
     updateBlocks(
       blocks.map(
         (block) => block.id === blockId ? {
           ...block,
           rect: resizeRect(block.rect, handle, dx, dy, scene)
         } : block
-      )
+      ),
+      saveSnapshot
     );
   }
   function movePortal(portalId, dx, dy, saveSnapshot = true) {
@@ -18769,6 +18816,17 @@ function RoomLayoutEditor() {
               scene.height - portal.rect.height
             )
           }
+        } : portal
+      ),
+      saveSnapshot
+    );
+  }
+  function resizePortal(portalId, handle, dx, dy, saveSnapshot = true) {
+    updatePortals(
+      portals.map(
+        (portal) => portal.id === portalId ? {
+          ...portal,
+          rect: resizeRect(portal.rect, handle, dx, dy, scene)
         } : portal
       ),
       saveSnapshot
@@ -18961,6 +19019,24 @@ function RoomLayoutEditor() {
     );
   }
   function removeSelected() {
+    if (selectedBlock) {
+      saveHistory();
+      updateBlocks(
+        blocks.filter((block) => block.id !== selectedBlock.id),
+        false
+      );
+      setSelectedBlockId(null);
+      return;
+    }
+    if (selectedPortal) {
+      saveHistory();
+      updatePortals(
+        portals.filter((portal) => portal.id !== selectedPortal.id),
+        false
+      );
+      setSelectedPortalId(null);
+      return;
+    }
     if (selectedIds.length === 0) {
       return;
     }
@@ -19123,9 +19199,14 @@ function RoomLayoutEditor() {
     if (!previous) {
       return;
     }
-    setItemsByScene(previous);
+    setItemsByScene(previous.itemsByScene);
+    setPortalsByScene(previous.portalsByScene);
+    setBlocksByScene(previous.blocksByScene);
+    setCharacterSettingsByScene(previous.characterSettingsByScene);
+    setSelectedIds(previous.selectedIds);
+    setSelectedPortalId(previous.selectedPortalId);
+    setSelectedBlockId(previous.selectedBlockId);
     setHistory((snapshots) => snapshots.slice(0, -1));
-    setSelectedIds([]);
   }
   function shouldIgnoreKeyboardTarget(target) {
     return target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement;
@@ -19176,6 +19257,32 @@ function RoomLayoutEditor() {
       ArrowUp: { dx: 0, dy: event.shiftKey ? -1 : -0.25 }
     };
     const nextMove = movement[event.key];
+    if (nextMove && selectedBlockId) {
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        if (nextMove.dx !== 0) {
+          resizeBlock(selectedBlockId, "right", nextMove.dx, 0);
+          return;
+        }
+        resizeBlock(selectedBlockId, "bottom", 0, nextMove.dy);
+        return;
+      }
+      moveBlock(selectedBlockId, nextMove.dx, nextMove.dy);
+      return;
+    }
+    if (nextMove && selectedPortalId) {
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        if (nextMove.dx !== 0) {
+          resizePortal(selectedPortalId, "right", nextMove.dx, 0);
+          return;
+        }
+        resizePortal(selectedPortalId, "bottom", 0, nextMove.dy);
+        return;
+      }
+      movePortal(selectedPortalId, nextMove.dx, nextMove.dy);
+      return;
+    }
     if (nextMove && selectedIds.length > 0) {
       event.preventDefault();
       if (event.altKey) {
@@ -19337,7 +19444,8 @@ function RoomLayoutEditor() {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-actions", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: clearRoomLayout, children: "Start blank room" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: addWalkBlock, children: "Add walk block" })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-saved-layouts", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Saved Layouts" }),
@@ -19534,8 +19642,10 @@ function RoomLayoutEditor() {
                 {
                   block,
                   isSelected: block.id === selectedBlockId,
-                  onMove: (dx, dy) => moveBlock(block.id, dx, dy),
-                  onResize: (handle, dx, dy) => resizeBlock(block.id, handle, dx, dy),
+                  onDragStart: saveHistory,
+                  onMove: (dx, dy) => moveBlock(block.id, dx, dy, false),
+                  onResizeStart: saveHistory,
+                  onResize: (handle, dx, dy) => resizeBlock(block.id, handle, dx, dy, false),
                   onSelect: () => {
                     setSelectedIds([]);
                     setSelectedPortalId(null);
@@ -20112,8 +20222,10 @@ function RoomBackdrop({
 function DraggableBlock({
   block,
   isSelected,
+  onDragStart,
   onMove,
   onResize,
+  onResizeStart,
   onSelect
 }) {
   const dragState = reactExports.useRef(null);
@@ -20135,7 +20247,8 @@ function DraggableBlock({
         onSelect();
         dragState.current = {
           lastClientX: event.clientX,
-          lastClientY: event.clientY
+          lastClientY: event.clientY,
+          savedHistory: false
         };
       },
       onPointerMove: (event) => {
@@ -20147,6 +20260,10 @@ function DraggableBlock({
         const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
         if (dx === 0 && dy === 0) {
           return;
+        }
+        if (!currentDrag.savedHistory) {
+          onDragStart();
+          currentDrag.savedHistory = true;
         }
         currentDrag.lastClientX = event.clientX;
         currentDrag.lastClientY = event.clientY;
@@ -20170,7 +20287,8 @@ function DraggableBlock({
               resizeState.current = {
                 handle,
                 lastClientX: event.clientX,
-                lastClientY: event.clientY
+                lastClientY: event.clientY,
+                savedHistory: false
               };
             },
             onPointerMove: (event) => {
@@ -20186,6 +20304,10 @@ function DraggableBlock({
               );
               if (dx === 0 && dy === 0) {
                 return;
+              }
+              if (!currentResize.savedHistory) {
+                onResizeStart();
+                currentResize.savedHistory = true;
               }
               currentResize.lastClientX = event.clientX;
               currentResize.lastClientY = event.clientY;

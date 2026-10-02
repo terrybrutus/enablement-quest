@@ -61,6 +61,16 @@ interface EditorClipboard {
   items: EditorItem[];
 }
 
+interface EditorHistorySnapshot {
+  blocksByScene: Record<string, EditorBlock[]>;
+  characterSettingsByScene: Record<string, EditorCharacterSettings[]>;
+  itemsByScene: Record<string, EditorItem[]>;
+  portalsByScene: Record<string, EditorPortal[]>;
+  selectedBlockId: string | null;
+  selectedIds: string[];
+  selectedPortalId: string | null;
+}
+
 interface SpritePreset {
   category: string;
   defaultSize: { width: number; height: number };
@@ -1316,9 +1326,7 @@ export function RoomLayoutEditor() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedPortalId, setSelectedPortalId] = useState<string | null>(null);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-  const [history, setHistory] = useState<Array<Record<string, EditorItem[]>>>(
-    [],
-  );
+  const [history, setHistory] = useState<EditorHistorySnapshot[]>([]);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [editingLabel, setEditingLabel] = useState<EditingLabel>(null);
   const clipboardRef = useRef<EditorClipboard | null>(null);
@@ -1382,7 +1390,18 @@ export function RoomLayoutEditor() {
   });
 
   function saveHistory() {
-    setHistory((previous) => [...previous.slice(-29), itemsByScene]);
+    setHistory((previous) => [
+      ...previous.slice(-29),
+      {
+        blocksByScene,
+        characterSettingsByScene,
+        itemsByScene,
+        portalsByScene,
+        selectedBlockId,
+        selectedIds,
+        selectedPortalId,
+      },
+    ]);
   }
 
   function updateItems(nextItems: EditorItem[], saveSnapshot = true) {
@@ -1418,7 +1437,10 @@ export function RoomLayoutEditor() {
     }));
   }
 
-  function updateBlocks(nextBlocks: EditorBlock[]) {
+  function updateBlocks(nextBlocks: EditorBlock[], saveSnapshot = true) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setBlocksByScene((previous) => ({
       ...previous,
       [scene.id]: nextBlocks,
@@ -1428,7 +1450,11 @@ export function RoomLayoutEditor() {
   function updateBlocksForScene(
     nextSceneId: string,
     nextBlocks: EditorBlock[],
+    saveSnapshot = true,
   ) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setBlocksByScene((previous) => ({
       ...previous,
       [nextSceneId]: nextBlocks,
@@ -1438,7 +1464,11 @@ export function RoomLayoutEditor() {
   function updateCharacterSettings(
     nextSettings: EditorCharacterSettings[],
     nextSceneId = scene.id,
+    saveSnapshot = true,
   ) {
+    if (saveSnapshot) {
+      saveHistory();
+    }
     setCharacterSettingsByScene((previous) => ({
       ...previous,
       [nextSceneId]: nextSettings,
@@ -1467,8 +1497,8 @@ export function RoomLayoutEditor() {
     const nextCharacterSettings = currentCharacterSettings[scene.id] ?? [];
     updateItems(nextItems);
     updatePortals(nextPortals, false);
-    updateBlocks(nextBlocks);
-    updateCharacterSettings(nextCharacterSettings);
+    updateBlocks(nextBlocks, false);
+    updateCharacterSettings(nextCharacterSettings, scene.id, false);
     setSelectedIds(nextItems[0] ? [nextItems[0].id] : []);
     setSelectedPortalId(null);
     setSelectedBlockId(null);
@@ -1515,8 +1545,12 @@ export function RoomLayoutEditor() {
     setSceneId(layout.sceneId);
     updateItemsForScene(layout.sceneId, layout.items);
     updatePortalsForScene(layout.sceneId, layout.portals, false);
-    updateBlocksForScene(layout.sceneId, layout.blocks ?? []);
-    updateCharacterSettings(layout.characterSettings ?? [], layout.sceneId);
+    updateBlocksForScene(layout.sceneId, layout.blocks ?? [], false);
+    updateCharacterSettings(
+      layout.characterSettings ?? [],
+      layout.sceneId,
+      false,
+    );
     setSelectedIds(layout.items[0] ? [layout.items[0].id] : []);
     setSelectedPortalId(null);
     setSelectedBlockId(null);
@@ -1563,7 +1597,36 @@ export function RoomLayoutEditor() {
     });
   }
 
-  function moveBlock(blockId: string, dx: number, dy: number) {
+  function addWalkBlock() {
+    const width = Math.min(2, scene.width);
+    const height = Math.min(1.5, scene.height);
+    const nextBlock: EditorBlock = {
+      id: `${scene.id}-walk-block-${Date.now().toString(36)}`,
+      label: `Walk block ${blocks.length + 1}`,
+      rect: {
+        height,
+        width,
+        x: roundToPrecision(
+          clamp(scene.width / 2 - width / 2, 0, scene.width - width),
+        ),
+        y: roundToPrecision(
+          clamp(scene.height / 2 - height / 2, 0, scene.height - height),
+        ),
+      },
+    };
+    updateBlocks([...blocks, nextBlock]);
+    setSelectedIds([]);
+    setSelectedPortalId(null);
+    setSelectedBlockId(nextBlock.id);
+    setShowWalkBlocks(true);
+  }
+
+  function moveBlock(
+    blockId: string,
+    dx: number,
+    dy: number,
+    saveSnapshot = true,
+  ) {
     updateBlocks(
       blocks.map((block) =>
         block.id === blockId
@@ -1581,6 +1644,7 @@ export function RoomLayoutEditor() {
             }
           : block,
       ),
+      saveSnapshot,
     );
   }
 
@@ -1589,6 +1653,7 @@ export function RoomLayoutEditor() {
     handle: ResizeHandle,
     dx: number,
     dy: number,
+    saveSnapshot = true,
   ) {
     updateBlocks(
       blocks.map((block) =>
@@ -1599,6 +1664,7 @@ export function RoomLayoutEditor() {
             }
           : block,
       ),
+      saveSnapshot,
     );
   }
 
@@ -1626,6 +1692,26 @@ export function RoomLayoutEditor() {
                   scene.height - portal.rect.height,
                 ),
               },
+            }
+          : portal,
+      ),
+      saveSnapshot,
+    );
+  }
+
+  function resizePortal(
+    portalId: string,
+    handle: ResizeHandle,
+    dx: number,
+    dy: number,
+    saveSnapshot = true,
+  ) {
+    updatePortals(
+      portals.map((portal) =>
+        portal.id === portalId
+          ? {
+              ...portal,
+              rect: resizeRect(portal.rect, handle, dx, dy, scene),
             }
           : portal,
       ),
@@ -1859,6 +1945,24 @@ export function RoomLayoutEditor() {
   }
 
   function removeSelected() {
+    if (selectedBlock) {
+      saveHistory();
+      updateBlocks(
+        blocks.filter((block) => block.id !== selectedBlock.id),
+        false,
+      );
+      setSelectedBlockId(null);
+      return;
+    }
+    if (selectedPortal) {
+      saveHistory();
+      updatePortals(
+        portals.filter((portal) => portal.id !== selectedPortal.id),
+        false,
+      );
+      setSelectedPortalId(null);
+      return;
+    }
     if (selectedIds.length === 0) {
       return;
     }
@@ -2067,9 +2171,14 @@ export function RoomLayoutEditor() {
     if (!previous) {
       return;
     }
-    setItemsByScene(previous);
+    setItemsByScene(previous.itemsByScene);
+    setPortalsByScene(previous.portalsByScene);
+    setBlocksByScene(previous.blocksByScene);
+    setCharacterSettingsByScene(previous.characterSettingsByScene);
+    setSelectedIds(previous.selectedIds);
+    setSelectedPortalId(previous.selectedPortalId);
+    setSelectedBlockId(previous.selectedBlockId);
     setHistory((snapshots) => snapshots.slice(0, -1));
-    setSelectedIds([]);
   }
 
   function shouldIgnoreKeyboardTarget(target: EventTarget | null) {
@@ -2128,6 +2237,32 @@ export function RoomLayoutEditor() {
       ArrowUp: { dx: 0, dy: event.shiftKey ? -1 : -0.25 },
     };
     const nextMove = movement[event.key];
+    if (nextMove && selectedBlockId) {
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        if (nextMove.dx !== 0) {
+          resizeBlock(selectedBlockId, "right", nextMove.dx, 0);
+          return;
+        }
+        resizeBlock(selectedBlockId, "bottom", 0, nextMove.dy);
+        return;
+      }
+      moveBlock(selectedBlockId, nextMove.dx, nextMove.dy);
+      return;
+    }
+    if (nextMove && selectedPortalId) {
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        if (nextMove.dx !== 0) {
+          resizePortal(selectedPortalId, "right", nextMove.dx, 0);
+          return;
+        }
+        resizePortal(selectedPortalId, "bottom", 0, nextMove.dy);
+        return;
+      }
+      movePortal(selectedPortalId, nextMove.dx, nextMove.dy);
+      return;
+    }
     if (nextMove && selectedIds.length > 0) {
       event.preventDefault();
       if (event.altKey) {
@@ -2321,6 +2456,9 @@ export function RoomLayoutEditor() {
             </button>
             <button type="button" onClick={loadCurrentRoomLayout}>
               Load current game layout
+            </button>
+            <button type="button" onClick={addWalkBlock}>
+              Add walk block
             </button>
           </div>
 
@@ -2531,9 +2669,11 @@ export function RoomLayoutEditor() {
                   block={block}
                   isSelected={block.id === selectedBlockId}
                   key={block.id}
-                  onMove={(dx, dy) => moveBlock(block.id, dx, dy)}
+                  onDragStart={saveHistory}
+                  onMove={(dx, dy) => moveBlock(block.id, dx, dy, false)}
+                  onResizeStart={saveHistory}
                   onResize={(handle, dx, dy) =>
-                    resizeBlock(block.id, handle, dx, dy)
+                    resizeBlock(block.id, handle, dx, dy, false)
                   }
                   onSelect={() => {
                     setSelectedIds([]);
@@ -3124,24 +3264,30 @@ function RoomBackdrop({
 function DraggableBlock({
   block,
   isSelected,
+  onDragStart,
   onMove,
   onResize,
+  onResizeStart,
   onSelect,
 }: {
   block: EditorBlock;
   isSelected: boolean;
+  onDragStart: () => void;
   onMove: (dx: number, dy: number) => void;
   onResize: (handle: ResizeHandle, dx: number, dy: number) => void;
+  onResizeStart: () => void;
   onSelect: () => void;
 }) {
   const dragState = useRef<{
     lastClientX: number;
     lastClientY: number;
+    savedHistory: boolean;
   } | null>(null);
   const resizeState = useRef<{
     handle: ResizeHandle;
     lastClientX: number;
     lastClientY: number;
+    savedHistory: boolean;
   } | null>(null);
 
   return (
@@ -3161,6 +3307,7 @@ function DraggableBlock({
         dragState.current = {
           lastClientX: event.clientX,
           lastClientY: event.clientY,
+          savedHistory: false,
         };
       }}
       onPointerMove={(event) => {
@@ -3175,6 +3322,10 @@ function DraggableBlock({
         const dy = snap((event.clientY - currentDrag.lastClientY) / TILE_SIZE);
         if (dx === 0 && dy === 0) {
           return;
+        }
+        if (!currentDrag.savedHistory) {
+          onDragStart();
+          currentDrag.savedHistory = true;
         }
         currentDrag.lastClientX = event.clientX;
         currentDrag.lastClientY = event.clientY;
@@ -3200,6 +3351,7 @@ function DraggableBlock({
                 handle,
                 lastClientX: event.clientX,
                 lastClientY: event.clientY,
+                savedHistory: false,
               };
             }}
             onPointerMove={(event) => {
@@ -3218,6 +3370,10 @@ function DraggableBlock({
               );
               if (dx === 0 && dy === 0) {
                 return;
+              }
+              if (!currentResize.savedHistory) {
+                onResizeStart();
+                currentResize.savedHistory = true;
               }
               currentResize.lastClientX = event.clientX;
               currentResize.lastClientY = event.clientY;
