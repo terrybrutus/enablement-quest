@@ -708,7 +708,12 @@ function drawProps(
     const height = prop.size.height * TILE_SIZE;
 
     // Add glow effect for interactive props
-    if (prop.glow) {
+    const hasUnreadLabEmail =
+      prop.id === "lab-canvas-workstation" && !gameState.labEmailRead;
+    if (
+      prop.glow &&
+      (prop.id !== "lab-canvas-workstation" || hasUnreadLabEmail)
+    ) {
       const pulse = Math.sin(Date.now() / 400) * 2 + 4;
       ctx.shadowColor = "#22d3ee";
       ctx.shadowBlur = 8 + pulse;
@@ -728,6 +733,9 @@ function drawProps(
         height,
         prop.spriteTransform,
       );
+    }
+    if (hasUnreadLabEmail) {
+      drawEmailNotification(ctx, px + width - 12, py + 10);
     }
   }
 
@@ -750,6 +758,28 @@ function getPropSortValue(prop: Scene["props"][number]) {
     return base + 10;
   }
   return base;
+}
+
+function drawEmailNotification(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+) {
+  const pulse = Math.sin(Date.now() / 260) * 1.2;
+  ctx.save();
+  ctx.fillStyle = "#facc15";
+  ctx.strokeStyle = "#1e293b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y + pulse, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "900 13px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("!", x, y + pulse + 1);
+  ctx.restore();
 }
 
 function drawEvidence(

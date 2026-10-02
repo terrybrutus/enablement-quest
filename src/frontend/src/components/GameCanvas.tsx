@@ -38,6 +38,7 @@ declare global {
       collectedEvidenceIds: string[];
       completedCaseIds: CaseId[];
       caseBriefingCompletedIds: CaseId[];
+      labEmailRead: boolean;
       labBriefingCompleted: boolean;
       currentCaseId: CaseId;
       diagnosisId: string | null;
@@ -63,6 +64,7 @@ function createInitialGameState(): GameState {
     currentCaseId: qaScene?.caseId ?? "sales",
     completedCaseIds: qaScene?.caseId === "sales" ? ["onboarding"] : [],
     caseBriefingCompletedIds: qaScene?.caseBriefingCompletedIds ?? [],
+    labEmailRead: qaScene?.labEmailRead ?? false,
     labBriefingCompleted: qaScene?.labBriefingCompleted ?? false,
     characterStates: Object.fromEntries(
       characters.map((character) => [
@@ -105,6 +107,7 @@ function getObjectiveDockHeight(gameState: GameState) {
     "briefing",
     "canvas",
     "decision",
+    "email",
     "evidence",
   ].includes(gameState.overlay);
   if (!gameState.player.hasStarted || overlayBlocksDock) {
@@ -133,6 +136,7 @@ export default function GameCanvas() {
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
       caseBriefingCompletedIds: gameState.caseBriefingCompletedIds,
+      labEmailRead: gameState.labEmailRead,
       labBriefingCompleted: gameState.labBriefingCompleted,
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
@@ -275,6 +279,7 @@ export default function GameCanvas() {
     )?.title ?? null,
     gameState.player.sceneId,
     gameState.completedCaseIds,
+    gameState.labEmailRead,
     gameState.labBriefingCompleted,
   );
   const coachPrompt = getCoachPrompt(
@@ -284,6 +289,7 @@ export default function GameCanvas() {
     currentEvidenceItems.length,
     gameState.player.sceneId,
     gameState.completedCaseIds,
+    gameState.labEmailRead,
     gameState.labBriefingCompleted,
   );
   const hasBlockingOverlay = [
@@ -291,6 +297,7 @@ export default function GameCanvas() {
     "canvas",
     "decision",
     "dialogue",
+    "email",
     "evidence",
   ].includes(gameState.overlay);
 
@@ -300,6 +307,19 @@ export default function GameCanvas() {
       overlay: "none",
       dialogue: null,
       activeEvidenceId: null,
+    }));
+  }, []);
+
+  const closeLeadershipEmail = useCallback(() => {
+    setGameState((previous) => ({
+      ...previous,
+      labEmailRead: true,
+      overlay: "none",
+      toast: {
+        id: Date.now(),
+        message:
+          "Request understood. Grab your orange backpack before you leave the lab.",
+      },
     }));
   }, []);
 
@@ -341,6 +361,7 @@ export default function GameCanvas() {
       },
       currentCaseId: "sales",
       caseBriefingCompletedIds: [],
+      labEmailRead: false,
       labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
@@ -537,6 +558,7 @@ export default function GameCanvas() {
       currentCaseId: "sales",
       completedCaseIds: [],
       caseBriefingCompletedIds: [],
+      labEmailRead: false,
       labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
@@ -588,6 +610,10 @@ export default function GameCanvas() {
 
       {gameState.overlay === "briefing" && gameState.player.hasStarted && (
         <CaseBriefingPanel onClose={closeOverlay} />
+      )}
+
+      {gameState.overlay === "email" && (
+        <LeadershipEmailPanel onClose={closeLeadershipEmail} />
       )}
 
       {gameState.overlay === "dialogue" &&
@@ -728,10 +754,10 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
 
       <div className="eq-start-briefing-grid">
         <article>
-          <strong>1. Start with Leo</strong>
+          <strong>1. Read the request</strong>
           <span>
-            Leave the lab, enter the Sales Enablement Studio, and talk with Leo.
-            He explains what leaders are asking for.
+            Start at your workstation. Leadership sent the business problem;
+            read it before you collect anything.
           </span>
         </article>
         <article>
@@ -771,6 +797,51 @@ function CaseBriefingPanel({ onClose }: { onClose: () => void }) {
   );
 }
 
+function LeadershipEmailPanel({ onClose }: { onClose: () => void }) {
+  return (
+    <section className="eq-workstation-view" aria-label="Leadership email">
+      <div className="eq-workstation-monitor">
+        <div className="eq-workstation-screen">
+          <div className="eq-email-window">
+            <div className="eq-email-toolbar">
+              <span className="eq-email-dot is-blue" />
+              <span className="eq-email-dot is-red" />
+              <span className="eq-email-dot is-yellow" />
+              <strong>Inbox / Leadership Request</strong>
+            </div>
+            <div className="eq-email-body">
+              <p className="eq-email-meta">From: Sales Strategy Leadership</p>
+              <p className="eq-email-meta">
+                Subject: Atlas Pro support request
+              </p>
+              <h2>Find out what is blocking sales results.</h2>
+              <p>
+                Atlas Pro demos are reaching proposal, but too few are turning
+                into qualified next steps.
+              </p>
+              <p>
+                Leaders are asking for more demo training. Before building
+                anything, investigate whether training is actually the problem.
+              </p>
+              <p>
+                Talk with the team, inspect the evidence, identify the cause,
+                and recommend a practical fix we can measure.
+              </p>
+            </div>
+            <button className="eq-email-button" type="button" onClick={onClose}>
+              Close email
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="eq-workstation-player" aria-hidden="true">
+        <span className="eq-workstation-hair" />
+        <span className="eq-workstation-neck" />
+      </div>
+    </section>
+  );
+}
+
 function getQaScene(): {
   caseId: GameState["currentCaseId"];
   activeEvidenceId?: string | null;
@@ -782,6 +853,7 @@ function getQaScene(): {
   position: Position;
   questStage?: GameState["questStage"];
   caseBriefingCompletedIds?: CaseId[];
+  labEmailRead?: boolean;
   labBriefingCompleted?: boolean;
   sceneId: SceneId;
 } | null {
@@ -795,6 +867,7 @@ function getQaScene(): {
   const qaDiagnosis = searchParams.get("qaDiagnosis");
   const qaEvidence = searchParams.get("qaEvidence");
   const qaIntervention = searchParams.get("qaIntervention");
+  const qaOverlay = searchParams.get("qaOverlay");
   if (sceneId === "operations") {
     const caseId = "onboarding" as const;
     return {
@@ -822,6 +895,7 @@ function getQaScene(): {
       sceneId,
       caseId: "onboarding" as const,
       position: { x: 12.75, y: 9.8 },
+      labEmailRead: true,
       labBriefingCompleted: true,
     };
   }
@@ -830,7 +904,9 @@ function getQaScene(): {
       sceneId,
       caseId: "sales" as const,
       position: initialPosition,
+      labEmailRead: searchParams.get("qaLabEmailRead") === "1",
       labBriefingCompleted: searchParams.get("qaLabBriefed") === "1",
+      overlay: qaOverlay === "email" ? "email" : undefined,
     };
   }
   return null;
@@ -935,11 +1011,15 @@ function getNextObjective(
   nextEvidenceTitle: string | null,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
+  labEmailRead: GameState["labEmailRead"],
   labBriefingCompleted: GameState["labBriefingCompleted"],
 ) {
   if (questStage === "briefing") {
     if (caseId === "sales") {
       if (sceneId === "lab") {
+        if (!labEmailRead) {
+          return "Check your workstation. A leadership request is waiting in your inbox.";
+        }
         return labBriefingCompleted
           ? "Exit to the campus and find Leo in the Sales Enablement Studio."
           : "Grab the orange backpack from the center table before you leave the lab.";
@@ -982,6 +1062,7 @@ function getCoachPrompt(
   evidenceTotal: number,
   sceneId: GameState["player"]["sceneId"],
   completedCaseIds: GameState["completedCaseIds"],
+  labEmailRead: GameState["labEmailRead"],
   labBriefingCompleted: GameState["labBriefingCompleted"],
 ) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
@@ -989,6 +1070,13 @@ function getCoachPrompt(
 
   if (questStage === "briefing") {
     if (sceneId === "lab") {
+      if (!labEmailRead) {
+        return {
+          action: "Check the workstation",
+          reason:
+            "Leadership sent the request. Read it before you collect evidence.",
+        };
+      }
       return labBriefingCompleted
         ? {
             action: "Exit the lab",

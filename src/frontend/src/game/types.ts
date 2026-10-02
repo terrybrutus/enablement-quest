@@ -10,6 +10,7 @@ export type OverlayKind =
   | "dialogue"
   | "quest"
   | "backpack"
+  | "email"
   | "settings"
   | "evidence"
   | "decision"
@@ -197,6 +198,7 @@ export interface GameState {
   currentCaseId: CaseId;
   completedCaseIds: CaseId[];
   caseBriefingCompletedIds: CaseId[];
+  labEmailRead: boolean;
   labBriefingCompleted: boolean;
   characterStates: Record<string, CharacterState>;
   questStage: QuestStage;

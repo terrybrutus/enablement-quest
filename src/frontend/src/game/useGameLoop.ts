@@ -174,9 +174,23 @@ export function useGameLoop({
 
     const prop = getNearbyInspectableProp(state);
     if (prop?.description) {
-      if (state.player.sceneId === "lab" && prop.id !== "mission-backpack") {
+      if (prop.id === "lab-canvas-workstation") {
+        if (state.labEmailRead) {
+          setToast(
+            "You already read the leadership request. Grab your backpack before you leave the lab.",
+          );
+          return;
+        }
+        setGameState((previous) => ({
+          ...previous,
+          overlay: "email",
+          toast: null,
+        }));
+        return;
+      }
+      if (state.player.sceneId === "lab" && !state.labEmailRead) {
         setToast(
-          "Grab your orange backpack first. You will use it to store evidence during the case.",
+          "Check your workstation first. Leadership sent the request that starts the case.",
         );
         return;
       }
@@ -198,6 +212,12 @@ export function useGameLoop({
 
     const portal = getPortalAtPosition(state, state.player.position);
     if (portal) {
+      if (portal.id === "lab-to-hub" && !state.labEmailRead) {
+        setToast(
+          "Check your workstation first. The leadership request explains why you are leaving the lab.",
+        );
+        return;
+      }
       if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
         setToast(
           "Grab your orange backpack first. Then leave the lab and find Leo.",
@@ -450,6 +470,21 @@ function moveWithinScene(
   const direction = getDirection(state.player.position, nextPosition);
   const edgePortal = getPortalAtPosition(state, nextPosition);
   if (edgePortal) {
+    if (edgePortal.id === "lab-to-hub" && !state.labEmailRead) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false,
+        },
+        toast: {
+          id: Date.now(),
+          message:
+            "Check your workstation first. The leadership request explains why you are leaving the lab.",
+        },
+      };
+    }
     if (edgePortal.id === "lab-to-hub" && !state.labBriefingCompleted) {
       return {
         ...state,
@@ -540,6 +575,21 @@ function moveWithinScene(
 
   const portal = getPortalAtPosition(state, bounded);
   if (portal) {
+    if (portal.id === "lab-to-hub" && !state.labEmailRead) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false,
+        },
+        toast: {
+          id: Date.now(),
+          message:
+            "Check your workstation first. The leadership request explains why you are leaving the lab.",
+        },
+      };
+    }
     if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
       return {
         ...state,

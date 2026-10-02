@@ -138,9 +138,11 @@ export const scenes: Scene[] = [
       },
       {
         id: "lab-canvas-workstation",
+        description: "A new leadership request is waiting in your inbox.",
         position: { x: 0.9, y: 2.25 },
         size: { width: 2.8, height: 2.2 },
         sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
+        glow: true,
         collision: true,
       },
       {

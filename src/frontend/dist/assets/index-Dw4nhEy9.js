@@ -12127,9 +12127,11 @@ const scenes = [
       },
       {
         id: "lab-canvas-workstation",
+        description: "A new leadership request is waiting in your inbox.",
         position: { x: 0.9, y: 2.25 },
         size: { width: 2.8, height: 2.2 },
         sprite: { image: "officeSingle231", sx: 0, sy: 0, sw: 96, sh: 144 },
+        glow: true,
         collision: true
       },
       {
@@ -13651,7 +13653,8 @@ function drawProps(ctx, scene, gameState, camera, assets) {
     const py = prop.position.y * TILE_SIZE - camera.y;
     const width = prop.size.width * TILE_SIZE;
     const height = prop.size.height * TILE_SIZE;
-    if (prop.glow) {
+    const hasUnreadLabEmail = prop.id === "lab-canvas-workstation" && !gameState.labEmailRead;
+    if (prop.glow && (prop.id !== "lab-canvas-workstation" || hasUnreadLabEmail)) {
       const pulse = Math.sin(Date.now() / 400) * 2 + 4;
       ctx.shadowColor = "#22d3ee";
       ctx.shadowBlur = 8 + pulse;
@@ -13671,6 +13674,9 @@ function drawProps(ctx, scene, gameState, camera, assets) {
         prop.spriteTransform
       );
     }
+    if (hasUnreadLabEmail) {
+      drawEmailNotification(ctx, px + width - 12, py + 10);
+    }
   }
   for (const prop of sortedProps) {
     if (!prop.label) {
@@ -13689,6 +13695,23 @@ function getPropSortValue(prop) {
     return base + 10;
   }
   return base;
+}
+function drawEmailNotification(ctx, x, y) {
+  const pulse = Math.sin(Date.now() / 260) * 1.2;
+  ctx.save();
+  ctx.fillStyle = "#facc15";
+  ctx.strokeStyle = "#1e293b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(x, y + pulse, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#1e293b";
+  ctx.font = "900 13px DM Sans, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("!", x, y + pulse + 1);
+  ctx.restore();
 }
 function drawEvidence(ctx, scene, gameState, camera, assets) {
   if (!isCaseBriefingComplete(gameState)) {
@@ -14087,9 +14110,23 @@ function useGameLoop({
     }
     const prop = getNearbyInspectableProp(state);
     if (prop == null ? void 0 : prop.description) {
-      if (state.player.sceneId === "lab" && prop.id !== "mission-backpack") {
+      if (prop.id === "lab-canvas-workstation") {
+        if (state.labEmailRead) {
+          setToast(
+            "You already read the leadership request. Grab your backpack before you leave the lab."
+          );
+          return;
+        }
+        setGameState((previous) => ({
+          ...previous,
+          overlay: "email",
+          toast: null
+        }));
+        return;
+      }
+      if (state.player.sceneId === "lab" && !state.labEmailRead) {
         setToast(
-          "Grab your orange backpack first. You will use it to store evidence during the case."
+          "Check your workstation first. Leadership sent the request that starts the case."
         );
         return;
       }
@@ -14110,6 +14147,12 @@ function useGameLoop({
     }
     const portal = getPortalAtPosition(state, state.player.position);
     if (portal) {
+      if (portal.id === "lab-to-hub" && !state.labEmailRead) {
+        setToast(
+          "Check your workstation first. The leadership request explains why you are leaving the lab."
+        );
+        return;
+      }
       if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
         setToast(
           "Grab your orange backpack first. Then leave the lab and find Leo."
@@ -14315,6 +14358,20 @@ function moveWithinScene(state, nextPosition) {
   const direction = getDirection(state.player.position, nextPosition);
   const edgePortal = getPortalAtPosition(state, nextPosition);
   if (edgePortal) {
+    if (edgePortal.id === "lab-to-hub" && !state.labEmailRead) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false
+        },
+        toast: {
+          id: Date.now(),
+          message: "Check your workstation first. The leadership request explains why you are leaving the lab."
+        }
+      };
+    }
     if (edgePortal.id === "lab-to-hub" && !state.labBriefingCompleted) {
       return {
         ...state,
@@ -14391,6 +14448,20 @@ function moveWithinScene(state, nextPosition) {
   }
   const portal = getPortalAtPosition(state, bounded);
   if (portal) {
+    if (portal.id === "lab-to-hub" && !state.labEmailRead) {
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          direction,
+          isMoving: false
+        },
+        toast: {
+          id: Date.now(),
+          message: "Check your workstation first. The leadership request explains why you are leaving the lab."
+        }
+      };
+    }
     if (portal.id === "lab-to-hub" && !state.labBriefingCompleted) {
       return {
         ...state,
@@ -15690,6 +15761,7 @@ function createInitialGameState() {
     currentCaseId: (qaScene == null ? void 0 : qaScene.caseId) ?? "sales",
     completedCaseIds: (qaScene == null ? void 0 : qaScene.caseId) === "sales" ? ["onboarding"] : [],
     caseBriefingCompletedIds: (qaScene == null ? void 0 : qaScene.caseBriefingCompletedIds) ?? [],
+    labEmailRead: (qaScene == null ? void 0 : qaScene.labEmailRead) ?? false,
     labBriefingCompleted: (qaScene == null ? void 0 : qaScene.labBriefingCompleted) ?? false,
     characterStates: Object.fromEntries(
       characters.map((character) => [
@@ -15727,6 +15799,7 @@ function getObjectiveDockHeight(gameState) {
     "briefing",
     "canvas",
     "decision",
+    "email",
     "evidence"
   ].includes(gameState.overlay);
   if (!gameState.player.hasStarted || overlayBlocksDock) {
@@ -15754,6 +15827,7 @@ function GameCanvas() {
       collectedEvidenceIds: gameState.collectedEvidenceIds,
       completedCaseIds: gameState.completedCaseIds,
       caseBriefingCompletedIds: gameState.caseBriefingCompletedIds,
+      labEmailRead: gameState.labEmailRead,
       labBriefingCompleted: gameState.labBriefingCompleted,
       currentCaseId: gameState.currentCaseId,
       diagnosisId: gameState.diagnosisId,
@@ -15877,6 +15951,7 @@ function GameCanvas() {
     )) == null ? void 0 : _a.title) ?? null,
     gameState.player.sceneId,
     gameState.completedCaseIds,
+    gameState.labEmailRead,
     gameState.labBriefingCompleted
   );
   const coachPrompt = getCoachPrompt(
@@ -15886,6 +15961,7 @@ function GameCanvas() {
     currentEvidenceItems.length,
     gameState.player.sceneId,
     gameState.completedCaseIds,
+    gameState.labEmailRead,
     gameState.labBriefingCompleted
   );
   const hasBlockingOverlay = [
@@ -15893,6 +15969,7 @@ function GameCanvas() {
     "canvas",
     "decision",
     "dialogue",
+    "email",
     "evidence"
   ].includes(gameState.overlay);
   const closeOverlay = reactExports.useCallback(() => {
@@ -15901,6 +15978,17 @@ function GameCanvas() {
       overlay: "none",
       dialogue: null,
       activeEvidenceId: null
+    }));
+  }, []);
+  const closeLeadershipEmail = reactExports.useCallback(() => {
+    setGameState((previous) => ({
+      ...previous,
+      labEmailRead: true,
+      overlay: "none",
+      toast: {
+        id: Date.now(),
+        message: "Request understood. Grab your orange backpack before you leave the lab."
+      }
     }));
   }, []);
   const setOverlay = reactExports.useCallback((overlay) => {
@@ -15935,6 +16023,7 @@ function GameCanvas() {
       },
       currentCaseId: "sales",
       caseBriefingCompletedIds: [],
+      labEmailRead: false,
       labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
@@ -16109,6 +16198,7 @@ function GameCanvas() {
       currentCaseId: "sales",
       completedCaseIds: [],
       caseBriefingCompletedIds: [],
+      labEmailRead: false,
       labBriefingCompleted: false,
       questStage: "briefing",
       collectedEvidenceIds: [],
@@ -16158,6 +16248,7 @@ function GameCanvas() {
         ),
         !gameState.player.hasStarted && /* @__PURE__ */ jsxRuntimeExports.jsx(TitleScreen, { onStart: startMission, onClose: startMission }),
         gameState.overlay === "briefing" && gameState.player.hasStarted && /* @__PURE__ */ jsxRuntimeExports.jsx(CaseBriefingPanel, { onClose: closeOverlay }),
+        gameState.overlay === "email" && /* @__PURE__ */ jsxRuntimeExports.jsx(LeadershipEmailPanel, { onClose: closeLeadershipEmail }),
         gameState.overlay === "dialogue" && activeCharacter && gameState.dialogue && /* @__PURE__ */ jsxRuntimeExports.jsx(
           DialoguePanel,
           {
@@ -16266,8 +16357,8 @@ function CaseBriefingPanel({ onClose }) {
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-start-briefing-grid", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "1. Start with Leo" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Leave the lab, enter the Sales Enablement Studio, and talk with Leo. He explains what leaders are asking for." })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "1. Read the request" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start at your workstation. Leadership sent the business problem; read it before you collect anything." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "2. Investigate across rooms" }),
@@ -16292,6 +16383,31 @@ function CaseBriefingPanel({ onClose }) {
     }
   );
 }
+function LeadershipEmailPanel({ onClose }) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "eq-workstation-view", "aria-label": "Leadership email", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-workstation-monitor", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-workstation-screen", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-email-window", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-email-toolbar", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-email-dot is-blue" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-email-dot is-red" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-email-dot is-yellow" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Inbox / Leadership Request" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-email-body", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-email-meta", children: "From: Sales Strategy Leadership" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-email-meta", children: "Subject: Atlas Pro support request" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Find out what is blocking sales results." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Atlas Pro demos are reaching proposal, but too few are turning into qualified next steps." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Leaders are asking for more demo training. Before building anything, investigate whether training is actually the problem." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Talk with the team, inspect the evidence, identify the cause, and recommend a practical fix we can measure." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "eq-email-button", type: "button", onClick: onClose, children: "Close email" })
+    ] }) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-workstation-player", "aria-hidden": "true", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-workstation-hair" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-workstation-neck" })
+    ] })
+  ] });
+}
 function getQaScene() {
   if (typeof window === "undefined") {
     return null;
@@ -16303,6 +16419,7 @@ function getQaScene() {
   const qaDiagnosis = searchParams.get("qaDiagnosis");
   const qaEvidence = searchParams.get("qaEvidence");
   const qaIntervention = searchParams.get("qaIntervention");
+  const qaOverlay = searchParams.get("qaOverlay");
   if (sceneId === "operations") {
     const caseId = "onboarding";
     return {
@@ -16330,6 +16447,7 @@ function getQaScene() {
       sceneId,
       caseId: "onboarding",
       position: { x: 12.75, y: 9.8 },
+      labEmailRead: true,
       labBriefingCompleted: true
     };
   }
@@ -16338,7 +16456,9 @@ function getQaScene() {
       sceneId,
       caseId: "sales",
       position: initialPosition,
-      labBriefingCompleted: searchParams.get("qaLabBriefed") === "1"
+      labEmailRead: searchParams.get("qaLabEmailRead") === "1",
+      labBriefingCompleted: searchParams.get("qaLabBriefed") === "1",
+      overlay: qaOverlay === "email" ? "email" : void 0
     };
   }
   return null;
@@ -16409,10 +16529,13 @@ function getCaseOwnerId(caseId) {
 function addUniqueCaseId(caseIds, caseId) {
   return caseIds.includes(caseId) ? caseIds : [...caseIds, caseId];
 }
-function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, completedCaseIds, labBriefingCompleted) {
+function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, completedCaseIds, labEmailRead, labBriefingCompleted) {
   if (questStage === "briefing") {
     if (caseId === "sales") {
       if (sceneId === "lab") {
+        if (!labEmailRead) {
+          return "Check your workstation. A leadership request is waiting in your inbox.";
+        }
         return labBriefingCompleted ? "Exit to the campus and find Leo in the Sales Enablement Studio." : "Grab the orange backpack from the center table before you leave the lab.";
       }
       return sceneId === "sales" ? "Talk with Leo to hear why leaders are worried about Atlas Pro sales." : "Find Leo inside and hear why leaders are worried about Atlas Pro sales.";
@@ -16441,11 +16564,17 @@ function getNextObjective(caseId, questStage, nextEvidenceTitle, sceneId, comple
   }
   return "Case complete: review the Atlas Pro recommendation and the business impact story.";
 }
-function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneId, completedCaseIds, labBriefingCompleted) {
+function getCoachPrompt(caseId, questStage, evidenceCount, evidenceTotal, sceneId, completedCaseIds, labEmailRead, labBriefingCompleted) {
   const caseOwner = caseId === "sales" ? "Leo" : "Maya";
   const room = caseId === "sales" ? "Sales Enablement Studio" : "Operations";
   if (questStage === "briefing") {
     if (sceneId === "lab") {
+      if (!labEmailRead) {
+        return {
+          action: "Check the workstation",
+          reason: "Leadership sent the request. Read it before you collect evidence."
+        };
+      }
       return labBriefingCompleted ? {
         action: "Exit the lab",
         reason: "The mission is set. Go to the campus, then enter the Sales Enablement Studio."
