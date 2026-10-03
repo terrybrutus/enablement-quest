@@ -547,46 +547,21 @@ const roomThemes = {
     accent: "#38bdf8",
     fill: "rgba(14, 165, 233, 0.08)",
     title: "Campus Yard",
-    zones: [
-      { x: 2.8, y: 7.3, width: 7.6, height: 2.3 },
-      { x: 10.4, y: 7.2, width: 9.2, height: 4.6 },
-      { x: 19.4, y: 7.3, width: 7.8, height: 2.3 },
-      { x: 13.5, y: 13.8, width: 3.2, height: 2.5 },
-    ],
   },
   lab: {
     accent: "#8b5cf6",
     fill: "rgba(124, 58, 237, 0.08)",
     title: "Learning Systems Lab",
-    zones: [
-      { x: 1.8, y: 3.3, width: 4.4, height: 2.8 },
-      { x: 6.5, y: 3.1, width: 3.9, height: 2.4 },
-      { x: 10.5, y: 3.2, width: 4.9, height: 2.9 },
-      { x: 2.1, y: 7.4, width: 4.5, height: 2.6 },
-      { x: 11.6, y: 7.1, width: 4.3, height: 2.6 },
-    ],
   },
   operations: {
     accent: "#f59e0b",
     fill: "rgba(120, 53, 15, 0.07)",
     title: "Onboarding Diagnostic Room",
-    zones: [
-      { x: 6.9, y: 2.8, width: 4.2, height: 2.5 },
-      { x: 2.2, y: 4.1, width: 4.7, height: 2.9 },
-      { x: 7.1, y: 7.2, width: 4.4, height: 3.1 },
-      { x: 11.8, y: 3.8, width: 4.2, height: 3 },
-    ],
   },
   sales: {
     accent: "#22d3ee",
     fill: "rgba(8, 145, 178, 0.07)",
     title: "Sales Enablement Studio",
-    zones: [
-      { x: 4.5, y: 3.5, width: 4.2, height: 2.7 },
-      { x: 2.5, y: 5.4, width: 4.4, height: 3.1 },
-      { x: 6.7, y: 7.6, width: 5.6, height: 2.7 },
-      { x: 11.9, y: 4.1, width: 4.5, height: 3.5 },
-    ],
   },
 } as const;
 
@@ -1203,7 +1178,6 @@ export function RoomLayoutEditor() {
     "Complete Starter Objects",
   );
   const [assetSearch, setAssetSearch] = useState("");
-  const [showPlanningZones, setShowPlanningZones] = useState(false);
   const [showWalkBlocks, setShowWalkBlocks] = useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] =
     useState(true);
@@ -2497,15 +2471,6 @@ export function RoomLayoutEditor() {
 
           <label className="eq-layout-editor-checkbox">
             <input
-              checked={showPlanningZones}
-              type="checkbox"
-              onChange={(event) => setShowPlanningZones(event.target.checked)}
-            />
-            Show planning-zone guides
-          </label>
-
-          <label className="eq-layout-editor-checkbox">
-            <input
               checked={showWalkBlocks}
               type="checkbox"
               onChange={(event) => setShowWalkBlocks(event.target.checked)}
@@ -2797,7 +2762,7 @@ export function RoomLayoutEditor() {
                 setSelectionBox(null);
               }}
             >
-              <RoomBackdrop scene={scene} showZones={showPlanningZones} />
+              <RoomBackdrop scene={scene} />
               <RoomGrid scene={scene} />
               {showWalkBlocks &&
                 blocks.map((block) => (
@@ -3364,13 +3329,7 @@ export function RoomLayoutEditor() {
   );
 }
 
-function RoomBackdrop({
-  scene,
-  showZones,
-}: {
-  scene: Scene;
-  showZones: boolean;
-}) {
+function RoomBackdrop({ scene }: { scene: Scene }) {
   const theme = roomThemes[scene.id];
   if (scene.theme === "exterior") {
     const buildings = [
@@ -3479,22 +3438,6 @@ function RoomBackdrop({
             }}
           />
         ))}
-        {theme &&
-          showZones &&
-          theme.zones.map((zone) => (
-            <div
-              className="eq-layout-editor-zone"
-              key={`${scene.id}-${zone.x}-${zone.y}`}
-              style={{
-                backgroundColor: theme.fill,
-                borderColor: `${theme.accent}55`,
-                height: zone.height * TILE_SIZE,
-                left: zone.x * TILE_SIZE,
-                top: zone.y * TILE_SIZE,
-                width: zone.width * TILE_SIZE,
-              }}
-            />
-          ))}
       </div>
     );
   }
@@ -3503,29 +3446,12 @@ function RoomBackdrop({
       <div className="eq-layout-editor-wall" />
       <div className="eq-layout-editor-room-frame" />
       {theme && (
-        <>
-          <div
-            className="eq-layout-editor-room-title"
-            style={{ borderColor: theme.accent }}
-          >
-            {theme.title}
-          </div>
-          {showZones &&
-            theme.zones.map((zone) => (
-              <div
-                className="eq-layout-editor-zone"
-                key={`${scene.id}-${zone.x}-${zone.y}`}
-                style={{
-                  backgroundColor: theme.fill,
-                  borderColor: `${theme.accent}55`,
-                  height: zone.height * TILE_SIZE,
-                  left: zone.x * TILE_SIZE,
-                  top: zone.y * TILE_SIZE,
-                  width: zone.width * TILE_SIZE,
-                }}
-              />
-            ))}
-        </>
+        <div
+          className="eq-layout-editor-room-title"
+          style={{ borderColor: theme.accent }}
+        >
+          {theme.title}
+        </div>
       )}
     </div>
   );

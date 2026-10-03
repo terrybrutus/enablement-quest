@@ -12384,7 +12384,7 @@ const scenes = [
           height: 0.65,
           width: 1.2,
           x: 8.4,
-          y: 12
+          y: 12.35
         },
         targetSceneId: "hub",
         targetPosition: {
@@ -12404,12 +12404,12 @@ const scenes = [
       {
         id: "ops-process-board",
         position: {
-          x: 7.1,
-          y: 2.5
+          x: 6.75,
+          y: 1.5
         },
         size: {
-          height: 1.8,
-          width: 2.8
+          height: 3.5,
+          width: 4.5
         },
         sprite: {
           image: "officeSingle170",
@@ -12421,17 +12421,17 @@ const scenes = [
         collision: true
       },
       {
-        id: "ops-ticket-workstation",
+        id: "ops-water-cooler",
         position: {
-          x: 2.8,
-          y: 4.1
+          x: 15.75,
+          y: 4.25
         },
         size: {
-          height: 2.2,
-          width: 2.7
+          height: 4.25,
+          width: 2.25
         },
         sprite: {
-          image: "officeSingle233",
+          image: "officeSingle173",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -12440,17 +12440,17 @@ const scenes = [
         collision: true
       },
       {
-        id: "ops-ticket-chair",
+        id: "office-single-99-4",
         position: {
-          x: 3.2,
-          y: 6.1
+          x: 15.25,
+          y: 0.5
         },
         size: {
-          height: 1.7,
-          width: 1.4
+          height: 3,
+          width: 2
         },
         sprite: {
-          image: "officeSingle101",
+          image: "officeSingle99",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -12459,17 +12459,17 @@ const scenes = [
         collision: true
       },
       {
-        id: "ops-survey-desk",
+        id: "office-single-100-5",
         position: {
-          x: 8.1,
-          y: 7.1
+          x: 14,
+          y: 0.5
         },
         size: {
-          height: 2.1,
-          width: 2.4
+          height: 3,
+          width: 2
         },
         sprite: {
-          image: "officeSingle229",
+          image: "officeSingle100",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -12478,14 +12478,33 @@ const scenes = [
         collision: true
       },
       {
-        id: "ops-metrics-display",
+        id: "office-single-98-6",
         position: {
-          x: 12.6,
-          y: 4.1
+          x: 14.5,
+          y: 1.5
         },
         size: {
-          height: 2.2,
-          width: 1.6
+          height: 3,
+          width: 2
+        },
+        sprite: {
+          image: "officeSingle98",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
+        collision: true
+      },
+      {
+        id: "office-single-276-7",
+        position: {
+          x: 2.5,
+          y: 3.25
+        },
+        size: {
+          height: 3,
+          width: 2
         },
         sprite: {
           image: "officeSingle276",
@@ -12497,40 +12516,21 @@ const scenes = [
         collision: true
       },
       {
-        id: "ops-printer-station",
+        id: "office-r13-c1-7",
         position: {
-          x: 13.8,
-          y: 7.1
+          x: 2.25,
+          y: 4.25
         },
         size: {
-          height: 2,
-          width: 2.3
+          height: 1,
+          width: 0.99
         },
         sprite: {
-          image: "officeSingle177",
+          image: "office",
           sx: 0,
-          sy: 0,
-          sw: 96,
-          sh: 144
-        },
-        collision: true
-      },
-      {
-        id: "ops-water-cooler",
-        position: {
-          x: 1.2,
-          y: 8.1
-        },
-        size: {
-          height: 2,
-          width: 1.2
-        },
-        sprite: {
-          image: "officeSingle173",
-          sx: 0,
-          sy: 0,
-          sw: 96,
-          sh: 144
+          sy: 576,
+          sw: 47.4,
+          sh: 48
         },
         collision: true
       }
@@ -12609,7 +12609,6 @@ const scenes = [
       },
       {
         id: "office-single-320-6",
-        label: "Busy Desk With Supplies",
         position: {
           x: 15,
           y: 5.25
@@ -12751,25 +12750,6 @@ const scenes = [
         collision: true
       },
       {
-        id: "sales-deck-chair-copy-murlwccf-1",
-        position: {
-          x: 7.5,
-          y: 5.75
-        },
-        size: {
-          height: 2.75,
-          width: 2.25
-        },
-        sprite: {
-          image: "officeSingle102",
-          sx: 0,
-          sy: 0,
-          sw: 96,
-          sh: 144
-        },
-        collision: true
-      },
-      {
         id: "sales-call-workstation-copy-murlwccf-2",
         position: {
           x: 6.05,
@@ -12800,6 +12780,25 @@ const scenes = [
         },
         sprite: {
           image: "officeSingle178",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144
+        },
+        collision: true
+      },
+      {
+        id: "sales-deck-chair-copy-murlwccf-1-copy-murnj92e-1",
+        position: {
+          x: 7.5,
+          y: 5.75
+        },
+        size: {
+          height: 2.75,
+          width: 2.25
+        },
+        sprite: {
+          image: "officeSingle102",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -13888,7 +13887,7 @@ function drawProps(ctx, scene, gameState, camera, assets) {
       ctx.shadowBlur = 0;
     }
     if (prop.sprite) {
-      drawSheetSprite(
+      drawPropSprite(
         ctx,
         assets,
         prop.sprite,
@@ -13913,6 +13912,21 @@ function drawProps(ctx, scene, gameState, camera, assets) {
     const height = prop.size.height * TILE_SIZE;
     drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
   }
+}
+function drawPropSprite(ctx, assets, sprite, x, y, width, height, transform) {
+  const scale = Math.min(width / sprite.sw, height / sprite.sh);
+  const renderedWidth = sprite.sw * scale;
+  const renderedHeight = sprite.sh * scale;
+  drawSheetSprite(
+    ctx,
+    assets,
+    sprite,
+    x + (width - renderedWidth) / 2,
+    y + (height - renderedHeight) / 2,
+    renderedWidth,
+    renderedHeight,
+    transform
+  );
 }
 function getPropSortValue(prop) {
   const base = prop.position.y + prop.size.height;
@@ -18016,47 +18030,22 @@ const roomThemes = {
   hub: {
     accent: "#38bdf8",
     fill: "rgba(14, 165, 233, 0.08)",
-    title: "Campus Yard",
-    zones: [
-      { x: 2.8, y: 7.3, width: 7.6, height: 2.3 },
-      { x: 10.4, y: 7.2, width: 9.2, height: 4.6 },
-      { x: 19.4, y: 7.3, width: 7.8, height: 2.3 },
-      { x: 13.5, y: 13.8, width: 3.2, height: 2.5 }
-    ]
+    title: "Campus Yard"
   },
   lab: {
     accent: "#8b5cf6",
     fill: "rgba(124, 58, 237, 0.08)",
-    title: "Learning Systems Lab",
-    zones: [
-      { x: 1.8, y: 3.3, width: 4.4, height: 2.8 },
-      { x: 6.5, y: 3.1, width: 3.9, height: 2.4 },
-      { x: 10.5, y: 3.2, width: 4.9, height: 2.9 },
-      { x: 2.1, y: 7.4, width: 4.5, height: 2.6 },
-      { x: 11.6, y: 7.1, width: 4.3, height: 2.6 }
-    ]
+    title: "Learning Systems Lab"
   },
   operations: {
     accent: "#f59e0b",
     fill: "rgba(120, 53, 15, 0.07)",
-    title: "Onboarding Diagnostic Room",
-    zones: [
-      { x: 6.9, y: 2.8, width: 4.2, height: 2.5 },
-      { x: 2.2, y: 4.1, width: 4.7, height: 2.9 },
-      { x: 7.1, y: 7.2, width: 4.4, height: 3.1 },
-      { x: 11.8, y: 3.8, width: 4.2, height: 3 }
-    ]
+    title: "Onboarding Diagnostic Room"
   },
   sales: {
     accent: "#22d3ee",
     fill: "rgba(8, 145, 178, 0.07)",
-    title: "Sales Enablement Studio",
-    zones: [
-      { x: 4.5, y: 3.5, width: 4.2, height: 2.7 },
-      { x: 2.5, y: 5.4, width: 4.4, height: 3.1 },
-      { x: 6.7, y: 7.6, width: 5.6, height: 2.7 },
-      { x: 11.9, y: 4.1, width: 4.5, height: 3.5 }
-    ]
+    title: "Sales Enablement Studio"
   }
 };
 function propToEditorItem(prop) {
@@ -18634,7 +18623,6 @@ function RoomLayoutEditor() {
     "Complete Starter Objects"
   );
   const [assetSearch, setAssetSearch] = reactExports.useState("");
-  const [showPlanningZones, setShowPlanningZones] = reactExports.useState(false);
   const [showWalkBlocks, setShowWalkBlocks] = reactExports.useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] = reactExports.useState(true);
   const [playerScaleReferencePosition, setPlayerScaleReferencePosition] = reactExports.useState({ x: 1.5, y: 9.8 });
@@ -19683,17 +19671,6 @@ function RoomLayoutEditor() {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
-              checked: showPlanningZones,
-              type: "checkbox",
-              onChange: (event) => setShowPlanningZones(event.target.checked)
-            }
-          ),
-          "Show planning-zone guides"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
               checked: showWalkBlocks,
               type: "checkbox",
               onChange: (event) => setShowWalkBlocks(event.target.checked)
@@ -19957,7 +19934,7 @@ function RoomLayoutEditor() {
                   setSelectionBox(null);
                 },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene, showZones: showPlanningZones }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(RoomBackdrop, { scene }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(RoomGrid, { scene }),
                   showWalkBlocks && blocks.map((block) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                     DraggableBlock,
@@ -20517,10 +20494,7 @@ function RoomLayoutEditor() {
     ] })
   ] });
 }
-function RoomBackdrop({
-  scene,
-  showZones
-}) {
+function RoomBackdrop({ scene }) {
   var _a;
   const theme = roomThemes[scene.id];
   if (scene.theme === "exterior") {
@@ -20624,52 +20598,20 @@ function RoomBackdrop({
           }
         },
         `${shrub.x}-${shrub.y}`
-      )),
-      theme && showZones && theme.zones.map((zone) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: "eq-layout-editor-zone",
-          style: {
-            backgroundColor: theme.fill,
-            borderColor: `${theme.accent}55`,
-            height: zone.height * TILE_SIZE,
-            left: zone.x * TILE_SIZE,
-            top: zone.y * TILE_SIZE,
-            width: zone.width * TILE_SIZE
-          }
-        },
-        `${scene.id}-${zone.x}-${zone.y}`
       ))
     ] });
   }
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-backdrop", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-wall" }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-room-frame" }),
-    theme && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: "eq-layout-editor-room-title",
-          style: { borderColor: theme.accent },
-          children: theme.title
-        }
-      ),
-      showZones && theme.zones.map((zone) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "div",
-        {
-          className: "eq-layout-editor-zone",
-          style: {
-            backgroundColor: theme.fill,
-            borderColor: `${theme.accent}55`,
-            height: zone.height * TILE_SIZE,
-            left: zone.x * TILE_SIZE,
-            top: zone.y * TILE_SIZE,
-            width: zone.width * TILE_SIZE
-          }
-        },
-        `${scene.id}-${zone.x}-${zone.y}`
-      ))
-    ] })
+    theme && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "div",
+      {
+        className: "eq-layout-editor-room-title",
+        style: { borderColor: theme.accent },
+        children: theme.title
+      }
+    )
   ] });
 }
 function DraggableBlock({

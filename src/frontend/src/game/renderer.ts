@@ -723,7 +723,7 @@ function drawProps(
     }
 
     if (prop.sprite) {
-      drawSheetSprite(
+      drawPropSprite(
         ctx,
         assets,
         prop.sprite,
@@ -750,6 +750,35 @@ function drawProps(
 
     drawLabel(ctx, prop.label, px + width / 2, py + height + 14, "#dbeafe");
   }
+}
+
+function drawPropSprite(
+  ctx: CanvasRenderingContext2D,
+  assets: LoadedAssets,
+  sprite: SheetSprite,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  transform?: {
+    flipX?: boolean;
+    flipY?: boolean;
+    rotate?: 0 | 90 | 180 | 270;
+  },
+) {
+  const scale = Math.min(width / sprite.sw, height / sprite.sh);
+  const renderedWidth = sprite.sw * scale;
+  const renderedHeight = sprite.sh * scale;
+  drawSheetSprite(
+    ctx,
+    assets,
+    sprite,
+    x + (width - renderedWidth) / 2,
+    y + (height - renderedHeight) / 2,
+    renderedWidth,
+    renderedHeight,
+    transform,
+  );
 }
 
 function getPropSortValue(prop: Scene["props"][number]) {

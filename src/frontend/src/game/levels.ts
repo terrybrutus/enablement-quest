@@ -396,7 +396,7 @@ export const scenes: Scene[] = [
           height: 0.65,
           width: 1.2,
           x: 8.4,
-          y: 12,
+          y: 12.35,
         },
         targetSceneId: "hub",
         targetPosition: {
@@ -416,12 +416,12 @@ export const scenes: Scene[] = [
       {
         id: "ops-process-board",
         position: {
-          x: 7.1,
-          y: 2.5,
+          x: 6.75,
+          y: 1.5,
         },
         size: {
-          height: 1.8,
-          width: 2.8,
+          height: 3.5,
+          width: 4.5,
         },
         sprite: {
           image: "officeSingle170",
@@ -433,17 +433,17 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "ops-ticket-workstation",
+        id: "ops-water-cooler",
         position: {
-          x: 2.8,
-          y: 4.1,
+          x: 15.75,
+          y: 4.25,
         },
         size: {
-          height: 2.2,
-          width: 2.7,
+          height: 4.25,
+          width: 2.25,
         },
         sprite: {
-          image: "officeSingle233",
+          image: "officeSingle173",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -452,17 +452,17 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "ops-ticket-chair",
+        id: "office-single-99-4",
         position: {
-          x: 3.2,
-          y: 6.1,
+          x: 15.25,
+          y: 0.5,
         },
         size: {
-          height: 1.7,
-          width: 1.4,
+          height: 3,
+          width: 2,
         },
         sprite: {
-          image: "officeSingle101",
+          image: "officeSingle99",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -471,17 +471,17 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "ops-survey-desk",
+        id: "office-single-100-5",
         position: {
-          x: 8.1,
-          y: 7.1,
+          x: 14,
+          y: 0.5,
         },
         size: {
-          height: 2.1,
-          width: 2.4,
+          height: 3,
+          width: 2,
         },
         sprite: {
-          image: "officeSingle229",
+          image: "officeSingle100",
           sx: 0,
           sy: 0,
           sw: 96,
@@ -490,14 +490,33 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "ops-metrics-display",
+        id: "office-single-98-6",
         position: {
-          x: 12.6,
-          y: 4.1,
+          x: 14.5,
+          y: 1.5,
         },
         size: {
-          height: 2.2,
-          width: 1.6,
+          height: 3,
+          width: 2,
+        },
+        sprite: {
+          image: "officeSingle98",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144,
+        },
+        collision: true,
+      },
+      {
+        id: "office-single-276-7",
+        position: {
+          x: 2.5,
+          y: 3.25,
+        },
+        size: {
+          height: 3,
+          width: 2,
         },
         sprite: {
           image: "officeSingle276",
@@ -509,40 +528,21 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "ops-printer-station",
+        id: "office-r13-c1-7",
         position: {
-          x: 13.8,
-          y: 7.1,
+          x: 2.25,
+          y: 4.25,
         },
         size: {
-          height: 2,
-          width: 2.3,
+          height: 1,
+          width: 0.99,
         },
         sprite: {
-          image: "officeSingle177",
+          image: "office",
           sx: 0,
-          sy: 0,
-          sw: 96,
-          sh: 144,
-        },
-        collision: true,
-      },
-      {
-        id: "ops-water-cooler",
-        position: {
-          x: 1.2,
-          y: 8.1,
-        },
-        size: {
-          height: 2,
-          width: 1.2,
-        },
-        sprite: {
-          image: "officeSingle173",
-          sx: 0,
-          sy: 0,
-          sw: 96,
-          sh: 144,
+          sy: 576,
+          sw: 47.4,
+          sh: 48,
         },
         collision: true,
       },
@@ -621,7 +621,6 @@ export const scenes: Scene[] = [
       },
       {
         id: "office-single-320-6",
-        label: "Busy Desk With Supplies",
         position: {
           x: 15,
           y: 5.25,
@@ -763,25 +762,6 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "sales-deck-chair-copy-murlwccf-1",
-        position: {
-          x: 7.5,
-          y: 5.75,
-        },
-        size: {
-          height: 2.75,
-          width: 2.25,
-        },
-        sprite: {
-          image: "officeSingle102",
-          sx: 0,
-          sy: 0,
-          sw: 96,
-          sh: 144,
-        },
-        collision: true,
-      },
-      {
         id: "sales-call-workstation-copy-murlwccf-2",
         position: {
           x: 6.05,
@@ -812,6 +792,25 @@ export const scenes: Scene[] = [
         },
         sprite: {
           image: "officeSingle178",
+          sx: 0,
+          sy: 0,
+          sw: 96,
+          sh: 144,
+        },
+        collision: true,
+      },
+      {
+        id: "sales-deck-chair-copy-murlwccf-1-copy-murnj92e-1",
+        position: {
+          x: 7.5,
+          y: 5.75,
+        },
+        size: {
+          height: 2.75,
+          width: 2.25,
+        },
+        sprite: {
+          image: "officeSingle102",
           sx: 0,
           sy: 0,
           sw: 96,

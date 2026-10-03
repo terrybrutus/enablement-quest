@@ -410,12 +410,6 @@
   transform: translateX(-50%);
 }
 
-.eq-layout-editor-zone {
-  border: 2px solid;
-  border-radius: 12px;
-  position: absolute;
-}
-
 .eq-layout-editor-campus-backdrop {
   background: #0f3f2a;
   background-image: linear-gradient(
