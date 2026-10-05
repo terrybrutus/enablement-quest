@@ -97,6 +97,12 @@ interface EditorBounds {
   size: { height: number; width: number };
 }
 
+interface EditorContextMenu {
+  itemId: string;
+  x: number;
+  y: number;
+}
+
 type EditingLabel =
   | { id: string; kind: "item" }
   | { groupId: string; kind: "group" }
@@ -1305,6 +1311,9 @@ export function RoomLayoutEditor() {
   const [history, setHistory] = useState<EditorHistorySnapshot[]>([]);
   const [selectionBox, setSelectionBox] = useState<SelectionBox | null>(null);
   const [editingLabel, setEditingLabel] = useState<EditingLabel>(null);
+  const [contextMenu, setContextMenu] = useState<EditorContextMenu | null>(
+    null,
+  );
   const clipboardRef = useRef<EditorClipboard | null>(null);
   const stageViewportRef = useRef<HTMLDivElement | null>(null);
   const panStateRef = useRef<{
@@ -1401,6 +1410,23 @@ export function RoomLayoutEditor() {
     window.addEventListener("keydown", handleKeyboardEvent);
     return () => window.removeEventListener("keydown", handleKeyboardEvent);
   });
+
+  useEffect(() => {
+    if (!contextMenu) {
+      return;
+    }
+    function closeContextMenu() {
+      setContextMenu(null);
+    }
+    window.addEventListener("pointerdown", closeContextMenu);
+    window.addEventListener("resize", closeContextMenu);
+    window.addEventListener("scroll", closeContextMenu, true);
+    return () => {
+      window.removeEventListener("pointerdown", closeContextMenu);
+      window.removeEventListener("resize", closeContextMenu);
+      window.removeEventListener("scroll", closeContextMenu, true);
+    };
+  }, [contextMenu]);
 
   function saveHistory() {
     setHistory((previous) => [
@@ -2029,6 +2055,7 @@ export function RoomLayoutEditor() {
   function selectItem(itemId: string, additive: boolean) {
     setSelectedPortalId(null);
     setSelectedBlockId(null);
+    setContextMenu(null);
     const clickedItem = items.find((item) => item.id === itemId);
     const groupItemIds =
       clickedItem?.groupId && !additive
@@ -2049,6 +2076,21 @@ export function RoomLayoutEditor() {
         ? previous.filter((id) => id !== itemId)
         : [...previous, itemId],
     );
+  }
+
+  function openItemContextMenu(
+    itemId: string,
+    event: PointerEvent<HTMLElement>,
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+    selectItem(itemId, false);
+    setEditingLabel(null);
+    setContextMenu({
+      itemId,
+      x: event.clientX,
+      y: event.clientY,
+    });
   }
 
   function moveItems(
@@ -2249,6 +2291,11 @@ export function RoomLayoutEditor() {
   ) {
     const target = event.target;
     if (shouldIgnoreKeyboardTarget(target)) {
+      return;
+    }
+    if (event.key === "Escape" && contextMenu) {
+      event.preventDefault();
+      setContextMenu(null);
       return;
     }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
@@ -2866,6 +2913,9 @@ export function RoomLayoutEditor() {
                     )
                   }
                   onSelect={(additive) => selectItem(item.id, additive)}
+                  onOpenContextMenu={(event) =>
+                    openItemContextMenu(item.id, event)
+                  }
                   onStartLabelEdit={() => {
                     setSelectedIds([item.id]);
                     setSelectedPortalId(null);
@@ -3340,6 +3390,45 @@ export function RoomLayoutEditor() {
           </button>
         </aside>
       </section>
+      {contextMenu && selectedItem && (
+        <ObjectContextMenu
+          canGroup={selectedIds.length > 1}
+          canSelectGroup={Boolean(selectedItem.groupId)}
+          canUndo={history.length > 0}
+          hasGroup={Boolean(selectedItem.groupId)}
+          hasGroupedSelection={selectedItems.some((item) => item.groupId)}
+          item={selectedItem}
+          selectedCount={selectedIds.length}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onArrangeBack={() => arrangeSelectedItems("back")}
+          onArrangeFront={() => arrangeSelectedItems("front")}
+          onClose={() => setContextMenu(null)}
+          onCopy={copySelectedToEditorClipboard}
+          onCut={() => {
+            cutSelectedToEditorClipboard();
+            setContextMenu(null);
+          }}
+          onDuplicate={duplicateSelected}
+          onFlipX={() => flipSelected("x")}
+          onFlipY={() => flipSelected("y")}
+          onGroup={groupSelected}
+          onPaste={pasteEditorClipboard}
+          onRemove={() => {
+            removeSelected();
+            setContextMenu(null);
+          }}
+          onResetSize={resetSelectedSize}
+          onRotate={rotateSelected}
+          onSelectGroup={selectSelectedGroup}
+          onUndo={undo}
+          onUngroup={ungroupSelected}
+          onUpdateGroup={updateSelectedGroup}
+          onUpdateItem={updateSelected}
+          onUpdateItems={updateSelectedItems}
+          onUpdateSprite={updateSelectedSprite}
+        />
+      )}
     </main>
   );
 }
@@ -3768,6 +3857,7 @@ function DraggableItem({
   onCopyDragStart,
   onDragStart,
   onMoveItems,
+  onOpenContextMenu,
   onRenameLabel,
   onResizeSelected,
   onResizeStart,
@@ -3787,6 +3877,7 @@ function DraggableItem({
     dx: number,
     dy: number,
   ) => { dx: number; dy: number };
+  onOpenContextMenu: (event: PointerEvent<HTMLElement>) => void;
   onRenameLabel: (label: string) => void;
   onResizeSelected: (
     handle: ResizeHandle,
@@ -3829,6 +3920,9 @@ function DraggableItem({
         width: item.size.width * TILE_SIZE,
       }}
       onPointerDown={(event) => {
+        if (event.button === 2) {
+          return;
+        }
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
         const shouldCopyDrag =
@@ -3869,6 +3963,7 @@ function DraggableItem({
         event.currentTarget.releasePointerCapture(event.pointerId);
         dragState.current = null;
       }}
+      onContextMenu={onOpenContextMenu}
     >
       <SpritePreview
         fill
@@ -4089,6 +4184,270 @@ function InlineEditableLabel({
     >
       {value}
     </span>
+  );
+}
+
+function ObjectContextMenu({
+  canGroup,
+  canSelectGroup,
+  canUndo,
+  hasGroup,
+  hasGroupedSelection,
+  item,
+  onArrangeBack,
+  onArrangeFront,
+  onClose,
+  onCopy,
+  onCut,
+  onDuplicate,
+  onFlipX,
+  onFlipY,
+  onGroup,
+  onPaste,
+  onRemove,
+  onResetSize,
+  onRotate,
+  onSelectGroup,
+  onUndo,
+  onUngroup,
+  onUpdateGroup,
+  onUpdateItem,
+  onUpdateItems,
+  onUpdateSprite,
+  selectedCount,
+  x,
+  y,
+}: {
+  canGroup: boolean;
+  canSelectGroup: boolean;
+  canUndo: boolean;
+  hasGroup: boolean;
+  hasGroupedSelection: boolean;
+  item: EditorItem;
+  onArrangeBack: () => void;
+  onArrangeFront: () => void;
+  onClose: () => void;
+  onCopy: () => void;
+  onCut: () => void;
+  onDuplicate: () => void;
+  onFlipX: () => void;
+  onFlipY: () => void;
+  onGroup: () => void;
+  onPaste: () => void;
+  onRemove: () => void;
+  onResetSize: () => void;
+  onRotate: () => void;
+  onSelectGroup: () => void;
+  onUndo: () => void;
+  onUngroup: () => void;
+  onUpdateGroup: (patch: Partial<EditorItem>) => void;
+  onUpdateItem: (patch: Partial<EditorItem>) => void;
+  onUpdateItems: (getPatch: (item: EditorItem) => Partial<EditorItem>) => void;
+  onUpdateSprite: (patch: Partial<SheetSprite>) => void;
+  selectedCount: number;
+  x: number;
+  y: number;
+}) {
+  return (
+    <div
+      className="eq-layout-editor-context-menu"
+      style={{
+        left: `min(${x}px, calc(100vw - 380px))`,
+        top: `min(${y}px, calc(100vh - 620px))`,
+      }}
+      onContextMenu={(event) => event.preventDefault()}
+      onPointerDown={(event) => event.stopPropagation()}
+    >
+      <div className="eq-layout-editor-context-header">
+        <div>
+          <strong>{selectedCount > 1 ? "Selected objects" : "Object"}</strong>
+          <small>
+            {selectedCount > 1
+              ? `${selectedCount} objects selected`
+              : item.label || item.id}
+          </small>
+        </div>
+        <button type="button" onClick={onClose}>
+          Close
+        </button>
+      </div>
+
+      <label>
+        Visible label
+        <input
+          value={item.label}
+          onChange={(event) => onUpdateItem({ label: event.target.value })}
+        />
+      </label>
+      <label>
+        Interaction text
+        <textarea
+          value={item.description}
+          onChange={(event) =>
+            onUpdateItem({ description: event.target.value })
+          }
+        />
+      </label>
+
+      {hasGroup && (
+        <div className="eq-layout-editor-context-section">
+          <strong>Group</strong>
+          <label>
+            Group label
+            <input
+              value={item.groupLabel ?? ""}
+              onChange={(event) =>
+                onUpdateGroup({ groupLabel: event.target.value })
+              }
+            />
+          </label>
+          <label className="eq-layout-editor-checkbox">
+            <input
+              checked={Boolean(item.hideLabel)}
+              type="checkbox"
+              onChange={(event) =>
+                onUpdateGroup({ hideLabel: event.target.checked })
+              }
+            />
+            Hide individual labels
+          </label>
+        </div>
+      )}
+
+      <div className="eq-layout-editor-fields">
+        <NumberField
+          label="X"
+          value={item.position.x}
+          onChange={(value) =>
+            onUpdateItem({ position: { ...item.position, x: value } })
+          }
+        />
+        <NumberField
+          label="Y"
+          value={item.position.y}
+          onChange={(value) =>
+            onUpdateItem({ position: { ...item.position, y: value } })
+          }
+        />
+        <NumberField
+          label="Width"
+          value={item.size.width}
+          onChange={(value) =>
+            onUpdateItem({ size: { ...item.size, width: value } })
+          }
+        />
+        <NumberField
+          label="Height"
+          value={item.size.height}
+          onChange={(value) =>
+            onUpdateItem({ size: { ...item.size, height: value } })
+          }
+        />
+        <NumberField
+          label="Layer"
+          step={1}
+          value={item.zIndex ?? 0}
+          onChange={(value) => onUpdateItem({ zIndex: value })}
+        />
+      </div>
+
+      <label className="eq-layout-editor-checkbox">
+        <input
+          checked={item.collision}
+          type="checkbox"
+          onChange={(event) =>
+            onUpdateItems(() => ({ collision: event.target.checked }))
+          }
+        />
+        Blocks player movement
+      </label>
+
+      <div className="eq-layout-editor-context-section">
+        <strong>Crop</strong>
+        <div className="eq-layout-editor-fields">
+          <NumberField
+            label="Crop X"
+            value={item.sprite.sx}
+            onChange={(value) => onUpdateSprite({ sx: value })}
+          />
+          <NumberField
+            label="Crop Y"
+            value={item.sprite.sy}
+            onChange={(value) => onUpdateSprite({ sy: value })}
+          />
+          <NumberField
+            label="Crop W"
+            value={item.sprite.sw}
+            onChange={(value) => onUpdateSprite({ sw: value })}
+          />
+          <NumberField
+            label="Crop H"
+            value={item.sprite.sh}
+            onChange={(value) => onUpdateSprite({ sh: value })}
+          />
+        </div>
+      </div>
+
+      <div className="eq-layout-editor-context-actions">
+        <button disabled={!canUndo} type="button" onClick={onUndo}>
+          Undo
+        </button>
+        <button type="button" onClick={onArrangeFront}>
+          Bring front
+        </button>
+        <button type="button" onClick={onArrangeBack}>
+          Send back
+        </button>
+        <button type="button" onClick={onRotate}>
+          Rotate
+        </button>
+        <button type="button" onClick={onFlipX}>
+          Flip H
+        </button>
+        <button type="button" onClick={onFlipY}>
+          Flip V
+        </button>
+        <button type="button" onClick={onResetSize}>
+          Reset size
+        </button>
+        <button type="button" onClick={onCopy}>
+          Copy
+        </button>
+        <button type="button" onClick={onCut}>
+          Cut
+        </button>
+        <button type="button" onClick={onPaste}>
+          Paste
+        </button>
+        <button type="button" onClick={onDuplicate}>
+          Duplicate
+        </button>
+        <button disabled={!canGroup} type="button" onClick={onGroup}>
+          Group
+        </button>
+        <button
+          disabled={!hasGroupedSelection}
+          type="button"
+          onClick={onUngroup}
+        >
+          Ungroup
+        </button>
+        <button
+          disabled={!canSelectGroup}
+          type="button"
+          onClick={onSelectGroup}
+        >
+          Select group
+        </button>
+      </div>
+      <button
+        className="eq-layout-editor-danger"
+        type="button"
+        onClick={onRemove}
+      >
+        Remove selected
+      </button>
+    </div>
   );
 }
 

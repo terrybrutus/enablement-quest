@@ -18762,6 +18762,9 @@ function RoomLayoutEditor() {
   const [history, setHistory] = reactExports.useState([]);
   const [selectionBox, setSelectionBox] = reactExports.useState(null);
   const [editingLabel, setEditingLabel] = reactExports.useState(null);
+  const [contextMenu, setContextMenu] = reactExports.useState(
+    null
+  );
   const clipboardRef = reactExports.useRef(null);
   const stageViewportRef = reactExports.useRef(null);
   const panStateRef = reactExports.useRef(null);
@@ -18836,6 +18839,22 @@ function RoomLayoutEditor() {
     window.addEventListener("keydown", handleKeyboardEvent);
     return () => window.removeEventListener("keydown", handleKeyboardEvent);
   });
+  reactExports.useEffect(() => {
+    if (!contextMenu) {
+      return;
+    }
+    function closeContextMenu() {
+      setContextMenu(null);
+    }
+    window.addEventListener("pointerdown", closeContextMenu);
+    window.addEventListener("resize", closeContextMenu);
+    window.addEventListener("scroll", closeContextMenu, true);
+    return () => {
+      window.removeEventListener("pointerdown", closeContextMenu);
+      window.removeEventListener("resize", closeContextMenu);
+      window.removeEventListener("scroll", closeContextMenu, true);
+    };
+  }, [contextMenu]);
   function saveHistory() {
     setHistory((previous) => [
       ...previous.slice(-29),
@@ -19342,6 +19361,7 @@ function RoomLayoutEditor() {
   function selectItem(itemId, additive) {
     setSelectedPortalId(null);
     setSelectedBlockId(null);
+    setContextMenu(null);
     const clickedItem = items.find((item) => item.id === itemId);
     const groupItemIds = (clickedItem == null ? void 0 : clickedItem.groupId) && !additive ? items.filter((item) => item.groupId === clickedItem.groupId).map((item) => item.id) : [itemId];
     if (!additive) {
@@ -19352,6 +19372,17 @@ function RoomLayoutEditor() {
     setSelectedIds(
       (previous) => previous.includes(itemId) ? previous.filter((id) => id !== itemId) : [...previous, itemId]
     );
+  }
+  function openItemContextMenu(itemId, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    selectItem(itemId, false);
+    setEditingLabel(null);
+    setContextMenu({
+      itemId,
+      x: event.clientX,
+      y: event.clientY
+    });
   }
   function moveItems(itemIds, dx, dy, saveSnapshot = true) {
     if (itemIds.length === 0) {
@@ -19509,6 +19540,11 @@ function RoomLayoutEditor() {
   function handleKeyboardEvent(event) {
     const target = event.target;
     if (shouldIgnoreKeyboardTarget(target)) {
+      return;
+    }
+    if (event.key === "Escape" && contextMenu) {
+      event.preventDefault();
+      setContextMenu(null);
       return;
     }
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
@@ -20047,6 +20083,7 @@ function RoomLayoutEditor() {
                         false
                       ),
                       onSelect: (additive) => selectItem(item.id, additive),
+                      onOpenContextMenu: (event) => openItemContextMenu(item.id, event),
                       onStartLabelEdit: () => {
                         setSelectedIds([item.id]);
                         setSelectedPortalId(null);
@@ -20532,7 +20569,47 @@ function RoomLayoutEditor() {
           }
         )
       ] })
-    ] })
+    ] }),
+    contextMenu && selectedItem && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ObjectContextMenu,
+      {
+        canGroup: selectedIds.length > 1,
+        canSelectGroup: Boolean(selectedItem.groupId),
+        canUndo: history.length > 0,
+        hasGroup: Boolean(selectedItem.groupId),
+        hasGroupedSelection: selectedItems.some((item) => item.groupId),
+        item: selectedItem,
+        selectedCount: selectedIds.length,
+        x: contextMenu.x,
+        y: contextMenu.y,
+        onArrangeBack: () => arrangeSelectedItems("back"),
+        onArrangeFront: () => arrangeSelectedItems("front"),
+        onClose: () => setContextMenu(null),
+        onCopy: copySelectedToEditorClipboard,
+        onCut: () => {
+          cutSelectedToEditorClipboard();
+          setContextMenu(null);
+        },
+        onDuplicate: duplicateSelected,
+        onFlipX: () => flipSelected("x"),
+        onFlipY: () => flipSelected("y"),
+        onGroup: groupSelected,
+        onPaste: pasteEditorClipboard,
+        onRemove: () => {
+          removeSelected();
+          setContextMenu(null);
+        },
+        onResetSize: resetSelectedSize,
+        onRotate: rotateSelected,
+        onSelectGroup: selectSelectedGroup,
+        onUndo: undo,
+        onUngroup: ungroupSelected,
+        onUpdateGroup: updateSelectedGroup,
+        onUpdateItem: updateSelected,
+        onUpdateItems: updateSelectedItems,
+        onUpdateSprite: updateSelectedSprite
+      }
+    )
   ] });
 }
 function RoomBackdrop({ scene }) {
@@ -20903,6 +20980,7 @@ function DraggableItem({
   onCopyDragStart,
   onDragStart,
   onMoveItems,
+  onOpenContextMenu,
   onRenameLabel,
   onResizeSelected,
   onResizeStart,
@@ -20930,6 +21008,9 @@ function DraggableItem({
         width: item.size.width * TILE_SIZE
       },
       onPointerDown: (event) => {
+        if (event.button === 2) {
+          return;
+        }
         event.preventDefault();
         event.currentTarget.setPointerCapture(event.pointerId);
         const shouldCopyDrag = isSelected && (event.ctrlKey || event.metaKey) && event.button === 0;
@@ -20966,6 +21047,7 @@ function DraggableItem({
         event.currentTarget.releasePointerCapture(event.pointerId);
         dragState.current = null;
       },
+      onContextMenu: onOpenContextMenu,
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           SpritePreview,
@@ -21160,6 +21242,235 @@ function InlineEditableLabel({
       },
       onPointerDown: (event) => event.stopPropagation(),
       children: value
+    }
+  );
+}
+function ObjectContextMenu({
+  canGroup,
+  canSelectGroup,
+  canUndo,
+  hasGroup,
+  hasGroupedSelection,
+  item,
+  onArrangeBack,
+  onArrangeFront,
+  onClose,
+  onCopy,
+  onCut,
+  onDuplicate,
+  onFlipX,
+  onFlipY,
+  onGroup,
+  onPaste,
+  onRemove,
+  onResetSize,
+  onRotate,
+  onSelectGroup,
+  onUndo,
+  onUngroup,
+  onUpdateGroup,
+  onUpdateItem,
+  onUpdateItems,
+  onUpdateSprite,
+  selectedCount,
+  x,
+  y
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "div",
+    {
+      className: "eq-layout-editor-context-menu",
+      style: {
+        left: `min(${x}px, calc(100vw - 380px))`,
+        top: `min(${y}px, calc(100vh - 620px))`
+      },
+      onContextMenu: (event) => event.preventDefault(),
+      onPointerDown: (event) => event.stopPropagation(),
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-context-header", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: selectedCount > 1 ? "Selected objects" : "Object" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: selectedCount > 1 ? `${selectedCount} objects selected` : item.label || item.id })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onClose, children: "Close" })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Visible label",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: item.label,
+              onChange: (event) => onUpdateItem({ label: event.target.value })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Interaction text",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              value: item.description,
+              onChange: (event) => onUpdateItem({ description: event.target.value })
+            }
+          )
+        ] }),
+        hasGroup && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-context-section", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Group" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+            "Group label",
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                value: item.groupLabel ?? "",
+                onChange: (event) => onUpdateGroup({ groupLabel: event.target.value })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                checked: Boolean(item.hideLabel),
+                type: "checkbox",
+                onChange: (event) => onUpdateGroup({ hideLabel: event.target.checked })
+              }
+            ),
+            "Hide individual labels"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-fields", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NumberField,
+            {
+              label: "X",
+              value: item.position.x,
+              onChange: (value) => onUpdateItem({ position: { ...item.position, x: value } })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NumberField,
+            {
+              label: "Y",
+              value: item.position.y,
+              onChange: (value) => onUpdateItem({ position: { ...item.position, y: value } })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NumberField,
+            {
+              label: "Width",
+              value: item.size.width,
+              onChange: (value) => onUpdateItem({ size: { ...item.size, width: value } })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NumberField,
+            {
+              label: "Height",
+              value: item.size.height,
+              onChange: (value) => onUpdateItem({ size: { ...item.size, height: value } })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            NumberField,
+            {
+              label: "Layer",
+              step: 1,
+              value: item.zIndex ?? 0,
+              onChange: (value) => onUpdateItem({ zIndex: value })
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              checked: item.collision,
+              type: "checkbox",
+              onChange: (event) => onUpdateItems(() => ({ collision: event.target.checked }))
+            }
+          ),
+          "Blocks player movement"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-context-section", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Crop" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-fields", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Crop X",
+                value: item.sprite.sx,
+                onChange: (value) => onUpdateSprite({ sx: value })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Crop Y",
+                value: item.sprite.sy,
+                onChange: (value) => onUpdateSprite({ sy: value })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Crop W",
+                value: item.sprite.sw,
+                onChange: (value) => onUpdateSprite({ sw: value })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Crop H",
+                value: item.sprite.sh,
+                onChange: (value) => onUpdateSprite({ sh: value })
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-context-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { disabled: !canUndo, type: "button", onClick: onUndo, children: "Undo" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onArrangeFront, children: "Bring front" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onArrangeBack, children: "Send back" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onRotate, children: "Rotate" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onFlipX, children: "Flip H" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onFlipY, children: "Flip V" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onResetSize, children: "Reset size" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onCopy, children: "Copy" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onCut, children: "Cut" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onPaste, children: "Paste" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: onDuplicate, children: "Duplicate" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { disabled: !canGroup, type: "button", onClick: onGroup, children: "Group" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              disabled: !hasGroupedSelection,
+              type: "button",
+              onClick: onUngroup,
+              children: "Ungroup"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              disabled: !canSelectGroup,
+              type: "button",
+              onClick: onSelectGroup,
+              children: "Select group"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            className: "eq-layout-editor-danger",
+            type: "button",
+            onClick: onRemove,
+            children: "Remove selected"
+          }
+        )
+      ]
     }
   );
 }
