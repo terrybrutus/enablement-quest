@@ -275,7 +275,7 @@ export function useGameLoop({
       if (state.player.hasStarted && state.overlay === "none") {
         const ambientState = {
           ...state,
-          characterStates: moveCharacters(state, delta),
+          characterStates: moveCharacters(state, delta, sceneList),
         };
         const nextPosition = getNextPosition(
           ambientState.player.position,
@@ -832,10 +832,11 @@ function isCurrentCaseBriefed(state: GameState) {
   return state.caseBriefingCompletedIds.includes(state.currentCaseId);
 }
 
-function moveCharacters(state: GameState, delta: number) {
+function moveCharacters(state: GameState, delta: number, sceneList: Scene[]) {
   const nextStates: Record<string, CharacterState> = {
     ...state.characterStates,
   };
+  const scene = getCurrentScene(state, sceneList);
   for (const character of characters) {
     const patrol = character.patrol;
     const current =
@@ -896,6 +897,15 @@ function moveCharacters(state: GameState, delta: number) {
       x: current.position.x + (dx / distance) * step,
       y: current.position.y + (dy / distance) * step,
     };
+    if (isCharacterPositionBlocked(nextPosition, scene)) {
+      nextStates[character.id] = {
+        ...current,
+        isMoving: false,
+        patrolIndex: targetIndex,
+        pauseUntil: getCharacterPauseUntil(character.id, targetIndex),
+      };
+      continue;
+    }
     nextStates[character.id] = {
       ...current,
       position: nextPosition,
@@ -905,6 +915,24 @@ function moveCharacters(state: GameState, delta: number) {
     };
   }
   return nextStates;
+}
+
+function isCharacterPositionBlocked(position: Position, scene: Scene) {
+  if (
+    position.x < 1.2 ||
+    position.x > scene.width - 1.2 ||
+    position.y < 1.4 ||
+    position.y > scene.height - 1.1
+  ) {
+    return true;
+  }
+  return (
+    scene.blocks.some((block) => pointInRect(position, block)) ||
+    scene.props.some(
+      (prop) =>
+        prop.collision && pointInRect(position, getVisiblePropRect(prop)),
+    )
+  );
 }
 
 function getCharacterPauseUntil(characterId: string, step: number) {

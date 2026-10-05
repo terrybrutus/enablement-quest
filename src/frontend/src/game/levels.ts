@@ -895,19 +895,26 @@ export const characters: GameCharacter[] = [
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
-        "Atlas Pro is harder to sell than Atlas Core. The demo looks good, but the buyer conversation changes fast.",
-        "Managers keep saying we need more training. Maybe. But I think we need to understand which part of the sales motion is actually breaking.",
+        "You must be the enablement partner Elena pulled into the Atlas Pro issue. Good timing.",
+        "Before you chase another training request, talk to Leo in the Sales Enablement Studio. He has the leadership ask and the sales artifacts.",
+        "My read from the floor: reps can show the product, but the conversation gets shaky when buyers ask why the advanced features matter to their business.",
       ],
       investigate: [
-        "Customers ask smart questions. The harder part is finding the business reason they should care before we show the advanced features.",
+        "When you review the evidence, separate demo activity from deal progress. A clean walkthrough is not the same thing as a qualified next step.",
+        "Listen for whether reps connect Atlas Pro to the buyer's business problem before they explain features.",
       ],
       diagnose: [
-        "If you only look at training attendance, you will miss what happens in live deals.",
+        "If your diagnosis only says 'more product training,' it will miss the field reality.",
+        "The better question is whether reps know the product, can run discovery, and get coached on the moments where deals stall.",
       ],
       design: [
-        "Give us practice, better discovery prompts, and coaching that managers can actually use after calls.",
+        "Whatever you recommend, make it useful in live deals: discovery prompts, practice scenarios, and manager coaching notes after calls.",
+        "The team does not need another deck nobody uses. We need something that changes the next customer conversation.",
       ],
-      complete: ["That recommendation sounds like the real sales floor."],
+      complete: [
+        "That recommendation sounds like the real sales floor.",
+        "You tied the business problem to behavior, evidence, and coaching. That is the part leaders usually skip.",
+      ],
     },
   },
   {

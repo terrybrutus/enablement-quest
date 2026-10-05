@@ -12882,19 +12882,26 @@ const characters = [
     sprite: { image: "bobIdle", sx: 0, sy: 0, sw: 16, sh: 32 },
     dialogue: {
       briefing: [
-        "Atlas Pro is harder to sell than Atlas Core. The demo looks good, but the buyer conversation changes fast.",
-        "Managers keep saying we need more training. Maybe. But I think we need to understand which part of the sales motion is actually breaking."
+        "You must be the enablement partner Elena pulled into the Atlas Pro issue. Good timing.",
+        "Before you chase another training request, talk to Leo in the Sales Enablement Studio. He has the leadership ask and the sales artifacts.",
+        "My read from the floor: reps can show the product, but the conversation gets shaky when buyers ask why the advanced features matter to their business."
       ],
       investigate: [
-        "Customers ask smart questions. The harder part is finding the business reason they should care before we show the advanced features."
+        "When you review the evidence, separate demo activity from deal progress. A clean walkthrough is not the same thing as a qualified next step.",
+        "Listen for whether reps connect Atlas Pro to the buyer's business problem before they explain features."
       ],
       diagnose: [
-        "If you only look at training attendance, you will miss what happens in live deals."
+        "If your diagnosis only says 'more product training,' it will miss the field reality.",
+        "The better question is whether reps know the product, can run discovery, and get coached on the moments where deals stall."
       ],
       design: [
-        "Give us practice, better discovery prompts, and coaching that managers can actually use after calls."
+        "Whatever you recommend, make it useful in live deals: discovery prompts, practice scenarios, and manager coaching notes after calls.",
+        "The team does not need another deck nobody uses. We need something that changes the next customer conversation."
       ],
-      complete: ["That recommendation sounds like the real sales floor."]
+      complete: [
+        "That recommendation sounds like the real sales floor.",
+        "You tied the business problem to behavior, evidence, and coaching. That is the part leaders usually skip."
+      ]
     }
   },
   {
@@ -14445,7 +14452,7 @@ function useGameLoop({
       if (state.player.hasStarted && state.overlay === "none") {
         const ambientState = {
           ...state,
-          characterStates: moveCharacters(state, delta)
+          characterStates: moveCharacters(state, delta, sceneList)
         };
         const nextPosition = getNextPosition(
           ambientState.player.position,
@@ -14909,11 +14916,12 @@ function getCaseTransition(state, targetSceneId) {
 function isCurrentCaseBriefed(state) {
   return state.caseBriefingCompletedIds.includes(state.currentCaseId);
 }
-function moveCharacters(state, delta) {
+function moveCharacters(state, delta, sceneList) {
   var _a;
   const nextStates = {
     ...state.characterStates
   };
+  const scene = getCurrentScene(state, sceneList);
   for (const character of characters) {
     const patrol = character.patrol;
     const current = nextStates[character.id] ?? {
@@ -14959,6 +14967,15 @@ function moveCharacters(state, delta) {
       x: current.position.x + dx / distance * step,
       y: current.position.y + dy / distance * step
     };
+    if (isCharacterPositionBlocked(nextPosition, scene)) {
+      nextStates[character.id] = {
+        ...current,
+        isMoving: false,
+        patrolIndex: targetIndex,
+        pauseUntil: getCharacterPauseUntil$1(character.id, targetIndex)
+      };
+      continue;
+    }
     nextStates[character.id] = {
       ...current,
       position: nextPosition,
@@ -14968,6 +14985,14 @@ function moveCharacters(state, delta) {
     };
   }
   return nextStates;
+}
+function isCharacterPositionBlocked(position, scene) {
+  if (position.x < 1.2 || position.x > scene.width - 1.2 || position.y < 1.4 || position.y > scene.height - 1.1) {
+    return true;
+  }
+  return scene.blocks.some((block) => pointInRect(position, block)) || scene.props.some(
+    (prop) => prop.collision && pointInRect(position, getVisiblePropRect(prop))
+  );
 }
 function getCharacterPauseUntil$1(characterId, step) {
   return Date.now() + getCharacterPauseDuration$1(characterId, step);
