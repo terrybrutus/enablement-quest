@@ -2,6 +2,7 @@ import { assetUrls, characters, scenes } from "@/game/levels";
 import type {
   GameCharacter,
   Portal,
+  Position,
   Prop,
   Rect,
   Scene,
@@ -467,6 +468,7 @@ const layoutEditorPortalStorageKey = "enablementQuestRoomPortals.v1";
 const layoutEditorBlockStorageKey = "enablementQuestRoomBlocks.v1";
 const layoutEditorCharacterStorageKey = "enablementQuestCharacterSettings.v1";
 const savedLayoutLibraryStorageKey = "enablementQuestSavedRoomLayouts.v1";
+export const layoutPreviewStorageKey = "enablementQuestLayoutPreview.v1";
 const legacyLayoutEditorStorageKeys = [
   "enablementQuestRoomLayouts",
   "enablementQuestRoomLayouts.v2",
@@ -1682,6 +1684,23 @@ export function RoomLayoutEditor() {
     URL.revokeObjectURL(url);
   }
 
+  function openLivePreview() {
+    const previewScene = getPreviewScene(scene, portals, blocks, items);
+    const previewPosition = getPreviewSpawnPosition(previewScene);
+    window.localStorage.setItem(
+      layoutPreviewStorageKey,
+      JSON.stringify({
+        position: previewPosition,
+        scene: previewScene,
+      }),
+    );
+    const previewUrl = new URL(window.location.href);
+    previewUrl.search = "";
+    previewUrl.searchParams.set("layoutPreview", "1");
+    previewUrl.searchParams.set("cacheBust", Date.now().toString());
+    window.open(previewUrl.toString(), "_blank", "noopener,noreferrer");
+  }
+
   function updateSelectedPortal(patch: Partial<EditorPortal>) {
     if (!selectedPortal) {
       return;
@@ -2621,6 +2640,9 @@ export function RoomLayoutEditor() {
           </label>
 
           <div className="eq-layout-editor-actions">
+            <button type="button" onClick={openLivePreview}>
+              Play preview
+            </button>
             <button
               type="button"
               onClick={() => setShowLayersPanel((visible) => !visible)}
@@ -4917,6 +4939,69 @@ function getRenderedEditorItems(items: EditorItem[]) {
       return sortDelta || a.index - b.index;
     })
     .map(({ item }) => item);
+}
+
+function getPreviewScene(
+  scene: Scene,
+  portals: EditorPortal[],
+  blocks: EditorBlock[],
+  items: EditorItem[],
+): Scene {
+  return {
+    ...scene,
+    blocks: blocks.map((block) => block.rect),
+    portals,
+    props: items.map((item) => ({
+      id: item.id,
+      label: item.label || undefined,
+      description: item.description || undefined,
+      position: item.position,
+      size: item.size,
+      sprite: item.sprite,
+      spriteTransform: getExportTransform(item.spriteTransform),
+      collision: item.collision || undefined,
+      zIndex: item.zIndex || undefined,
+    })),
+  };
+}
+
+function getPreviewSpawnPosition(scene: Scene): Position {
+  const portal = scene.portals[0];
+  if (!portal) {
+    return {
+      x: scene.width / 2,
+      y: Math.max(1.5, scene.height - 2),
+    };
+  }
+  const center = {
+    x: portal.rect.x + portal.rect.width / 2,
+    y: portal.rect.y + portal.rect.height / 2,
+  };
+  const distances = {
+    bottom: scene.height - (portal.rect.y + portal.rect.height),
+    left: portal.rect.x,
+    right: scene.width - (portal.rect.x + portal.rect.width),
+    top: portal.rect.y,
+  };
+  const closestEdge = Object.entries(distances).sort(
+    (a, b) => a[1] - b[1],
+  )[0]?.[0];
+  if (closestEdge === "bottom") {
+    return { x: center.x, y: Math.max(1.5, portal.rect.y - 1) };
+  }
+  if (closestEdge === "top") {
+    return {
+      x: center.x,
+      y: Math.min(scene.height - 1.2, portal.rect.y + portal.rect.height + 1),
+    };
+  }
+  if (closestEdge === "left") {
+    return {
+      x: Math.min(scene.width - 1.2, portal.rect.x + portal.rect.width + 1),
+      y: center.y,
+    };
+  }
+  return { x: Math.max(1.2, portal.rect.x - 1), y: center.y };
 }
 
 function getItemVisibleFrame(

@@ -70,8 +70,9 @@ export function renderGame(
   canvas: HTMLCanvasElement,
   gameState: GameState,
   assets: LoadedAssets,
+  sceneList = scenes,
 ) {
-  const scene = getScene(gameState.player.sceneId);
+  const scene = getScene(gameState.player.sceneId, sceneList);
   const viewport = getViewport(canvas);
   const camera = getCamera(viewport, scene, gameState);
 
@@ -88,10 +89,10 @@ export function renderGame(
   drawPlayer(ctx, gameState, camera, assets);
 }
 
-function getScene(sceneId: string): Scene {
-  const scene = scenes.find((item) => item.id === sceneId);
+function getScene(sceneId: string, sceneList: Scene[]): Scene {
+  const scene = sceneList.find((item) => item.id === sceneId);
   if (!scene) {
-    return scenes[0];
+    return sceneList[0] ?? scenes[0];
   }
   return scene;
 }

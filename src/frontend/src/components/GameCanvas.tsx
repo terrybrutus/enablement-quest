@@ -17,6 +17,7 @@ import type {
   InterventionOption,
   OverlayKind,
   Position,
+  Scene,
   SceneId,
 } from "@/game/types";
 import { MOVE_SPEED } from "@/game/types";
@@ -51,8 +52,60 @@ declare global {
   }
 }
 
-function createInitialGameState(): GameState {
+interface LayoutPreviewPayload {
+  position: Position;
+  scene: Scene;
+}
+
+interface GameCanvasProps {
+  layoutPreview?: LayoutPreviewPayload | null;
+}
+
+function createInitialGameState(
+  layoutPreview?: LayoutPreviewPayload | null,
+): GameState {
   const qaScene = getQaScene();
+  if (layoutPreview) {
+    return {
+      player: {
+        position: layoutPreview.position,
+        direction: "down",
+        isMoving: false,
+        sceneId: layoutPreview.scene.id,
+        hasStarted: true,
+      },
+      currentCaseId: "sales",
+      completedCaseIds: ["onboarding"],
+      caseBriefingCompletedIds: ["sales"],
+      labEmailRead: true,
+      labBriefingCompleted: true,
+      characterStates: Object.fromEntries(
+        characters.map((character) => [
+          character.id,
+          {
+            position: character.position,
+            direction: "down",
+            patrolIndex: 0,
+            isMoving: false,
+            pauseUntil: getCharacterPauseUntil(character.id, 0),
+          },
+        ]),
+      ),
+      questStage: "briefing",
+      collectedEvidenceIds: [],
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      activeCanvasCaseId: null,
+      earnedArtifact: null,
+      overlay: "none",
+      dialogue: null,
+      toast: {
+        id: Date.now(),
+        message: "Live layout preview. Use arrows/WASD to walk around.",
+      },
+    };
+  }
   return {
     player: {
       position: qaScene?.position ?? initialPosition,
@@ -118,11 +171,22 @@ function getObjectiveDockHeight(gameState: GameState) {
   return gameState.overlay === "dialogue" ? dialogueHeight : objectiveHeight;
 }
 
-export default function GameCanvas() {
+export default function GameCanvas({ layoutPreview = null }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [assets, setAssets] = useState<LoadedAssets>({});
-  const [gameState, setGameState] = useState<GameState>(createInitialGameState);
+  const sceneList = useMemo(
+    () =>
+      layoutPreview
+        ? scenes.map((scene) =>
+            scene.id === layoutPreview.scene.id ? layoutPreview.scene : scene,
+          )
+        : scenes,
+    [layoutPreview],
+  );
+  const [gameState, setGameState] = useState<GameState>(() =>
+    createInitialGameState(layoutPreview),
+  );
   const [moveSpeed, setMoveSpeed] = useState(MOVE_SPEED);
   const gameStateRef = useRef<GameState>(gameState);
   const objectiveDockKey = `${gameState.player.hasStarted}:${gameState.overlay}`;
@@ -169,6 +233,7 @@ export default function GameCanvas() {
   const { inputRef, interact } = useGameLoop({
     gameStateRef,
     moveSpeed,
+    sceneList,
     setGameState,
   });
 
@@ -181,14 +246,14 @@ export default function GameCanvas() {
       if (canvas) {
         const context = canvas.getContext("2d");
         if (context) {
-          renderGame(context, canvas, gameStateRef.current, assets);
+          renderGame(context, canvas, gameStateRef.current, assets, sceneList);
         }
       }
       frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [assets]);
+  }, [assets, sceneList]);
 
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -224,9 +289,9 @@ export default function GameCanvas() {
 
   const currentScene = useMemo(
     () =>
-      scenes.find((scene) => scene.id === gameState.player.sceneId) ??
-      scenes[0],
-    [gameState.player.sceneId],
+      sceneList.find((scene) => scene.id === gameState.player.sceneId) ??
+      sceneList[0],
+    [gameState.player.sceneId, sceneList],
   );
 
   const activeCharacter = useMemo(() => {
@@ -586,6 +651,14 @@ export default function GameCanvas() {
         className="eq-game-canvas absolute left-0 top-0 block w-full"
         data-ocid="game.canvas_target"
       />
+
+      {layoutPreview && (
+        <div className="eq-layout-preview-banner">
+          <strong>Live Layout Preview</strong>
+          <span>{layoutPreview.scene.name}</span>
+          <a href="/?layoutEditor=1">Back to editor</a>
+        </div>
+      )}
 
       {gameState.player.hasStarted && !hasBlockingOverlay && (
         <Hud

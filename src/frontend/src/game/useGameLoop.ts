@@ -20,12 +20,14 @@ import { INTERACT_DISTANCE, TILE_SIZE } from "./types";
 interface UseGameLoopArgs {
   gameStateRef: React.MutableRefObject<GameState>;
   moveSpeed: number;
+  sceneList?: Scene[];
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
 }
 
 export function useGameLoop({
   gameStateRef,
   moveSpeed,
+  sceneList = scenes,
   setGameState,
 }: UseGameLoopArgs) {
   const inputRef = useRef<InputState>({
@@ -172,7 +174,7 @@ export function useGameLoop({
       return;
     }
 
-    const prop = getNearbyInspectableProp(state);
+    const prop = getNearbyInspectableProp(state, sceneList);
     if (prop?.description) {
       if (prop.id === "lab-canvas-workstation") {
         setGameState((previous) => ({
@@ -204,7 +206,7 @@ export function useGameLoop({
       return;
     }
 
-    const portal = getPortalAtPosition(state, state.player.position);
+    const portal = getPortalAtPosition(state, state.player.position, sceneList);
     if (portal) {
       if (portal.id === "lab-to-hub" && !state.labEmailRead) {
         setToast(
@@ -234,7 +236,7 @@ export function useGameLoop({
         return;
       }
       const caseTransition = getCaseTransition(state, portal.targetSceneId);
-      const destination = getPortalDestination(state, portal);
+      const destination = getPortalDestination(state, portal, sceneList);
       setGameState((previous) => ({
         ...previous,
         ...caseTransition,
@@ -259,6 +261,7 @@ export function useGameLoop({
     collectNearbyEvidence,
     gameStateRef,
     openNearbyCharacter,
+    sceneList,
     setGameState,
     setToast,
   ]);
@@ -281,7 +284,11 @@ export function useGameLoop({
           moveSpeed,
         );
         if (nextPosition) {
-          const nextState = moveWithinScene(ambientState, nextPosition);
+          const nextState = moveWithinScene(
+            ambientState,
+            nextPosition,
+            sceneList,
+          );
           if (nextState) {
             gameStateRef.current = nextState;
             setGameState(nextState);
@@ -308,7 +315,7 @@ export function useGameLoop({
 
       frameRef.current = requestAnimationFrame(tick);
     },
-    [gameStateRef, moveSpeed, setGameState],
+    [gameStateRef, moveSpeed, sceneList, setGameState],
   );
 
   useEffect(() => {
@@ -459,10 +466,11 @@ function getNextPosition(
 function moveWithinScene(
   state: GameState,
   nextPosition: Position,
+  sceneList: Scene[],
 ): GameState | null {
-  const scene = getCurrentScene(state);
+  const scene = getCurrentScene(state, sceneList);
   const direction = getDirection(state.player.position, nextPosition);
-  const edgePortal = getPortalAtPosition(state, nextPosition);
+  const edgePortal = getPortalAtPosition(state, nextPosition, sceneList);
   if (edgePortal) {
     if (edgePortal.id === "lab-to-hub" && !state.labEmailRead) {
       return {
@@ -514,7 +522,7 @@ function moveWithinScene(
       };
     }
     const caseTransition = getCaseTransition(state, edgePortal.targetSceneId);
-    const destination = getPortalDestination(state, edgePortal);
+    const destination = getPortalDestination(state, edgePortal, sceneList);
     return {
       ...state,
       ...caseTransition,
@@ -560,7 +568,7 @@ function moveWithinScene(
     };
   }
 
-  const portal = getPortalAtPosition(state, bounded);
+  const portal = getPortalAtPosition(state, bounded, sceneList);
   if (portal) {
     if (portal.id === "lab-to-hub" && !state.labEmailRead) {
       return {
@@ -612,7 +620,7 @@ function moveWithinScene(
       };
     }
     const caseTransition = getCaseTransition(state, portal.targetSceneId);
-    const destination = getPortalDestination(state, portal);
+    const destination = getPortalDestination(state, portal, sceneList);
     return {
       ...state,
       ...caseTransition,
@@ -656,13 +664,23 @@ function getNearbyCharacter(state: GameState) {
   });
 }
 
-function getPortalAtPosition(state: GameState, position: Position) {
-  const scene = getCurrentScene(state);
+function getPortalAtPosition(
+  state: GameState,
+  position: Position,
+  sceneList: Scene[],
+) {
+  const scene = getCurrentScene(state, sceneList);
   return scene.portals.find((portal) => pointInRect(position, portal.rect));
 }
 
-function getPortalDestination(state: GameState, portal: Portal) {
-  const targetScene = scenes.find((scene) => scene.id === portal.targetSceneId);
+function getPortalDestination(
+  state: GameState,
+  portal: Portal,
+  sceneList: Scene[],
+) {
+  const targetScene = sceneList.find(
+    (scene) => scene.id === portal.targetSceneId,
+  );
   const currentSceneId = state.player.sceneId;
   const pairedPortal = targetScene?.portals.find(
     (candidate) => candidate.targetSceneId === currentSceneId,
@@ -926,8 +944,8 @@ function faceCharacterTowardPlayer(state: GameState, characterId: string) {
   };
 }
 
-function getNearbyInspectableProp(state: GameState) {
-  const scene = getCurrentScene(state);
+function getNearbyInspectableProp(state: GameState, sceneList: Scene[]) {
+  const scene = getCurrentScene(state, sceneList);
   return scene.props.find((prop) => {
     if (!prop.description) {
       return false;
@@ -949,10 +967,10 @@ function getNearbyInspectableProp(state: GameState) {
   });
 }
 
-function getCurrentScene(state: GameState) {
-  const scene = scenes.find((item) => item.id === state.player.sceneId);
+function getCurrentScene(state: GameState, sceneList: Scene[]) {
+  const scene = sceneList.find((item) => item.id === state.player.sceneId);
   if (!scene) {
-    return scenes[0];
+    return sceneList[0] ?? scenes[0];
   }
   return scene;
 }

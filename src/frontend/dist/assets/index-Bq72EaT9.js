@@ -13404,8 +13404,8 @@ function loadGameAssets(onReady) {
     cancelled = true;
   };
 }
-function renderGame(ctx, canvas, gameState, assets) {
-  const scene = getScene(gameState.player.sceneId);
+function renderGame(ctx, canvas, gameState, assets, sceneList = scenes) {
+  const scene = getScene(gameState.player.sceneId, sceneList);
   const viewport = getViewport(canvas);
   const camera = getCamera(viewport, scene, gameState);
   ctx.imageSmoothingEnabled = false;
@@ -13419,10 +13419,10 @@ function renderGame(ctx, canvas, gameState, assets) {
   drawCharacters(ctx, scene, gameState, camera, assets);
   drawPlayer(ctx, gameState, camera, assets);
 }
-function getScene(sceneId) {
-  const scene = scenes.find((item) => item.id === sceneId);
+function getScene(sceneId, sceneList) {
+  const scene = sceneList.find((item) => item.id === sceneId);
   if (!scene) {
-    return scenes[0];
+    return sceneList[0] ?? scenes[0];
   }
   return scene;
 }
@@ -14235,6 +14235,7 @@ function clamp$2(value, min, max) {
 function useGameLoop({
   gameStateRef,
   moveSpeed,
+  sceneList = scenes,
   setGameState
 }) {
   const inputRef = reactExports.useRef({
@@ -14355,7 +14356,7 @@ function useGameLoop({
     if (openNearbyCharacter()) {
       return;
     }
-    const prop = getNearbyInspectableProp(state);
+    const prop = getNearbyInspectableProp(state, sceneList);
     if (prop == null ? void 0 : prop.description) {
       if (prop.id === "lab-canvas-workstation") {
         setGameState((previous) => ({
@@ -14386,7 +14387,7 @@ function useGameLoop({
       setToast(prop.description);
       return;
     }
-    const portal = getPortalAtPosition(state, state.player.position);
+    const portal = getPortalAtPosition(state, state.player.position, sceneList);
     if (portal) {
       if (portal.id === "lab-to-hub" && !state.labEmailRead) {
         setToast(
@@ -14411,7 +14412,7 @@ function useGameLoop({
         return;
       }
       const caseTransition = getCaseTransition(state, portal.targetSceneId);
-      const destination = getPortalDestination(state, portal);
+      const destination = getPortalDestination(state, portal, sceneList);
       setGameState((previous) => ({
         ...previous,
         ...caseTransition,
@@ -14432,6 +14433,7 @@ function useGameLoop({
     collectNearbyEvidence,
     gameStateRef,
     openNearbyCharacter,
+    sceneList,
     setGameState,
     setToast
   ]);
@@ -14452,7 +14454,11 @@ function useGameLoop({
           moveSpeed
         );
         if (nextPosition) {
-          const nextState = moveWithinScene(ambientState, nextPosition);
+          const nextState = moveWithinScene(
+            ambientState,
+            nextPosition,
+            sceneList
+          );
           if (nextState) {
             gameStateRef.current = nextState;
             setGameState(nextState);
@@ -14475,7 +14481,7 @@ function useGameLoop({
       }
       frameRef.current = requestAnimationFrame(tick);
     },
-    [gameStateRef, moveSpeed, setGameState]
+    [gameStateRef, moveSpeed, sceneList, setGameState]
   );
   reactExports.useEffect(() => {
     const handleKeyDown = (event) => {
@@ -14594,10 +14600,10 @@ function getNextPosition(position, input, delta, moveSpeed) {
     y: position.y + dy / length * speed
   };
 }
-function moveWithinScene(state, nextPosition) {
-  const scene = getCurrentScene(state);
+function moveWithinScene(state, nextPosition, sceneList) {
+  const scene = getCurrentScene(state, sceneList);
   const direction = getDirection(state.player.position, nextPosition);
-  const edgePortal = getPortalAtPosition(state, nextPosition);
+  const edgePortal = getPortalAtPosition(state, nextPosition, sceneList);
   if (edgePortal) {
     if (edgePortal.id === "lab-to-hub" && !state.labEmailRead) {
       return {
@@ -14642,7 +14648,7 @@ function moveWithinScene(state, nextPosition) {
       };
     }
     const caseTransition = getCaseTransition(state, edgePortal.targetSceneId);
-    const destination = getPortalDestination(state, edgePortal);
+    const destination = getPortalDestination(state, edgePortal, sceneList);
     return {
       ...state,
       ...caseTransition,
@@ -14682,7 +14688,7 @@ function moveWithinScene(state, nextPosition) {
       }
     };
   }
-  const portal = getPortalAtPosition(state, bounded);
+  const portal = getPortalAtPosition(state, bounded, sceneList);
   if (portal) {
     if (portal.id === "lab-to-hub" && !state.labEmailRead) {
       return {
@@ -14727,7 +14733,7 @@ function moveWithinScene(state, nextPosition) {
       };
     }
     const caseTransition = getCaseTransition(state, portal.targetSceneId);
-    const destination = getPortalDestination(state, portal);
+    const destination = getPortalDestination(state, portal, sceneList);
     return {
       ...state,
       ...caseTransition,
@@ -14763,12 +14769,14 @@ function getNearbyCharacter(state) {
     ) < INTERACT_DISTANCE;
   });
 }
-function getPortalAtPosition(state, position) {
-  const scene = getCurrentScene(state);
+function getPortalAtPosition(state, position, sceneList) {
+  const scene = getCurrentScene(state, sceneList);
   return scene.portals.find((portal) => pointInRect(position, portal.rect));
 }
-function getPortalDestination(state, portal) {
-  const targetScene = scenes.find((scene) => scene.id === portal.targetSceneId);
+function getPortalDestination(state, portal, sceneList) {
+  const targetScene = sceneList.find(
+    (scene) => scene.id === portal.targetSceneId
+  );
   const currentSceneId = state.player.sceneId;
   const pairedPortal = targetScene == null ? void 0 : targetScene.portals.find(
     (candidate) => candidate.targetSceneId === currentSceneId
@@ -14993,8 +15001,8 @@ function faceCharacterTowardPlayer(state, characterId) {
     }
   };
 }
-function getNearbyInspectableProp(state) {
-  const scene = getCurrentScene(state);
+function getNearbyInspectableProp(state, sceneList) {
+  const scene = getCurrentScene(state, sceneList);
   return scene.props.find((prop) => {
     if (!prop.description) {
       return false;
@@ -15008,10 +15016,10 @@ function getNearbyInspectableProp(state) {
     return distanceInPixels(state.player.position, center) < interactionDistance;
   });
 }
-function getCurrentScene(state) {
-  const scene = scenes.find((item) => item.id === state.player.sceneId);
+function getCurrentScene(state, sceneList) {
+  const scene = sceneList.find((item) => item.id === state.player.sceneId);
   if (!scene) {
-    return scenes[0];
+    return sceneList[0] ?? scenes[0];
   }
   return scene;
 }
@@ -16041,8 +16049,49 @@ function TitleScreen({ onStart }) {
     ] })
   ] });
 }
-function createInitialGameState() {
+function createInitialGameState(layoutPreview) {
   const qaScene = getQaScene();
+  if (layoutPreview) {
+    return {
+      player: {
+        position: layoutPreview.position,
+        direction: "down",
+        isMoving: false,
+        sceneId: layoutPreview.scene.id,
+        hasStarted: true
+      },
+      currentCaseId: "sales",
+      completedCaseIds: ["onboarding"],
+      caseBriefingCompletedIds: ["sales"],
+      labEmailRead: true,
+      labBriefingCompleted: true,
+      characterStates: Object.fromEntries(
+        characters.map((character) => [
+          character.id,
+          {
+            position: character.position,
+            direction: "down",
+            patrolIndex: 0,
+            isMoving: false,
+            pauseUntil: getCharacterPauseUntil(character.id, 0)
+          }
+        ])
+      ),
+      questStage: "briefing",
+      collectedEvidenceIds: [],
+      diagnosisId: null,
+      interventionId: null,
+      activeEvidenceId: null,
+      activeCanvasCaseId: null,
+      earnedArtifact: null,
+      overlay: "none",
+      dialogue: null,
+      toast: {
+        id: Date.now(),
+        message: "Live layout preview. Use arrows/WASD to walk around."
+      }
+    };
+  }
   return {
     player: {
       position: (qaScene == null ? void 0 : qaScene.position) ?? initialPosition,
@@ -16102,12 +16151,20 @@ function getObjectiveDockHeight(gameState) {
   const dialogueHeight = window.innerWidth <= 780 ? 170 : 164;
   return gameState.overlay === "dialogue" ? dialogueHeight : objectiveHeight;
 }
-function GameCanvas() {
+function GameCanvas({ layoutPreview = null }) {
   var _a;
   const canvasRef = reactExports.useRef(null);
   const containerRef = reactExports.useRef(null);
   const [assets, setAssets] = reactExports.useState({});
-  const [gameState, setGameState] = reactExports.useState(createInitialGameState);
+  const sceneList = reactExports.useMemo(
+    () => layoutPreview ? scenes.map(
+      (scene) => scene.id === layoutPreview.scene.id ? layoutPreview.scene : scene
+    ) : scenes,
+    [layoutPreview]
+  );
+  const [gameState, setGameState] = reactExports.useState(
+    () => createInitialGameState(layoutPreview)
+  );
   const [moveSpeed, setMoveSpeed] = reactExports.useState(MOVE_SPEED);
   const gameStateRef = reactExports.useRef(gameState);
   const objectiveDockKey = `${gameState.player.hasStarted}:${gameState.overlay}`;
@@ -16148,6 +16205,7 @@ function GameCanvas() {
   const { inputRef, interact } = useGameLoop({
     gameStateRef,
     moveSpeed,
+    sceneList,
     setGameState
   });
   reactExports.useEffect(() => loadGameAssets(setAssets), []);
@@ -16158,14 +16216,14 @@ function GameCanvas() {
       if (canvas) {
         const context = canvas.getContext("2d");
         if (context) {
-          renderGame(context, canvas, gameStateRef.current, assets);
+          renderGame(context, canvas, gameStateRef.current, assets, sceneList);
         }
       }
       frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [assets]);
+  }, [assets, sceneList]);
   const resizeCanvas = reactExports.useCallback(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -16196,8 +16254,8 @@ function GameCanvas() {
     resizeCanvas();
   }, [objectiveDockKey, resizeCanvas]);
   const currentScene = reactExports.useMemo(
-    () => scenes.find((scene) => scene.id === gameState.player.sceneId) ?? scenes[0],
-    [gameState.player.sceneId]
+    () => sceneList.find((scene) => scene.id === gameState.player.sceneId) ?? sceneList[0],
+    [gameState.player.sceneId, sceneList]
   );
   const activeCharacter = reactExports.useMemo(() => {
     if (!gameState.dialogue) {
@@ -16520,6 +16578,11 @@ function GameCanvas() {
             "data-ocid": "game.canvas_target"
           }
         ),
+        layoutPreview && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-preview-banner", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Live Layout Preview" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: layoutPreview.scene.name }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: "/?layoutEditor=1", children: "Back to editor" })
+        ] }),
         gameState.player.hasStarted && !hasBlockingOverlay && /* @__PURE__ */ jsxRuntimeExports.jsx(
           Hud,
           {
@@ -17960,6 +18023,7 @@ const layoutEditorPortalStorageKey = "enablementQuestRoomPortals.v1";
 const layoutEditorBlockStorageKey = "enablementQuestRoomBlocks.v1";
 const layoutEditorCharacterStorageKey = "enablementQuestCharacterSettings.v1";
 const savedLayoutLibraryStorageKey = "enablementQuestSavedRoomLayouts.v1";
+const layoutPreviewStorageKey = "enablementQuestLayoutPreview.v1";
 const legacyLayoutEditorStorageKeys = [
   "enablementQuestRoomLayouts",
   "enablementQuestRoomLayouts.v2"
@@ -19053,6 +19117,22 @@ function RoomLayoutEditor() {
     link.click();
     URL.revokeObjectURL(url);
   }
+  function openLivePreview() {
+    const previewScene = getPreviewScene(scene, portals, blocks, items);
+    const previewPosition = getPreviewSpawnPosition(previewScene);
+    window.localStorage.setItem(
+      layoutPreviewStorageKey,
+      JSON.stringify({
+        position: previewPosition,
+        scene: previewScene
+      })
+    );
+    const previewUrl = new URL(window.location.href);
+    previewUrl.search = "";
+    previewUrl.searchParams.set("layoutPreview", "1");
+    previewUrl.searchParams.set("cacheBust", Date.now().toString());
+    window.open(previewUrl.toString(), "_blank", "noopener,noreferrer");
+  }
   function updateSelectedPortal(patch) {
     if (!selectedPortal) {
       return;
@@ -19813,6 +19893,7 @@ function RoomLayoutEditor() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: openLivePreview, children: "Play preview" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
             {
@@ -21853,6 +21934,63 @@ function getRenderedEditorItems(items) {
     return sortDelta || a.index - b.index;
   }).map(({ item }) => item);
 }
+function getPreviewScene(scene, portals, blocks, items) {
+  return {
+    ...scene,
+    blocks: blocks.map((block) => block.rect),
+    portals,
+    props: items.map((item) => ({
+      id: item.id,
+      label: item.label || void 0,
+      description: item.description || void 0,
+      position: item.position,
+      size: item.size,
+      sprite: item.sprite,
+      spriteTransform: getExportTransform(item.spriteTransform),
+      collision: item.collision || void 0,
+      zIndex: item.zIndex || void 0
+    }))
+  };
+}
+function getPreviewSpawnPosition(scene) {
+  var _a;
+  const portal = scene.portals[0];
+  if (!portal) {
+    return {
+      x: scene.width / 2,
+      y: Math.max(1.5, scene.height - 2)
+    };
+  }
+  const center = {
+    x: portal.rect.x + portal.rect.width / 2,
+    y: portal.rect.y + portal.rect.height / 2
+  };
+  const distances = {
+    bottom: scene.height - (portal.rect.y + portal.rect.height),
+    left: portal.rect.x,
+    right: scene.width - (portal.rect.x + portal.rect.width),
+    top: portal.rect.y
+  };
+  const closestEdge = (_a = Object.entries(distances).sort(
+    (a, b) => a[1] - b[1]
+  )[0]) == null ? void 0 : _a[0];
+  if (closestEdge === "bottom") {
+    return { x: center.x, y: Math.max(1.5, portal.rect.y - 1) };
+  }
+  if (closestEdge === "top") {
+    return {
+      x: center.x,
+      y: Math.min(scene.height - 1.2, portal.rect.y + portal.rect.height + 1)
+    };
+  }
+  if (closestEdge === "left") {
+    return {
+      x: Math.min(scene.width - 1.2, portal.rect.x + portal.rect.width + 1),
+      y: center.y
+    };
+  }
+  return { x: Math.max(1.2, portal.rect.x - 1), y: center.y };
+}
 function getItemVisibleFrame(item, spriteAlphaBounds = {}) {
   const alphaBounds = spriteAlphaBounds[getSpriteAlphaBoundsKey(item.sprite)] ?? getDefaultSpriteAlphaBounds(item.sprite);
   const scale = Math.min(
@@ -22107,10 +22245,26 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 function App() {
-  if (new URLSearchParams(window.location.search).has("layoutEditor")) {
+  const searchParams = new URLSearchParams(window.location.search);
+  if (searchParams.has("layoutEditor")) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(RoomLayoutEditor, {});
   }
+  if (searchParams.has("layoutPreview")) {
+    const preview = getLayoutPreviewPayload();
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(GameCanvas, { layoutPreview: preview });
+  }
   return /* @__PURE__ */ jsxRuntimeExports.jsx(GameCanvas, {});
+}
+function getLayoutPreviewPayload() {
+  const saved = window.localStorage.getItem(layoutPreviewStorageKey);
+  if (!saved) {
+    return null;
+  }
+  try {
+    return JSON.parse(saved);
+  } catch {
+    return null;
+  }
 }
 BigInt.prototype.toJSON = function() {
   return this.toString();
