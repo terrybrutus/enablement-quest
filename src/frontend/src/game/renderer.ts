@@ -783,10 +783,11 @@ function drawPropSprite(
 
 function getPropSortValue(prop: Scene["props"][number]) {
   const base = prop.position.y + prop.size.height;
+  const layer = prop.zIndex ?? 0;
   if (prop.id === "mission-backpack") {
-    return base + 10;
+    return layer * 1000 + base + 10;
   }
-  return base;
+  return layer * 1000 + base;
 }
 
 function drawEmailNotification(

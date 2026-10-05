@@ -26,6 +26,7 @@ interface EditorItem {
   size: { width: number; height: number };
   sprite: SheetSprite;
   spriteTransform?: SpriteTransform;
+  zIndex?: number;
 }
 
 interface EditorPortal extends Portal {}
@@ -583,6 +584,7 @@ function propToEditorItem(prop: Prop): EditorItem {
     size: prop.size,
     sprite: prop.sprite ?? presets[0].sprite,
     spriteTransform: prop.spriteTransform,
+    zIndex: prop.zIndex,
   };
 }
 
@@ -1178,6 +1180,7 @@ export function RoomLayoutEditor() {
     "Complete Starter Objects",
   );
   const [assetSearch, setAssetSearch] = useState("");
+  const [showGamePreviewOrder, setShowGamePreviewOrder] = useState(true);
   const [showWalkBlocks, setShowWalkBlocks] = useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] =
     useState(true);
@@ -1330,6 +1333,10 @@ export function RoomLayoutEditor() {
     items: EditorItem[];
   } | null>(null);
   const groupOverlays = useMemo(() => getGroupOverlays(items), [items]);
+  const renderedItems = useMemo(
+    () => getRenderedEditorItems(items, showGamePreviewOrder),
+    [items, showGamePreviewOrder],
+  );
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -1945,12 +1952,15 @@ export function RoomLayoutEditor() {
       return;
     }
     const selectedSet = new Set(selectedIds);
-    const selectedInOrder = items.filter((item) => selectedSet.has(item.id));
-    const unselectedInOrder = items.filter((item) => !selectedSet.has(item.id));
-    updateItems(
+    const layers = items.map((item) => item.zIndex ?? 0);
+    const nextLayer =
       direction === "front"
-        ? [...unselectedInOrder, ...selectedInOrder]
-        : [...selectedInOrder, ...unselectedInOrder],
+        ? Math.max(0, ...layers) + 1
+        : Math.min(0, ...layers) - 1;
+    updateItems(
+      items.map((item) =>
+        selectedSet.has(item.id) ? { ...item, zIndex: nextLayer } : item,
+      ),
     );
   }
 
@@ -2428,6 +2438,7 @@ export function RoomLayoutEditor() {
         sprite: item.sprite,
         spriteTransform: getExportTransform(item.spriteTransform),
         collision: item.collision || undefined,
+        zIndex: item.zIndex || undefined,
       })),
     },
     null,
@@ -2476,6 +2487,17 @@ export function RoomLayoutEditor() {
               onChange={(event) => setShowWalkBlocks(event.target.checked)}
             />
             Show walk-block zones
+          </label>
+
+          <label className="eq-layout-editor-checkbox">
+            <input
+              checked={showGamePreviewOrder}
+              type="checkbox"
+              onChange={(event) =>
+                setShowGamePreviewOrder(event.target.checked)
+              }
+            />
+            Preview game stacking order
           </label>
 
           <label className="eq-layout-editor-checkbox">
@@ -2821,7 +2843,7 @@ export function RoomLayoutEditor() {
                   }
                 />
               ))}
-              {items.map((item) => (
+              {renderedItems.map((item) => (
                 <DraggableItem
                   isEditingLabel={
                     editingLabel?.kind === "item" && editingLabel.id === item.id
@@ -3154,6 +3176,12 @@ export function RoomLayoutEditor() {
                       size: { ...selectedItem.size, height: value },
                     })
                   }
+                />
+                <NumberField
+                  label="Layer"
+                  step={1}
+                  value={selectedItem.zIndex ?? 0}
+                  onChange={(value) => updateSelected({ zIndex: value })}
                 />
               </div>
               <label className="eq-layout-editor-checkbox">
@@ -4277,6 +4305,27 @@ function getDefaultSizeForItem(item: EditorItem) {
     height: Math.max(0.25, item.sprite.sh / TILE_SIZE),
     width: Math.max(0.25, item.sprite.sw / TILE_SIZE),
   };
+}
+
+function getEditorItemSortValue(item: EditorItem) {
+  return (item.zIndex ?? 0) * 1000 + item.position.y + item.size.height;
+}
+
+function getRenderedEditorItems(
+  items: EditorItem[],
+  useGamePreviewOrder: boolean,
+) {
+  if (!useGamePreviewOrder) {
+    return items;
+  }
+  return items
+    .map((item, index) => ({ index, item }))
+    .sort((a, b) => {
+      const sortDelta =
+        getEditorItemSortValue(a.item) - getEditorItemSortValue(b.item);
+      return sortDelta || a.index - b.index;
+    })
+    .map(({ item }) => item);
 }
 
 function getItemsBounds(items: EditorItem[]) {

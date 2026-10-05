@@ -13930,10 +13930,11 @@ function drawPropSprite(ctx, assets, sprite, x, y, width, height, transform) {
 }
 function getPropSortValue(prop) {
   const base = prop.position.y + prop.size.height;
+  const layer = prop.zIndex ?? 0;
   if (prop.id === "mission-backpack") {
-    return base + 10;
+    return layer * 1e3 + base + 10;
   }
-  return base;
+  return layer * 1e3 + base;
 }
 function drawEmailNotification(ctx, x, y) {
   const pulse = Math.sin(Date.now() / 260) * 1.2;
@@ -18064,7 +18065,8 @@ function propToEditorItem(prop) {
     presetId: (matchingPreset == null ? void 0 : matchingPreset.id) ?? "custom",
     size: prop.size,
     sprite: prop.sprite ?? presets[0].sprite,
-    spriteTransform: prop.spriteTransform
+    spriteTransform: prop.spriteTransform,
+    zIndex: prop.zIndex
   };
 }
 function createItem(preset, index2) {
@@ -18623,6 +18625,7 @@ function RoomLayoutEditor() {
     "Complete Starter Objects"
   );
   const [assetSearch, setAssetSearch] = reactExports.useState("");
+  const [showGamePreviewOrder, setShowGamePreviewOrder] = reactExports.useState(true);
   const [showWalkBlocks, setShowWalkBlocks] = reactExports.useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] = reactExports.useState(true);
   const [playerScaleReferencePosition, setPlayerScaleReferencePosition] = reactExports.useState({ x: 1.5, y: 9.8 });
@@ -18749,6 +18752,10 @@ function RoomLayoutEditor() {
   );
   const selectionResizeStartRef = reactExports.useRef(null);
   const groupOverlays = reactExports.useMemo(() => getGroupOverlays(items), [items]);
+  const renderedItems = reactExports.useMemo(
+    () => getRenderedEditorItems(items, showGamePreviewOrder),
+    [items, showGamePreviewOrder]
+  );
   reactExports.useEffect(() => {
     window.localStorage.setItem(
       layoutEditorStorageKey,
@@ -19245,10 +19252,12 @@ function RoomLayoutEditor() {
       return;
     }
     const selectedSet = new Set(selectedIds);
-    const selectedInOrder = items.filter((item) => selectedSet.has(item.id));
-    const unselectedInOrder = items.filter((item) => !selectedSet.has(item.id));
+    const layers = items.map((item) => item.zIndex ?? 0);
+    const nextLayer = direction === "front" ? Math.max(0, ...layers) + 1 : Math.min(0, ...layers) - 1;
     updateItems(
-      direction === "front" ? [...unselectedInOrder, ...selectedInOrder] : [...selectedInOrder, ...unselectedInOrder]
+      items.map(
+        (item) => selectedSet.has(item.id) ? { ...item, zIndex: nextLayer } : item
+      )
     );
   }
   function groupSelected() {
@@ -19645,7 +19654,8 @@ function RoomLayoutEditor() {
         size: roundSize(item.size),
         sprite: item.sprite,
         spriteTransform: getExportTransform(item.spriteTransform),
-        collision: item.collision || void 0
+        collision: item.collision || void 0,
+        zIndex: item.zIndex || void 0
       }))
     },
     null,
@@ -19677,6 +19687,17 @@ function RoomLayoutEditor() {
             }
           ),
           "Show walk-block zones"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              checked: showGamePreviewOrder,
+              type: "checkbox",
+              onChange: (event) => setShowGamePreviewOrder(event.target.checked)
+            }
+          ),
+          "Preview game stacking order"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -19989,7 +20010,7 @@ function RoomLayoutEditor() {
                     },
                     group.groupId
                   )),
-                  items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  renderedItems.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsx(
                     DraggableItem,
                     {
                       isEditingLabel: (editingLabel == null ? void 0 : editingLabel.kind) === "item" && editingLabel.id === item.id,
@@ -20319,6 +20340,15 @@ function RoomLayoutEditor() {
                 onChange: (value) => updateSelected({
                   size: { ...selectedItem.size, height: value }
                 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              NumberField,
+              {
+                label: "Layer",
+                step: 1,
+                value: selectedItem.zIndex ?? 0,
+                onChange: (value) => updateSelected({ zIndex: value })
               }
             )
           ] }),
@@ -21276,6 +21306,18 @@ function getDefaultSizeForItem(item) {
     height: Math.max(0.25, item.sprite.sh / TILE_SIZE),
     width: Math.max(0.25, item.sprite.sw / TILE_SIZE)
   };
+}
+function getEditorItemSortValue(item) {
+  return (item.zIndex ?? 0) * 1e3 + item.position.y + item.size.height;
+}
+function getRenderedEditorItems(items, useGamePreviewOrder) {
+  if (!useGamePreviewOrder) {
+    return items;
+  }
+  return items.map((item, index2) => ({ index: index2, item })).sort((a, b) => {
+    const sortDelta = getEditorItemSortValue(a.item) - getEditorItemSortValue(b.item);
+    return sortDelta || a.index - b.index;
+  }).map(({ item }) => item);
 }
 function getItemsBounds(items) {
   if (items.length === 0) {

@@ -77,6 +77,7 @@ export interface Prop {
   spriteTransform?: SpriteTransform;
   collision?: boolean;
   glow?: boolean;
+  zIndex?: number;
 }
 
 export interface Evidence {
