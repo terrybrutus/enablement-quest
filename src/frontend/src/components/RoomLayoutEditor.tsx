@@ -109,6 +109,13 @@ interface ContextMenuPosition {
   top: number;
 }
 
+interface SpriteAlphaBounds {
+  height: number;
+  width: number;
+  x: number;
+  y: number;
+}
+
 type EditingLabel =
   | { id: string; kind: "item" }
   | { groupId: string; kind: "group" }
@@ -161,6 +168,8 @@ const spriteSources: Record<
     width: 768,
   },
 };
+
+const spriteImagePromises = new Map<string, Promise<HTMLImageElement>>();
 
 const starterAssetNumbers = [
   98, 99, 100, 101, 102, 107, 108, 113, 116, 129, 130, 141, 147, 156, 165, 166,
@@ -1320,6 +1329,9 @@ export function RoomLayoutEditor() {
   const [contextMenu, setContextMenu] = useState<EditorContextMenu | null>(
     null,
   );
+  const [spriteAlphaBounds, setSpriteAlphaBounds] = useState<
+    Record<string, SpriteAlphaBounds>
+  >({});
   const clipboardRef = useRef<EditorClipboard | null>(null);
   const stageViewportRef = useRef<HTMLDivElement | null>(null);
   const panStateRef = useRef<{
@@ -1338,15 +1350,18 @@ export function RoomLayoutEditor() {
   const selectedBlock =
     blocks.find((block) => block.id === selectedBlockId) ?? null;
   const selectedBounds = useMemo(
-    () => getItemsBounds(selectedItems),
-    [selectedItems],
+    () => getItemsBounds(selectedItems, spriteAlphaBounds),
+    [selectedItems, spriteAlphaBounds],
   );
   const selectionResizeStartRef = useRef<{
     bounds: EditorBounds;
     itemIds: string[];
     items: EditorItem[];
   } | null>(null);
-  const groupOverlays = useMemo(() => getGroupOverlays(items), [items]);
+  const groupOverlays = useMemo(
+    () => getGroupOverlays(items, spriteAlphaBounds),
+    [items, spriteAlphaBounds],
+  );
   const renderedItems = useMemo(() => getRenderedEditorItems(items), [items]);
 
   useEffect(() => {
@@ -1383,6 +1398,37 @@ export function RoomLayoutEditor() {
       JSON.stringify(savedLayouts),
     );
   }, [savedLayouts]);
+
+  useEffect(() => {
+    const uniqueSprites = new Map<string, SheetSprite>();
+    for (const item of items) {
+      const key = getSpriteAlphaBoundsKey(item.sprite);
+      if (!spriteAlphaBounds[key]) {
+        uniqueSprites.set(key, item.sprite);
+      }
+    }
+    if (uniqueSprites.size === 0) {
+      return;
+    }
+    let cancelled = false;
+    void Promise.all(
+      Array.from(uniqueSprites.entries()).map(async ([key, sprite]) => {
+        const bounds = await getSpriteAlphaBounds(sprite);
+        return [key, bounds] as const;
+      }),
+    ).then((entries) => {
+      if (cancelled) {
+        return;
+      }
+      setSpriteAlphaBounds((previous) => ({
+        ...previous,
+        ...Object.fromEntries(entries),
+      }));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [items, spriteAlphaBounds]);
 
   useEffect(() => {
     function handleKeyDown(event: globalThis.KeyboardEvent) {
@@ -2107,7 +2153,7 @@ export function RoomLayoutEditor() {
       return { dx: 0, dy: 0 };
     }
     const movingItems = items.filter((item) => itemIds.includes(item.id));
-    const movingBounds = getItemsBounds(movingItems);
+    const movingBounds = getItemsBounds(movingItems, spriteAlphaBounds);
     if (!movingBounds) {
       return { dx: 0, dy: 0 };
     }
@@ -2173,7 +2219,7 @@ export function RoomLayoutEditor() {
     saveSnapshot = true,
   ) {
     const selectedForResize = items.filter((item) => itemIds.includes(item.id));
-    const bounds = getItemsBounds(selectedForResize);
+    const bounds = getItemsBounds(selectedForResize, spriteAlphaBounds);
     if (!bounds || (dx === 0 && dy === 0)) {
       return;
     }
@@ -2421,7 +2467,7 @@ export function RoomLayoutEditor() {
     const maxY = Math.max(box.start.y, box.end.y);
     const nextIds = items
       .filter((item) => {
-        const bounds = getItemVisibleBounds(item);
+        const bounds = getItemVisibleBounds(item, spriteAlphaBounds);
         const itemMinX = bounds.position.x * TILE_SIZE;
         const itemMaxX = (bounds.position.x + bounds.size.width) * TILE_SIZE;
         const itemMinY = bounds.position.y * TILE_SIZE;
@@ -2889,6 +2935,7 @@ export function RoomLayoutEditor() {
                   isSelected={selectedIds.includes(item.id)}
                   item={item}
                   key={item.id}
+                  spriteAlphaBounds={spriteAlphaBounds}
                   onCancelLabelEdit={() => setEditingLabel(null)}
                   showResizeHandles={
                     selectedIds.length === 1 && selectedIds.includes(item.id)
@@ -3857,6 +3904,7 @@ function DraggableItem({
   isEditingLabel,
   isSelected,
   item,
+  spriteAlphaBounds,
   onCancelLabelEdit,
   onCopyDragStart,
   onDragStart,
@@ -3873,6 +3921,7 @@ function DraggableItem({
   isEditingLabel: boolean;
   isSelected: boolean;
   item: EditorItem;
+  spriteAlphaBounds: Record<string, SpriteAlphaBounds>;
   onCancelLabelEdit: () => void;
   onCopyDragStart: () => string[];
   onDragStart: () => void;
@@ -3906,7 +3955,7 @@ function DraggableItem({
     lastClientY: number;
     savedHistory: boolean;
   } | null>(null);
-  const visibleFrame = getItemVisibleFrame(item);
+  const visibleFrame = getItemVisibleFrame(item, spriteAlphaBounds);
   const visibleFrameStyle: CSSProperties = {
     height: visibleFrame.size.height * TILE_SIZE,
     left: visibleFrame.offset.x * TILE_SIZE,
@@ -4620,6 +4669,92 @@ function getSpriteSource(sprite: SheetSprite) {
   };
 }
 
+function getSpriteAlphaBoundsKey(sprite: SheetSprite) {
+  return [sprite.image, sprite.sx, sprite.sy, sprite.sw, sprite.sh].join(":");
+}
+
+function getDefaultSpriteAlphaBounds(sprite: SheetSprite): SpriteAlphaBounds {
+  return {
+    height: sprite.sh,
+    width: sprite.sw,
+    x: 0,
+    y: 0,
+  };
+}
+
+async function getSpriteAlphaBounds(
+  sprite: SheetSprite,
+): Promise<SpriteAlphaBounds> {
+  const fallback = getDefaultSpriteAlphaBounds(sprite);
+  const cropWidth = Math.max(1, Math.ceil(sprite.sw));
+  const cropHeight = Math.max(1, Math.ceil(sprite.sh));
+  const canvas = document.createElement("canvas");
+  canvas.width = cropWidth;
+  canvas.height = cropHeight;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) {
+    return fallback;
+  }
+  try {
+    const source = getSpriteSource(sprite);
+    const image = await loadSpriteImage(source.url);
+    context.drawImage(
+      image,
+      sprite.sx,
+      sprite.sy,
+      sprite.sw,
+      sprite.sh,
+      0,
+      0,
+      cropWidth,
+      cropHeight,
+    );
+    const pixels = context.getImageData(0, 0, cropWidth, cropHeight).data;
+    let minX = cropWidth;
+    let minY = cropHeight;
+    let maxX = -1;
+    let maxY = -1;
+    for (let row = 0; row < cropHeight; row += 1) {
+      for (let col = 0; col < cropWidth; col += 1) {
+        const alpha = pixels[(row * cropWidth + col) * 4 + 3];
+        if (alpha <= 8) {
+          continue;
+        }
+        minX = Math.min(minX, col);
+        minY = Math.min(minY, row);
+        maxX = Math.max(maxX, col);
+        maxY = Math.max(maxY, row);
+      }
+    }
+    if (maxX < minX || maxY < minY) {
+      return fallback;
+    }
+    return {
+      height: maxY - minY + 1,
+      width: maxX - minX + 1,
+      x: minX,
+      y: minY,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function loadSpriteImage(url: string) {
+  const existing = spriteImagePromises.get(url);
+  if (existing) {
+    return existing;
+  }
+  const promise = new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Unable to load ${url}`));
+    image.src = url;
+  });
+  spriteImagePromises.set(url, promise);
+  return promise;
+}
+
 function NumberField({
   label,
   onChange,
@@ -4710,24 +4845,36 @@ function getRenderedEditorItems(items: EditorItem[]) {
     .map(({ item }) => item);
 }
 
-function getItemVisibleFrame(item: EditorItem) {
+function getItemVisibleFrame(
+  item: EditorItem,
+  spriteAlphaBounds: Record<string, SpriteAlphaBounds> = {},
+) {
+  const alphaBounds =
+    spriteAlphaBounds[getSpriteAlphaBoundsKey(item.sprite)] ??
+    getDefaultSpriteAlphaBounds(item.sprite);
   const scale = Math.min(
     item.size.width / item.sprite.sw,
     item.size.height / item.sprite.sh,
   );
-  const width = item.sprite.sw * scale;
-  const height = item.sprite.sh * scale;
+  const cropWidth = item.sprite.sw * scale;
+  const cropHeight = item.sprite.sh * scale;
   return {
     offset: {
-      x: (item.size.width - width) / 2,
-      y: (item.size.height - height) / 2,
+      x: (item.size.width - cropWidth) / 2 + alphaBounds.x * scale,
+      y: (item.size.height - cropHeight) / 2 + alphaBounds.y * scale,
     },
-    size: { height, width },
+    size: {
+      height: alphaBounds.height * scale,
+      width: alphaBounds.width * scale,
+    },
   };
 }
 
-function getItemVisibleBounds(item: EditorItem) {
-  const frame = getItemVisibleFrame(item);
+function getItemVisibleBounds(
+  item: EditorItem,
+  spriteAlphaBounds: Record<string, SpriteAlphaBounds> = {},
+) {
+  const frame = getItemVisibleFrame(item, spriteAlphaBounds);
   return {
     position: {
       x: item.position.x + frame.offset.x,
@@ -4737,11 +4884,16 @@ function getItemVisibleBounds(item: EditorItem) {
   };
 }
 
-function getItemsBounds(items: EditorItem[]) {
+function getItemsBounds(
+  items: EditorItem[],
+  spriteAlphaBounds: Record<string, SpriteAlphaBounds> = {},
+) {
   if (items.length === 0) {
     return null;
   }
-  const visibleBounds = items.map((item) => getItemVisibleBounds(item));
+  const visibleBounds = items.map((item) =>
+    getItemVisibleBounds(item, spriteAlphaBounds),
+  );
   const minX = Math.min(...visibleBounds.map((bounds) => bounds.position.x));
   const minY = Math.min(...visibleBounds.map((bounds) => bounds.position.y));
   const maxX = Math.max(
@@ -4792,7 +4944,10 @@ function getContextMenuPosition(
   return { left, maxHeight, top };
 }
 
-function getGroupOverlays(items: EditorItem[]) {
+function getGroupOverlays(
+  items: EditorItem[],
+  spriteAlphaBounds: Record<string, SpriteAlphaBounds> = {},
+) {
   const itemsByGroup = new Map<string, EditorItem[]>();
   for (const item of items) {
     if (!item.groupId || !item.groupLabel) {
@@ -4805,7 +4960,7 @@ function getGroupOverlays(items: EditorItem[]) {
   }
   return Array.from(itemsByGroup.entries())
     .map(([groupId, groupItems]) => {
-      const bounds = getItemsBounds(groupItems);
+      const bounds = getItemsBounds(groupItems, spriteAlphaBounds);
       const label = groupItems.find((item) => item.groupLabel)?.groupLabel;
       if (!bounds || !label) {
         return null;
