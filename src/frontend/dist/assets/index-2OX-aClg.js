@@ -12552,7 +12552,7 @@ const scenes = [
           height: 0.65,
           width: 1.2,
           x: 12.9,
-          y: 12.1
+          y: 12.35
         },
         targetSceneId: "hub",
         targetPosition: {
@@ -12591,8 +12591,8 @@ const scenes = [
       {
         id: "sales-coaching-plant",
         position: {
-          x: 2.1,
-          y: 1.8
+          x: 0.35,
+          y: 1.05
         },
         size: {
           height: 2.2,
@@ -12643,7 +12643,8 @@ const scenes = [
           sw: 48,
           sh: 48
         },
-        collision: true
+        collision: true,
+        zIndex: -14
       },
       {
         id: "office-r1-c8-8-copy-murluu2e-2",
@@ -12662,7 +12663,8 @@ const scenes = [
           sw: 48,
           sh: 48
         },
-        collision: true
+        collision: true,
+        zIndex: -14
       },
       {
         id: "office-r1-c7-9-copy-murluu2e-3",
@@ -12681,7 +12683,8 @@ const scenes = [
           sw: 48,
           sh: 48
         },
-        collision: true
+        collision: true,
+        zIndex: -14
       },
       {
         id: "office-r1-c9-7-copy-murlt6d2-1-copy-murluu2e-4",
@@ -12703,7 +12706,8 @@ const scenes = [
         spriteTransform: {
           flipY: true
         },
-        collision: true
+        collision: true,
+        zIndex: -14
       },
       {
         id: "office-r1-c8-8-copy-murlt6d2-2-copy-murluu2e-5",
@@ -12725,7 +12729,8 @@ const scenes = [
         spriteTransform: {
           flipY: true
         },
-        collision: true
+        collision: true,
+        zIndex: -14
       },
       {
         id: "office-r1-c7-9-copy-murlt6d2-3-copy-murluu2e-6",
@@ -12747,7 +12752,8 @@ const scenes = [
         spriteTransform: {
           flipY: true
         },
-        collision: true
+        collision: true,
+        zIndex: -14
       },
       {
         id: "sales-call-workstation-copy-murlwccf-2",
@@ -12788,9 +12794,9 @@ const scenes = [
         collision: true
       },
       {
-        id: "sales-deck-chair-copy-murlwccf-1-copy-murnj92e-1",
+        id: "sales-deck-chair-copy-murlwccf-1-copy-murnj92e-1-copy-muvdphjh-1",
         position: {
-          x: 7.5,
+          x: 7.75,
           y: 5.75
         },
         size: {
@@ -12804,7 +12810,8 @@ const scenes = [
           sw: 96,
           sh: 144
         },
-        collision: true
+        collision: true,
+        zIndex: 10
       }
     ]
   }
@@ -14655,12 +14662,7 @@ function moveWithinScene(state, nextPosition) {
   };
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
   const propBlocked = scene.props.some(
-    (prop) => prop.collision && pointInRect(bounded, {
-      x: prop.position.x,
-      y: prop.position.y,
-      width: prop.size.width,
-      height: prop.size.height
-    })
+    (prop) => prop.collision && pointInRect(bounded, getVisiblePropRect(prop))
   );
   const characterBlocked = characters.some((character) => {
     if (character.sceneId !== state.player.sceneId) {
@@ -14997,9 +14999,10 @@ function getNearbyInspectableProp(state) {
     if (!prop.description) {
       return false;
     }
+    const propBounds = getVisiblePropRect(prop);
     const center = {
-      x: prop.position.x + prop.size.width / 2,
-      y: prop.position.y + prop.size.height / 2
+      x: propBounds.x + propBounds.width / 2,
+      y: propBounds.y + propBounds.height / 2
     };
     const interactionDistance = prop.id === "mission-backpack" ? INTERACT_DISTANCE * 2.1 : prop.id === "lab-canvas-workstation" ? INTERACT_DISTANCE * 2.35 : INTERACT_DISTANCE;
     return distanceInPixels(state.player.position, center) < interactionDistance;
@@ -15014,6 +15017,28 @@ function getCurrentScene(state) {
 }
 function pointInRect(point, rect) {
   return point.x >= rect.x && point.x <= rect.x + rect.width && point.y >= rect.y && point.y <= rect.y + rect.height;
+}
+function getVisiblePropRect(prop) {
+  if (!prop.sprite) {
+    return {
+      height: prop.size.height,
+      width: prop.size.width,
+      x: prop.position.x,
+      y: prop.position.y
+    };
+  }
+  const scale = Math.min(
+    prop.size.width / prop.sprite.sw,
+    prop.size.height / prop.sprite.sh
+  );
+  const width = prop.sprite.sw * scale;
+  const height = prop.sprite.sh * scale;
+  return {
+    height,
+    width,
+    x: prop.position.x + (prop.size.width - width) / 2,
+    y: prop.position.y + (prop.size.height - height) / 2
+  };
 }
 function distanceInPixels(a, b) {
   const dx = (a.x - b.x) * TILE_SIZE;
@@ -18625,7 +18650,6 @@ function RoomLayoutEditor() {
     "Complete Starter Objects"
   );
   const [assetSearch, setAssetSearch] = reactExports.useState("");
-  const [showGamePreviewOrder, setShowGamePreviewOrder] = reactExports.useState(true);
   const [showWalkBlocks, setShowWalkBlocks] = reactExports.useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] = reactExports.useState(true);
   const [playerScaleReferencePosition, setPlayerScaleReferencePosition] = reactExports.useState({ x: 1.5, y: 9.8 });
@@ -18752,10 +18776,7 @@ function RoomLayoutEditor() {
   );
   const selectionResizeStartRef = reactExports.useRef(null);
   const groupOverlays = reactExports.useMemo(() => getGroupOverlays(items), [items]);
-  const renderedItems = reactExports.useMemo(
-    () => getRenderedEditorItems(items, showGamePreviewOrder),
-    [items, showGamePreviewOrder]
-  );
+  const renderedItems = reactExports.useMemo(() => getRenderedEditorItems(items), [items]);
   reactExports.useEffect(() => {
     window.localStorage.setItem(
       layoutEditorStorageKey,
@@ -19598,10 +19619,11 @@ function RoomLayoutEditor() {
     const minY = Math.min(box.start.y, box.end.y);
     const maxY = Math.max(box.start.y, box.end.y);
     const nextIds = items.filter((item) => {
-      const itemMinX = item.position.x * TILE_SIZE;
-      const itemMaxX = (item.position.x + item.size.width) * TILE_SIZE;
-      const itemMinY = item.position.y * TILE_SIZE;
-      const itemMaxY = (item.position.y + item.size.height) * TILE_SIZE;
+      const bounds = getItemVisibleBounds(item);
+      const itemMinX = bounds.position.x * TILE_SIZE;
+      const itemMaxX = (bounds.position.x + bounds.size.width) * TILE_SIZE;
+      const itemMinY = bounds.position.y * TILE_SIZE;
+      const itemMaxY = (bounds.position.y + bounds.size.height) * TILE_SIZE;
       return itemMinX <= maxX && itemMaxX >= minX && itemMinY <= maxY && itemMaxY >= minY;
     }).map((item) => item.id);
     setSelectedIds(nextIds);
@@ -19675,7 +19697,7 @@ function RoomLayoutEditor() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-help", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Recommended workflow" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start with a blank room, add only assets that are clear, save your layout, then copy the JSON back to Codex." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag copies, Ctrl+Shift+] brings selected objects to front, Ctrl+Shift+[ sends them to back, Space+drag pans the canvas, and dragging a corner keeps the resize ratio." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("small", { children: "Keys: arrows move, Ctrl+arrows resize, Alt+arrows crop position, Alt+Shift+arrows crop size, Delete removes, Ctrl+C copies, Ctrl+V pastes, Ctrl+X cuts, Ctrl+D duplicates, Ctrl+G groups, Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects a box, Ctrl+drag copies, Ctrl+Shift+] brings selected objects to front, Ctrl+Shift+[ sends them to back, Space+drag pans the canvas, and dragging a corner keeps the resize ratio. The canvas always previews the same stacking order used in the game." })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -19687,17 +19709,6 @@ function RoomLayoutEditor() {
             }
           ),
           "Show walk-block zones"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "input",
-            {
-              checked: showGamePreviewOrder,
-              type: "checkbox",
-              onChange: (event) => setShowGamePreviewOrder(event.target.checked)
-            }
-          ),
-          "Preview game stacking order"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "eq-layout-editor-checkbox", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -20901,6 +20912,13 @@ function DraggableItem({
 }) {
   const dragState = reactExports.useRef(null);
   const resizeState = reactExports.useRef(null);
+  const visibleFrame = getItemVisibleFrame(item);
+  const visibleFrameStyle = {
+    height: visibleFrame.size.height * TILE_SIZE,
+    left: visibleFrame.offset.x * TILE_SIZE,
+    top: visibleFrame.offset.y * TILE_SIZE,
+    width: visibleFrame.size.width * TILE_SIZE
+  };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
@@ -20959,6 +20977,65 @@ function DraggableItem({
             targetWidth: item.size.width * TILE_SIZE
           }
         ),
+        isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "span",
+          {
+            className: "eq-layout-editor-visible-bounds",
+            style: visibleFrameStyle,
+            children: showResizeHandles && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "span",
+              {
+                "aria-label": `Resize ${handle}`,
+                className: `eq-layout-editor-resize-handle is-${handle}`,
+                onPointerDown: (event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                  onSelect(event.ctrlKey || event.metaKey);
+                  resizeState.current = {
+                    handle,
+                    lastClientX: event.clientX,
+                    lastClientY: event.clientY,
+                    savedHistory: false
+                  };
+                },
+                onPointerMove: (event) => {
+                  const currentResize = resizeState.current;
+                  if (!currentResize || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+                    return;
+                  }
+                  const dx = snap(
+                    (event.clientX - currentResize.lastClientX) / TILE_SIZE
+                  );
+                  const dy = snap(
+                    (event.clientY - currentResize.lastClientY) / TILE_SIZE
+                  );
+                  if (dx === 0 && dy === 0) {
+                    return;
+                  }
+                  if (!currentResize.savedHistory) {
+                    onResizeStart();
+                    currentResize.savedHistory = true;
+                  }
+                  currentResize.lastClientX = event.clientX;
+                  currentResize.lastClientY = event.clientY;
+                  onResizeSelected(
+                    handle,
+                    dx,
+                    dy,
+                    isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey
+                  );
+                },
+                onPointerUp: (event) => {
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+                  resizeState.current = null;
+                },
+                role: "presentation"
+              },
+              handle
+            ))
+          }
+        ),
         item.label && !item.hideLabel && /* @__PURE__ */ jsxRuntimeExports.jsx(
           InlineEditableLabel,
           {
@@ -20969,59 +21046,7 @@ function DraggableItem({
             onCommit: onRenameLabel,
             onStartEdit: onStartLabelEdit
           }
-        ),
-        showResizeHandles && resizeHandles.map((handle) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "span",
-          {
-            "aria-label": `Resize ${handle}`,
-            className: `eq-layout-editor-resize-handle is-${handle}`,
-            onPointerDown: (event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              event.currentTarget.setPointerCapture(event.pointerId);
-              onSelect(event.ctrlKey || event.metaKey);
-              resizeState.current = {
-                handle,
-                lastClientX: event.clientX,
-                lastClientY: event.clientY,
-                savedHistory: false
-              };
-            },
-            onPointerMove: (event) => {
-              const currentResize = resizeState.current;
-              if (!currentResize || !event.currentTarget.hasPointerCapture(event.pointerId)) {
-                return;
-              }
-              const dx = snap(
-                (event.clientX - currentResize.lastClientX) / TILE_SIZE
-              );
-              const dy = snap(
-                (event.clientY - currentResize.lastClientY) / TILE_SIZE
-              );
-              if (dx === 0 && dy === 0) {
-                return;
-              }
-              if (!currentResize.savedHistory) {
-                onResizeStart();
-                currentResize.savedHistory = true;
-              }
-              currentResize.lastClientX = event.clientX;
-              currentResize.lastClientY = event.clientY;
-              onResizeSelected(
-                handle,
-                dx,
-                dy,
-                isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey
-              );
-            },
-            onPointerUp: (event) => {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-              resizeState.current = null;
-            },
-            role: "presentation"
-          },
-          handle
-        ))
+        )
       ]
     }
   );
@@ -21310,26 +21335,49 @@ function getDefaultSizeForItem(item) {
 function getEditorItemSortValue(item) {
   return (item.zIndex ?? 0) * 1e3 + item.position.y + item.size.height;
 }
-function getRenderedEditorItems(items, useGamePreviewOrder) {
-  if (!useGamePreviewOrder) {
-    return items;
-  }
+function getRenderedEditorItems(items) {
   return items.map((item, index2) => ({ index: index2, item })).sort((a, b) => {
     const sortDelta = getEditorItemSortValue(a.item) - getEditorItemSortValue(b.item);
     return sortDelta || a.index - b.index;
   }).map(({ item }) => item);
 }
+function getItemVisibleFrame(item) {
+  const scale = Math.min(
+    item.size.width / item.sprite.sw,
+    item.size.height / item.sprite.sh
+  );
+  const width = item.sprite.sw * scale;
+  const height = item.sprite.sh * scale;
+  return {
+    offset: {
+      x: (item.size.width - width) / 2,
+      y: (item.size.height - height) / 2
+    },
+    size: { height, width }
+  };
+}
+function getItemVisibleBounds(item) {
+  const frame = getItemVisibleFrame(item);
+  return {
+    position: {
+      x: item.position.x + frame.offset.x,
+      y: item.position.y + frame.offset.y
+    },
+    size: frame.size
+  };
+}
 function getItemsBounds(items) {
   if (items.length === 0) {
     return null;
   }
-  const minX = Math.min(...items.map((item) => item.position.x));
-  const minY = Math.min(...items.map((item) => item.position.y));
+  const visibleBounds = items.map((item) => getItemVisibleBounds(item));
+  const minX = Math.min(...visibleBounds.map((bounds) => bounds.position.x));
+  const minY = Math.min(...visibleBounds.map((bounds) => bounds.position.y));
   const maxX = Math.max(
-    ...items.map((item) => item.position.x + item.size.width)
+    ...visibleBounds.map((bounds) => bounds.position.x + bounds.size.width)
   );
   const maxY = Math.max(
-    ...items.map((item) => item.position.y + item.size.height)
+    ...visibleBounds.map((bounds) => bounds.position.y + bounds.size.height)
   );
   return {
     position: { x: minX, y: minY },

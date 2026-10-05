@@ -539,14 +539,7 @@ function moveWithinScene(
 
   const blocked = scene.blocks.some((block) => pointInRect(bounded, block));
   const propBlocked = scene.props.some(
-    (prop) =>
-      prop.collision &&
-      pointInRect(bounded, {
-        x: prop.position.x,
-        y: prop.position.y,
-        width: prop.size.width,
-        height: prop.size.height,
-      }),
+    (prop) => prop.collision && pointInRect(bounded, getVisiblePropRect(prop)),
   );
   const characterBlocked = characters.some((character) => {
     if (character.sceneId !== state.player.sceneId) {
@@ -939,9 +932,10 @@ function getNearbyInspectableProp(state: GameState) {
     if (!prop.description) {
       return false;
     }
+    const propBounds = getVisiblePropRect(prop);
     const center = {
-      x: prop.position.x + prop.size.width / 2,
-      y: prop.position.y + prop.size.height / 2,
+      x: propBounds.x + propBounds.width / 2,
+      y: propBounds.y + propBounds.height / 2,
     };
     const interactionDistance =
       prop.id === "mission-backpack"
@@ -970,6 +964,29 @@ function pointInRect(point: Position, rect: Rect) {
     point.y >= rect.y &&
     point.y <= rect.y + rect.height
   );
+}
+
+function getVisiblePropRect(prop: Scene["props"][number]): Rect {
+  if (!prop.sprite) {
+    return {
+      height: prop.size.height,
+      width: prop.size.width,
+      x: prop.position.x,
+      y: prop.position.y,
+    };
+  }
+  const scale = Math.min(
+    prop.size.width / prop.sprite.sw,
+    prop.size.height / prop.sprite.sh,
+  );
+  const width = prop.sprite.sw * scale;
+  const height = prop.sprite.sh * scale;
+  return {
+    height,
+    width,
+    x: prop.position.x + (prop.size.width - width) / 2,
+    y: prop.position.y + (prop.size.height - height) / 2,
+  };
 }
 
 function distanceInPixels(a: Position, b: Position) {

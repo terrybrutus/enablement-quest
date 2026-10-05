@@ -606,7 +606,7 @@
 
 .eq-layout-editor-item {
   background: transparent;
-  border: 2px solid transparent;
+  border: 0;
   cursor: grab;
   image-rendering: pixelated;
   overflow: visible;
@@ -615,8 +615,15 @@
 }
 
 .eq-layout-editor-item.is-selected {
-  border-color: #22d3ee;
+  z-index: 9;
+}
+
+.eq-layout-editor-visible-bounds {
+  border: 2px solid #22d3ee;
   box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.22);
+  pointer-events: none;
+  position: absolute;
+  z-index: 4;
 }
 
 .eq-layout-editor-bounds-box {

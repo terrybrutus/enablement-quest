@@ -1180,7 +1180,6 @@ export function RoomLayoutEditor() {
     "Complete Starter Objects",
   );
   const [assetSearch, setAssetSearch] = useState("");
-  const [showGamePreviewOrder, setShowGamePreviewOrder] = useState(true);
   const [showWalkBlocks, setShowWalkBlocks] = useState(false);
   const [showPlayerScaleReference, setShowPlayerScaleReference] =
     useState(true);
@@ -1333,10 +1332,7 @@ export function RoomLayoutEditor() {
     items: EditorItem[];
   } | null>(null);
   const groupOverlays = useMemo(() => getGroupOverlays(items), [items]);
-  const renderedItems = useMemo(
-    () => getRenderedEditorItems(items, showGamePreviewOrder),
-    [items, showGamePreviewOrder],
-  );
+  const renderedItems = useMemo(() => getRenderedEditorItems(items), [items]);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -2374,10 +2370,11 @@ export function RoomLayoutEditor() {
     const maxY = Math.max(box.start.y, box.end.y);
     const nextIds = items
       .filter((item) => {
-        const itemMinX = item.position.x * TILE_SIZE;
-        const itemMaxX = (item.position.x + item.size.width) * TILE_SIZE;
-        const itemMinY = item.position.y * TILE_SIZE;
-        const itemMaxY = (item.position.y + item.size.height) * TILE_SIZE;
+        const bounds = getItemVisibleBounds(item);
+        const itemMinX = bounds.position.x * TILE_SIZE;
+        const itemMaxX = (bounds.position.x + bounds.size.width) * TILE_SIZE;
+        const itemMinY = bounds.position.y * TILE_SIZE;
+        const itemMaxY = (bounds.position.y + bounds.size.height) * TILE_SIZE;
         return (
           itemMinX <= maxX &&
           itemMaxX >= minX &&
@@ -2476,7 +2473,8 @@ export function RoomLayoutEditor() {
               Ctrl+Shift+G ungroups. Ctrl+click multi-select, Shift+drag selects
               a box, Ctrl+drag copies, Ctrl+Shift+] brings selected objects to
               front, Ctrl+Shift+[ sends them to back, Space+drag pans the
-              canvas, and dragging a corner keeps the resize ratio.
+              canvas, and dragging a corner keeps the resize ratio. The canvas
+              always previews the same stacking order used in the game.
             </small>
           </div>
 
@@ -2487,17 +2485,6 @@ export function RoomLayoutEditor() {
               onChange={(event) => setShowWalkBlocks(event.target.checked)}
             />
             Show walk-block zones
-          </label>
-
-          <label className="eq-layout-editor-checkbox">
-            <input
-              checked={showGamePreviewOrder}
-              type="checkbox"
-              onChange={(event) =>
-                setShowGamePreviewOrder(event.target.checked)
-              }
-            />
-            Preview game stacking order
           </label>
 
           <label className="eq-layout-editor-checkbox">
@@ -3824,6 +3811,13 @@ function DraggableItem({
     lastClientY: number;
     savedHistory: boolean;
   } | null>(null);
+  const visibleFrame = getItemVisibleFrame(item);
+  const visibleFrameStyle: CSSProperties = {
+    height: visibleFrame.size.height * TILE_SIZE,
+    left: visibleFrame.offset.x * TILE_SIZE,
+    top: visibleFrame.offset.y * TILE_SIZE,
+    width: visibleFrame.size.width * TILE_SIZE,
+  };
 
   return (
     <div
@@ -3883,6 +3877,70 @@ function DraggableItem({
         targetHeight={item.size.height * TILE_SIZE}
         targetWidth={item.size.width * TILE_SIZE}
       />
+      {isSelected && (
+        <span
+          className="eq-layout-editor-visible-bounds"
+          style={visibleFrameStyle}
+        >
+          {showResizeHandles &&
+            resizeHandles.map((handle) => (
+              <span
+                aria-label={`Resize ${handle}`}
+                className={`eq-layout-editor-resize-handle is-${handle}`}
+                key={handle}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                  onSelect(event.ctrlKey || event.metaKey);
+                  resizeState.current = {
+                    handle,
+                    lastClientX: event.clientX,
+                    lastClientY: event.clientY,
+                    savedHistory: false,
+                  };
+                }}
+                onPointerMove={(event) => {
+                  const currentResize = resizeState.current;
+                  if (
+                    !currentResize ||
+                    !event.currentTarget.hasPointerCapture(event.pointerId)
+                  ) {
+                    return;
+                  }
+                  const dx = snap(
+                    (event.clientX - currentResize.lastClientX) / TILE_SIZE,
+                  );
+                  const dy = snap(
+                    (event.clientY - currentResize.lastClientY) / TILE_SIZE,
+                  );
+                  if (dx === 0 && dy === 0) {
+                    return;
+                  }
+                  if (!currentResize.savedHistory) {
+                    onResizeStart();
+                    currentResize.savedHistory = true;
+                  }
+                  currentResize.lastClientX = event.clientX;
+                  currentResize.lastClientY = event.clientY;
+                  onResizeSelected(
+                    handle,
+                    dx,
+                    dy,
+                    isCornerResizeHandle(handle) ||
+                      event.ctrlKey ||
+                      event.metaKey,
+                  );
+                }}
+                onPointerUp={(event) => {
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+                  resizeState.current = null;
+                }}
+                role="presentation"
+              />
+            ))}
+        </span>
+      )}
       {item.label && !item.hideLabel && (
         <InlineEditableLabel
           className="eq-layout-editor-item-label"
@@ -3893,61 +3951,6 @@ function DraggableItem({
           onStartEdit={onStartLabelEdit}
         />
       )}
-      {showResizeHandles &&
-        resizeHandles.map((handle) => (
-          <span
-            aria-label={`Resize ${handle}`}
-            className={`eq-layout-editor-resize-handle is-${handle}`}
-            key={handle}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              event.currentTarget.setPointerCapture(event.pointerId);
-              onSelect(event.ctrlKey || event.metaKey);
-              resizeState.current = {
-                handle,
-                lastClientX: event.clientX,
-                lastClientY: event.clientY,
-                savedHistory: false,
-              };
-            }}
-            onPointerMove={(event) => {
-              const currentResize = resizeState.current;
-              if (
-                !currentResize ||
-                !event.currentTarget.hasPointerCapture(event.pointerId)
-              ) {
-                return;
-              }
-              const dx = snap(
-                (event.clientX - currentResize.lastClientX) / TILE_SIZE,
-              );
-              const dy = snap(
-                (event.clientY - currentResize.lastClientY) / TILE_SIZE,
-              );
-              if (dx === 0 && dy === 0) {
-                return;
-              }
-              if (!currentResize.savedHistory) {
-                onResizeStart();
-                currentResize.savedHistory = true;
-              }
-              currentResize.lastClientX = event.clientX;
-              currentResize.lastClientY = event.clientY;
-              onResizeSelected(
-                handle,
-                dx,
-                dy,
-                isCornerResizeHandle(handle) || event.ctrlKey || event.metaKey,
-              );
-            }}
-            onPointerUp={(event) => {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-              resizeState.current = null;
-            }}
-            role="presentation"
-          />
-        ))}
     </div>
   );
 }
@@ -4311,13 +4314,7 @@ function getEditorItemSortValue(item: EditorItem) {
   return (item.zIndex ?? 0) * 1000 + item.position.y + item.size.height;
 }
 
-function getRenderedEditorItems(
-  items: EditorItem[],
-  useGamePreviewOrder: boolean,
-) {
-  if (!useGamePreviewOrder) {
-    return items;
-  }
+function getRenderedEditorItems(items: EditorItem[]) {
   return items
     .map((item, index) => ({ index, item }))
     .sort((a, b) => {
@@ -4328,17 +4325,45 @@ function getRenderedEditorItems(
     .map(({ item }) => item);
 }
 
+function getItemVisibleFrame(item: EditorItem) {
+  const scale = Math.min(
+    item.size.width / item.sprite.sw,
+    item.size.height / item.sprite.sh,
+  );
+  const width = item.sprite.sw * scale;
+  const height = item.sprite.sh * scale;
+  return {
+    offset: {
+      x: (item.size.width - width) / 2,
+      y: (item.size.height - height) / 2,
+    },
+    size: { height, width },
+  };
+}
+
+function getItemVisibleBounds(item: EditorItem) {
+  const frame = getItemVisibleFrame(item);
+  return {
+    position: {
+      x: item.position.x + frame.offset.x,
+      y: item.position.y + frame.offset.y,
+    },
+    size: frame.size,
+  };
+}
+
 function getItemsBounds(items: EditorItem[]) {
   if (items.length === 0) {
     return null;
   }
-  const minX = Math.min(...items.map((item) => item.position.x));
-  const minY = Math.min(...items.map((item) => item.position.y));
+  const visibleBounds = items.map((item) => getItemVisibleBounds(item));
+  const minX = Math.min(...visibleBounds.map((bounds) => bounds.position.x));
+  const minY = Math.min(...visibleBounds.map((bounds) => bounds.position.y));
   const maxX = Math.max(
-    ...items.map((item) => item.position.x + item.size.width),
+    ...visibleBounds.map((bounds) => bounds.position.x + bounds.size.width),
   );
   const maxY = Math.max(
-    ...items.map((item) => item.position.y + item.size.height),
+    ...visibleBounds.map((bounds) => bounds.position.y + bounds.size.height),
   );
   return {
     position: { x: minX, y: minY },

@@ -564,7 +564,7 @@ export const scenes: Scene[] = [
           height: 0.65,
           width: 1.2,
           x: 12.9,
-          y: 12.1,
+          y: 12.35,
         },
         targetSceneId: "hub",
         targetPosition: {
@@ -603,8 +603,8 @@ export const scenes: Scene[] = [
       {
         id: "sales-coaching-plant",
         position: {
-          x: 2.1,
-          y: 1.8,
+          x: 0.35,
+          y: 1.05,
         },
         size: {
           height: 2.2,
@@ -656,6 +656,7 @@ export const scenes: Scene[] = [
           sh: 48,
         },
         collision: true,
+        zIndex: -14,
       },
       {
         id: "office-r1-c8-8-copy-murluu2e-2",
@@ -675,6 +676,7 @@ export const scenes: Scene[] = [
           sh: 48,
         },
         collision: true,
+        zIndex: -14,
       },
       {
         id: "office-r1-c7-9-copy-murluu2e-3",
@@ -694,6 +696,7 @@ export const scenes: Scene[] = [
           sh: 48,
         },
         collision: true,
+        zIndex: -14,
       },
       {
         id: "office-r1-c9-7-copy-murlt6d2-1-copy-murluu2e-4",
@@ -716,6 +719,7 @@ export const scenes: Scene[] = [
           flipY: true,
         },
         collision: true,
+        zIndex: -14,
       },
       {
         id: "office-r1-c8-8-copy-murlt6d2-2-copy-murluu2e-5",
@@ -738,6 +742,7 @@ export const scenes: Scene[] = [
           flipY: true,
         },
         collision: true,
+        zIndex: -14,
       },
       {
         id: "office-r1-c7-9-copy-murlt6d2-3-copy-murluu2e-6",
@@ -760,6 +765,7 @@ export const scenes: Scene[] = [
           flipY: true,
         },
         collision: true,
+        zIndex: -14,
       },
       {
         id: "sales-call-workstation-copy-murlwccf-2",
@@ -800,9 +806,9 @@ export const scenes: Scene[] = [
         collision: true,
       },
       {
-        id: "sales-deck-chair-copy-murlwccf-1-copy-murnj92e-1",
+        id: "sales-deck-chair-copy-murlwccf-1-copy-murnj92e-1-copy-muvdphjh-1",
         position: {
-          x: 7.5,
+          x: 7.75,
           y: 5.75,
         },
         size: {
@@ -817,6 +823,7 @@ export const scenes: Scene[] = [
           sh: 144,
         },
         collision: true,
+        zIndex: 10,
       },
     ],
   },
