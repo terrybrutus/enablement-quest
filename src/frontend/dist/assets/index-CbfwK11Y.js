@@ -18766,6 +18766,7 @@ function RoomLayoutEditor() {
   const [contextMenu, setContextMenu] = reactExports.useState(
     null
   );
+  const [showLayersPanel, setShowLayersPanel] = reactExports.useState(true);
   const [spriteAlphaBounds, setSpriteAlphaBounds] = reactExports.useState({});
   const clipboardRef = reactExports.useRef(null);
   const stageViewportRef = reactExports.useRef(null);
@@ -18785,6 +18786,10 @@ function RoomLayoutEditor() {
     [items, spriteAlphaBounds]
   );
   const renderedItems = reactExports.useMemo(() => getRenderedEditorItems(items), [items]);
+  const layerItems = reactExports.useMemo(
+    () => [...renderedItems].reverse(),
+    [renderedItems]
+  );
   reactExports.useEffect(() => {
     window.localStorage.setItem(
       layoutEditorStorageKey,
@@ -19808,6 +19813,14 @@ function RoomLayoutEditor() {
           )
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              onClick: () => setShowLayersPanel((visible) => !visible),
+              children: showLayersPanel ? "Hide layers panel" : "Show layers panel"
+            }
+          ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: clearRoomLayout, children: "Start blank room" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: loadCurrentRoomLayout, children: "Load current game layout" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: addWalkBlock, children: "Add walk block" }),
@@ -20159,6 +20172,59 @@ function RoomLayoutEditor() {
         )
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "eq-layout-editor-inspector", children: [
+        showLayersPanel && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-layers-panel", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-layers-header", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Layers" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Front to back, exactly like the game renders it." })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", onClick: () => setShowLayersPanel(false), children: "Hide" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-layer-actions", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                disabled: selectedIds.length === 0,
+                type: "button",
+                onClick: () => arrangeSelectedItems("front"),
+                children: "Bring front"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "button",
+              {
+                disabled: selectedIds.length === 0,
+                type: "button",
+                onClick: () => arrangeSelectedItems("back"),
+                children: "Send back"
+              }
+            )
+          ] }),
+          layerItems.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-layer-list", children: layerItems.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: selectedIds.includes(item.id) ? "is-active" : "",
+              type: "button",
+              onClick: (event) => selectItem(item.id, event.ctrlKey || event.metaKey),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eq-layout-editor-layer-rank", children: index2 === 0 ? "Front" : index2 + 1 }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(SpritePreview, { sprite: item.sprite }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: item.label || item.id }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs("small", { children: [
+                    "Layer ",
+                    item.zIndex ?? 0,
+                    " | y",
+                    " ",
+                    roundPosition(item.position).y
+                  ] }),
+                  item.groupLabel ? /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: item.groupLabel }) : null
+                ] })
+              ]
+            },
+            item.id
+          )) }) : /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "eq-layout-editor-empty", children: "No layers yet. Add objects to see their stack order." })
+        ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Objects In This Room" }),
         items.length > 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "eq-layout-editor-object-list", children: items.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "button",

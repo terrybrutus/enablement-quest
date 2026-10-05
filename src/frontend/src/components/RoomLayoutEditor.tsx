@@ -1329,6 +1329,7 @@ export function RoomLayoutEditor() {
   const [contextMenu, setContextMenu] = useState<EditorContextMenu | null>(
     null,
   );
+  const [showLayersPanel, setShowLayersPanel] = useState(true);
   const [spriteAlphaBounds, setSpriteAlphaBounds] = useState<
     Record<string, SpriteAlphaBounds>
   >({});
@@ -1363,6 +1364,10 @@ export function RoomLayoutEditor() {
     [items, spriteAlphaBounds],
   );
   const renderedItems = useMemo(() => getRenderedEditorItems(items), [items]);
+  const layerItems = useMemo(
+    () => [...renderedItems].reverse(),
+    [renderedItems],
+  );
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -2616,6 +2621,12 @@ export function RoomLayoutEditor() {
           </label>
 
           <div className="eq-layout-editor-actions">
+            <button
+              type="button"
+              onClick={() => setShowLayersPanel((visible) => !visible)}
+            >
+              {showLayersPanel ? "Hide layers panel" : "Show layers panel"}
+            </button>
             <button type="button" onClick={clearRoomLayout}>
               Start blank room
             </button>
@@ -3008,6 +3019,69 @@ export function RoomLayoutEditor() {
         </section>
 
         <aside className="eq-layout-editor-inspector">
+          {showLayersPanel && (
+            <div className="eq-layout-editor-layers-panel">
+              <div className="eq-layout-editor-layers-header">
+                <div>
+                  <h2>Layers</h2>
+                  <span>Front to back, exactly like the game renders it.</span>
+                </div>
+                <button type="button" onClick={() => setShowLayersPanel(false)}>
+                  Hide
+                </button>
+              </div>
+              <div className="eq-layout-editor-layer-actions">
+                <button
+                  disabled={selectedIds.length === 0}
+                  type="button"
+                  onClick={() => arrangeSelectedItems("front")}
+                >
+                  Bring front
+                </button>
+                <button
+                  disabled={selectedIds.length === 0}
+                  type="button"
+                  onClick={() => arrangeSelectedItems("back")}
+                >
+                  Send back
+                </button>
+              </div>
+              {layerItems.length > 0 ? (
+                <div className="eq-layout-editor-layer-list">
+                  {layerItems.map((item, index) => (
+                    <button
+                      className={
+                        selectedIds.includes(item.id) ? "is-active" : ""
+                      }
+                      key={item.id}
+                      type="button"
+                      onClick={(event) =>
+                        selectItem(item.id, event.ctrlKey || event.metaKey)
+                      }
+                    >
+                      <span className="eq-layout-editor-layer-rank">
+                        {index === 0 ? "Front" : index + 1}
+                      </span>
+                      <SpritePreview sprite={item.sprite} />
+                      <span>
+                        <strong>{item.label || item.id}</strong>
+                        <small>
+                          Layer {item.zIndex ?? 0} | y{" "}
+                          {roundPosition(item.position).y}
+                        </small>
+                        {item.groupLabel ? <em>{item.groupLabel}</em> : null}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="eq-layout-editor-empty">
+                  No layers yet. Add objects to see their stack order.
+                </p>
+              )}
+            </div>
+          )}
+
           <h2>Objects In This Room</h2>
           {items.length > 0 ? (
             <div className="eq-layout-editor-object-list">
