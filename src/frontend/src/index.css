@@ -820,6 +820,11 @@
   position: relative;
 }
 
+.eq-layout-editor-sprite.is-fill {
+  background-color: transparent;
+  border-radius: 0;
+}
+
 .eq-layout-editor-fields {
   display: grid;
   gap: 10px;
@@ -941,7 +946,6 @@
   color: #e5edf7;
   display: grid;
   gap: 10px;
-  max-height: min(620px, calc(100vh - 24px));
   overflow: auto;
   padding: 12px;
   position: fixed;

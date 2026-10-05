@@ -21276,16 +21276,36 @@ function ObjectContextMenu({
   x,
   y
 }) {
+  const menuRef = reactExports.useRef(null);
+  const [position, setPosition] = reactExports.useState(
+    () => getContextMenuPosition(x, y)
+  );
+  reactExports.useLayoutEffect(() => {
+    const menu = menuRef.current;
+    if (!menu) {
+      setPosition(getContextMenuPosition(x, y));
+      return;
+    }
+    setPosition(
+      getContextMenuPosition(x, y, {
+        height: menu.offsetHeight,
+        width: menu.offsetWidth
+      })
+    );
+  }, [x, y]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     "div",
     {
       className: "eq-layout-editor-context-menu",
+      ref: menuRef,
       style: {
-        left: `min(${x}px, calc(100vw - 380px))`,
-        top: `min(${y}px, calc(100vh - 620px))`
+        left: position.left,
+        maxHeight: position.maxHeight,
+        top: position.top
       },
       onContextMenu: (event) => event.preventDefault(),
       onPointerDown: (event) => event.stopPropagation(),
+      onWheel: (event) => event.stopPropagation(),
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "eq-layout-editor-context-header", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
@@ -21565,7 +21585,7 @@ function SpritePreview({
   return /* @__PURE__ */ jsxRuntimeExports.jsx(
     "span",
     {
-      className: "eq-layout-editor-sprite",
+      className: `eq-layout-editor-sprite ${fill ? "is-fill" : ""}`,
       style: {
         backgroundImage: `url(${source.url})`,
         backgroundPosition: `${offsetX - sprite.sx * scale}px ${offsetY - sprite.sy * scale}px`,
@@ -21694,6 +21714,33 @@ function getItemsBounds(items) {
     position: { x: minX, y: minY },
     size: { height: maxY - minY, width: maxX - minX }
   };
+}
+function getContextMenuPosition(x, y, size = { height: 560, width: 360 }) {
+  const padding = 12;
+  const gap = 8;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const safeWidth = Math.min(size.width, viewportWidth - padding * 2);
+  const availableBelow = viewportHeight - y - padding - gap;
+  const availableAbove = y - padding - gap;
+  const opensUp = size.height > availableBelow && availableAbove > availableBelow;
+  const maxHeight = Math.max(
+    240,
+    Math.min(size.height, opensUp ? availableAbove : availableBelow)
+  );
+  const preferredLeft = x + gap + safeWidth <= viewportWidth - padding ? x + gap : x - safeWidth - gap;
+  const left = clamp(
+    preferredLeft,
+    padding,
+    Math.max(padding, viewportWidth - safeWidth - padding)
+  );
+  const preferredTop = opensUp ? y - maxHeight - gap : y + gap;
+  const top = clamp(
+    preferredTop,
+    padding,
+    Math.max(padding, viewportHeight - maxHeight - padding)
+  );
+  return { left, maxHeight, top };
 }
 function getGroupOverlays(items) {
   const itemsByGroup = /* @__PURE__ */ new Map();

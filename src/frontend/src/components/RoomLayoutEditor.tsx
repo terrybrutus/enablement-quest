@@ -9,7 +9,7 @@ import type {
   SpriteTransform,
 } from "@/game/types";
 import { TILE_SIZE } from "@/game/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { KeyboardEvent, PointerEvent } from "react";
 
@@ -101,6 +101,12 @@ interface EditorContextMenu {
   itemId: string;
   x: number;
   y: number;
+}
+
+interface ContextMenuPosition {
+  left: number;
+  maxHeight: number;
+  top: number;
 }
 
 type EditingLabel =
@@ -4248,15 +4254,37 @@ function ObjectContextMenu({
   x: number;
   y: number;
 }) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<ContextMenuPosition>(() =>
+    getContextMenuPosition(x, y),
+  );
+
+  useLayoutEffect(() => {
+    const menu = menuRef.current;
+    if (!menu) {
+      setPosition(getContextMenuPosition(x, y));
+      return;
+    }
+    setPosition(
+      getContextMenuPosition(x, y, {
+        height: menu.offsetHeight,
+        width: menu.offsetWidth,
+      }),
+    );
+  }, [x, y]);
+
   return (
     <div
       className="eq-layout-editor-context-menu"
+      ref={menuRef}
       style={{
-        left: `min(${x}px, calc(100vw - 380px))`,
-        top: `min(${y}px, calc(100vh - 620px))`,
+        left: position.left,
+        maxHeight: position.maxHeight,
+        top: position.top,
       }}
       onContextMenu={(event) => event.preventDefault()}
       onPointerDown={(event) => event.stopPropagation()}
+      onWheel={(event) => event.stopPropagation()}
     >
       <div className="eq-layout-editor-context-header">
         <div>
@@ -4567,7 +4595,7 @@ function SpritePreview({
   const offsetY = fill ? ((targetHeight ?? sprite.sh) - renderedHeight) / 2 : 0;
   return (
     <span
-      className="eq-layout-editor-sprite"
+      className={`eq-layout-editor-sprite ${fill ? "is-fill" : ""}`}
       style={{
         backgroundImage: `url(${source.url})`,
         backgroundPosition: `${offsetX - sprite.sx * scale}px ${
@@ -4728,6 +4756,42 @@ function getItemsBounds(items: EditorItem[]) {
     position: { x: minX, y: minY },
     size: { height: maxY - minY, width: maxX - minX },
   };
+}
+
+function getContextMenuPosition(
+  x: number,
+  y: number,
+  size = { height: 560, width: 360 },
+): ContextMenuPosition {
+  const padding = 12;
+  const gap = 8;
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const safeWidth = Math.min(size.width, viewportWidth - padding * 2);
+  const availableBelow = viewportHeight - y - padding - gap;
+  const availableAbove = y - padding - gap;
+  const opensUp =
+    size.height > availableBelow && availableAbove > availableBelow;
+  const maxHeight = Math.max(
+    240,
+    Math.min(size.height, opensUp ? availableAbove : availableBelow),
+  );
+  const preferredLeft =
+    x + gap + safeWidth <= viewportWidth - padding
+      ? x + gap
+      : x - safeWidth - gap;
+  const left = clamp(
+    preferredLeft,
+    padding,
+    Math.max(padding, viewportWidth - safeWidth - padding),
+  );
+  const preferredTop = opensUp ? y - maxHeight - gap : y + gap;
+  const top = clamp(
+    preferredTop,
+    padding,
+    Math.max(padding, viewportHeight - maxHeight - padding),
+  );
+  return { left, maxHeight, top };
 }
 
 function getGroupOverlays(items: EditorItem[]) {
