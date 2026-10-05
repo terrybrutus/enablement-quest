@@ -1426,11 +1426,9 @@ export function RoomLayoutEditor() {
     }
     window.addEventListener("pointerdown", closeContextMenu);
     window.addEventListener("resize", closeContextMenu);
-    window.addEventListener("scroll", closeContextMenu, true);
     return () => {
       window.removeEventListener("pointerdown", closeContextMenu);
       window.removeEventListener("resize", closeContextMenu);
-      window.removeEventListener("scroll", closeContextMenu, true);
     };
   }, [contextMenu]);
 

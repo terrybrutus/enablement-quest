@@ -947,8 +947,10 @@
   display: grid;
   gap: 10px;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: 12px;
   position: fixed;
+  scrollbar-gutter: stable;
   width: min(360px, calc(100vw - 24px));
   z-index: 80;
 }
